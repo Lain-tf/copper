@@ -1,0 +1,6 @@
+# Compiled Python bytecode
+*.py[cod]
+
+# Quake project stuff
+*.dat
+*.lno
