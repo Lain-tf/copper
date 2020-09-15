@@ -73,3 +73,7 @@ m_enforcer.qc	// registered
 m_oldone.qc		// registered
 
 test.qc
+
+//	Episode Jam stuff
+m_morph.qc
+m_boss_egypt.qc
