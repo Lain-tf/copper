@@ -46,9 +46,10 @@ $frame mfdth11 mfdth12 mfdth13 mfdth14 mfdth15
 $frame mfdth16 mfdth17 mfdth18 mfdth19 mfdth20
 $frame mfdth21 
 
-.float	childrenSpawned;
+$frame mfchrg01 mfchrg02 mfchrg03 mfchrg04 mfchrg05
+$frame mfchrg06 mfchrg07 mfchrg08 mfchrg09
 
-void() boss_egypt_teleport;
+.float	childrenSpawned;
 
 // ========================
 // standing
@@ -244,6 +245,73 @@ void() boss_egypt_fire =
 
 };
 
+// ============================
+// Charging - monster spawning
+// ============================
+
+void() prepare_for_charging=
+{
+	self.pain_finished = time + 2;
+	self.count = self.count + 1;
+	self.takedamage = DAMAGE_NO;
+	self.think = boss_egypt_charging_on01;
+	self.nextthink = time + 0.1;
+}
+
+float() check_monster_spawning = 
+{
+	if(self.health < 3500 && self.count == 0)
+	{
+		prepare_for_charging();
+		return TRUE;
+	}
+	else if(self.health < 2500 && self.count == 1)
+	{
+		prepare_for_charging();
+		return TRUE;
+	}
+	else if(self.health < 1500 && self.count == 2)
+	{
+		prepare_for_charging();
+		return TRUE;
+	}
+	else if(self.health < 500 && self.count == 3)
+	{
+		prepare_for_charging();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void() charge =
+{
+	self.think = spawn_wave;
+	self.nextthink = time + 2;
+}
+
+void() spawn_wave = 
+{
+	if(self.count == 1)
+	{
+		SUB_UseTargetsByField(target);
+	}
+	else if(self.count == 2)
+	{
+		SUB_UseTargetsByField(target2);
+	}
+	else if(self.count == 3)
+	{
+		SUB_UseTargetsByField(target3);
+	}
+	else if(self.count == 4)
+	{
+		SUB_UseTargetsByField(target4);
+	}
+	
+	self.think = boss_egypt_charging_off01;
+	self.nextthink = time + 1;
+}
+
 void() boss_egypt_fire1 = [ $mfata01, boss_egypt_fire2 ] {ai_face();};
 void() boss_egypt_fire2 = [ $mfata02, boss_egypt_fire3 ] {ai_face();};
 void() boss_egypt_fire3 = [ $mfata03, boss_egypt_fire4 ] {ai_face();};
@@ -253,6 +321,26 @@ void() boss_egypt_fire6 = [ $mfata06, boss_egypt_fire7 ] {ai_face();};
 void() boss_egypt_fire7 = [ $mfata07, boss_egypt_fire8 ] {ai_face();};
 void() boss_egypt_fire8 = [ $mfata08, boss_egypt_fire9] {ai_face();};
 void() boss_egypt_fire9 = [ $mfata09, boss_egypt_run1 ] {ai_face();};
+
+void() boss_egypt_charging_on01 = [ $mfchrg01, boss_egypt_charging_on02 ] {};
+void() boss_egypt_charging_on02 = [ $mfchrg02, boss_egypt_charging_on03 ] {};
+void() boss_egypt_charging_on03 = [ $mfchrg03, boss_egypt_charging_on04 ] {};
+void() boss_egypt_charging_on04 = [ $mfchrg04, boss_egypt_charging_on05 ] {};
+void() boss_egypt_charging_on05 = [ $mfchrg05, boss_egypt_charging_on06 ] {};
+void() boss_egypt_charging_on06 = [ $mfchrg06, boss_egypt_charging_on07 ] {};
+void() boss_egypt_charging_on07 = [ $mfchrg07, boss_egypt_charging_on08 ] {};
+void() boss_egypt_charging_on08 = [ $mfchrg08, boss_egypt_charging_on09 ] {charge();};
+void() boss_egypt_charging_on09 = [ $mfchrg09, boss_egypt_charging_on09 ] {};
+
+void() boss_egypt_charging_off01 = [ $mfchrg09, boss_egypt_charging_off02 ] {};
+void() boss_egypt_charging_off02 = [ $mfchrg08, boss_egypt_charging_off03 ] {};
+void() boss_egypt_charging_off03 = [ $mfchrg07, boss_egypt_charging_off04 ] {};
+void() boss_egypt_charging_off04 = [ $mfchrg06, boss_egypt_charging_off05 ] {};
+void() boss_egypt_charging_off05 = [ $mfchrg05, boss_egypt_charging_off06 ] {};
+void() boss_egypt_charging_off06 = [ $mfchrg04, boss_egypt_charging_off07 ] {};
+void() boss_egypt_charging_off07 = [ $mfchrg03, boss_egypt_charging_off08 ] {};
+void() boss_egypt_charging_off08 = [ $mfchrg02, boss_egypt_charging_off09 ] {};
+void() boss_egypt_charging_off09 = [ $mfchrg01, boss_egypt_run1 ] {self.takedamage = DAMAGE_AIM;};
 
 // ========================
 // pain
@@ -266,7 +354,7 @@ void() boss_egypt_painA6 = [ $mfpain06, boss_egypt_painA7 ] {};
 void() boss_egypt_painA7 = [ $mfpain07, boss_egypt_painA8 ] {};
 void() boss_egypt_painA8 = [ $mfpain08, boss_egypt_painA9 ] {};
 void() boss_egypt_painA9 = [ $mfpain09, boss_egypt_painA10 ] {};
-void() boss_egypt_painA10 = [ $mfpain10, boss_egypt_run1 ] {boss_egypt_teleport();};
+void() boss_egypt_painA10 = [ $mfpain10, boss_egypt_run1 ] {check_monster_spawning();};
 
 void() boss_egypt_painB1 = [ $mfpbin01, boss_egypt_painB2 ] {};
 void() boss_egypt_painB2 = [ $mfpbin02, boss_egypt_painB3 ] {};
@@ -274,30 +362,24 @@ void() boss_egypt_painB3 = [ $mfpbin03, boss_egypt_painB4 ] {};
 void() boss_egypt_painB4 = [ $mfpbin04, boss_egypt_painB5 ] {};
 void() boss_egypt_painB5 = [ $mfpbin05, boss_egypt_painB6 ] {};
 void() boss_egypt_painB6 = [ $mfpbin06, boss_egypt_painB7 ] {};
-void() boss_egypt_painB7 = [ $mfpbin07, boss_egypt_run1 ] {boss_egypt_teleport();};
+void() boss_egypt_painB7 = [ $mfpbin07, boss_egypt_run1 ] {check_monster_spawning();};
 
 void(entity attacker, float damage) boss_egypt_pain =
 {
-	local float painChoice;
-
-	if (skill == 3)
-	{
-		if (random() > 0.5)
-			boss_egypt_teleport();
-		return;
-	}
-	
 	if (self.pain_finished > time)
 		return;
-	if (random() > 0.25)
+	
+	if(check_monster_spawning())
 		return;
 	
-	painChoice = random();
+	if (random() > 0.10)
+		return;
+	
 	self.pain_finished = time + 2;
 
 	sound (self, CHAN_VOICE, "guard/pain1.wav", 1, ATTN_NORM );
 
-	if ( painChoice > 0.6)
+	if (random() > 0.6)
 		self.think = boss_egypt_painB1;
 	else
 		self.think = boss_egypt_painA1;
@@ -365,7 +447,6 @@ void() boss_egypt_wake14 = [ $start14, boss_egypt_wake15 ] {};
 void() boss_egypt_wake15 = [ $start15, boss_egypt_wake16 ] {};
 void() boss_egypt_wake16 = [ $start16, boss_egypt_wake17 ] {};
 void() boss_egypt_wake17 = [ $start17, boss_egypt_wake18 ] {self.skin = 1;};
-//void() boss_egypt_wake18 = [ $start18, boss_egypt_wake20 ] {};
 void() boss_egypt_wake18 = [ $start18, boss_egypt_wake19 ] {};
 void() boss_egypt_wake19 = [ $start19, boss_egypt_wake20 ] {};
 void() boss_egypt_wake20 = [ $start20, boss_egypt_wake21 ] {};
@@ -397,7 +478,6 @@ void() boss_egypt_wake31 = [ $start31, boss_egypt_stand1 ]
 	walkmonster_start();
 	
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	//walkmonster_start_go();
 };
 
 void(entity theMorph) boss_egypt_setup =
@@ -435,45 +515,14 @@ void(entity theMorph) boss_egypt_setup =
 	theMorph.frame = $start01;
 
 	theMorph.effects = theMorph.effects | EF_DIMLIGHT;
-	theMorph.health = 2000;
+	theMorph.health = 4000;
 
 	theMorph.skin = 3;
-	
-	//theMorph.spawnflags = theMorph.spawnflags | MORPH_EGYPT;
 	
 	temp_self = self;
 	self = theMorph;
 	boss_egypt_wake1();
 	self = temp_self;
-};
-
-void() boss_egypt_teleport =
-{
-	local entity    theDest;
-	local entity	theChild;
-	
-	if (self.childrenSpawned > (1+skill))
-		return;
-		
-    theDest = find_dest();
-    if (theDest == world)
-        return;
-	
-	theChild = spawn();
-	theChild.model = "progs/morph_eg.mdl";
-	theChild.angles = theDest.mangle;
-	theChild.owner = self;
-	theChild.enemy = self.enemy;
-	theChild.goalentity = self.goalentity;
-	theChild.mangle = theDest.mangle;
-	theChild.classname = "monster_morph";
-	theChild.spawnflags = theChild.spawnflags | MORPH_EGYPT;
-	morph_setup (theChild);
-	setorigin (theChild, theDest.origin);
-	droptofloor(0,0);
-
-	theChild.think = morph_wake1;
-	theChild.nextthink = time + 0.3;
 };
 
 void() monster_boss_egypt_spawn =
@@ -507,7 +556,7 @@ void() monster_boss_egypt =
 	precache_sound2 ("guard/pain1.wav");
 	precache_sound2 ("guard/see1.wav");
 	
-	self.health = 2000;
+	self.health = 4000;
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
 	if ( monster_spawnsetup( monster_boss_egypt_spawner ) ) return;
