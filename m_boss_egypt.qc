@@ -217,6 +217,38 @@ void() boss_egypt_attack =
 		boss_egypt_knockback01();
 };
 
+void(vector org, vector dir) boss_egypt_missile =
+{
+	entity 	missile;
+	//vector	dir;
+
+	self.effects = self.effects | EF_MUZZLEFLASH;
+	sound (self, CHAN_WEAPON, "shalrath/attack2.wav", 1, ATTN_NORM);
+	makevectors(self.angles);
+	
+	//dir = (enemy_vispos() + '0 0 10') - self.origin + enemy_aim_vertical();
+	//dir = normalize(dir);
+	
+	// if player has strafed around behind, don't lob the missile out of our ass
+	if (angledif(self.ideal_yaw, self.angles_y) > 80)
+	{
+		dir_x = v_forward_x;
+		dir_y = v_forward_y;
+		dir = normalize(dir);
+	}
+	
+	missile = launch_projectile(org, dir * SHAL_BALL_VEL, "voreball");
+
+	SUB_ChangeModel (missile, "progs/v_spike.mdl");
+
+	missile.avelocity = '300 300 300';
+	missile.nextthink = time + 0.1;
+	missile.think = ShalHome;
+	missile.enemy = self.enemy;
+	missile.touch = ShalMissileTouch;
+	missile.lifetime_finished = time + 30;	 // blow up after a while
+}
+
 // ========================
 // ranged attack
 // ========================
@@ -231,7 +263,9 @@ void() boss_egypt_fire =
 	makevectors (self.angles);
 	org = self.origin + v_forward * 62 + v_right * 18 + '0 0 37';
 	dir = normalize ( self.enemy.origin - org);
-	launch_laser(org, dir * 600);
+	
+	boss_egypt_missile(org,dir);
+	
 	if ( vlen (self.enemy.origin - self.origin) > 400 )
 	{
 		launch_laser(org, (dir + v_right * 0.04) * 600);
@@ -549,12 +583,14 @@ void() monster_boss_egypt =
 	precache_model ("progs/boss_egypt.mdl");
 	precache_model ("progs/morph_eg.mdl");
 	
+	precache_model2 ("progs/v_spike.mdl");
 	precache_model2 ("progs/laser.mdl");
 	precache_sound2 ("enforcer/enfire.wav");
 	precache_sound2 ("enforcer/enfstop.wav");
 	precache_sound2 ("guard/death.wav");
 	precache_sound2 ("guard/pain1.wav");
 	precache_sound2 ("guard/see1.wav");
+	precache_sound2 ("shalrath/attack2.wav");
 	
 	self.health = 4000;
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
