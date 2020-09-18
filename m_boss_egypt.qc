@@ -293,19 +293,19 @@ void() spawn_wave =
 {
 	if(self.count == 1)
 	{
-		SUB_UseTargetsByField(target);
+		SUB_UseTargets();
 	}
 	else if(self.count == 2)
 	{
-		SUB_UseTargetsByField(target2);
+		SUB_UseTargets();
 	}
 	else if(self.count == 3)
 	{
-		SUB_UseTargetsByField(target3);
+		SUB_UseTargets();
 	}
 	else if(self.count == 4)
 	{
-		SUB_UseTargetsByField(target4);
+		SUB_UseTargets();
 	}
 	
 	self.think = boss_egypt_charging_off01;
