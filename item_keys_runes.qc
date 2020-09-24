@@ -208,6 +208,8 @@ string() key_sound =
 		return "misc/runekey.wav";
 	if (world.worldtype == 2)
 		return "misc/basekey.wav";
+	if (world.worldtype == 3)
+		return "misc/scarabkey.wav";
 
 	return "misc/medkey.wav";
 }
@@ -258,6 +260,13 @@ void() item_key1 =
 		setmodel (self, "progs/b_s_key.mdl");
 		self.netname = "silver keycard";
 	}
+	else if (world.worldtype == 3)
+	{
+		precache_model ("progs/scarab_key.mdl");
+		setmodel (self, "progs/scarab_key.mdl");
+		self.netname = "silver scarab key";
+		self.skin = 0;
+	}
 	key_setsounds();
 	self.touch = key_touch;
 	self.items = IT_KEY1;
@@ -298,11 +307,18 @@ void() item_key2 =
 		self.netname = "gold runekey";
 		self.skin = 1;
 	}
-	if (world.worldtype == 2)
+	else if (world.worldtype == 2)
 	{
 		precache_model2 ("progs/b_g_key.mdl");
 		setmodel (self, "progs/b_g_key.mdl");
 		self.netname = "gold keycard";
+	}
+	else if (world.worldtype == 3)
+	{
+		precache_model ("progs/scarab_key.mdl");
+		setmodel (self, "progs/scarab_key.mdl");
+		self.netname = "gold scarab key";
+		self.skin = 1;
 	}
 	key_setsounds();
 	self.touch = key_touch;
@@ -406,7 +422,7 @@ void() item_sigil =
 	{
 		precache_model_safe ("progs/end1.mdl");
 		setmodel (self, "progs/end1.mdl");
-		msg = "You got the rune\n of Earth Magic!";
+		msg = "You got the\n Ankh of Life!";
 		self.svflags = 1;
 	}
 	else

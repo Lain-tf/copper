@@ -470,7 +470,9 @@ void() door_key_init =
 	{
 		if (self.items & IT_KEY1)
 		{
-			if (world.worldtype == 2)
+			if (world.worldtype == 3)
+				self.message = "You need the silver scarab key";
+			else if (world.worldtype == 2)
 				self.message = "You need the silver keycard";
 			else if (world.worldtype == 1)
 				self.message = "You need the silver runekey";
@@ -479,10 +481,12 @@ void() door_key_init =
 		}
 		else if (self.items & IT_KEY2)
 		{
-			if (world.worldtype == 2)
+			if (world.worldtype == 3)
+				self.message = "You need the gold scarab key";	
+			else if (world.worldtype == 2)
 				self.message = "You need the gold keycard";
 			else if (world.worldtype == 1)
-				self.message = "You need the gold runekey";			
+				self.message = "You need the gold runekey";
 			else if (world.worldtype == 0)
 				self.message = "You need the gold key";
 		}
@@ -516,6 +520,11 @@ void() door_sounds_init =
 	{
 		door_set_sound(noise3, "doors/basetry.wav");
 		door_set_sound(noise4, "doors/baseuse.wav");
+	}
+	else if (world.worldtype == 3)
+	{
+		door_set_sound(noise3, "doors/egypttry.wav");
+		door_set_sound(noise4, "doors/egyptuse.wav");
 	}
 	else
 	{

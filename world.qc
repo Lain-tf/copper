@@ -164,6 +164,7 @@ Keys:
     0 = medieval
     1 = metal
     2 = base
+	3 = egypt
 "gravity" how fast your dreams come crashing down
 
 "_sunlight" "#"
@@ -184,6 +185,7 @@ Keys:
 		0 : "Medieval"
 		1 : "Metal (runic)"
 		2 : "Base"
+		3 : "Egypt"
 	]
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
