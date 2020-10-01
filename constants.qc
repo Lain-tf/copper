@@ -2,7 +2,7 @@
 // constants
 //================================================
 
-string version = "Copper Quake 1.12 - 15 September 2020\n";
+string version = "Dwell 1.00 - 1st October 2020\n";
 
 float	FALSE					= 0;
 float 	TRUE					= 1;
