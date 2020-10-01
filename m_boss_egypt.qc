@@ -101,7 +101,7 @@ void() boss_egypt_stab2 =
 
 	ai_face();
 
-	dir = self.enemy.origin - self.origin + self.enemy.view_ofs;
+	dir = self.enemy.origin - self.origin;
 	dist = vlen ( dir );
 	dir = normalize ( dir );
 	makevectors (self.angles);
@@ -116,7 +116,7 @@ void() boss_egypt_stab2 =
 	else
 	{
 		self.effects = self.effects | EF_MUZZLEFLASH;
-		org = self.origin + v_forward * 80 + v_right * 4 + '0 0 4';
+		org = self.origin + v_forward * 107 + v_right * 0 + '0 0 30';
 		launch_laser(org, dir * 600);
 		if ( dist )
 		{
@@ -128,7 +128,10 @@ void() boss_egypt_stab2 =
 			launch_laser(org, (dir + v_right * 0.10) * 600);
 			launch_laser(org, (dir - v_right * 0.10) * 600);	
 		}
-	}	
+	}
+	makevectors (self.angles);
+	self.enemy.velocity = v_forward * 200 + '0 0 200';
+	self.enemy.flags =  not(self.enemy.flags, FL_ONGROUND);
 };
 
 // ========================
@@ -180,25 +183,26 @@ void() boss_egypt_smack =
 
 	delta = self.enemy.origin - self.origin;
 
-	if (vlen(delta) > 100)
+	if (vlen(delta) > 128)
 		return;
 		
     ldmg = (random() * 10) + 10;
 	T_Damage (self.enemy, self, self, ldmg);
 	
 	makevectors (self.angles);
-	self.enemy.velocity = v_forward * 100 + '0 0 100';
+	self.enemy.velocity = v_forward * 400 + '0 0 400';
+	self.enemy.flags =  not(self.enemy.flags, FL_ONGROUND);
 };
 
 void() boss_egypt_knockback01 = [ $mfknck01, boss_egypt_knockback02 ] { ai_face(); };
 void() boss_egypt_knockback02 = [ $mfknck02, boss_egypt_knockback03 ] { ai_face(); };
 void() boss_egypt_knockback03 = [ $mfknck03, boss_egypt_knockback04 ] { ai_face(); };
-void() boss_egypt_knockback04 = [ $mfknck04, boss_egypt_knockback05 ] { ai_face(); };
+void() boss_egypt_knockback04 = [ $mfknck04, boss_egypt_knockback05 ] { boss_egypt_smack();};
 void() boss_egypt_knockback05 = [ $mfknck05, boss_egypt_knockback06 ] { ai_face(); };
 void() boss_egypt_knockback06 = [ $mfknck06, boss_egypt_knockback07 ] { ai_face(); };
 void() boss_egypt_knockback07 = [ $mfknck07, boss_egypt_knockback08 ] { ai_face(); };
 void() boss_egypt_knockback08 = [ $mfknck08, boss_egypt_knockback09 ] { ai_face(); };
-void() boss_egypt_knockback09 = [ $mfknck09, boss_egypt_knockback10 ] { boss_egypt_smack(); };
+void() boss_egypt_knockback09 = [ $mfknck09, boss_egypt_knockback10 ] { ai_face(); };
 void() boss_egypt_knockback10 = [ $mfknck10, boss_egypt_knockback11 ] { ai_face(); };
 void() boss_egypt_knockback11 = [ $mfknck11, boss_egypt_knockback12 ] { ai_face(); };
 void() boss_egypt_knockback12 = [ $mfknck12, boss_egypt_run1        ] { ai_face(); };
@@ -261,7 +265,7 @@ void() boss_egypt_fire =
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	
 	makevectors (self.angles);
-	org = self.origin + v_forward * 62 + v_right * 18 + '0 0 37';
+	org = self.origin + v_forward * 69 + v_right * 20 + '0 0 39';
 	dir = normalize ( self.enemy.origin - org);
 	
 	boss_egypt_missile(org,dir);
@@ -294,22 +298,22 @@ void() prepare_for_charging=
 
 float() check_monster_spawning = 
 {
-	if(self.health < 3500 && self.count == 0)
+	if(self.health < 5800 && self.count == 0)
 	{
 		prepare_for_charging();
 		return TRUE;
 	}
-	else if(self.health < 2500 && self.count == 1)
+	else if(self.health < 4600 && self.count == 1)
 	{
 		prepare_for_charging();
 		return TRUE;
 	}
-	else if(self.health < 1500 && self.count == 2)
+	else if(self.health < 3400 && self.count == 2)
 	{
 		prepare_for_charging();
 		return TRUE;
 	}
-	else if(self.health < 500 && self.count == 3)
+	else if(self.health < 2200 && self.count == 3)
 	{
 		prepare_for_charging();
 		return TRUE;
@@ -317,10 +321,40 @@ float() check_monster_spawning =
 	return FALSE;
 }
 
-void() charge =
+void() boss_egypt_emit_lightning =
 {
+	if(self.lip < 10)
+	{
+		LightningBeam (self.origin, self.origin + '0 0 2000', self, 0);
+		self.think = boss_egypt_emit_lightning;
+		self.lip++;
+	}
+	else
+	{
+		remove(self);
+	}
+	self.nextthink = time + 0.2;
+}
+
+void() boss_egypt_lightning_emitter =
+{
+	entity lightning_ent;
+	lightning_ent = spawn();
+	lightning_ent.owner = self;
+	lightning_ent.classname = "boss_egypt_lightning_emitter";
+	lightning_ent.solid = SOLID_NOT;
+	setsize (lightning_ent, VEC_ORIGIN, VEC_ORIGIN);
+	setorigin (lightning_ent, self.origin + '0 0 176');
+	
+	lightning_ent.think = boss_egypt_emit_lightning;
+	lightning_ent.nextthink = time + 0.2;
+}
+
+void() boss_egypt_charge =
+{
+	boss_egypt_lightning_emitter();
 	self.think = spawn_wave;
-	self.nextthink = time + 2;
+	self.nextthink = time + 3;
 }
 
 void() spawn_wave = 
@@ -342,8 +376,7 @@ void() spawn_wave =
 		SUB_UseTargets();
 	}
 	
-	self.think = boss_egypt_charging_off01;
-	self.nextthink = time + 1;
+	boss_egypt_charging_off01();
 }
 
 void() boss_egypt_fire1 = [ $mfata01, boss_egypt_fire2 ] {ai_face();};
@@ -363,8 +396,8 @@ void() boss_egypt_charging_on04 = [ $mfchrg04, boss_egypt_charging_on05 ] {};
 void() boss_egypt_charging_on05 = [ $mfchrg05, boss_egypt_charging_on06 ] {};
 void() boss_egypt_charging_on06 = [ $mfchrg06, boss_egypt_charging_on07 ] {};
 void() boss_egypt_charging_on07 = [ $mfchrg07, boss_egypt_charging_on08 ] {};
-void() boss_egypt_charging_on08 = [ $mfchrg08, boss_egypt_charging_on09 ] {charge();};
-void() boss_egypt_charging_on09 = [ $mfchrg09, boss_egypt_charging_on09 ] {};
+void() boss_egypt_charging_on08 = [ $mfchrg08, boss_egypt_charging_on09 ] {};
+void() boss_egypt_charging_on09 = [ $mfchrg09, boss_egypt_charging_on09 ] {boss_egypt_charge();};
 
 void() boss_egypt_charging_off01 = [ $mfchrg09, boss_egypt_charging_off02 ] {};
 void() boss_egypt_charging_off02 = [ $mfchrg08, boss_egypt_charging_off03 ] {};
@@ -498,7 +531,6 @@ void() boss_egypt_wake31 = [ $start31, boss_egypt_stand1 ]
 {
 	self.solid = SOLID_SLIDEBOX;
 	self.takedamage = DAMAGE_AIM;
-	//setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
 	self.th_stand = boss_egypt_stand1;
 	self.th_walk = boss_egypt_walk1;
@@ -514,13 +546,28 @@ void() boss_egypt_wake31 = [ $start31, boss_egypt_stand1 ]
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 };
 
+void() boss_egypt_try_to_wake =
+{
+	self.solid = SOLID_SLIDEBOX;
+	if (!walkmove (0, 0))
+	{
+		self.solid = SOLID_NOT;
+		self.think = boss_egypt_try_to_wake;
+		self.nextthink = time + 1;
+	}
+	else
+	{
+		self.effects = self.effects | EF_DIMLIGHT;
+		boss_egypt_wake1();
+	}
+}
+
 void(entity theMorph) boss_egypt_setup =
 {
 	local	entity	temp_self;
 	
-	self.classname = "monster_morph";
+	self.classname = "monster_boss_egypt";
 
-	theMorph.solid = SOLID_SLIDEBOX;
 	theMorph.movetype = MOVETYPE_STEP;
 	
 	self.model = "progs/boss_egypt.mdl";
@@ -538,24 +585,25 @@ void(entity theMorph) boss_egypt_setup =
 	theMorph.th_checkattack = CheckAttack;
 	
 	if (self.deathtype == string_null)
-		self.deathtype = "was crushed by a Guardian";
+		self.deathtype = "was crushed by the Guardian";
 	
 	theMorph.takedamage = DAMAGE_NO;
 	theMorph.flags = theMorph.flags | FL_MONSTER;
+	theMorph.type = "boss";
 	theMorph.ideal_yaw = theMorph.angles * '0 1 0';
 	if (!theMorph.yaw_speed)
 		theMorph.yaw_speed = 20;
 	theMorph.view_ofs = '0 0 25';
 	theMorph.frame = $start01;
 
-	theMorph.effects = theMorph.effects | EF_DIMLIGHT;
-	theMorph.health = 4000;
+	theMorph.health = 7000;
 
 	theMorph.skin = 3;
+	theMorph.lip = 0;
 	
 	temp_self = self;
 	self = theMorph;
-	boss_egypt_wake1();
+	boss_egypt_try_to_wake();
 	self = temp_self;
 };
 
@@ -592,7 +640,8 @@ void() monster_boss_egypt =
 	precache_sound2 ("guard/see1.wav");
 	precache_sound2 ("shalrath/attack2.wav");
 	
-	self.health = 4000;
+	self.health = 7000;
+	
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
 	if ( monster_spawnsetup( monster_boss_egypt_spawner ) ) return;

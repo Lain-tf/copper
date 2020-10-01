@@ -339,6 +339,9 @@ void( entity attacker ) T_ReactToDamage =
 	// fish should ignore monsters that aren't in the water with them
 	if (self.flags & FL_SWIM && pointcontents(attacker.origin) > CONTENT_WATER) return;
 	
+	//	Egyptian boss fights only with players
+	if(attacker.classname != "player" && self.classname == "monster_boss_egypt") return;
+	
 	// get mad unless of the same class (except for soldiers)
 	// classname check replaced with new "type" check
 	// .type defaults to classname anyway, or can be overwritten so monsters can be grouped into mutually not-infighting groups

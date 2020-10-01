@@ -441,8 +441,23 @@ void() morph_wake31 = [ $start31, morph_stand1 ]
 	
 	walkmonster_start();
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
-	//walkmonster_start_go();
 };
+
+void() morph_try_to_wake =
+{
+	self.solid = SOLID_SLIDEBOX;
+	if (!walkmove (0, 0))
+	{
+		self.solid = SOLID_NOT;
+		self.think = morph_try_to_wake;
+		self.nextthink = time + 1;
+	}
+	else
+	{
+		self.effects = self.effects | EF_DIMLIGHT;
+		morph_wake1();
+	}
+}
 
 void(entity theMorph) morph_setup =
 {
@@ -450,7 +465,6 @@ void(entity theMorph) morph_setup =
 	
 	theMorph.classname = "monster_morph";
 
-	theMorph.solid = SOLID_SLIDEBOX;
 	theMorph.movetype = MOVETYPE_STEP;
 	
 	if (theMorph.spawnflags & MORPH_AZTEC)		// Aztec
@@ -514,14 +528,17 @@ void(entity theMorph) morph_setup =
 	else
 	{
 		theMorph.effects = theMorph.effects | EF_DIMLIGHT;
-	    theMorph.health = 2000;
+		if(self.health <= 0)
+		{
+			theMorph.health = 2000;
+		}
 	}
 
 	theMorph.skin = 2;
 	
 	temp_self = self;
 	self = theMorph;
-	morph_wake1();
+	morph_try_to_wake();
 	self = temp_self;
 };
 
@@ -698,7 +715,10 @@ void() monster_morph =
 	precache_sound2 ("guard/pain1.wav");
 	precache_sound2 ("guard/see1.wav");
 	
-	self.health = 2000;
+	if(self.health <= 0)
+	{
+		self.health = 2000;
+	}
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
 	
 	if ( monster_spawnsetup( monster_morph_spawner ) ) return;
