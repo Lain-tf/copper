@@ -6,6 +6,8 @@
 =============================================================================
 */
 
+float SHOW_MESSAGE	=	8;
+
 void() GotoNextMap =
 {
 	if (cvar("samelevel"))	// if samelevel is set, stay on same level
@@ -32,6 +34,23 @@ void() ExitIntermission =
 	// end of episode drivel
 	if (intermission_running == 2)
 	{
+		if(selected_exit)
+		{
+			if(selected_exit.spawnflags & SHOW_MESSAGE && selected_exit.message != string_null)
+			{
+				if(selected_exit.style)
+				{
+					WriteByte (MSG_ALL, SVC_CDTRACK);
+					WriteByte (MSG_ALL, selected_exit.style);
+					WriteByte (MSG_ALL, 3);
+				}
+				
+				WriteByte (MSG_ALL, SVC_FINALE);
+				WriteString (MSG_ALL, selected_exit.message);
+				return;
+			}
+		}
+		
 		WriteByte (MSG_ALL, SVC_CDTRACK);
 		WriteByte (MSG_ALL, 2);
 		WriteByte (MSG_ALL, 3);
@@ -67,6 +86,7 @@ void() ExitIntermission =
 			WriteString (MSG_ALL, "Despite the awful might of the Elder\nWorld, you have achieved the Rune of\nElder Magic, capstone of all types of\narcane wisdom. Beyond good and evil,\nbeyond life and death, the Rune\npulsates, heavy with import. Patient and\npotent, the Elder Being Shub-Niggurath\nweaves her dire plans to clear off all\nlife from the Earth, and bring her own\nfoul offspring to our world! For all the\ndwellers in these nightmare dimensions\nare her descendants! Once all Runes of\nmagic power are united, the energy\nbehind them will blast open the Gateway\nto Shub-Niggurath, and you can travel\nthere to foil the Hell-Mother's plots\nin person.");
 			return;
 		}
+		
 		GotoNextMap();
 	}
 	
@@ -373,6 +393,7 @@ void() changelevel_do =
 	}
 	
 		nextmap = self.map;
+		selected_exit = self;
 	
 	if ( (self.spawnflags & 1) && (deathmatch == 0) )
 	{	// NO_INTERMISSION
