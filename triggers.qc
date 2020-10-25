@@ -581,9 +581,7 @@ void() target_secret_check =
 	w = find(world, target, self.targetname);
 	if (w)
 	{
-		if (w.type == "ammo" || 
-		//	( w.type == "armor" && w.classname != "item_armorpatch") || 
-			( w.type == "health" && !(w.spawnflags & 2)) )
+		if (w.type == "ammo" || w.type == "armor" || ( w.type == "health" && !(w.spawnflags & 2)) )
 			objerror("target_secret targeted by something the player might not be able to grab\n");
 	}
 }
@@ -1101,7 +1099,7 @@ void() trigger_monsterjump_touch =
 		
 		if (self.exclude == other.classname) return;	// always exclude this classname
 	}
-	if (self.spawnflags & SPAWN_MJUMP_ONLYBELOW && (other.enemy.absmin_z > (other.absmin_z + 16))) return;
+	if (self.spawnflags & SPAWN_MJUMP_ONLYBELOW && (other.enemy.absmin_z > (other.absmin_z - 16))) return;
 	if (self.spawnflags & SPAWN_MJUMP_ONLYFRONT)
 	{
 		dir = other.enemy.origin - other.origin;

@@ -391,7 +391,6 @@ Common monster starts
 
 void() monster_start =
 {
-	// 
 	if (self.oldorigin == VEC_ORIGIN)
 		self.oldorigin = self.origin;
 
@@ -422,10 +421,6 @@ void() monster_start_go =
 {
 	local entity pathgoal;
 	self.takedamage = DAMAGE_AIM;
-	
-	// fix monsters being stuck in floor because of QSS fix
-	if (self.oldorigin != VEC_ORIGIN)
-		setorigin(self,self.oldorigin);
 	
 	self.ideal_yaw = self.angles * '0 1 0';
 	self.use = monster_use;
@@ -496,6 +491,10 @@ Walkmonster starts
 void() walkmonster_start_go =
 {
 	self.movetype = MOVETYPE_STEP;
+	// fix monsters being stuck in floor because of QSS fix
+	if (self.oldorigin != VEC_ORIGIN)
+		setorigin(self,self.oldorigin);
+	
 	if (self.movedir == '0 0 0' && !(self.spawnflags & SPAWN_TRIGGERED) )	// always put telespawned monsters where the mapper wants
 	{
 		self.origin_z = self.origin_z + 1;	// raise off floor a bit
@@ -585,4 +584,113 @@ void() swimmonster_start =
 }
 
 
-// -
+/*
+================
+stuff for nomonsters 1
+monsters which fire targets on death can't just not be spawned or the map
+will break, so they become invisible eyes that fire their targets on sight
+================
+*/
+
+float() nomonster_findtarget =
+{
+	local entity	client;
+	local float		r;
+
+	if ( sight_entity_time >= time - 0.1 && ( !(self.spawnflags & SPAWN_AMBUSH ) ) )
+	{
+		client = sight_entity;
+		if (client.enemy == self.enemy)
+			return FALSE;
+	}
+	else
+	{
+		client = checkclient();
+		if (!client)
+			return FALSE;	// no check entities in PVS
+	}
+		
+	if (!FilterTarget(client))
+		return FALSE;		
+	
+	if (!visible (client))
+		return FALSE;
+
+	r = range(client);	
+	if (r == RANGE_TOOFAR)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void() nomonster_sleep =
+{
+	if (nomonster_findtarget())
+	{
+		sight_entity = self;
+		sight_entity_time = time;
+		self.show_hostile = time + 1;
+		SUB_UseTargets();
+		self.think = SUB_Remove;
+		//self.think = BecomeExplosion;
+	}
+	self.nextthink = time + 0.2;
+	//particle(self.origin, '0 0 0', 64, 16);
+}
+
+void() nomonster_find =
+{
+	self.think = nomonster_sleep;
+	self.nextthink = time + 0.2;
+	entity e;
+	e = findalltargets(self);
+	while (e)
+	{
+		if (e.classname != "path_corner")
+			return;
+		e = e.chain;
+	}
+	remove(self);
+}
+
+void() nomonster_go =
+{
+	// a nomonster still has to be a solid so that it can be teleported out of teleboxes
+	self.solid = SOLID_SLIDEBOX;
+	self.movetype = MOVETYPE_FLY;
+	setsize(self, VEC_HULL_MIN, VEC_HULL_MAX);
+	self.think = nomonster_find;
+	self.view_ofs = '0 0 25';
+	self.nextthink = time + 0.2 + random();
+}
+
+float() nomonster =
+{
+	if (cvar("nomonsters") == 0)
+		return FALSE;
+	
+	if (self.target == string_null &&
+		self.target2 == string_null &&
+		self.target3 == string_null &&
+		self.target4 == string_null &&
+		self.killtarget == string_null)
+	{
+		remove(self);
+		return TRUE;
+	}
+	
+	self.classname = "nomonster";
+	
+	// make teleports work:
+	self.health = 1;
+	self.flags += FL_MONSTER;
+	
+	if (self.targetname != string_null && self.spawnflags & SPAWN_TRIGGERED)
+		self.use = nomonster_go;
+	else
+		nomonster_go();
+	
+	return TRUE;
+}

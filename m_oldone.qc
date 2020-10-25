@@ -95,7 +95,7 @@ void() old_thrash18	=[	$shake18, old_thrash19	] {lightstyle(0, "j");
 	
 	if (world.model == "maps/end.bsp" && self.health <= 0)
 	{
-		if (self.strength)
+		if (self.strength > 0)
 		{
 			self.strength -= 1;
 			self.think = old_thrash1;
@@ -103,7 +103,7 @@ void() old_thrash18	=[	$shake18, old_thrash19	] {lightstyle(0, "j");
 		return;
 	}
 	
-	if (self.strength)
+	if (self.strength > 0)
 	{
 		lightstyle(0, "m");
 		self.think = old_idle1;
@@ -378,7 +378,7 @@ if the map is end.bsp, the finale cutscene will trigger, otherwise shub will jus
 void() monster_oldone =
 {
 	if (!SUB_ShouldSpawn()) return;
-	if (deathmatch || cvar("nomonsters") != 0)
+	if (deathmatch)
 	{
 		remove(self);
 		return;
