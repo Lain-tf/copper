@@ -129,6 +129,8 @@ vector() enemy_vispos =
 	// dogs can still smell the player
 	if (!has_invis(self.enemy) || self.classname == "monster_dog" )
 		return self.enemy.origin;
+	if ( time < self.dmgtime + 1 )	// shooting right at a monster gives you away for a moment
+		return self.enemy.origin;
 	
 	vector dir, visOrg;
 	float hadjust;
@@ -568,10 +570,19 @@ void() SightSound =
 
 void() FoundTarget =
 {
-	if (!enemy_alive())
+	while(!enemy_alive())
 	{
-		self.enemy = world;
-		return FALSE;
+		if (self.oldenemy)
+		{
+			self.enemy = self.oldenemy;
+			self.oldenemy = world;
+		}
+		else
+		{
+			self.enemy = world;
+			self.th_stand();
+			return;
+		}
 	}
 	
 	if (self.enemy.classname == "player")

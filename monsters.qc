@@ -19,7 +19,8 @@ All things spawning and initializing
 		64 : "Don't Spawn If Would Telefrag" : 0
 		128 : "Spawn Angry" : 0
 	]
-	movedir(string) : "Auto jump velocity on awaken"
+	movedir(string) : "Auto jump velocity on spawn/awaken"
+	rmovedir(string) : "Angle-relative auto jump velocity on spawn/awaken"
 	count(integer) : "Number of times to spawn if triggered (-1 for infinite)"
 	wait(string) : "Pause before spawning if triggered" : "0"
 	rand(string) : "Random extra before spawning if triggered" : "0"
@@ -247,6 +248,7 @@ entity( void() spawnthink ) mon_spawner_use =
 	mon.nextthink = time + pause;
 	mon.spawnflags = self.spawnflags;
 	mon.movedir = self.movedir;
+	mon.rmovedir = self.rmovedir;
 	mon.lip = self.lip;
 	mon.state = self.state;
 	mon.alpha = self.alpha;
@@ -393,7 +395,13 @@ void() monster_start =
 {
 	if (self.oldorigin == VEC_ORIGIN)
 		self.oldorigin = self.origin;
-
+	
+	if (self.rmovedir != VEC_ORIGIN)
+	{
+		makevectors(self.angles);
+		self.movedir = v_forward * self.rmovedir_x + v_right * self.rmovedir_y + v_up * self.rmovedir_z;
+	}
+		
 	// moved from mon_spawner_use because it was too early to catch the monster's mins and maxs
 	spawn_tdeath(self.origin, self);
 
@@ -495,7 +503,14 @@ void() walkmonster_start_go =
 	if (self.oldorigin != VEC_ORIGIN)
 		setorigin(self,self.oldorigin);
 	
-	if (self.movedir == '0 0 0' && !(self.spawnflags & SPAWN_TRIGGERED) )	// always put telespawned monsters where the mapper wants
+	if (self.rmovedir != VEC_ORIGIN)
+	{
+		makevectors(self.angles);
+		self.movedir = v_forward * self.rmovedir_x + v_right * self.rmovedir_y + v_up * self.rmovedir_z;
+		self.rmovedir = VEC_ORIGIN;
+	}
+	
+	if (self.movedir == VEC_ORIGIN && !(self.spawnflags & SPAWN_TRIGGERED) )	// always put telespawned monsters where the mapper wants
 	{
 		self.origin_z = self.origin_z + 1;	// raise off floor a bit
 		droptofloor(0,0);
@@ -512,6 +527,11 @@ void() walkmonster_start_go =
 		self.yaw_speed = 20;
 	self.view_ofs = '0 0 25';
 	
+	if (self.spawnflags & SPAWN_TRIGGERED && self.movedir != VEC_ORIGIN)
+	{
+		self.velocity = self.movedir;
+		self.movedir = VEC_ORIGIN;
+	}
 	
 	monster_start_go();
 }
@@ -645,13 +665,48 @@ void() nomonster_find =
 	self.think = nomonster_sleep;
 	self.nextthink = time + 0.2;
 	entity e;
-	e = findalltargets(self);
-	while (e)
+
+	if (self.target != string_null)
 	{
-		if (e.classname != "path_corner")
-			return;
-		e = e.chain;
+		e = find(world, targetname, self.target);
+		while(e)
+		{
+			if (e.classname != "path_corner")
+				return;
+			e = find(e, targetname, self.target);
+		}
 	}
+	if (self.target2 != string_null)
+	{
+		e = find(world, targetname, self.target2);
+		while(e)
+		{
+			if (e.classname != "path_corner")
+				return;
+			e = find(e, targetname, self.target2);
+		}
+	}
+	if (self.target3 != string_null)
+	{
+		e = find(world, targetname, self.target3);
+		while(e)
+		{
+			if (e.classname != "path_corner")
+				return;
+			e = find(e, targetname, self.target3);
+		}
+	}
+	if (self.target4 != string_null)
+	{
+		e = find(world, targetname, self.target4);
+		while(e)
+		{
+			if (e.classname != "path_corner")
+				return;
+			e = find(e, targetname, self.target4);
+		}
+	}
+
 	remove(self);
 }
 
@@ -681,8 +736,6 @@ float() nomonster =
 		return TRUE;
 	}
 	
-	self.classname = "nomonster";
-	
 	// make teleports work:
 	self.health = 1;
 	self.flags += FL_MONSTER;
@@ -691,6 +744,8 @@ float() nomonster =
 		self.use = nomonster_go;
 	else
 		nomonster_go();
+	
+	//self.classname = "nomonster";
 	
 	return TRUE;
 }

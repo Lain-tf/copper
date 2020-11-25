@@ -1037,7 +1037,6 @@ void() WaterMove =
 			}
 			else if (time > self.air_finished - 9)
 			{
-				dprint5("blep @ ", ftos(time),": ", ftos(self.air_finished),"\n");
 				sound (self, CHAN_VOICE, "player/gasp1.wav", 1, ATTN_NORM);
 			}
 		}		
@@ -1215,7 +1214,7 @@ void() CheckPowerups =
 		if (self.invisible_finished < time)
 		{	// just stopped
 			self.items = self.items - IT_INVISIBILITY;
-			self.notrace = 0;
+			//self.notrace = 0;
 			self.invisible_finished = 0;
 			self.invisible_time = 0;
 		}
@@ -1912,6 +1911,13 @@ Debug starting point for a level.  Overrides info_player_start if present and 'U
 
 "angle" viewing angle when spawning
 "fog_color"/"fog_density" set the fog when spawning at this spot
+*/
+/*FGD
+@PointClass base(PlayerClass) = testplayerstart : "Developer-only spawn point" [
+	spawnflags(flags) = [
+		1 : "Spawn at this one plz" : 0
+	]
+]
 */
 void() testplayerstart =
 {

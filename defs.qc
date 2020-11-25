@@ -328,7 +328,7 @@ float	icantsee;
 .vector		dest, dest1, dest2;
 .vector		pos1, pos2;		// top and bottom positions
 //.vector		oldorigin;		// only used by secret door
-.vector		finaldest, finalangle;
+.vector		finaldest;
 .void()		think1;
 .float		speed, speed2;
 .float		wait;			// time from firing to restarting
@@ -380,6 +380,7 @@ float	icantsee;
 .string	include = wad;		// for monsterjump filters
 .string exclude = map;
 .float light_lev = bubble_count;	// shuts up a stupid stupid warning
+.vector rmovedir = finaldest;
 
 
 //===========================================================================
