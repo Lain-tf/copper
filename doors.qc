@@ -1,3 +1,4 @@
+
 /*
 =============================================================================
 Doors are similar to buttons, but can spawn a fat trigger field around them
@@ -147,6 +148,7 @@ void() door_fire =
 
 void() door_use =
 {
+	if (self.customflags & CFL_LOCKED) return;
 	if (!( self.spawnflags & DOOR_TOGGLE ) ) 
 	{
 		self.message = string_null;			// door message are for touch only
@@ -253,64 +255,88 @@ void() door_touch =
 void(entity d) door_lock =
 {
 	entity e;
+	if (d.customflags & CFL_LOCKED)
+		return;
 	d.customflags = d.customflags | CFL_LOCKED;
-	
-//	d.owner.touch = SUB_Null;
-//	d.owner.use = SUB_Null;
-	if (d.owner.trigger_field == world && !d.owner.items) objerror("door being locked doesn't have a trigger");
-	else if (d.owner.trigger_field)
-		d.owner.trigger_field.touch = SUB_Null;
 
 	// close any open doors immediately
-	if (d.state != STATE_BOTTOM)
+	if (d.state != STATE_BOTTOM && !(d.spawnflags & DOOR_TOGGLE || d.wait == -1))
 	{
 		e = d;
 		do {
-			SUB_CallAsSelf(door_go_down,d);
+			SUB_CallAsSelf(door_go_down,e);
 			e = e.enemy;
 		}
 		while ( e != d && e != world );
-	}	
+	}
+	
+	if (d.max_health)
+	{
+		d.takedamage = DAMAGE_NO;
+	}
+	else
+	{
+		if (d.owner.trigger_field == world && !d.owner.items && !(d.spawnflags & DOOR_TOGGLE))
+			objerror("door being locked doesn't have a trigger");
+		else if (d.owner.trigger_field)
+			d.owner.trigger_field.touch = SUB_Null;
+	}
 }
 
 void(entity d) door_unlock =
 {
+	if (!(d.customflags & CFL_LOCKED))
+		return;
+		
 	d.customflags = not(d.customflags, CFL_LOCKED);
 	
-//	d.owner.touch = door_touch;
-//	d.owner.use = door_use;
-	if (d.owner.trigger_field == world && !d.owner.items) objerror("door being unlocked doesn't have a trigger");
-	else if (d.owner.trigger_field)
-		d.owner.trigger_field.touch = door_trigger_touch;
+	if (d.max_health)
+	{
+		d.takedamage = DAMAGE_YES;
+		d.health = d.max_health;
+	}
+	else
+	{
+		if (d.owner.trigger_field == world && !d.owner.items && !(d.spawnflags & DOOR_TOGGLE))
+			objerror("door being unlocked doesn't have a trigger");
+		else if (d.owner.trigger_field)
+			d.owner.trigger_field.touch = door_trigger_touch;
+	}
 }
 
+// checks if a door ONLY has locks targeting it
 float(entity d) door_getslocked =
 {
 	if (d.targetname == string_null)
 		return FALSE;
 	
 	entity t;
+	float found = FALSE;
 	t = find(world, target, d.targetname);
 	while (t) {
-		if (t.classname == "target_lock") return TRUE;
+		found = TRUE;
+		if (t.classname != "target_lock") return FALSE;
 		t = find(t, target, d.targetname);
 	}
 	t = find(world, target2, d.targetname);
 	while (t) {
-		if (t.classname == "target_lock") return TRUE;
+		found = TRUE;
+		if (t.classname != "target_lock") return FALSE;
 		t = find(t, target2, d.targetname);
 	}
 	t = find(world, target3, d.targetname);
 	while (t) {
-		if (t.classname == "target_lock") return TRUE;
+		found = TRUE;
+		if (t.classname != "target_lock") return FALSE;
 		t = find(t, target3, d.targetname);
 	}
 	t = find(world, target4, d.targetname);
 	while (t) {
-		if (t.classname == "target_lock") return TRUE;
+		found = TRUE;
+		if (t.classname != "target_lock") return FALSE;
 		t = find(t, target4, d.targetname);
 	}
-	return FALSE;
+	return found;	// no targeters has to be FALSE
 }
 
 /*
@@ -325,7 +351,7 @@ entity(vector fmins, vector fmaxs) door_spawn_field =
 {
 	local entity	trigger;
 	local	vector	t1, t2;
-
+	bprint("spawning door field\n");
 	trigger = spawn();
 	trigger.movetype = MOVETYPE_NONE;
 	trigger.solid = SOLID_TRIGGER;
@@ -373,9 +399,9 @@ void(vector cmins, vector cmaxs) door_finalize =
 	if (self.health)
 		return;
 	if (self.targetname != string_null)
-		if (!door_getslocked(self))
+		if (!door_getslocked(self) || self.spawnflags & DOOR_TOGGLE)
 			return;
-
+	
 	self.trigger_field = door_spawn_field(cmins, cmaxs);
 }
 
@@ -811,7 +837,7 @@ void () secretdoor_move1 =
 void () secretdoor_move2 =
 {
 	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
-	SUB_CalcMove(self.dest2, self.speed, secretdoor_move3);
+	SUB_CalcMove(self.dest2, self.speed2, secretdoor_move3);
 }
 
 // Wait here until time to go back...
@@ -832,7 +858,7 @@ void () secretdoor_move4 =
 {
 	self.think = SUB_Null;
 	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
-	SUB_CalcMove(self.dest1, self.speed, secretdoor_move5);		
+	SUB_CalcMove(self.dest1, self.speed2, secretdoor_move5);		
 }
 
 // Wait 1 second...
@@ -906,6 +932,8 @@ Flags:
 
 Keys:
 "dmg" damage to inflict when blocked (default: 2). If a secret door has a targetname, it will only be opened by it's button or trigger, not by damage.
+"speed" speed of first move, default 50
+"speed2" speed of second move, defaults to "speed"
 "sounds"
     1 = medieval
     2 = metal
@@ -924,6 +952,8 @@ Angle determines direction of second move. First move is to the right of 'angle'
 	t_width(integer) : "First move length"
 	t_length(integer) : "Second move length"
 	dmg(integer) : "Damage when blocked" : 2
+	speed(integer) : "Speed of first move" : 50
+	speed2(integer) : "Speed of second move" : 50
 	wait(string) : "Wait before close" : "2"
 	dest1(string) : "Force vector for first move (requires dest2)"
 	dest2(string) : "Force vector for second move (requires dest1)"
@@ -986,7 +1016,10 @@ void () func_door_secret =
 	
 	self.touch = secret_touch;
 	self.blocked = secret_blocked;
-	self.speed = 50;
+	
+	if (self.speed <= 0) self.speed = 50;
+	if (self.speed2 <= 0) self.speed2 = self.speed;
+	
 	self.use = secretdoor_use;
 	if ( !self.targetname || self.spawnflags & SECRET_YES_SHOOT)
 	{

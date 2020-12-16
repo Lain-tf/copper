@@ -42,6 +42,7 @@ string light_off = "a";
 	_softangle(integer) : "Spotlight inner cone angle"
 	_dirt(integer) : "Override dirt"
 	message(string) : "override the style string directly for the assigned style (clashes will overwrite each other)"
+	target(string) : "Entity to aim at"
 	delay(choices) : "Attenuation" =
 	[
 		0 : "Linear falloff (Default)"
@@ -70,6 +71,19 @@ string light_off = "a";
 @baseclass base(Light, Targetname) = LightTriggerable [
 	spawnflags(flags) = [
 		1 : "Start off" : 0
+	]
+]
+@baseclass base() = Flame [
+	volume(string) : "Crackle Volume" : "1"
+	distance(choices) : "Crackle Range" : 0 =
+	[
+		0 : "Ambient"
+		1 : "Monster Idle"
+		2 : "Monster Bark"
+		3 : "Global (plz no)"
+	]
+	spawnflags(flags) = [
+		2 : "Silent" : 0
 	]
 ]
 */
@@ -183,6 +197,47 @@ void() light_inc_use =
 	else if (bright <= 1 ) lightstyle(self.style, "a");
 }
 
+void() light_message =
+{
+	if (self.message != string_null)
+	{
+		if (self.oldstyle > 11)
+			lightstyle(self.oldstyle, self.message);
+		else if (self.style > 11)
+			lightstyle(self.style, self.message);
+		else
+			dprint5("WARNING: light at ", vtos(self.origin), " with message ", self.message, " but no style # set\n");
+	}
+}
+
+void() light_oldstyle =
+{
+	if (self.style >= 32)
+	{
+		if (self.count > 0)
+		{
+			self.use = light_inc_use;
+			if (self.spawnflags & START_OFF)
+			{
+				lightstyle(self.style, light_off);
+				self.cnt = 0;
+			}
+			else
+			{
+				lightstyle(self.style, GetLightStyle(self.oldstyle));
+				self.cnt = self.count;
+			}
+			return;
+		}
+		
+		self.use = light_use;
+		if (self.spawnflags & START_OFF)
+			lightstyle(self.style, light_off);
+		else
+			lightstyle(self.style, GetLightStyle(self.oldstyle));
+	}
+}
+
 /*QUAKED light (0 .75 0) (-8 -8 -8) (8 8 8) START_OFF
 Non-displayed light. If targeted, it will toggle between on or off. 
 
@@ -224,15 +279,7 @@ Keys:
 */
 void() light =
 {
-	if (self.message != string_null)
-	{
-		if (self.oldstyle > 11)
-			lightstyle(self.oldstyle, self.message);
-		else if (self.style > 11)
-			lightstyle(self.style, self.message);
-		else
-			dprint5("WARNING: light at ", vtos(self.origin), " with message ", self.message, " but no style # set\n");
-	}
+	light_message();
 	
 	if (self.targetname == string_null)
 	{	// inert light
@@ -240,30 +287,7 @@ void() light =
 		return;
 	}
 	
-	if (self.style >= 32)
-	{
-		if (self.count > 0)
-		{
-			self.use = light_inc_use;
-			if (self.spawnflags & START_OFF)
-			{
-				lightstyle(self.style, light_off);
-				self.cnt = 0;
-			}
-			else
-			{
-				lightstyle(self.style, GetLightStyle(self.oldstyle));
-				self.cnt = self.count;
-			}
-			return;
-		}
-		
-		self.use = light_use;
-		if (self.spawnflags & START_OFF)
-			lightstyle(self.style, light_off);
-		else
-			lightstyle(self.style, GetLightStyle(self.oldstyle));
-	}
+	light_oldstyle();
 }
 
 //============================================================================
@@ -423,7 +447,7 @@ void() FireAmbient =
 Short wall torch. Makes crackly torch sound.
 
 Flags:
-"start_off"	starts off until triggered
+"silent"	no ambient noise
 
 Keys:
 "light"		sets brightness (default: 300)
@@ -454,9 +478,14 @@ Keys:
     styles 32-62 are assigned by the light program for switchable lights 
     (default: 0)
 "message"	override the style string directly for the assigned style (clashes will overwrite each other)
+"distance" sound attenuation range (integer) - defaults to 0, which is the same as other ambient sounds.
+  1 = 'idle' - monster idle sound range
+  2 = 'normal' - monster bark sound range
+  3 = 'none' - loops everywhere forever (don't use this)
+"volume" loudness (0-1), distinct from distance
 */
 /*FGD
-@PointClass base(Light) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame.mdl" }) = 
+@PointClass base(Light, Flame) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame.mdl" }) = 
 	light_torch_small_walltorch : "Small walltorch" []
 */
 void() light_torch_small_walltorch =
@@ -471,7 +500,7 @@ void() light_torch_small_walltorch =
 Large yellow flame ball.  Makes crackly torch sound.
 
 Flags:
-"start_off"	starts off until triggered
+"silent"	no ambient noise
 
 Keys:
 "light"		sets brightness (default: 300)
@@ -502,10 +531,14 @@ Keys:
     styles 32-62 are assigned by the light program for switchable lights 
     (default: 0)
 "message"	override the style string directly for the assigned style (clashes will overwrite each other)
-
+"distance" sound attenuation range (integer) - defaults to 0, which is the same as other ambient sounds.
+  1 = 'idle' - monster idle sound range
+  2 = 'normal' - monster bark sound range
+  3 = 'none' - loops everywhere forever (don't use this)
+"volume" loudness (0-1), distinct from distance
 */
 /*FGD
-@PointClass base(Light) size(-8 -8 -12, 8 8 20) model({ "path": ":progs/flame2.mdl" }) = 
+@PointClass base(Light, Flame) size(-8 -8 -12, 8 8 20) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_large_yellow : "Large yellow flame" []
 */
 void() light_flame_large_yellow =
@@ -520,6 +553,9 @@ void() light_flame_large_yellow =
 /*QUAKED light_flame_small_yellow (1 1 0) (-4 -4 -12) (4 4 20)
 Small yellow flame ball.  Makes crackly torch sound.
 
+Flags:
+"silent"	no ambient noise
+
 Keys:
 "light"		sets brightness (default: 300)
 "mangle"	spotlight direction - the first # is yaw, 0 to 360 around Z. second # is pitch, 90 up to -90 down.
@@ -549,10 +585,14 @@ Keys:
     styles 32-62 are assigned by the light program for switchable lights 
     (default: 0)
 "message"	override the style string directly for the assigned style (clashes will overwrite each other)
-
+"distance" sound attenuation range (integer) - defaults to 0, which is the same as other ambient sounds.
+  1 = 'idle' - monster idle sound range
+  2 = 'normal' - monster bark sound range
+  3 = 'none' - loops everywhere forever (don't use this)
+"volume" loudness (0-1), distinct from distance
 */
 /*FGD
-@PointClass base(Light) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame2.mdl" }) = 
+@PointClass base(Light, Flame) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_small_yellow : "Small yellow flame"  []
 */
 void() light_flame_small_yellow =
@@ -567,12 +607,135 @@ void() light_flame_small_yellow =
 Same as light_flame_small_yellow. Use that one.
 */
 /*FGD
-@PointClass base(Light) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame2.mdl" }) = 
+@PointClass base(Light, Flame) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_small_white : "Small white flame (same as light_flame_small_yellow)" []
 */
 void() light_flame_small_white =
 {
 	light_flame_small_yellow();
+}
+
+// ================================================================
+
+void() light_candle_group_off =
+{
+	entity c;
+	c = self;
+	do {
+		c.frame = not(c.frame, 1);
+		c = c.buddy;
+	} while (c != self && c != world);
+}
+
+void() light_candle_group_on =
+{
+	entity c;
+	c = self;
+	do {
+		c.frame |= 1;
+		c = c.buddy;
+	} while (c != self && c != world);
+}
+
+void() light_candle_use =
+{
+	light_use();
+	if (self.spawnflags & START_OFF)
+		light_candle_group_off();
+	else
+		light_candle_group_on();
+}
+
+// cache all candles with the same targetname as a linked list, with the first
+// one as master, so they can all be turned on and off in one target activation
+// without searching the whole map each time
+void() light_candle_group =
+{
+	if (self.buddy)
+		return;
+	
+	entity c, clast;
+	string oh = self.targetname;
+	c = self;	
+	do {
+		c.targetname = string_null;
+		c.nextthink = 0;
+		clast = c;
+		c = find(c, targetname, self.targetname);
+		clast.buddy = c;
+	} while (c != world);
+	
+	self.targetname = oh;
+	self.use = light_candle_use;
+}
+
+/*QUAKED light_candle (1 1 0) (-4 -4 0) (4 4 16) START_OFF
+Candle. If triggered to turn on and off, all candles with a matching targetname will ignite or go out as well.
+Keys:
+"width" - choose width 1-3, default (0) is random
+"height" - choose height 1-3, default (0) is random
+"angle" - choose orientation, blank is random yaw
+See 'light' keyvalues/spawnflags for more.
+*/
+/*FGD
+@PointClass base(Light) size(-4 -4 -12, 4 4 20) model({ "path": ":progs/flame2.mdl" }) = 
+	light_candle : "Candle" 
+[
+	width(choices) : "Width" : 0 =
+	[
+		0: "Random"
+		1: "Narrow"
+		2: "Medium"
+		3: "Thick"
+	]
+	height(choices) : "Height" : 0 =
+	[
+		0: "Random"
+		1: "Short"
+		2: "Medium"
+		3: "Tall"
+	]
+]
+*/
+void() light_candle =
+{
+	if (!self.width)
+		self.width = 1 + floor(random()*2.99);
+	if (!self.height)
+		self.height = 1 + floor(random()*2.99);
+	if (self.angles == VEC_ORIGIN)
+		self.angles_y = random()*360;
+	
+	if (self.height == 1)
+		self.model = "progs/candle1.mdl";
+	else if (self.height == 2)
+		self.model = "progs/candle2.mdl";
+	else if (self.height == 3)
+		self.model = "progs/candle3.mdl";
+
+	precache_model2(self.model);
+	setmodel(self,self.model);
+		
+	if (self.width == 1)
+		self.frame = 4;
+	else if (self.width == 2)
+		self.frame = 0;
+	else if (self.width == 3)
+		self.frame = 2;
+	if (!(self.spawnflags & START_OFF))
+		self.frame += 1;
+	
+	light_message();
+	
+	if (self.targetname == string_null && self.style < 32)
+	{
+		makestatic(self);
+		return;
+	}
+	
+	light_oldstyle();
+	self.think = light_candle_group;
+	self.nextthink = time + 0.1;
 }
 
 // ================================================================
@@ -647,7 +810,14 @@ void() target_lightstyle_go =
 	{
 		l = world;
 		while (l.style == 0)
+		{
 			l = find(l, targetname, self.target);		
+			if (l == world)
+			{
+				dprint3("target_lightstyle couldn't find target ", self.target, "\n");
+				break;
+			}
+		}
 	}
 	if (l) lightstyle(l.style, newstyle);
 	
@@ -655,7 +825,14 @@ void() target_lightstyle_go =
 	{
 		l = world;
 		while (l.style == 0)
-			l = find(l, targetname, self.target2);		
+		{
+			l = find(l, targetname, self.target2);	
+			if (l == world)
+			{
+				dprint3("target_lightstyle couldn't find target2 ", self.target, "\n");
+				break;
+			}
+		}
 	}
 	if (l) lightstyle(l.style, newstyle);
 
@@ -663,7 +840,14 @@ void() target_lightstyle_go =
 	{
 		l = world;
 		while (l.style == 0)
-			l = find(l, targetname, self.target3);		
+		{
+			l = find(l, targetname, self.target3);
+			if (l == world)
+			{
+				dprint3("target_lightstyle couldn't find target3 ", self.target, "\n");
+				break;
+			}
+		}
 	}
 	if (l) lightstyle(l.style, newstyle);
 
@@ -671,8 +855,15 @@ void() target_lightstyle_go =
 	{
 		l = world;
 		while (l.style == 0)
+		{
 			l = find(l, targetname, self.target4);		
-	}
+			if (l == world)
+			{
+				dprint3("target_lightstyle couldn't find target4 ", self.target, "\n");
+				break;
+			}
+		}
+	}	
 	if (l) lightstyle(l.style, newstyle);
 }
 
