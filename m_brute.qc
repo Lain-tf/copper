@@ -69,37 +69,26 @@ Like OgreAimGrenade but with the option to "spray" the grenade - i.e. deliberate
 not aim it directly at the player.
 ================
 */
-vector(vector dest, float speed, float spray) BruteAimGrenade =
+vector(vector dest, float speed, float spray_angle) BruteAimGrenade =
 {
-	float theta, a, spray_angle;
+	float theta, a;
 	vector angs;
 	
 	theta = BallisticTheta(dest,speed,18);		// stock quake ogre firing angle is 18
 	if (theta == BAD_THETA) theta = 18;
 	
 	a = vectoyaw(dest);
-
-    // If we're spraying the grenade, add some random amount of extra yaw.
-    if (spray) {
-		// 10-30 degrees spray
-		spray_angle = 10 + random() * 20;
-
-		// Spray both left and right
-		if (random() < 0.5) {
-			spray = spray * -1;
-		}
-
-        a = a + spray_angle;
-    }  
-
 	angs = '0 0 0';
-	angs_y = a;
-	// clamp the perfect terminator-aim to limit deadon shots to the face, then average with 
-	// old dumb aim for "z-only-slightly-aware"ness(tm)
+	angs_y = a + spray_angle;
+	// Similar partially-z-aware aiming as the ogre (see OgreAimGrenade),
+	// but we weight the 'ideal' angle more heavily (2:1 rather than 1:1),
+	// to give more z-awareness
 	if (vlen(dest) < 160)
-		theta = (clamp(theta, -80, 70) + 18) / 2;
+		theta = clamp(theta, -80, 70);
 	else
-		theta = (clamp(theta, -60, 60) + 18) / 2;
+		theta = clamp(theta, -60, 60);
+	theta = (theta * 2 + 18) / 3;
+
 	angs_x = -theta;	
 	makevectors(angs);
 	
@@ -121,9 +110,17 @@ void(float sequence, float spray) BruteFireGrenade =
 {
 	local	entity g;
 	vector gorg, gvel;
+	float spray_angle;
 	
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	sound (self, CHAN_WEAPON, "brute/shoot.wav", 1, ATTN_NORM);
+
+	// If we're spraying the grenade, add some random amount of extra yaw.
+	spray_angle = 0;
+	if (spray) {
+		// -5-25 degrees spray
+		spray_angle = -5 + random() * 30;
+	}
 
 	makevectors(self.angles);
 	switch (sequence) {
@@ -133,17 +130,23 @@ void(float sequence, float spray) BruteFireGrenade =
 
 	case BRUTE_GRENADE_SEQUENCE_A_RIGHT:
 		gorg = self.origin + v_forward * 100 + v_up * 37 + v_right * 21;
+		spray_angle = spray_angle * -1;
 		break;
 
 	case BRUTE_GRENADE_SEQUENCE_B:
 		gorg = self.origin + v_forward * 80 + v_up * 20 - v_right * 25;
+
+		// Spray both left and right
+		if (random() < 0.5) {
+			spray_angle = spray_angle * -1;
+		}
 		break;
 
 	default:
 		gorg = self.origin;
 	}
 
-	gvel = BruteAimGrenade(enemy_vispos() - gorg, 632, spray);
+	gvel = BruteAimGrenade(enemy_vispos() - gorg, 632, spray_angle);
 	
 	g = launch_grenade(gorg, gvel);
 	g.touch = BruteGrenadeTouch;
@@ -154,7 +157,7 @@ void(float sequence, float spray) BruteFireGrenade =
 
 void() brute_dropammo =
 {
-	self.ammo_rockets = 2;
+	self.ammo_rockets = 3;
 	DropBackpack();
 }
 
@@ -217,19 +220,19 @@ void() brute_standb5 =[ 	$stand_b5, brute_standb6	] {
 	}
 	ai_stand();
 }
-void() brute_standb6 =[ 	$stand_b4, brute_standb7	] {ai_stand();}
-void() brute_standb7 =[ 	$stand_b4, brute_standb8	] {ai_stand();}
-void() brute_standb8 =[ 	$stand_b4, brute_standb9	] {ai_stand();}
-void() brute_standb9 =[ 	$stand_b4, brute_standb10	] {ai_stand();}
-void() brute_standb10 =[ 	$stand_b4, brute_standb11	] {ai_stand();}
-void() brute_standb11 =[ 	$stand_b4, brute_standb12	] {ai_stand();}
-void() brute_standb12 =[ 	$stand_b4, brute_standb13	] {ai_stand();}
-void() brute_standb13 =[ 	$stand_b4, brute_standb14	] {ai_stand();}
-void() brute_standb14 =[ 	$stand_b4, brute_standb15	] {ai_stand();}
-void() brute_standb15 =[ 	$stand_b4, brute_standb16	] {ai_stand();}
-void() brute_standb16 =[ 	$stand_b4, brute_standb17	] {ai_stand();}
-void() brute_standb17 =[ 	$stand_b4, brute_standb18	] {ai_stand();}
-void() brute_standb18 =[ 	$stand_b4, brute_stand	] {ai_stand();}
+void() brute_standb6 =[ 	$stand_b6, brute_standb7	] {ai_stand();}
+void() brute_standb7 =[ 	$stand_b7, brute_standb8	] {ai_stand();}
+void() brute_standb8 =[ 	$stand_b8, brute_standb9	] {ai_stand();}
+void() brute_standb9 =[ 	$stand_b9, brute_standb10	] {ai_stand();}
+void() brute_standb10 =[ 	$stand_b10, brute_standb11	] {ai_stand();}
+void() brute_standb11 =[ 	$stand_b11, brute_standb12	] {ai_stand();}
+void() brute_standb12 =[ 	$stand_b12, brute_standb13	] {ai_stand();}
+void() brute_standb13 =[ 	$stand_b13, brute_standb14	] {ai_stand();}
+void() brute_standb14 =[ 	$stand_b14, brute_standb15	] {ai_stand();}
+void() brute_standb15 =[ 	$stand_b15, brute_standb16	] {ai_stand();}
+void() brute_standb16 =[ 	$stand_b16, brute_standb17	] {ai_stand();}
+void() brute_standb17 =[ 	$stand_b17, brute_standb18	] {ai_stand();}
+void() brute_standb18 =[ 	$stand_b18, brute_stand	] {ai_stand();}
 
 void() brute_stand {
 	if (random() < 0.2) {
@@ -276,7 +279,7 @@ void() brute_walk19	=[	$walk19,	brute_walk20	] { ai_walk(6); }
 void() brute_walk20	=[	$walk20,	brute_walk21	] { ai_walk(6); }
 void() brute_walk21	=[	$walk21,	brute_walk22	] { ai_walk(6); }
 void() brute_walk22	=[	$walk22,	brute_walk23	] { ai_walk(6); }
-void() brute_walk23	=[	$walk23,		brute_walk1		] { ai_walk(6); }
+void() brute_walk23	=[	$walk23,	brute_walk1		] { ai_walk(6); }
 
 /* Run */
 void() brute_run1	=[	$run1,		brute_run2	] {ai_run(1);}
@@ -337,7 +340,7 @@ void() brute_meleea8	=[	$melee_a8, brute_meleea9 	] {ai_charge(0);}
 void() brute_meleea9	=[	$melee_a9, brute_meleea10 	] {ai_charge(0);}
 void() brute_meleea10	=[	$melee_a10, brute_run1	 	] {
 	ai_charge(0);
-	ai_attack_finished(2 + 2*random());
+	ai_attack_finished(1 + 2*random());
 }
 
 void() brute_meleeb1	=[	$melee_b1, brute_meleeb2 	] {ai_charge(0);}
@@ -360,7 +363,7 @@ void() brute_meleeb11	=[	$melee_b11, brute_meleeb12	] {ai_charge(0);}
 void() brute_meleeb12	=[	$melee_b12, brute_meleeb13	] {ai_charge(0);}
 void() brute_meleeb13	=[	$melee_b13, brute_run1		] {
 	ai_charge(0);
-	ai_attack_finished(2 + 2*random());
+	ai_attack_finished(1 + 2*random());
 }
 
 /* Grenades */
@@ -415,7 +418,7 @@ void() brute_grena30	=[	$attack_a30,	brute_grena31	] {ai_face();}
 void() brute_grena31	=[	$attack_a31,	brute_grena32	] {ai_face();}
 void() brute_grena32	=[	$attack_a32,	brute_run1		] {
 	ai_face();
-	ai_attack_finished(2 + 2*random());
+	ai_attack_finished(1 + 2*random());
 }
 
 void() brute_grenb1 	=[	$attack_b1,		brute_grenb2	] {ai_face();}
@@ -472,7 +475,7 @@ void() brute_grenb33	=[	$attack_b33,	brute_grenb34	] {ai_face();}
 void() brute_grenb34	=[	$attack_b34,	brute_grenb35	] {ai_face();}
 void() brute_grenb35	=[	$attack_b35,	brute_run1		] {
 	ai_face();
-	ai_attack_finished(2 + 2*random());
+	ai_attack_finished(1 + 2*random());
 }
 
 /*
@@ -549,7 +552,7 @@ void(entity attacker, float damage)	brute_pain =
 void() brute_die =
 {
 	// check for gib
-	if (self.health < -60)
+	if (self.health < -100)
 	{
 		Gib ("progs/h_brute.mdl", self.health);
 		return;
