@@ -130,7 +130,10 @@ void() W_FireSpikes =
 	{
 		W_FireNailgun();
 	}
-	self.punchangle_x = -2;
+
+	if (!has_haste(self)) {
+		self.punchangle_x = -2;
+	}
 	
 	self.cnt = cycle(self.cnt,8);
 }

@@ -152,7 +152,17 @@ void() Cheat_Suit =
 	powerup_envirosuit(self, 30);
 }
 
-
+// --------------------------------
+// Cheat_Haste
+// --------------------------------
+void() Cheat_Haste =
+{
+	if(deathmatch || coop)
+		return;
+	stuffcmd(self, "bf\n");
+	self.items = self.items | IT_HASTE;
+	powerup_envirosuit(self, 15);
+}
 
 // --------------------------------
 // ImpulseCommands
@@ -249,6 +259,9 @@ void() ImpulseCommands =
 		break;
 	case 99:
 		Cheat_Keys();
+		break;
+	case 195:
+		Cheat_Haste();
 		break;
 	// how about, execute order six?
 	// nah. makes it sound like there aren't that many orders
