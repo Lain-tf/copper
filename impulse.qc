@@ -161,7 +161,7 @@ void() Cheat_Haste =
 		return;
 	stuffcmd(self, "bf\n");
 	self.items = self.items | IT_HASTE;
-	powerup_envirosuit(self, 15);
+	powerup_haste(self, 15);
 }
 
 // --------------------------------
