@@ -66,6 +66,7 @@ float	SOLID_SLIDEBOX			= 3;	// touch on edge, but not an onground
 float	SOLID_BSP				= 4;	// bsp clip, touch on edge, block
 
 // range values
+float	RANGE_HUG				= 8;	// 0-80
 float	RANGE_MELEE				= 0;	// 0-120
 float	RANGE_NEAR				= 1;	// 120-500
 float	RANGE_MID				= 2;	// 500-900, max ranged attack dist

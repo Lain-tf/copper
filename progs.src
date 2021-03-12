@@ -74,6 +74,10 @@ m_oldone.qc		// registered
 
 test.qc
 
-//	Episode Jam stuff
+// Dwell - Ep 1
 m_morph.qc
 m_boss_egypt.qc
+
+// Dwell - Ep 2
+//misc_textbook.qc
+m_kamikaze.qc

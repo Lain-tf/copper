@@ -43,6 +43,8 @@ float(entity targ) range =
 	d = eyeline(targ);
 	//d_z *= 2;	// don't melee guys way above or below you
 	r = vlen(d);
+	if (r < 80)
+		return RANGE_HUG;
 	if (r < 120)
 		return RANGE_MELEE;
 	if (r < 500)
@@ -1458,6 +1460,18 @@ void(float dist) ai_run_slide =
 	walkmoveplus (self.ideal_yaw - ofs, dist);
 }
 
+/*
+=============
+ai_run_straight
+
+Turn and follow straight
+=============
+*/
+void() ai_run_straight =
+{
+	self.ideal_yaw = enemy_yaw();
+	ChangeYaw ();
+}
 
 /*
 =============
@@ -1541,6 +1555,10 @@ void(float dist) ai_run =
 			else if (self.attack_state == AS_SLIDING)
 				ai_run_slide (dist);
 			return;
+		}
+		else if(self.classname == "monster_kamikaze")
+		{
+			ai_run_straight();
 		}
 	}
 	
