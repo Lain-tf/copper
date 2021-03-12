@@ -61,7 +61,7 @@ void(entity h, float t) powerup_super_damage =
 
 void(entity h, float t) powerup_haste =
 {
-	sprint(h, "You beging to channel unbelievable speed ...\n");
+	sprint(h, "You begin to channel unbelievable speed ...\n");
 	h.items |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;

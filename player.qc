@@ -218,8 +218,6 @@ void() player_nail =
 
 void() player_light1   =[$light1, player_light2  ] 
 {
-	float haste_factor;
-
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 	if (!self.button0)
@@ -233,17 +231,10 @@ void() player_light1   =[$light1, player_light2  ]
 	SuperDamageSound();
 	W_FireLightning();
 
-	if (has_haste(self)) {
-		haste_factor = HASTE_FACTOR;
-	} else {
-		haste_factor = 1;
-	}
-
-	self.attack_finished = time + 0.2 * haste_factor;
+	self.attack_finished = time + 0.2;
 }
 void() player_light2   =[$light2, player_light1  ]
 {
-	float haste_factor;
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 	if (!self.button0)
@@ -257,12 +248,7 @@ void() player_light2   =[$light2, player_light1  ]
 	SuperDamageSound();
 	W_FireLightning();
 
-	if (has_haste(self)) {
-		haste_factor = HASTE_FACTOR;
-	} else {
-		haste_factor = 1;
-	}
-	self.attack_finished = time + 0.2 * haste_factor;
+	self.attack_finished = time + 0.2;
 }
 
 //============================================================================
