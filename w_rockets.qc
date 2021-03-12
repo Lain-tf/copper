@@ -78,6 +78,7 @@ void() W_FireRocket =
 {
 	local entity missile;
 	local vector loc;
+	float haste_factor;
 	
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	
@@ -89,7 +90,13 @@ void() W_FireRocket =
 	loc = self.origin + v_forward * 8 + '0 0 16';
 	
 		missile = launch_rocket( loc, v_forward * 1000 );
-		self.attack_finished = time + 0.8;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.8 * haste_factor;
 }
 
 

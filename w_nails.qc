@@ -38,6 +38,7 @@ vector(vector fwd, float spread) W_SpikeDir =
 
 void() W_FireNailgun =
 {
+	float haste_factor;
 	vector m, v, org, dir;
 	// remember sv_aim
 	v = vectoangles( aim( self, AUTOAIM_DIST ) );
@@ -56,13 +57,20 @@ void() W_FireNailgun =
 	// default sv_maxvelocity is 2000, any higher leads to weird 
 	// angular offsets caused by clamping the velocity
 	launch_nail(org, dir * 1996);
-	self.attack_finished = time + 0.09;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.09 * haste_factor;
 }
 
 void() spike_unfatten = { self.movetype = MOVETYPE_FLY; }
 
 void() W_FirePerforator =
 {
+	float haste_factor;
 	vector m;
 	sound (self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 	self.currentammo = self.ammo_nails = self.ammo_nails - 2;
@@ -82,7 +90,13 @@ void() W_FirePerforator =
 	spike1.nextthink = time + 0.25;
 	spike2.nextthink = time + 0.3;
 	
-	self.attack_finished = time + 0.09;
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+
+	self.attack_finished = time + 0.09 * haste_factor;
 	
 	if (has_quad(self))
 	{

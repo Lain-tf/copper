@@ -57,10 +57,17 @@ void() W_AxeThinkReverse = {  self.think = W_AxeThinkReverse; W_AxeCycle(-1); }
 
 void() W_AxeSwing =
 {
+	float haste_factor;
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+
 	W_AxeWhiffSound();
 		self.weaponframe = 10 * (floor(4.99 * random()));
 		self.touch_time = time + 0.1;
-		self.attack_finished = time + 0.49;
+		self.attack_finished = time + 0.49 * haste_factor;
 	self.think1 = player_axe;
 	W_AxeThink();
 }

@@ -304,6 +304,7 @@ float	icantsee;
 .float		invincible_time, invincible_sound, invincible_finished;
 .float		invisible_time, invisible_sound, invisible_finished;
 .float		super_time, super_sound, super_damage_finished;
+.float 		haste_time, haste_finished;
 .float		rad_time, radsuit_finished;
 .float		nextmovesound;	// replaces swim_flag and fly_sound, both of which were timers
 .float		show_hostile;	// set to time+0.2 whenever a client fires a

@@ -218,6 +218,8 @@ void() player_nail =
 
 void() player_light1   =[$light1, player_light2  ] 
 {
+	float haste_factor;
+
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 	if (!self.button0)
@@ -230,10 +232,18 @@ void() player_light1   =[$light1, player_light2  ]
 		self.weaponframe = 1;
 	SuperDamageSound();
 	W_FireLightning();
-	self.attack_finished = time + 0.2;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+
+	self.attack_finished = time + 0.2 * haste_factor;
 }
 void() player_light2   =[$light2, player_light1  ]
 {
+	float haste_factor;
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 	if (!self.button0)
@@ -246,7 +256,13 @@ void() player_light2   =[$light2, player_light1  ]
 		self.weaponframe = 1;
 	SuperDamageSound();
 	W_FireLightning();
-	self.attack_finished = time + 0.2;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.2 * haste_factor;
 }
 
 //============================================================================
@@ -468,6 +484,7 @@ void() PlayerDie =
 	self.invisible_finished = 0;	// don't die as eyes
 	self.invincible_finished = 0;
 	self.super_damage_finished = 0;
+	self.haste_finished = 0;
 	self.radsuit_finished = 0;
 	self.modelindex = modelindex_player;	// don't use eyes
 
