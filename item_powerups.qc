@@ -59,6 +59,14 @@ void(entity h, float t) powerup_super_damage =
 	h.super_time = 1;
 }
 
+void(entity h, float t) powerup_haste =
+{
+	sprint(h, "You begin to channel unbelievable speed ...\n");
+	h.items |= IT_HASTE;
+	h.haste_finished = time + t;
+	h.haste_time = 1;
+}
+
 /*
 ===============
 powerup_touch
@@ -83,6 +91,10 @@ void() powerup_touch =
 
 	if (self.classname == "item_artifact_super_damage")
 		powerup_super_damage(other, 30);
+
+	if (self.classname == "item_artifact_haste") {
+		powerup_haste(other, 15);
+	}
 
 	ItemTouched();
 }
@@ -263,6 +275,52 @@ void() item_artifact_super_damage =
 		self.wait = 60;
 	StartItem ();
 }
+
+/*
+===============================================================================
+
+HASTE
+
+===============================================================================
+*/
+// TODO(JP): Set actual media
+void() precache_haste =
+{
+	precache_model ("progs/haste.mdl");
+	precache_sound_safe ("items/damage.wav");
+	precache_sound_safe ("items/damage2.wav");
+	precache_sound_safe ("items/damage3.wav");
+}
+
+/*QUAKED item_artifact_super_damage (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
+Haste. Player's weapons fire faster.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/quaddama.mdl" }) =
+	item_artifact_haste : "Quad haste" []
+*/
+void() item_artifact_haste =
+{
+	if (!SUB_ShouldSpawn()) return;
+	self.touch = powerup_touch;
+
+	precache_haste();
+	setmodel (self, "progs/haste.mdl");
+	self.netname = "Haste";
+	self.noise = "items/damage.wav";
+	self.items = IT_HASTE;
+	setsize (self, '-16 -16 -24', '16 16 32');
+	if (deathmatch)
+		self.wait = 60;
+	StartItem ();
+}
+
 
 
 

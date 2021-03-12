@@ -130,6 +130,7 @@ W_FireShotgun
 void() W_FireShotgun =
 {
 	local vector dir;
+	float haste_factor;
 	
 	// for ai_nav:
 	/*if (nav_w_nodeLink())
@@ -148,7 +149,13 @@ void() W_FireShotgun =
 
 	ClearMultiDamage ();
 	FireBullets (6, dir, '0.04 0.04 0');
-	self.attack_finished = time + 0.5;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.5 * haste_factor;
 	
 	ApplyMultiDamage ();
 }
@@ -162,6 +169,7 @@ W_FireSuperShotgun
 void() W_FireSuperShotgun =
 {
 	local vector dir;
+	float haste_factor;
 	
 	// for ai_nav:
 	/*if (nav_w_nodeLinkSpecial())
@@ -187,7 +195,13 @@ void() W_FireSuperShotgun =
 	ClearMultiDamage ();
 
 	FireBullets (14, dir, '0.14 0.08 0');
-	self.attack_finished = time + 0.7;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.7 * haste_factor;
 	
 	ApplyMultiDamage ();
 

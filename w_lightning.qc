@@ -293,8 +293,18 @@ float(entity src, entity att, float dmg) W_ChainLightning =
 
 void() W_FireLightning =
 {
+	float haste_factor;
 	local	vector		org;
 	local	float		cells;
+
+	// Because the time between ticks on the LG is short, reducing that
+	// scaling that time for haste doesn't seem to work - we'll cheat by
+	// increasing the damage and ammo consumption instead.
+	if (has_haste(self)) {
+		haste_factor = 1 / HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
 
 	if (self.ammo_cells < 1)
 	{
@@ -319,13 +329,17 @@ void() W_FireLightning =
 	}
 	self.punchangle_x = -2;
 
-	self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+	// If we have haste we can end up with non-integer ammo amounts -
+	// pretty dodgy but seems to work??? Otherwise we'd have to maintain
+	// a separate counter to accumulate the fractional parts of the ammo
+	// in. 
+	self.currentammo = self.ammo_cells = self.ammo_cells - 1 * haste_factor;
 	org = self.origin + '0 0 16'+ v_forward * 8;
 	
 	traceline2(org, org + v_forward * 720, self, TRACE_NOMONSTERS);
 
 	ClearMultiDamage();
-	LightningBeam(org, trace_endpos + v_forward * 8, self, 30);
+	LightningBeam(org, trace_endpos + v_forward * 8, self, 30 * haste_factor);
 	ApplyMultiDamage();
 	
 /*	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);

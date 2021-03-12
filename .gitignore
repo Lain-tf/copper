@@ -4,3 +4,4 @@
 # Quake project stuff
 *.dat
 *.lno
+*fteqcc*

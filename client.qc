@@ -558,6 +558,7 @@ void() PutClientInServer =
 	self.super_damage_finished = 0;
 	self.radsuit_finished = 0;
 	self.invisible_finished = 0;
+	self.haste_finished = 0;
 	self.notrace = 0;	// fix for dying with the ring
 	self.invincible_finished = 0;
 	self.invincible_time = 0;
@@ -1358,6 +1359,35 @@ void() CheckPowerups =
 		}
 	}	
 
+	if (self.haste_finished) {
+		if (self.haste_finished < time + 3) {
+			if (self.haste_time == 1) {
+				sprint(self, "The haste artifact's power weakens ...\n");
+				stuffcmd(self, "bf\n");
+				// TODO(JP): a different sound
+				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				self.haste_time = time + 1;
+			}
+
+			if (self.haste_time < time) {
+				self.haste_time = time + 1;
+				stuffcmd(self, "bf\n");
+			}
+		}
+
+		if (self.haste_finished < time) {
+			// Just stopped
+			self.items = self.items - IT_HASTE;
+			self.haste_finished = 0;
+			self.haste_time = 0;
+		}
+
+		if (self.haste_finished > time) {
+			self.effects = self.effects | EF_DIMLIGHT;
+		} else {
+			self.effects = self.effects - (self.effects & EF_DIMLIGHT);
+		}
+	}
 }
 
 // a failed experiment to fix DOOF-DOOF-DOOFing down stairs

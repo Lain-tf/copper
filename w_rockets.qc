@@ -78,6 +78,7 @@ void() W_FireRocket =
 {
 	local entity missile;
 	local vector loc;
+	float haste_factor;
 	
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	
@@ -89,7 +90,13 @@ void() W_FireRocket =
 	loc = self.origin + v_forward * 8 + '0 0 16';
 	
 		missile = launch_rocket( loc, v_forward * 1000 );
-		self.attack_finished = time + 0.8;
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.attack_finished = time + 0.8 * haste_factor;
 }
 
 
@@ -141,7 +148,7 @@ W_FireGrenade
 void() W_FireGrenade =
 {
 	entity g;
-	float base;
+	float base, haste_factor;
 	vector gvel;
 	
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
@@ -159,9 +166,15 @@ void() W_FireGrenade =
 		gvel = gvel * base * 3;
 		gvel_z = base;
 	}
+
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
 	
 	g = launch_grenade(self.origin, gvel);
-	self.attack_finished = time + 0.6;
+	self.attack_finished = time + 0.6 * haste_factor;
 	g.touch = GrenadeTouch;
 	g.th_die = GrenadeExplode;
 }
