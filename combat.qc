@@ -539,6 +539,13 @@ void(entity inflictor, entity attacker, entity tgt, float points, float multi) T
 	// shambler takes half damage from all explosions
 	if (tgt.classname == "monster_shambler") pnts *= 0.5;
 	
+	if(attacker.classname == "monster_kamikaze")
+	{
+		if(tgt.classname == "monster_kamikaze" || tgt.classname == "monster_zombie")
+		{
+			pnts = 200;
+		}
+	}
 	
 	if (multi && tgt.movetype != MOVETYPE_WALK )
 		AddMultiDamage( tgt, pnts );
@@ -590,7 +597,53 @@ void(entity inflictor, entity attacker, float damage, entity ignore) T_RadiusDam
 	T_RadiusMultiDamage(inflictor, attacker, damage, ignore, 0);
 }
 
+void(entity inflictor, entity attacker, float radius, float damage, float(float, float) formula, entity ignore, float multi) T_RadiusMultiDamage_Custom =
+{
+	float 	points, dist;
+	entity	head;
+	vector	org;
+	
+	head = findradius(inflictor.origin, radius);
+	
+	while (head)
+	{
+		if (head != ignore && head.takedamage)
+		{
+			org = head.origin + (head.mins + head.maxs)*0.5;
+			dist = vlen (inflictor.origin - org);
+			
+			points = formula(dist, damage);
+			dprint("formula result: ");
+			dprint(ftos(points));
+			dprint("\n");
+			if (head == attacker)
+				points = points * 0.5;
+			
+			// don't set off shootable doors/buttons with splash unless the player means it
+			if ((head.movetype == MOVETYPE_PUSH || head.th_die == multi_killed) && head.type != "explobox")
+			{
+				// a grenade at rest touching shootable should intuitively trigger it
+				if ( !(inflictor.type == "grenade" && BoundsTouching(inflictor.origin, inflictor.origin, head.absmin, head.absmax, 2)) )
+					if (dist > damage / 3)
+						points = 0;
+			}
 
+			points = max(0, points);	//clamp
+			if (points > 0)
+				T_RadiusDamageCheck(inflictor, attacker, head, points, multi);
+		}
+		head = head.chain;
+	}
+}
+
+void(entity inflictor, entity attacker, float radius, float damage, float(float, float) formula, entity ignore) T_RadiusDamage_Custom =
+{
+	// note: find downed zombies to gib first, then do radius damage, or else the radius 
+	// damage will knock far away zombies down, then immediately gib them too
+	T_GibDownedZombies(inflictor.origin, damage);
+	
+	T_RadiusMultiDamage_Custom(inflictor, attacker, radius, damage, formula, ignore, 0);
+}
 
 /*
 ============
