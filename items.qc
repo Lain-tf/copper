@@ -668,12 +668,6 @@ float(entity e) target_items_takeinv =
 			e.super_damage_finished = 0;
 			e.super_time = 0;
 		}
-
-		if (it & IT_HASTE) {
-			e.items = not(e.items, it & IT_HASTE);
-			e.haste_finished = 0;
-			e.haste_time = 0;
-		}
 		
 		if (!(e.items & (IT_INVISIBILITY | IT_INVULNERABILITY | IT_QUAD)))
 			e.effects = not(e.effects, EF_DIMLIGHT);
@@ -776,17 +770,8 @@ void(entity e) target_items_setinv =
 			e.super_damage_finished = 0;
 			e.super_time = 0;
 		}
-
-		if (it & IT_HASTE)
-		{
-			powerup_haste(e, self.length);
-		} else {
-			e.items = not(e.items, IT_HASTE);
-			e.haste_finished = 0;
-			e.haste_time = 0;
-		}
 		
-		if (!(e.items & (IT_INVISIBILITY | IT_INVULNERABILITY | IT_QUAD | IT_HASTE)))
+		if (!(e.items & (IT_INVISIBILITY | IT_INVULNERABILITY | IT_QUAD)))
 			e.effects = not(e.effects, EF_DIMLIGHT);
 		
 		e.items = not(e.items, IT_KEY1 | IT_KEY2);

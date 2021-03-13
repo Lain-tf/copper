@@ -131,7 +131,7 @@ float	IT_CELLS				= 2048;
 float	IT_ARMOR1				= 8192;
 float	IT_ARMOR2				= 16384;
 float	IT_ARMOR3				= 32768;
-float	IT_HASTE			    = 65536;
+// float	unused			    = 65536;
 
 float	IT_KEY1					= 131072;
 float	IT_KEY2					= 262144;
@@ -140,8 +140,12 @@ float	IT_INVISIBILITY			= 524288;
 float	IT_INVULNERABILITY		= 1048576;
 float	IT_SUIT					= 2097152;
 float	IT_QUAD					= 4194304;
-float	IT_POWERUPS				= IT_INVISIBILITY + IT_INVULNERABILITY + IT_SUIT + IT_QUAD + IT_HASTE;
+float	IT_POWERUPS				= IT_INVISIBILITY + IT_INVULNERABILITY + IT_SUIT + IT_QUAD;
 // more IT flags after this exceeds 1^23, causing FPU bugs and unpredictable behavior
+
+// Powerups stored separately to other items, as we have more than fit
+float IT_HASTE = 1;
+float IT_WETSUIT = 2;
 
 // point content values
 float	CONTENT_EMPTY		= -1;

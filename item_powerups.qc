@@ -59,12 +59,30 @@ void(entity h, float t) powerup_super_damage =
 	h.super_time = 1;
 }
 
+/*
+===============
+powerup_haste
+===============
+*/
 void(entity h, float t) powerup_haste =
 {
 	sprint(h, "You begin to channel unbelievable speed ...\n");
-	h.items |= IT_HASTE;
+	h.items2 |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
+}
+
+/*
+===============
+powerup_wetsuit
+===============
+*/
+void(entity h, float t) powerup_wetsuit =
+{
+	sprint(h, "Don't pee in your wetsuit ...\n");
+	h.items2 |= IT_WETSUIT;
+	h.wetsuit_finished = time + t;
+	h.wetsuit_time = 1;
 }
 
 /*
@@ -94,6 +112,10 @@ void() powerup_touch =
 
 	if (self.classname == "item_artifact_haste") {
 		powerup_haste(other, 15);
+	}
+
+	if (self.classname == "item_artifact_wetsuit") {
+		powerup_wetsuit(other, 60);
 	}
 
 	ItemTouched();
@@ -292,7 +314,7 @@ void() precache_haste =
 	precache_sound_safe ("items/damage3.wav");
 }
 
-/*QUAKED item_artifact_super_damage (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
+/*QUAKED item_artifact_haste (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
 Haste. Player's weapons fire faster.
 
 Keys:
@@ -302,8 +324,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/quaddama.mdl" }) =
-	item_artifact_haste : "Quad haste" []
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/haste.mdl" }) =
+	item_artifact_haste : "Haste" []
 */
 void() item_artifact_haste =
 {
@@ -314,14 +336,57 @@ void() item_artifact_haste =
 	setmodel (self, "progs/haste.mdl");
 	self.netname = "Haste";
 	self.noise = "items/damage.wav";
-	self.items = IT_HASTE;
+	self.items2 = IT_HASTE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;
 	StartItem ();
 }
 
+/*
+===============================================================================
 
+WETSUIT
+
+===============================================================================
+*/
+// TODO(JP): Set actual media
+void() precache_wetsuit =
+{
+	precache_model ("progs/artifact_wetsuit.mdl");
+	precache_sound_safe ("items/damage.wav");
+	precache_sound_safe ("items/damage2.wav");
+	precache_sound_safe ("items/damage3.wav");
+}
+
+/*QUAKED item_artifact_wetsuit (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
+Wetsuit. Breath underwater, without colour shift.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/artifact_wetsuit.mdl" }) =
+	item_artifact_wetsuit : "Wetsuit" []
+*/
+void() item_artifact_wetsuit =
+{
+	if (!SUB_ShouldSpawn()) return;
+	self.touch = powerup_touch;
+
+	precache_haste();
+	setmodel (self, "progs/artifact_wetsuit.mdl");
+	self.netname = "Wetsuit";
+	self.noise = "items/damage.wav";
+	self.items2 = IT_WETSUIT;
+	setsize (self, '-16 -16 -8', '16 16 48');
+	if (deathmatch)
+		self.wait = 60;
+	StartItem ();
+}
 
 
 

@@ -148,6 +148,8 @@ void(entity who) ClearItemEffects =
 		who.super_damage_finished -= time;
 	if (who.haste_finished > time)
 		who.haste_finished -= time;
+	if (who.wetsuit_finished > time)
+		who.wetsuit_finished -= time;
 	/*
 	who.rad_time = 0;
 	who.invincible_time = 0;
@@ -186,7 +188,11 @@ void(entity who) RestoreItemEffects =
 	}
 	if (who.haste_finished > 0) {
 		who.haste_finished += time;
-		who.items += IT_HASTE;
+		who.items2 += IT_HASTE;
+	}
+	if (who.wetsuit_finished > 0) {
+		who.wetsuit_finished += time;
+		who.items2 += IT_WETSUIT;
 	}
 }
 

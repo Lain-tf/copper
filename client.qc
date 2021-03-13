@@ -26,6 +26,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
+	self.items2 = self.items2 - (self.items & (IT_HASTE | IT_WETSUIT));
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -63,6 +64,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype;
+	parm11 = self.items2;
 
 }
 
@@ -82,6 +84,7 @@ void() SetNewParms =
 	parm7 = 0;
 	parm9 = 0;
 //	parm10 = 0;
+	parm11 = 0;
 }
 
 
@@ -107,6 +110,7 @@ void() SetCoopParms =
 	parm7 = 0;
 	parm9 = 0;
 //	parm10 = 0;
+	parm11 = 0;
 }
 
 void() DecodeLevelParms =
@@ -124,6 +128,7 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9;
+	self.items2 = parm11;
 	
 	armor_set_type(self);
 }
@@ -769,7 +774,7 @@ void() PlayerHealthTick =
 	}
 	else
 	{
-		if (self.dmg > 0 && (self.waterlevel < WL_EYES || has_biosuit(self) ) )
+		if (self.dmg > 0 && (self.waterlevel < WL_EYES || has_biosuit(self) || has_wetsuit(self)) )
 		{
 			// recover damage taken from drowning
 			//T_Heal(self, self.dmg, 0);
@@ -1377,7 +1382,7 @@ void() CheckPowerups =
 
 		if (self.haste_finished < time) {
 			// Just stopped
-			self.items = self.items - IT_HASTE;
+			self.items2 = self.items2 - IT_HASTE;
 			self.haste_finished = 0;
 			self.haste_time = 0;
 		}
@@ -1386,6 +1391,32 @@ void() CheckPowerups =
 			self.effects = self.effects | EF_DIMLIGHT;
 		} else {
 			self.effects = self.effects - (self.effects & EF_DIMLIGHT);
+		}
+	}
+
+	if (self.wetsuit_finished) {
+		self.air_finished = time + 12;		// don't drown
+
+		if (self.wetsuit_finished < time + 3) {
+			if (self.wetsuit_time == 1) {
+				sprint(self, "Your wetsuit rips (and tears) ...\n");
+				stuffcmd(self, "bf\n");
+				// TODO(JP): a different sound
+				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				self.wetsuit_time = time + 1;
+			}
+
+			if (self.wetsuit_time < time) {
+				self.wetsuit_time = time + 1;
+				stuffcmd(self, "bf\n");
+			}
+		}
+
+		if (self.wetsuit_finished < time) {
+			// Just stopped
+			self.items2 = self.items2 - IT_WETSUIT;
+			self.wetsuit_finished = 0;
+			self.wetsuit_time = 0;
 		}
 	}
 }

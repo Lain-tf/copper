@@ -306,6 +306,7 @@ float	icantsee;
 .float		super_time, super_sound, super_damage_finished;
 .float 		haste_time, haste_finished;
 .float		rad_time, radsuit_finished;
+.float		wetsuit_time, wetsuit_finished;
 .float		nextmovesound;	// replaces swim_flag and fly_sound, both of which were timers
 .float		show_hostile;	// set to time+0.2 whenever a client fires a
 							// weapon or takes damage.  Used to alert
@@ -374,6 +375,9 @@ float	icantsee;
 .float		notrace;		// entity will be invisible to traceline2()
 .vector		oldvelocity;	// necessary for getting projectiles to pass through .notrace entities
 .entity		trueowner;		// now this is getting dumb
+
+// Second set of items, we overflowed the first
+.float 		items2;
 
 // OVERLOADS:
 .float rand = healamount;	// for trigger_timer

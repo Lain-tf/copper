@@ -195,7 +195,8 @@ float(entity who) has_invis = { return !!(who.items & IT_INVISIBILITY || who.inv
 float(entity who) has_quad = { return !!(who.items & IT_QUAD || who.super_damage_finished > time); }
 float(entity who) has_invuln = { return !!(who.items & IT_INVULNERABILITY || who.invincible_finished > time); }
 float(entity who) has_biosuit = { return !!(who.items & IT_SUIT || who.radsuit_finished > time); }
-float(entity who) has_haste = { return !!(who.items & IT_HASTE || who.haste_finished > time); }
+float(entity who) has_haste = { return !!(who.items2 & IT_HASTE || who.haste_finished > time); }
+float(entity who) has_wetsuit = { return !!(who.items2 & IT_WETSUIT || who.wetsuit_finished > time); }
 
 //============================================================================
 

@@ -160,8 +160,20 @@ void() Cheat_Haste =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items = self.items | IT_HASTE;
+	self.items2 = self.items2 | IT_HASTE;
 	powerup_haste(self, 15);
+}
+
+// --------------------------------
+// Cheat_Wetsuit
+// --------------------------------
+void() Cheat_Wetsuit =
+{
+	if(deathmatch || coop)
+		return;
+	stuffcmd(self, "bf\n");
+	self.items2 = self.items2 | IT_WETSUIT;
+	powerup_wetsuit(self, 60);
 }
 
 // --------------------------------
@@ -259,6 +271,9 @@ void() ImpulseCommands =
 		break;
 	case 99:
 		Cheat_Keys();
+		break;
+	case 185:
+		Cheat_Wetsuit();
 		break;
 	case 195:
 		Cheat_Haste();

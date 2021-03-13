@@ -275,7 +275,7 @@ void() PainSound = {
 	}
 
 	// water pain sounds
-	if (self.watertype == CONTENT_WATER && self.waterlevel >= 3 && !has_biosuit(self))
+	if (self.watertype == CONTENT_WATER && self.waterlevel >= 3 && !(has_biosuit(self) || has_wetsuit(self)))
 	{
 		DeathBubbles(1);
 		if (random() > 0.5)
@@ -398,7 +398,7 @@ void() DeathSound =
 local float		rs;
 
 	// water death sounds
-	if (self.waterlevel >= 3 && !has_biosuit(self))
+	if (self.waterlevel >= 3 && !(has_biosuit(self) || has_wetsuit(self)))
 	{
 		if (self.watertype == CONTENT_WATER || self.watertype == CONTENT_SLIME)
 		{
