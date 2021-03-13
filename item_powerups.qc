@@ -350,13 +350,14 @@ WETSUIT
 
 ===============================================================================
 */
-// TODO(JP): Set actual media
 void() precache_wetsuit =
 {
 	precache_model ("progs/artifact_wetsuit.mdl");
-	precache_sound_safe ("items/damage.wav");
-	precache_sound_safe ("items/damage2.wav");
-	precache_sound_safe ("items/damage3.wav");
+	precache_sound_safe ("items/wetsuit.wav");
+	precache_sound_safe ("items/wetsuit2.wav");
+	precache_sound_safe ("items/wetsuit3.wav");
+	precache_sound_safe ("items/wetsuit3out.wav");
+
 }
 
 /*QUAKED item_artifact_wetsuit (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
@@ -377,10 +378,10 @@ void() item_artifact_wetsuit =
 	if (!SUB_ShouldSpawn()) return;
 	self.touch = powerup_touch;
 
-	precache_haste();
+	precache_wetsuit();
 	setmodel (self, "progs/artifact_wetsuit.mdl");
 	self.netname = "Wetsuit";
-	self.noise = "items/damage.wav";
+	self.noise = "items/wetsuit.wav";
 	self.items2 = IT_WETSUIT;
 	setsize (self, '-16 -16 -8', '16 16 48');
 	if (deathmatch)

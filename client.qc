@@ -26,7 +26,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
-	self.items2 = self.items2 - (self.items & (IT_HASTE | IT_WETSUIT));
+	self.items2 = self.items2 - (self.items2 & (IT_HASTE | IT_WETSUIT));
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -64,7 +64,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype;
-	parm11 = self.items2;
+	parm10 = self.items2;
 
 }
 
@@ -83,8 +83,7 @@ void() SetNewParms =
 	parm6 = 0;
 	parm7 = 0;
 	parm9 = 0;
-//	parm10 = 0;
-	parm11 = 0;
+	parm10 = 0;
 }
 
 
@@ -109,8 +108,7 @@ void() SetCoopParms =
 	parm6 = 0;
 	parm7 = 0;
 	parm9 = 0;
-//	parm10 = 0;
-	parm11 = 0;
+	parm10 = 0;
 }
 
 void() DecodeLevelParms =
@@ -128,7 +126,7 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9;
-	self.items2 = parm11;
+	self.items2 = parm10;
 	
 	armor_set_type(self);
 }
@@ -1068,15 +1066,17 @@ void() WaterMove =
 	{
 		if (time > 1)	// QSS-only hack for gasping after every level transition
 		{
-			if (time > self.air_finished ||
-				time > self.air_finished - 10 && self.dmg)
-			{
-				sound (self, CHAN_VOICE, "player/gasp2.wav", 1, ATTN_NORM);
-				self.healthtime = time + 0.5;
-			}
-			else if (time > self.air_finished - 9)
-			{
-				sound (self, CHAN_VOICE, "player/gasp1.wav", 1, ATTN_NORM);
+			if (!has_wetsuit(self)) {
+				if (time > self.air_finished ||
+					time > self.air_finished - 10 && self.dmg)
+				{
+					sound (self, CHAN_VOICE, "player/gasp2.wav", 1, ATTN_NORM);
+					self.healthtime = time + 0.5;
+				}
+				else if (time > self.air_finished - 9)
+				{
+					sound (self, CHAN_VOICE, "player/gasp1.wav", 1, ATTN_NORM);
+				}
 			}
 		}		
 		// pentagram protects you from drowning, but if you spend enough time underwater,
@@ -1149,9 +1149,13 @@ void() WaterMove =
 	{	// player enter water sound
 		if (self.watertype == CONTENT_LAVA)
 			sound (self, CHAN_BODY, "player/inlava.wav", 1, ATTN_NORM);
-		else if (self.watertype == CONTENT_WATER)
-			sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
-		else if (self.watertype == CONTENT_SLIME)
+		else if (self.watertype == CONTENT_WATER) {
+			if (has_wetsuit(self)) {
+				sound (self, CHAN_BODY, "items/wetsuit3.wav", 1, ATTN_NORM);
+			} else {
+				sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
+			}
+		} else if (self.watertype == CONTENT_SLIME)
 			sound (self, CHAN_BODY, "player/slimbrn2.wav", 1, ATTN_NORM);
 
 		self.flags = self.flags + FL_INWATER;
@@ -1401,8 +1405,7 @@ void() CheckPowerups =
 			if (self.wetsuit_time == 1) {
 				sprint(self, "Your wetsuit rips (and tears) ...\n");
 				stuffcmd(self, "bf\n");
-				// TODO(JP): a different sound
-				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_AUTO, "items/wetsuit2.wav", 1, ATTN_NORM);
 				self.wetsuit_time = time + 1;
 			}
 
@@ -1593,6 +1596,15 @@ void() PlayerPostThink =
 		self.customflags = not(self.customflags, CFL_WASONGROUND);
 	}
 	*/
+
+	// TODO(JP): This sound should really be played in WaterMove, but
+	// doesn't seem to work there (presumably because the physics stuff modifies
+	// waterlevel after the pre-think?). Need to work out if we can fix it.
+	if (has_wetsuit(self) && self.waterlevel < WL_EYES && self.last_waterlevel >= WL_EYES) {
+		dprint4(ftos(self.last_waterlevel), " ", ftos(self.waterlevel), "\n");
+		sound(self, CHAN_VOICE, "items/wetsuit3out.wav", 1, ATTN_NORM);
+	}
+	self.last_waterlevel = self.waterlevel;
 }
 
 /*
