@@ -541,7 +541,7 @@ void(entity inflictor, entity attacker, entity tgt, float points, float multi) T
 	
 	if(attacker.classname == "monster_kamikaze")
 	{
-		if(tgt.classname == "monster_kamikaze" || tgt.classname == "monster_zombie")
+		if(tgt.classname == "monster_zombie")
 		{
 			pnts = 200;
 		}
