@@ -533,6 +533,8 @@ void() HuntTarget =
 
 void() SightSound =
 {
+	local float	rsnd;
+	
 	if (self.classname == "monster_ogre" )	
 		sound (self, CHAN_VOICE, "ogre/ogwake.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_knight" || self.classname == "monster_axegrunt")
@@ -553,7 +555,6 @@ void() SightSound =
 		sound (self, CHAN_VOICE, "blob/sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_enforcer")
 	{
-		local float	rsnd;
 		rsnd = random();
 		if (rsnd < 0.25)
 			sound (self, CHAN_VOICE, "enforcer/sight1.wav", 1, ATTN_NORM);
@@ -574,6 +575,18 @@ void() SightSound =
 		} else {
 			sound (self, CHAN_VOICE, "brute/sight2.wav", 1, ATTN_NORM);
 		}
+	}
+	else if (self.classname == "monster_cguard")
+	{
+		rsnd = random();
+		if (rsnd < 0.25)
+			sound (self, CHAN_VOICE, "cguard/sight1.wav", 1, ATTN_NORM);
+		else if (rsnd < 0.5)
+			sound (self, CHAN_VOICE, "cguard/sight2.wav", 1, ATTN_NORM);
+		else if (rsnd < 0.75)
+			sound (self, CHAN_VOICE, "cguard/sight3.wav", 1, ATTN_NORM);
+		else
+			sound (self, CHAN_VOICE, "cguard/sight4.wav", 1, ATTN_NORM);
 	}
 }
 
