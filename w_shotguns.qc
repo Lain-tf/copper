@@ -244,7 +244,7 @@ void() W_FireQuadShotgun =
 			delay = 0.2;
 		}
 	} else {
-		delay = 1.8;
+		delay = 1;
 		if (has_haste(self)) {
 			delay = delay * HASTE_FACTOR;
 		}

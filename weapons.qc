@@ -366,6 +366,7 @@ void() W_ChangeWeapon =
 	{
 		fl = IT_NAILGUN;
 		weap = W_NAILGUN;
+		it = self.items;
 		if (self.ammo_nails < 1)
 			no_ammo = TRUE;
 	}
@@ -373,6 +374,7 @@ void() W_ChangeWeapon =
 	{
 		fl = IT_SUPER_NAILGUN;
 		weap = W_SUPER_NAILGUN;
+		it = self.items;
 		if (self.ammo_nails < 2)
 			no_ammo = 1;
 	}
@@ -380,6 +382,7 @@ void() W_ChangeWeapon =
 	{
 		fl = IT_GRENADE_LAUNCHER;
 		weap = W_GRENADE_LAUNCHER;
+		it = self.items;
 		if (self.ammo_rockets < 1)
 			no_ammo = 1;
 	}
@@ -387,6 +390,7 @@ void() W_ChangeWeapon =
 	{
 		fl = IT_ROCKET_LAUNCHER;
 		weap = W_ROCKET_LAUNCHER;
+		it = self.items;
 		if (self.ammo_rockets < 1)
 			no_ammo = 1;
 	}
@@ -394,6 +398,7 @@ void() W_ChangeWeapon =
 	{
 		fl = IT_LIGHTNING;
 		weap = W_LIGHTNING;
+		it = self.items;
 		if (self.ammo_cells < 1)
 			no_ammo = 1;
 	}
