@@ -37,6 +37,7 @@ void() weapon_touch_coop =
 void(entity to) weapon_give =
 {
 	to.items |= self.items;
+	to.items2 |= self.items2;
 	to.ammo_shells += self.ammo_shells;
 	to.ammo_nails += self.ammo_nails;
 	to.ammo_rockets += self.ammo_rockets;
@@ -60,6 +61,7 @@ weapon_touch
 void() weapon_touch =
 {
 	float	leave, nsw;
+	float weap_items, player_items;
 
 	if (!CheckValidTouch()) return;
 
@@ -67,17 +69,24 @@ void() weapon_touch =
 		leave = 1;
 	else
 		leave = 0;
+
+	if (self.items2) {
+		weap_items = self.items2;
+		player_items = other.items2;
+	} else {
+		weap_items = self.items;
+		player_items = other.items;
+	}
 	
 	if (leave)
 	{
-		if (other.items & self.items == self.items)	// already have it
-		{
+		if (player_items & weap_items == weap_items) {
+			// Player already has it
 			weapon_touch_coop();
-			return;
 		}
 	}
 	
-	if (self.items & other.items) nsw = TRUE;
+	if (weap_items & player_items) nsw = TRUE;
 
 	weapon_give(other);
 	// change to the weapon
@@ -87,7 +96,7 @@ void() weapon_touch =
 	if (nsw)
 		W_ResetWeaponState();
 	else
-		W_BetterWeapon(stemp.items);
+		W_BetterWeapon(stemp.weapon);
 	self = stemp;
 
 	if (coop == 1)
@@ -151,6 +160,7 @@ void() weapon_shotgun =
 	precache_model3 ("progs/g_shotgn.mdl");
 	setmodel (self, "progs/g_shotgn.mdl");
 	self.items = IT_SHOTGUN;
+	self.weapon = W_SHOTGUN;
 	self.ammo_shells = 5;
 	self.netname = "Shotgun";
 	StartWeapon();
@@ -175,8 +185,33 @@ void() weapon_supershotgun =
 	precache_model ("progs/g_shot.mdl");
 	setmodel (self, "progs/g_shot.mdl");
 	self.items = IT_SUPER_SHOTGUN;
+	self.weapon = W_SUPER_SHOTGUN;
 	self.ammo_shells = 10;
 	self.netname = "Double-barreled Shotgun";
+	StartWeapon();
+}
+
+/*QUAKED weapon_quad_shotgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+Quad Shotgun.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_quadshotgun : "Quad-barreled shotgun" []
+*/
+void() weapon_quad_shotgun =
+{
+	if (!SUB_ShouldSpawn()) return;
+	precache_model ("progs/g_shot.mdl");
+	setmodel (self, "progs/g_shot.mdl");
+	self.items2 = IT_QUAD_SHOTGUN;
+	self.weapon = W_QUAD_SHOTGUN;
+	self.ammo_shells = 10;
+	self.netname = "Quad-barreled Shotgun";
 	StartWeapon();
 }
 
@@ -198,6 +233,7 @@ void() weapon_nailgun =
 	precache_model ("progs/g_nail.mdl");
 	setmodel (self, "progs/g_nail.mdl");
 	self.items = IT_NAILGUN;
+	self.weapon = IT_NAILGUN;
 	self.ammo_nails = 30;
 	self.netname = "Nailgun";
 	StartWeapon();
@@ -221,6 +257,7 @@ void() weapon_supernailgun =
 	precache_model ("progs/g_nail2.mdl");
 	setmodel (self, "progs/g_nail2.mdl");
 	self.items = IT_SUPER_NAILGUN;
+	self.weapon = W_SUPER_NAILGUN;
 	self.ammo_nails = 30;
 	self.netname = "Perforator";
 	StartWeapon();
@@ -244,6 +281,7 @@ void() weapon_grenadelauncher =
 	precache_model ("progs/g_rock.mdl");
 	setmodel (self, "progs/g_rock.mdl");
 	self.items = IT_GRENADE_LAUNCHER;
+	self.weapon = W_GRENADE_LAUNCHER;
 	self.ammo_rockets = 5;
 	self.netname = "Grenade Launcher";
 	StartWeapon();
@@ -267,6 +305,7 @@ void() weapon_rocketlauncher =
 	precache_model ("progs/g_rock2.mdl");
 	setmodel (self, "progs/g_rock2.mdl");
 	self.items = IT_ROCKET_LAUNCHER;
+	self.weapon = W_ROCKET_LAUNCHER;
 	self.ammo_rockets = 5;
 	self.netname = "Rocket Launcher";
 	StartWeapon();
@@ -291,6 +330,7 @@ void() weapon_lightning =
 	precache_model ("progs/g_light.mdl");
 	setmodel (self, "progs/g_light.mdl");
 	self.items = IT_LIGHTNING;
+	self.weapon = W_LIGHTNING;
 	self.ammo_cells = 12;
 	self.netname = "Thunderbolt";
 	StartWeapon();

@@ -46,8 +46,9 @@ void() Cheat_Items =
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
+	self.items2 = self.items2 | IT_QUAD_SHOTGUN;
 
-	self.weapon = IT_ROCKET_LAUNCHER;
+	self.weapon = W_ROCKET_LAUNCHER;
 
 	stuffcmd(self,"bf\n");
 	W_ResetWeaponState();

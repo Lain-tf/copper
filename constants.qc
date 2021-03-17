@@ -143,9 +143,25 @@ float	IT_QUAD					= 4194304;
 float	IT_POWERUPS				= IT_INVISIBILITY + IT_INVULNERABILITY + IT_SUIT + IT_QUAD;
 // more IT flags after this exceeds 1^23, causing FPU bugs and unpredictable behavior
 
-// Powerups stored separately to other items, as we have more than fit
+// Powerups and weapon upgrades stored separately to other items,
+// as we have more than fit in the items flags.
 float IT_HASTE = 1;
 float IT_WETSUIT = 2;
+float IT_QUAD_SHOTGUN = 4;
+
+// Weapons (combination of weapon slot + upgrade)
+// These are deliberately the same values as the corresponding IT_ flags,
+// incase we miss somewhere checking the IT_ flags instead of these.
+float	W_SHOTGUN			= 1;
+float	W_SUPER_SHOTGUN		= 2;
+float	W_NAILGUN			= 4;
+float	W_SUPER_NAILGUN		= 8;
+float	W_GRENADE_LAUNCHER	= 16;
+float	W_ROCKET_LAUNCHER	= 32;
+float	W_LIGHTNING			= 64;
+float   W_QUAD_SHOTGUN      = 128;
+float	W_AXE				= 4096;
+
 
 // point content values
 float	CONTENT_EMPTY		= -1;

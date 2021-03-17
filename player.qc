@@ -61,7 +61,7 @@ void()	player_stand1 =[	$axstnd1,	player_stand1	]
 		return;
 	}
 
-	if (self.weapon == IT_AXE )
+	if (self.weapon == W_AXE )
 	{
 		if (self.walkframe >= 12)
 			self.walkframe = 0;
@@ -86,7 +86,7 @@ void()	player_run =[	$rockrun1,	player_run	]
 		return;
 	}
 
-	if (self.weapon == IT_AXE )
+	if (self.weapon == W_AXE )
 	{
 		if (self.walkframe >= 6)
 			self.walkframe = 0;
@@ -356,7 +356,7 @@ void(entity attacker, float damage) player_pain =
 	if (has_invis(self))
 		return;		// eyes don't have pain frames
 
-	if (self.weapon == IT_AXE )
+	if (self.weapon == W_AXE )
 		player_axpain1 ();
 	else
 		player_pain1 ();
@@ -510,7 +510,7 @@ void() PlayerDie =
 	self.angles_x = 0;
 	self.angles_z = 0;
 	
-	if (self.weapon == IT_AXE )
+	if (self.weapon == W_AXE )
 	{
 		player_die_ax1 ();
 		return;

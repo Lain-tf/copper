@@ -379,6 +379,13 @@ float	icantsee;
 // Second set of items, we overflowed the first
 .float 		items2;
 
+// Weapon upgrades
+.float 		upgrades;
+.float      upgrade_selected;
+
+// Number of shots fired so far in the shotgun sequence.
+.float 		sg_shots_remaining;
+
 // For detecting whether we just popped our head above water
 .float 		last_waterlevel;
 
