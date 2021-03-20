@@ -158,7 +158,7 @@ void() player_quad_shotgun_frame = {
 		}
 
 		if (self.weaponframe == 36) {
-			self.weaponframe = 0;
+			player_run();
 			return;
 		}
 	}

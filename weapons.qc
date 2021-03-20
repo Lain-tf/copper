@@ -281,7 +281,19 @@ void() W_Attack =
 	}
 	else if (self.weapon == W_QUAD_SHOTGUN)
 	{
-		player_quad_shotgun();
+		if (self.currentammo < 4) {
+			// Not enough ammo, fire with one of the lesser shotguns.
+			if (self.items & IT_SUPER_SHOTGUN) {
+				self.weapon = W_SUPER_SHOTGUN;
+			} else {
+					self.weapon = W_SHOTGUN;
+			}
+			W_ResetWeaponState();
+			W_Attack();
+			return;
+		} else {
+			player_quad_shotgun();
+		}
 	}
 	else if (self.weapon == W_NAILGUN || self.weapon == W_SUPER_NAILGUN)
 	{
