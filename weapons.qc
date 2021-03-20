@@ -75,7 +75,7 @@ float() W_CanSwitchWeapon =
 {
 	// Can't switch away from the quad shotgun either in the middle of the firing sequence, or
 	// during the cooldown period.
-	if (self.weapon == W_QUAD_SHOTGUN && time < self.attack_finished) {
+	if (self.weapon == W_QUAD_SHOTGUN && self.qsg_firing) {
 		return FALSE;
 	}
 	return TRUE;

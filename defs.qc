@@ -386,6 +386,9 @@ float	icantsee;
 // For detecting whether we just popped our head above water
 .float 		last_waterlevel;
 
+// For handling weapon switch away from the quad shotgun.
+.float		qsg_firing;
+
 // OVERLOADS:
 .float rand = healamount;	// for trigger_timer
 .float svflags = jump_flag;	// for target_give and item_sigil
