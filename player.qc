@@ -123,7 +123,7 @@ void() player_quad_shotgun = {
 		haste_factor = 1;
 	}
 
-	self.attack_finished = time + 1.8 * haste_factor;
+	self.attack_finished = time + 1.6 * haste_factor;
 	self.weaponframe = 0;
 	player_quad_shotgun_frame();
 }
