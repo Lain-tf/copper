@@ -356,7 +356,7 @@ void() W_ChangeWeapon =
 			fl = IT_SUPER_SHOTGUN;
 			weap = W_SUPER_SHOTGUN;
 			it = self.items;
-			if (self.ammo_shells <= 2) {
+			if (self.ammo_shells < 2) {
 				no_ammo = TRUE;
 			}
 		}
