@@ -24,6 +24,7 @@ void() W_Precache =
 	precache_sound ("weapons/grenade.wav");		// grenade launcher
 	precache_sound ("weapons/bounce.wav");		// grenade bounce
 	precache_sound ("weapons/shotgn2.wav");		// ssg
+	precache_sound ("weapons/shotgn3.wav");		// qsg
 	precache_model2 ("progs/k_spike.mdl");
 	precache_model ("progs/lavaball.mdl");	
 	precache_sound ("weapons/lhit.wav");		//lightning
@@ -46,6 +47,7 @@ void() W_Precache =
 	precache_model ("progs/v_nail.mdl");
 	precache_model ("progs/v_rock.mdl");
 	precache_model ("progs/v_shot2.mdl");
+	precache_model ("progs/v_shot3.mdl");
 	precache_model ("progs/v_nail2.mdl");
 	precache_model ("progs/v_rock2.mdl");
 	precache_model ("progs/v_light.mdl");
@@ -129,8 +131,7 @@ void() W_ResetWeaponState =
 	else if (self.weapon == W_SUPER_SHOTGUN)
 		self.weaponmodel = "progs/v_shot2.mdl";
 	else if (self.weapon == W_QUAD_SHOTGUN)
-		// TODO(JP) Set the correct model
-		self.weaponmodel = "progs/v_shot2.mdl";
+		self.weaponmodel = "progs/v_shot3.mdl";
 	else if (self.weapon == W_NAILGUN)
 		self.weaponmodel = "progs/v_nail.mdl";
 	else if (self.weapon == W_SUPER_NAILGUN)
@@ -280,8 +281,7 @@ void() W_Attack =
 	}
 	else if (self.weapon == W_QUAD_SHOTGUN)
 	{
-		player_shot1 ();
-		W_FireQuadShotgun();
+		player_quad_shotgun();
 	}
 	else if (self.weapon == W_NAILGUN || self.weapon == W_SUPER_NAILGUN)
 	{
@@ -342,7 +342,6 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 3)
 	{
-		dprint4(ftos(self.items2), " ", ftos(self.weapon), "\n");
 		if (self.items2 & IT_QUAD_SHOTGUN &&
 			self.weapon != W_QUAD_SHOTGUN &&
 			self.ammo_shells >= 4) {
@@ -638,13 +637,6 @@ void() W_WeaponFrame =
 
 	if (time < self.attack_finished)
 		return;
-
-	// Check whether we are firing the quad shotgun sequence.
-	if (self.sg_shots_remaining) {
-		SuperDamageSound();
-		W_FireQuadShotgun();
-		return;
-	}	
 
 	// check for attack
 	if (self.button0)

@@ -194,6 +194,12 @@ void() ImpulseCommands =
 	case 6:
 	case 7:
 	case 8:
+		if (!W_CanSwitchWeapon()) {
+			// Return here so we don't clear the impulse, and the weapon will switch as soon
+			// as possible to the last weapon that was selected.
+			return;
+		}
+
 		W_ChangeWeapon();
 		break;
 	case 10:

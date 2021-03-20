@@ -214,43 +214,13 @@ W_FireQuadhotgun
 void() W_FireQuadShotgun =
 {
 	local vector dir;
-	float delay;
 
-	player_shot1();
-	sound(self ,CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);	
-	self.punchangle_x = -6;
-
+	sound(self ,CHAN_WEAPON, "weapons/shotgn3.wav", 1, ATTN_NORM);
+	self.punchangle_x = -2;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
-	dir = aim (self, AUTOAIM_DIST);
+	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
-
-	FireBullets (7, dir, '0.04 0.04 0');
-
-	if (self.sg_shots_remaining) {
-		self.sg_shots_remaining = self.sg_shots_remaining - 1;
-	} else {
-		self.sg_shots_remaining = min(3, self.ammo_shells);
-	}
-
-	if (self.sg_shots_remaining) {
-		if (has_haste(self)) {
-			// We don't use the standard HASTE_FACTOR here, because
-			// rounding means we end up with the same number of frames
-			// between the shots, so it makes no difference. Make
-			// it twice as fast instead.
-			delay = 0.1; 
-		} else {
-			delay = 0.2;
-		}
-	} else {
-		delay = 1;
-		if (has_haste(self)) {
-			delay = delay * HASTE_FACTOR;
-		}
-	}
-
-	self.attack_finished = time + delay;
-	
+	FireBullets(9, dir, '0.06 0.06 0');
 	ApplyMultiDamage();
 }

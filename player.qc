@@ -109,7 +109,54 @@ void()	player_shot4 =	[$shotatt4, player_shot5	] {self.weaponframe=4;}
 void()	player_shot5 =	[$shotatt5, player_shot6	] {self.weaponframe=5;}
 void()	player_shot6 =	[$shotatt6, player_run	] {self.weaponframe=6;}
 
+/*
+=============
+Quad shotgun
+=============
+*/
+void() player_quad_shotgun = {
+	float haste_factor;
 
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+
+	self.attack_finished = time + 1.8 * haste_factor;
+	self.weaponframe = 0;
+	player_quad_shotgun_frame();
+}
+
+void() player_quad_shotgun_frame = {
+	float haste_factor;
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+
+	self.weaponframe += 1;
+	if (self.weaponframe < 17) {
+		// We're in the initial firing phase
+		if (mod(self.weaponframe, 4) == 1) {
+			self.frame = $shotatt1;
+			W_FireQuadShotgun();
+		} else {
+			self.frame += 1;
+		}
+	} else {
+		// Now in the cooldown phase
+		self.frame = $rockrun1;
+		if (self.weaponframe == 36) {
+			self.weaponframe = 0;
+			self.nextthink = 0;
+			return;
+		}
+	}
+	self.think = player_quad_shotgun_frame;
+	self.nextthink = time + 0.05 * haste_factor;
+}
 
 /*
 ========================================

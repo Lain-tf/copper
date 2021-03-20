@@ -192,7 +192,7 @@ void() weapon_supershotgun =
 }
 
 /*QUAKED weapon_quad_shotgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
-Quad Shotgun.
+Rotary Shotgun.
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -206,12 +206,12 @@ Keys:
 void() weapon_quad_shotgun =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_shot.mdl");
-	setmodel (self, "progs/g_shot.mdl");
+	precache_model ("progs/g_shot3.mdl");
+	setmodel (self, "progs/g_shot3.mdl");
 	self.items2 = IT_QUAD_SHOTGUN;
 	self.weapon = W_QUAD_SHOTGUN;
 	self.ammo_shells = 10;
-	self.netname = "Quad-barreled Shotgun";
+	self.netname = "Rotary Shotgun";
 	StartWeapon();
 }
 

@@ -383,9 +383,6 @@ float	icantsee;
 .float 		upgrades;
 .float      upgrade_selected;
 
-// Number of shots fired so far in the shotgun sequence.
-.float 		sg_shots_remaining;
-
 // For detecting whether we just popped our head above water
 .float 		last_waterlevel;
 
