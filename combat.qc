@@ -613,9 +613,6 @@ void(entity inflictor, entity attacker, float radius, float damage, float(float,
 			dist = vlen (inflictor.origin - org);
 			
 			points = formula(dist, damage);
-			dprint("formula result: ");
-			dprint(ftos(points));
-			dprint("\n");
 			if (head == attacker)
 				points = points * 0.5;
 			
