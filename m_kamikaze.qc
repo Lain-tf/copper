@@ -113,7 +113,7 @@ float(float dist, float dmg) KamiBlastRadius =
 	return final_dmg;
 }
 
-void()	kami_die =
+void() kami_explode =
 {
 	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
 	GibSpray ("progs/gib3.mdl", self.health);
@@ -121,6 +121,15 @@ void()	kami_die =
 	T_RadiusDamage_Custom (self, self, 190, 60, KamiBlastRadius, world);
 	sound (self, CHAN_BODY, "weapons/r_exp3.wav", 1, ATTN_NORM);
 	BecomeExplosion();
+}
+
+void()	kami_die =
+{
+	if (self.think == kami_explode)
+		return;	// already exploding
+	self.enemy = activator;
+	self.think = kami_explode;
+	self.nextthink = time + 0.05;	// infini-kami crash fixed
 };
 
 void(entity attacker, float damage)	kami_pain =
