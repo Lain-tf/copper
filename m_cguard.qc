@@ -77,10 +77,10 @@ void(float overHead) cguard_Melee =
 	if (!CanDamage (self.enemy, self.origin))
 		return;
 	
-	if(overHead)
+	//if(overHead)
 		ai_charge(30);
-	else
-		ai_charge(10);
+	//else
+	//	ai_charge(10);
 
 	
 	delta = self.enemy.origin - self.origin;
@@ -160,6 +160,29 @@ void() cguard_swing_sound =
 		sound (self, CHAN_VOICE, "cguard/melee1.wav", 1, ATTN_NORM);
 	else
 		sound (self, CHAN_VOICE, "cguard/meleeswing.wav", 1, ATTN_NORM);
+}
+
+void(float offset) cguard_swing_shot =
+{
+	vector	offang;
+	vector	org, vec;
+	
+	vec = enemy_vispos() - self.origin;
+	vec += enemy_aim_vertical();
+	offang = vectoangles(vec);
+	offang_y = offang_y + offset * 6;
+	offang_x *= -1;
+	
+	if (angledif(self.ideal_yaw, offang_y) > 80)	// no assbolts
+		makevectors (self.angles + '0 1 0' * offset * 6);
+	else
+		makevectors (offang + '0 1 0' * offset * 6);
+
+	org = self.origin + self.mins + self.size*0.5 + v_forward * 20;
+	
+// set missile speed
+	vec = normalize (v_forward);
+	launch_cguard_projectile(org, vec*250);
 }
 
 //===========================================================================
@@ -296,13 +319,13 @@ void()	cguard_melee4	=[	$melee4,	cguard_melee5	] {ai_face();}
 void()	cguard_melee5	=[	$melee5,	cguard_melee6	] {ai_face();}
 void()	cguard_melee6	=[	$melee6,	cguard_melee7	] {ai_face(); cguard_swing_sound();}
 void()	cguard_melee7	=[	$melee7,	cguard_melee8	] {ai_face();}
-void()	cguard_melee8	=[	$melee8,	cguard_melee9	] {cguard_Melee(FALSE);}
-void()	cguard_melee9	=[	$melee9,	cguard_melee10	] {cguard_Melee(FALSE);}
-void()	cguard_melee10	=[	$melee10,	cguard_melee11	] {cguard_Melee(FALSE);}
-void()	cguard_melee11	=[	$melee11,	cguard_melee12	] {}
-void()	cguard_melee12	=[	$melee12,	cguard_melee13	] {}
-void()	cguard_melee13	=[	$melee13,	cguard_melee14	] {}
-void()	cguard_melee14	=[	$melee14,	cguard_run1		] {}
+void()	cguard_melee8	=[	$melee8,	cguard_melee9	] {cguard_swing_shot(2); cguard_Melee(FALSE); ai_face();}
+void()	cguard_melee9	=[	$melee9,	cguard_melee10	] {cguard_swing_shot(1); cguard_Melee(FALSE); ai_face();}
+void()	cguard_melee10	=[	$melee10,	cguard_melee11	] {cguard_swing_shot(0); cguard_Melee(FALSE); ai_face();}
+void()	cguard_melee11	=[	$melee11,	cguard_melee12	] {cguard_swing_shot(-1); ai_face();}
+void()	cguard_melee12	=[	$melee12,	cguard_melee13	] {cguard_swing_shot(-2); ai_face();}
+void()	cguard_melee13	=[	$melee13,	cguard_melee14	] {cguard_swing_shot(-3); ai_face();}
+void()	cguard_melee14	=[	$melee14,	cguard_run1		] {cguard_swing_shot(-4); ai_face();}
 
 //============================================================================
 
@@ -373,14 +396,19 @@ void() cguard_die =
 // check for gib
 	if (self.health < -80)
 	{
-		//	Gib
-		return;
+		sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
+		ThrowHead ("progs/h_guard.mdl", self.health);
+		ThrowGib ("progs/gib1.mdl", self.health);
+		ThrowGib ("progs/gib2.mdl", self.health);
+		ThrowGib ("progs/gib3.mdl", self.health);
 	}
-
-	if (random() > 0.5)
-		cguard_death1();
 	else
-		cguard_deathb1();
+	{
+		if (random() > 0.5)
+			cguard_death1();
+		else
+			cguard_deathb1();
+	}
 }
 
 void() cguard_pain_go =
@@ -478,6 +506,7 @@ void() monster_cguard =
 	
 	precache_model2 ("progs/cguard.mdl");
 	precache_model2 ("progs/laser.mdl");
+	precache_model2 ("progs/h_guard.mdl");
 	
 	precache_sound2 ("cguard/death1.wav");
 	precache_sound2 ("cguard/death2.wav");
@@ -492,6 +521,7 @@ void() monster_cguard =
 	precache_sound2 ("cguard/sight2.wav");
 	precache_sound2 ("cguard/sight3.wav");
 	precache_sound2 ("cguard/sight4.wav");
+	precache_sound ("zombie/z_gib.wav");
 	
 	self.health = 250;
 	setsize (self, '-16 -16 -24', '16 16 40');
