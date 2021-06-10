@@ -90,12 +90,6 @@ float(float dist, float dmg) KamiBlastRadius =
 	final_dmg = ceil(final_dmg + 100) / 100;
 	final_dmg = final_dmg * dmg;
 	
-	dprint("KamiBlastRadius - dist: ");
-	dprint(ftos(dist));
-	dprint(" - return: ");
-	dprint(ftos(final_dmg));
-	dprint("\n");
-	
 	return final_dmg;
 };
 */
@@ -119,7 +113,7 @@ float(float dist, float dmg) KamiBlastRadius =
 	return final_dmg;
 }
 
-void()	kami_die =
+void() kami_explode =
 {
 	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
 	GibSpray ("progs/gib3.mdl", self.health);
@@ -127,6 +121,15 @@ void()	kami_die =
 	T_RadiusDamage_Custom (self, self, 190, 60, KamiBlastRadius, world);
 	sound (self, CHAN_BODY, "weapons/r_exp3.wav", 1, ATTN_NORM);
 	BecomeExplosion();
+}
+
+void()	kami_die =
+{
+	if (self.think == kami_explode)
+		return;	// already exploding
+	self.enemy = activator;
+	self.think = kami_explode;
+	self.nextthink = time + 0.05;	// infini-kami crash fixed
 };
 
 void(entity attacker, float damage)	kami_pain =
@@ -142,11 +145,11 @@ void(entity attacker, float damage)	kami_pain =
 
 float()	KamiCheckDistance =
 {
-	float	dist;
-	vector	d;
-	float	r;
+	//float	dist;
+	//vector	d;
+	//float	r;
 	
-	if(self.enemy)
+	/*if(self.enemy)
 	{
 		d = eyeline(self.enemy);
 		r = vlen(d);
@@ -156,7 +159,7 @@ float()	KamiCheckDistance =
 		dprint(ftos(r));
 		dprint("\n");
 		
-	}
+	}*/
 	
 	if (EntitiesTouching(self, self.enemy))
 		return TRUE;

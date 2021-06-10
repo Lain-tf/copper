@@ -528,4 +528,21 @@ entity(vector org, vector vel) launch_grenade =
 	return grenade;
 }
 
-
+/*
+========
+launch_cguard_projectile
+cguard swing spreadfire
+========
+*/
+entity(vector org, vector vel) launch_cguard_projectile =
+{
+	entity spike;
+	
+	spike = launch_projectile(org, vel, "cguard_projectile");	// FLYMISSILE
+	spike.touch = spike_touch;
+	SUB_ChangeModel (spike, "progs/k_spike.mdl");
+	
+	spike.dmg = 8;
+	
+	return spike;
+}
