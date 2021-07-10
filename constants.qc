@@ -2,7 +2,8 @@
 // constants
 //================================================
 
-string version = "Dwell 1.15 - 17th December 2020\n";
+string version = "Dwell 1.16 - 10th July 2021\n";
+float version_f = 1.16;
 
 float	FALSE					= 0;
 float 	TRUE					= 1;

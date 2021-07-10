@@ -282,6 +282,7 @@ float	icantsee;
 // lights
 .float		style;
 .float		oldstyle;
+.float		switchshadstyle;	// was "shadowstyle" too clear and easy to type or something
 
 // monster ai
 .void()		th_stand;
@@ -397,6 +398,7 @@ float	icantsee;
 .string exclude = map;
 .float light_lev = bubble_count;	// shuts up a stupid stupid warning
 .vector rmovedir = finaldest;
+.float version = worldtype;
 
 
 //===========================================================================

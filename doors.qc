@@ -127,7 +127,10 @@ void() door_fire =
 			starte = self;
 			do
 			{
-				door_go_down ();
+				if (self.classname == "shadowmonitor")
+					door_shadowmonitor_go();
+				else
+					door_go_down ();
 				self = self.enemy;
 			} while ( (self != starte) && (self != world) );
 			self = oself;
@@ -139,7 +142,10 @@ void() door_fire =
 	starte = self;
 	if ( !( self.spawnflags & DOOR_TOGGLE ) || ( self.spawnflags & DOOR_TOGGLE && self.state == STATE_BOTTOM) )
 	do {
-		door_go_up ();
+		if (self.classname == "shadowmonitor")
+			door_shadowmonitor_go();
+		else
+			door_go_up ();
 		self = self.enemy;
 	} while ( (self != starte) && (self != world) );
 	self = oself;
@@ -342,6 +348,52 @@ float(entity d) door_getslocked =
 /*
 =============================================================================
 
+SWITCHABLE SHADOWS
+
+I do not want to screw around with SUB_CalcMove or bog doors down even further with
+thinking-while-moving, so doors with switchable shadows will spawn a little helper
+monitor to do that to keep mover code clean
+
+=============================================================================
+*/
+
+void() door_shadowmonitor_go =
+{
+	float frac;
+	entity o = self.owner;
+	if (o.state == STATE_TOP)
+		frac = 1;
+	else if (o.state == STATE_BOTTOM)
+		frac = 0;
+	else
+		frac = vlen(o.origin - o.pos1) / vlen(o.pos2 - o.pos1);
+	
+	if (o.spawnflags & DOOR_START_OPEN)
+		frac = 1 - frac;
+
+	bmodel_lightstyle(o, light_str(frac));
+
+	self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
+	self.think = door_shadowmonitor_go;
+}
+
+void(entity d) door_shadowmonitor =
+{
+	entity m = spawn();
+	m.classname = "shadowmonitor";
+	m.owner = d;
+	m.enemy = d.enemy;
+	d.enemy = m;
+
+	if (!(d.spawnflags & DOOR_START_OPEN))
+	{
+		bmodel_lightstyle(d, "a");
+	}
+}
+
+/*
+=============================================================================
+
 SPAWNING FUNCTIONS
 
 =============================================================================
@@ -396,6 +448,18 @@ void(vector cmins, vector cmaxs) door_finalize =
 		return;
 		*/
 	}
+
+	t = self;
+	do {
+		// put a light fade monitor in the enemy chain
+		if (self.style || self.switchshadstyle)
+		{
+			door_shadowmonitor(t);
+			break;
+		}
+		t = t.enemy;
+	} while (t != self);
+
 	if (self.health)
 		return;
 	if (self.targetname != string_null)
@@ -815,6 +879,37 @@ void(entity attacker, float damage) secretdoor_pain =
 	secretdoor_use();
 }
 
+
+void() secret_shadowmonitor_go =
+{
+	float frac;
+	vector mv, p;
+	entity o = self.owner;
+	
+	if (o.think == secretdoor_move2 || o.think == secretdoor_move6)
+		frac = 0;
+	else if (o.think == secretdoor_move4)
+		frac = 1;
+	else
+	{
+		mv = o.dest2 - o.dest1;
+		p = o.origin - o.dest1;
+		frac = (p * normalize(mv)) / vlen(mv);
+	}
+
+	bmodel_lightstyle(o, light_str(frac));
+
+	if ((frac == 0 || frac == 1) && o.wait == -1)
+	{
+		remove(self);
+		return;
+	}
+	
+	self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
+	self.think = secret_shadowmonitor_go;
+}
+
+
 // Make a sound, wait a little...
 void () secretdoor_move0 = 
 {
@@ -823,6 +918,14 @@ void () secretdoor_move0 =
 
 	SUB_CalcMove(self.dest1, self.speed, secretdoor_move1);
 	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+	
+	if (!self.switchshadstyle && !self.style)
+		return;
+	
+	entity s = spawn();
+	s.classname = "shadowmonitor";
+	s.owner = self;
+	SUB_CallAsSelf(secret_shadowmonitor_go, s);
 }
 
 // Wait after first movement...
@@ -1065,5 +1168,7 @@ void () func_door_secret =
 		self.t_length = BoundsAngleSize(secondmove, self.size);
 
 	self.dest1 = self.origin + firstmove * self.t_width;
-	self.dest2 = self.dest1 + secondmove * self.t_length;	
+	self.dest2 = self.dest1 + secondmove * self.t_length;
+
+	bmodel_lightstyle(self, "a");
 }

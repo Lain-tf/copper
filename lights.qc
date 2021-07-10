@@ -36,7 +36,7 @@ string light_off = "a";
 @baseclass base() color(255 255 40) size(-8 -8 -8, 8 8 8) = Light [
 	light(integer) : "Brightness" : 300
 	_color(string) : "Color" : "1 1 1"
-	wait(integer) : "Fade distance multiplier" : 1
+	wait(string) : "Fade distance multiplier" : 1
 	mangle(string) : "Spotlight aim (yaw pitch roll, neg. pitch is down)"
 	angle(integer) : "Spotlight cone angle"
 	_softangle(integer) : "Spotlight inner cone angle"
@@ -164,11 +164,38 @@ void() light_use =
 	}
 }
 
+void(entity b, string l) bmodel_lightstyle =
+{
+	if (b.style)
+		lightstyle(b.style, l);
+	if (b.switchshadstyle)
+		lightstyle(b.switchshadstyle, l);
+}
+
+string(float f) light_str =
+{
+	// you know what's cool?  arrays.
+	float bright = floor(f * 12 + 0.5);
+	if (bright <= 0 ) return "a";
+	if (bright >= 12) return "m";
+
+	if (bright == 1 ) return "b";
+	if (bright == 2 ) return "c";
+	if (bright == 3 ) return "d";
+	if (bright == 4 ) return "e";
+	if (bright == 5 ) return "f";
+	if (bright == 6 ) return "g";
+	if (bright == 7 ) return "h";
+	if (bright == 8 ) return "i";
+	if (bright == 9 ) return "j";
+	if (bright == 10) return "k";
+	if (bright == 11) return "l";
+	return "a";
+}
+
 // Lights with "count" will gradually change brightness each time they're triggered, reaching normal brightness or complete darkness after 'count' triggers.
 void() light_inc_use =
 {
-	local float bright;
-	
 	if (self.spawnflags & START_OFF)
 	{
 		if (self.cnt == self.count) return;
@@ -180,21 +207,7 @@ void() light_inc_use =
 		self.cnt = self.cnt - 1;
 	}
 	
-	// you know what's cool?  arrays.
-	bright = floor( (self.cnt / self.count) * 13);
-	if (bright >= 13)		lightstyle(self.style, "m");
-	else if (bright == 12) lightstyle(self.style, "l");
-	else if (bright == 11) lightstyle(self.style, "k");
-	else if (bright == 10) lightstyle(self.style, "j");
-	else if (bright == 9 ) lightstyle(self.style, "i");
-	else if (bright == 8 ) lightstyle(self.style, "h");
-	else if (bright == 7 ) lightstyle(self.style, "g");
-	else if (bright == 6 ) lightstyle(self.style, "f");
-	else if (bright == 5 ) lightstyle(self.style, "e");
-	else if (bright == 4 ) lightstyle(self.style, "d");
-	else if (bright == 3 ) lightstyle(self.style, "c");
-	else if (bright == 2 ) lightstyle(self.style, "b");
-	else if (bright <= 1 ) lightstyle(self.style, "a");
+	lightstyle(self.style, light_str(self.cnt / self.count));
 }
 
 void() light_message =
@@ -703,11 +716,13 @@ See 'light' keyvalues/spawnflags for more.
 void() light_candle =
 {
 	if (!self.width)
-		self.width = 1 + floor(random()*2.99);
+		//self.width = 1 + floor(random()*2.99);
+		self.width = 1 + floor(fabs((self.origin_x % 5) + (self.origin_y % 13) - self.origin_z) % 3);
 	if (!self.height)
-		self.height = 1 + floor(random()*2.99);
+		//self.height = 1 + floor(random()*2.99);
+		self.height = 1 + floor(fabs((self.origin_x % 11) + (self.origin_y % 7) - self.origin_z) % 3);
 	if (self.angles == VEC_ORIGIN)
-		self.angles_y = random()*360;
+		self.angles_y = floor(fabs((self.origin_x % 17) + (self.origin_y % 23) - self.origin_z) % 10) * 36;
 	
 	if (self.height == 1)
 		self.model = "progs/candle1.mdl";
@@ -797,6 +812,14 @@ string() target_lightstyle_next =
 	return tls.message;
 }
 
+void(entity l, string st) lightstyle_switch =
+{
+	if (l.style)
+		lightstyle(l.style, st);
+	if (l.switchshadstyle)
+		lightstyle(l.switchshadstyle, st);
+}
+
 void() target_lightstyle_go =
 {
 	float st;
@@ -812,7 +835,7 @@ void() target_lightstyle_go =
 	if (self.target != string_null)
 	{
 		l = world;
-		while (l.style == 0)
+		while (l.style == 0 && l.switchshadstyle == 0)
 		{
 			l = find(l, targetname, self.target);		
 			if (l == world)
@@ -822,12 +845,12 @@ void() target_lightstyle_go =
 			}
 		}
 	}
-	if (l) lightstyle(l.style, newstyle);
+	if (l) lightstyle_switch(l, newstyle);
 	
 	if (self.target2 != string_null)
 	{
 		l = world;
-		while (l.style == 0)
+		while (l.style == 0 && l.switchshadstyle == 0)
 		{
 			l = find(l, targetname, self.target2);	
 			if (l == world)
@@ -837,12 +860,12 @@ void() target_lightstyle_go =
 			}
 		}
 	}
-	if (l) lightstyle(l.style, newstyle);
+	if (l) lightstyle_switch(l, newstyle);
 
 	if (self.target3 != string_null)
 	{
 		l = world;
-		while (l.style == 0)
+		while (l.style == 0 && l.switchshadstyle == 0)
 		{
 			l = find(l, targetname, self.target3);
 			if (l == world)
@@ -852,12 +875,12 @@ void() target_lightstyle_go =
 			}
 		}
 	}
-	if (l) lightstyle(l.style, newstyle);
+	if (l) lightstyle_switch(l, newstyle);
 
 	if (self.target4 != string_null)
 	{
 		l = world;
-		while (l.style == 0)
+		while (l.style == 0 && l.switchshadstyle == 0)
 		{
 			l = find(l, targetname, self.target4);		
 			if (l == world)
@@ -867,7 +890,7 @@ void() target_lightstyle_go =
 			}
 		}
 	}	
-	if (l) lightstyle(l.style, newstyle);
+	if (l) lightstyle_switch(l, newstyle);
 }
 
 void() target_lightstyle_use =

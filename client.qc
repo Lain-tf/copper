@@ -452,13 +452,10 @@ entity() SelectSpawnPoint =
 	// testinfo_player_start is only found in regioned levels
 	if (!coop)
 	{
-		spot = find (world, classname, "testplayerstart");
-		while (spot)
+		spot = find (world, classname, "info_player_start_test");
+		if (spot)
 		{
-			if (spot.spawnflags & 1 && cvar("developer"))
-				return spot;
-
-			spot = find (spot, classname, "testplayerstart");
+			return spot;
 		}
 	}
 		
@@ -2012,23 +2009,29 @@ void() info_player_start2 =
 }
 
 
-/*QUAKED testplayerstart (1 0 0) (-16 -16 -24) (16 16 24) USE
+/*QUAKED info_player_start_test (1 0 0) (-16 -16 -24) (16 16 24) USE
 Debug starting point for a level.  Overrides info_player_start if present and 'USE' is checked, does nothing if 'USE' is not checked. Will fire its targets when a player is spawned, here with player as activator.
 
 "angle" viewing angle when spawning
 "fog_color"/"fog_density" set the fog when spawning at this spot
 */
 /*FGD
-@PointClass base(PlayerClass) = testplayerstart : "Developer-only spawn point" [
+@PointClass base(PlayerClass) = info_player_start_test : "Developer-only spawn point" [
 	spawnflags(flags) = [
 		1 : "Spawn at this one plz" : 0
 	]
 ]
 */
-void() testplayerstart =
+void() info_player_start_test =
 {
+	if (!(self.spawnflags & 1))
+	{
+		remove(self);
+		return;
+	}
 	self.mangle = self.angles;
 }
+void() testplayerstart = {info_player_start_test();}	// back compat with old editors that use regioned compiles
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 24)
 potential spawning position for deathmatch games
