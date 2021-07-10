@@ -18,6 +18,10 @@ float	TELEPORT_NOTRIGGER		= 8;
 float	TELEPORT_NOFLASH		= 16;
 float	TELEPORT_MONSTER_ONLY	= 32;
 
+float	TELEPORT_STYLE_FIRST	= 0;
+float	TELEPORT_STYLE_RANDOM	= 1;
+float	TELEPORT_STYLE_CYCLE	= 2;
+
 // --------------------------------
 
 void() teleport_flash = 
@@ -413,6 +417,96 @@ void(vector org, entity death_owner) spawn_tdeath =
 
 // --------------------------------
 
+
+entity() teleport_getdestination = 
+{
+	entity dests[256];
+	entity d;
+	float totaldests, i, nextdest;
+	float maxdest, mindest;
+	nextdest = 255;
+	mindest = 255;
+
+	if (self.style == TELEPORT_STYLE_RANDOM)
+	{
+
+		d = find(world, targetname, self.target);
+		while (d) {
+			if (d.classname == "info_teleport_destination" && !(d.customflags & CFL_LOCKED))
+			{
+				dests[i] = d;
+				i++;
+				totaldests++;
+			}
+			d = find(d, targetname, self.target);
+		}
+
+		if (!totaldests) return world;
+
+		i = floor(random() * (totaldests - 0.01));
+		//dprint5("Found ", ftos(totaldests), " dests, returning ", ftos(i), "\n");
+		return dests[i];
+	}
+	else if (self.style == TELEPORT_STYLE_CYCLE)
+	{
+		d = find(world, targetname, self.target);
+		while (d) {
+			if (d.classname == "info_teleport_destination" && !(d.customflags & CFL_LOCKED))
+			{
+				if (dests[d.cnt])
+				{
+					dprint3("trigger_teleport (", vtos((self.mins + self.maxs)*0.5), "): destinations with the same count order at:\n");
+					dprint4(vtos(d.origin), " and ", vtos(dests[d.cnt].origin), "\n");
+				}
+
+				dests[d.cnt] = d;
+
+				if (d.cnt > self.cnt && d.cnt < nextdest) nextdest = d.cnt;
+				if (d.cnt < mindest) mindest = d.cnt;
+				if (d.cnt > maxdest) maxdest = d.cnt;
+
+				totaldests++;
+			}
+			d = find(d, targetname, self.target);
+		}
+
+		if (!totaldests) return world;
+
+		if (self.cnt >= maxdest) nextdest = mindest;
+		self.cnt = nextdest;
+		return dests[nextdest];
+
+	}
+	else
+	{ // TELEPORT_STYLE_FIRST, default
+		nextdest = 255;
+		
+		d = find(world, targetname, self.target);
+		while (d)
+		{
+			if (d.classname == "info_teleport_destination" && !(d.customflags & CFL_LOCKED))
+			{
+				if (dests[d.cnt])
+				{
+					dprint3("trigger_teleport (", vtos((self.mins + self.maxs)*0.5), "): destinations with the same count order at:\n");
+					dprint4(vtos(d.origin), " and ", vtos(dests[d.cnt].origin), "\n");
+				}
+
+				dests[d.cnt] = d;
+
+				if (d.cnt < nextdest) nextdest = d.cnt;
+				totaldests++;
+			}
+			d = find(d, targetname, self.target);
+		}
+
+		if (!totaldests) return world;
+		else return dests[nextdest];
+	}
+};
+
+// --------------------------------
+
 void() teleport_touch =
 {
 	local entity	t;
@@ -431,7 +525,8 @@ void() teleport_touch =
 		return;
 	}
 
-	t = find (world, targetname, self.target);
+	//t = find (world, targetname, self.target);
+	t = teleport_getdestination();
 	if (!t)
 		objerror ("teleporter couldn't find target");
 
