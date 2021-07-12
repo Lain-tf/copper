@@ -595,6 +595,13 @@ void() PutClientInServer =
 		fog_save(self,spot.fog_density,spot.fog_color);
 	else if (world.fog_density)
 		fog_save(self,world.fog_density,world.fog_color);
+
+	if (spot.skyfog_density){
+		skyfog_save(self, zeroconvert(spot.skyfog_density));
+	}
+	else if (world.skyfog_density){
+		skyfog_save(self, zeroconvert(world.skyfog_density));
+	}
 	cleanUpClientShit = 2;
 
 // oh, this is a hack!

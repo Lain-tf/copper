@@ -321,6 +321,8 @@ float	icantsee;
 // fog
 .vector		fog_color, fog_color2;
 .float		fog_density, fog_density2;
+.float		skyfog_density, skyfog_density2;
+.entity		fogblend_entity;
 
 
 // object stuff
