@@ -398,16 +398,29 @@ string() target_sound_next =
 void() target_sound_use =
 {
 	string snd = target_sound_next();
+	entity wh;
+	if ((self.spawnflags & 2) && activator.classname == "player")
+		wh = activator;
+	else
+		wh = self;
+	
+	playercount_convert(count);
+	if (self.count > 0)
+	{
+		self.count -= 1;
+		if (self.count <= 0)
+			SUB_RemoveSoon();
+	}
 	
 	if (self.delay > 0)
 	{
-		sound_delayed(self, snd, self.volume, self.distance, self.delay);
+		sound_delayed(wh, snd, self.volume, self.distance, self.delay);
 		return;
 	}
-	sound(self, CHAN_AUTO, snd, self.volume, self.distance);
+	sound(wh, CHAN_AUTO, snd, self.volume, self.distance);
 }
 
-/*QUAKED target_sound (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) SHUFFLE
+/*QUAKED target_sound (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) SHUFFLE ON_PLAYER
 play a sound when triggered.
 
 "distance" attenuation (integer) - defaults to 0, which is the same as other ambient sounds.
@@ -418,9 +431,11 @@ play a sound when triggered.
 "noise"  wav to play - don't leave off the ".wav"!
 "noise1-4"  add additional wavs to cycle through
 "delay"	delay sound after trigger
+"count" limit number of uses before self destruction
 
 Spawnflags:
 "SHUFFLE"	select next sound randomly if more than one noise is specified
+"ON_PLAYER"	use activating player as source of sound
 */
 /*FGD
 @PointClass base(Ambient, Targetname) color(150 0 150) = target_sound : "Custom triggered sound"
@@ -432,9 +447,11 @@ Spawnflags:
 	noise4(string) : "optional additional .wav to cycle"
 	volume(string) : "Volume" : "1"
 	delay(string) : "Delay" : "1"
+	count(integer) : "Limit Uses" : "0"
 	spawnflags(flags) = 
 	[
 		1 : "Random next sound" : 0
+		2 : "Play on player" : 0
 	]
 ]
 */

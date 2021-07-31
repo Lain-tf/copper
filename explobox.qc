@@ -25,6 +25,7 @@ void() explobox_respawn =
 
 	self.alpha = 1;
 	setorigin(self, self.origin);
+	bmodel_lightstyle(self, "a");
 	ItemPiff();
 }
 
@@ -60,6 +61,7 @@ void() explobox_explode_go =
 	self.use = SUB_Null;
 	self.health = 0;	// ensure triggered exploboxes don't hurt themselves and loop again
 	kaboom(BoundsCenter(self), self.dmg, self, 0);
+	bmodel_lightstyle(self, "m");
 	
 	if (!self.wait)
 	{
@@ -165,7 +167,7 @@ will do enough damage to set off other barrels at up to ~172u distance (center t
 Explodes when triggered or shot. Fires targets when it explodes.
 will do enough damage to set off other barrels at up to ~172u distance (center to center)." 
 [
-	wait(integer) : "Respawn delay"
+	wait(string) : "Respawn delay"
 	count(integer) : "Respawn limit"
 ]
 */
@@ -197,7 +199,7 @@ will do enough damage to set off other barrels at up to ~128u distance (center t
 Explodes when triggered or shot. Fires targets when it explodes.
 will do enough damage to set off other barrels at up to ~128u distance (center to center)." 
 [
-	wait(integer) : "Respawn delay"
+	wait(string) : "Respawn delay"
 	count(integer) : "Respawn limit"
 ]
 */
@@ -230,7 +232,7 @@ Explodes when triggered or shot. Fires targets when it explodes."
 [
 	health(integer) : "Hit points" : 18
 	dmg(integer) : "Explosion damage" : 150
-	wait(integer) : "Respawn delay"
+	wait(string) : "Respawn delay"
 	count(integer) : "Respawn limit"
 ]
 */
@@ -241,5 +243,6 @@ void() func_explobox =
 	self.movetype = MOVETYPE_PUSH;
 	setmodel(self,self.model);
 	self.dmg = zeroconvertdefault(self.dmg,150);
+	bmodel_lightstyle(self, "a");
 	explobox_setup();
 }

@@ -440,25 +440,27 @@ Returns the entity to spawn at
 */
 entity() SelectSpawnPoint =
 {
-	local	entity spot;
-	local	entity thing;
-	local	float  pcount;
+	entity spot;
+	float  pcount;
 	
-	spot = world;
-	
-	// testinfo_player_start is only found in regioned levels
-	if (!coop)
+	if (deathmatch)
 	{
-		spot = find (world, classname, "testplayerstart");
-		while (spot)
+		spot = lastspawn;
+		pcount = ceil(random() * 4);
+		while (pcount)
 		{
-			if (spot.spawnflags & 1 && cvar("developer"))
-				return spot;
-
-			spot = find (spot, classname, "testplayerstart");
+			pcount--;
+			
+			spot = find(spot, classname, "info_player_deathmatch");
+			if (spot == world)
+				spot = find(world, classname, "info_player_deathmatch");
+			if (spot == world)
+				error("This map does not support deathmatch! (no spawn points)\n");
 		}
+		lastspawn = spot;
+		return spot;
 	}
-		
+
 	// choose a start point
 	if (coop)
 	{
@@ -482,33 +484,12 @@ entity() SelectSpawnPoint =
 		lastspawn = spot;
 		return lastspawn;
 	}
-	else if (deathmatch)
+
+	// testinfo_player_start is only found in regioned levels
+	spot = find (world, classname, "info_player_start_test");
+	if (spot)
 	{
-		spot = lastspawn;
-		while (1)
-		{
-			spot = find(spot, classname, "info_player_deathmatch");
-			if (spot != world)
-			{
-				if (spot == lastspawn)
-					return lastspawn;
-				pcount = 0;
-				thing = findradius(spot.origin, 32);
-				while(thing)
-				{
-					if (thing.classname == "player")
-						pcount = pcount + 1;
-					thing = thing.chain;
-				}
-				if (pcount == 0)
-				{
-					lastspawn = spot;
-					return spot;
-				}
-			}
-			else
-				error("This map does not support deathmatch! (no spawn points)\n");
-		}
+		return spot;
 	}
 
 	if (serverflags & (SVFL_ALLEPISODES))
@@ -1060,6 +1041,15 @@ void() WaterMove =
 	
 	if (self.waterlevel < WL_EYES)	// view is above water
 	{
+		if (self.flags & FL_UNDERWATER)
+		{
+			self.flags -= FL_UNDERWATER;
+			self.nextmovesound = time + 0.5;
+			if (random() < 0.5)
+				sound (self, CHAN_BODY, "misc/water1.wav", 1, ATTN_NORM);
+			else
+				sound (self, CHAN_BODY, "misc/water2.wav", 1, ATTN_NORM);
+		}
 		if (time > 1)	// QSS-only hack for gasping after every level transition
 		{
 			if (time > self.air_finished ||
@@ -1080,6 +1070,27 @@ void() WaterMove =
 	}
 	else	// view is below the water
 	{
+		if (!(self.flags & FL_UNDERWATER))
+		{
+			self.flags |= FL_UNDERWATER;
+			if (self.jump_flag < -300)
+			{
+				sound (self, CHAN_BODY, "misc/w_under2.wav", 1, ATTN_NORM);
+				local float i = 0;
+				local vector b;
+				while(i > self.jump_flag)
+				{
+					i -= 75;
+					b = self.absmin + vec_scale(self.size, Vector(random(),random(),random()));
+					if (pointcontents(b) == CONTENT_WATER)
+						bubble_spawn(b);
+				}
+			}
+			else
+			{
+				sound (self, CHAN_BODY, "misc/w_under.wav", 1, ATTN_STATIC);
+			}
+		}
 		// if you don't catch your breath from the last drowning episode before diving 
 		// again, you start to drown sooner the next time
 		if (self.air_finished < time + self.dmg / 2)
@@ -1144,7 +1155,12 @@ void() WaterMove =
 		if (self.watertype == CONTENT_LAVA)
 			sound (self, CHAN_BODY, "player/inlava.wav", 1, ATTN_NORM);
 		else if (self.watertype == CONTENT_WATER)
-			sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
+		{
+			if (self.jump_flag < -300)
+				sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
+			else
+				sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
+		}
 		else if (self.watertype == CONTENT_SLIME)
 			sound (self, CHAN_BODY, "player/slimbrn2.wav", 1, ATTN_NORM);
 
@@ -1493,16 +1509,14 @@ void() PlayerPostThink =
 	// check to see if player landed and play landing sound	
 	if ((self.jump_flag < -300) && (self.flags & FL_ONGROUND) && (self.health > 0))
 	{
-		if (self.watertype == CONTENT_WATER)
-			sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
-		else if (self.jump_flag < -650 && !(self.customflags & CFL_PLUNGE))
+		if (self.jump_flag < -650 && !(self.customflags & CFL_PLUNGE))
 		{
 			self.deathtype = "falling";
 			T_Damage (self, world, world, 5); 
 			self.deathtype = string_null;
 			sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 		}
-		else
+		else if (self.waterlevel < WL_EYES)
 			sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
 
 		self.jump_flag = 0;
@@ -1939,23 +1953,29 @@ void() info_player_start2 =
 }
 
 
-/*QUAKED testplayerstart (1 0 0) (-16 -16 -24) (16 16 24) USE
+/*QUAKED info_player_start_test (1 0 0) (-16 -16 -24) (16 16 24) USE
 Debug starting point for a level.  Overrides info_player_start if present and 'USE' is checked, does nothing if 'USE' is not checked. Will fire its targets when a player is spawned, here with player as activator.
 
 "angle" viewing angle when spawning
 "fog_color"/"fog_density" set the fog when spawning at this spot
 */
 /*FGD
-@PointClass base(PlayerClass) = testplayerstart : "Developer-only spawn point" [
+@PointClass base(PlayerClass) = info_player_start_test : "Developer-only spawn point" [
 	spawnflags(flags) = [
 		1 : "Spawn at this one plz" : 0
 	]
 ]
 */
-void() testplayerstart =
+void() info_player_start_test =
 {
+	if (!(self.spawnflags & 1))
+	{
+		remove(self);
+		return;
+	}
 	self.mangle = self.angles;
 }
+void() testplayerstart = {info_player_start_test();}	// back compat with old editors that use regioned compiles
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 24)
 potential spawning position for deathmatch games

@@ -2,7 +2,8 @@
 // constants
 //================================================
 
-string version = "Copper Quake 1.15 - 20 November 2020\n";
+string version_s = "Copper Quake 1.16 - 21 June 2021";
+float version_f = 1.16;
 
 float	FALSE					= 0;
 float 	TRUE					= 1;
@@ -20,6 +21,7 @@ float	FL_ONGROUND				= 512;	// standing on something
 float	FL_PARTIALGROUND		= 1024;	// not all corners are valid
 float	FL_WATERJUMP			= 2048;	// player jumping out of water
 float	FL_JUMPRELEASED			= 4096;	// for jump debouncing
+float	FL_UNDERWATER			= 8192;	// for dive/surface water sounds
 
 // edict.customflags
 float	CFL_LEFTY			= 1;	// used by slidemovers (scrags) to alternate strafe direction
