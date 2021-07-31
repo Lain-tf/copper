@@ -193,6 +193,7 @@ void() door_killed =
 
 void(entity d) door_force =
 {
+	d.items = 0;
 	SUB_CallAsSelf(door_fire,d.owner);
 }
 
@@ -913,11 +914,13 @@ void() secret_shadowmonitor_go =
 // Make a sound, wait a little...
 void () secretdoor_move0 = 
 {
-	sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	if (self.noise1 != string_null)
+		sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.nextthink = self.ltime + 0.1;
 
 	SUB_CalcMove(self.dest1, self.speed, secretdoor_move1);
-	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+	if (self.noise2 != string_null)
+		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
 	
 	if (!self.switchshadstyle && !self.style)
 		return;
@@ -933,20 +936,23 @@ void () secretdoor_move1 =
 {
 	self.nextthink = self.ltime + 1.0;
 	self.think = secretdoor_move2;
-	sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+	if (self.noise3 != string_null)
+		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 }
 
 // Start moving sideways w/sound...
 void () secretdoor_move2 =
 {
-	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+	if (self.noise2 != string_null)
+		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
 	SUB_CalcMove(self.dest2, self.speed2, secretdoor_move3);
 }
 
 // Wait here until time to go back...
 void () secretdoor_move3 =
 {
-	sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+	if (self.noise3 != string_null)
+		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 	if (!(self.spawnflags & SECRET_OPEN_ONCE) || self.wait > 0)
 	{
 		self.nextthink = self.ltime + self.wait;
@@ -960,7 +966,8 @@ void () secretdoor_move3 =
 void () secretdoor_move4 =
 {
 	self.think = SUB_Null;
-	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+	if (self.noise2 != string_null)
+		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
 	SUB_CalcMove(self.dest1, self.speed2, secretdoor_move5);		
 }
 
@@ -969,13 +976,15 @@ void () secretdoor_move5 =
 {
 	self.nextthink = self.ltime + 1.0;
 	self.think = secretdoor_move6;
-	sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+	if (self.noise3 != string_null)
+		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 }
 
 // last move ...
 void () secretdoor_move6 =
 {
-	sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+	if (self.noise2 != string_null)
+		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
 	SUB_CalcMove(self.oldorigin, self.speed, secretdoor_done);
 }
 
@@ -988,7 +997,8 @@ void () secretdoor_done =
 		self.takedamage = DAMAGE_YES;
 		self.th_pain = secretdoor_pain;	
 	}
-	sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+	if (self.noise3 != string_null)
+		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 }
 
 void () secret_blocked =
@@ -1102,10 +1112,13 @@ void () func_door_secret =
 	}
 	if (self.noise3 == string_null)
 		self.noise3 = self.noise1;
-		
-	precache_sound_safe (self.noise1);
-	precache_sound_safe (self.noise2);
-	precache_sound_safe (self.noise3);
+	
+	if (self.noise1 != string_null)
+	{
+		precache_sound_safe (self.noise1);
+		precache_sound_safe (self.noise2);
+		precache_sound_safe (self.noise3);
+	}
 
 	self.dmg = zeroconvertdefault(self.dmg, 2);
 	

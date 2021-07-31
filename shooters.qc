@@ -218,7 +218,7 @@ void() trap_lightning_fire =
 		tgt = BoundsCenter(self.enemy);	// for aiming at trains or bobboes
 	}
 		
-	self.enemy = world;	
+	//self.enemy = world;	
 	nudge = normalize(tgt - self.origin) * 8;
 	
 	if ( !(self.spawnflags & SF_LSHOOT_ONESHOT) || self.strength == 3)
@@ -288,7 +288,7 @@ void() trap_lightning_fire =
 								}
 								else if (trace_ent.classname == "monster_oldone")
 								{
-									bprint4(ftos(self.count)," ", ftos(self.strength), " zapping shub with a thing\n");
+									dprint4(ftos(self.count)," ", ftos(self.strength), " zapping shub with a thing\n");
 									T_Damage (trace_ent, self, self, 10001);	// auto-trigger one pain warble
 								}
 							}
@@ -304,7 +304,7 @@ void() trap_lightning_fire =
 				{
 					last = trace_ent;
 					// get non-takedamage cthons too
-					bprint4(ftos(self.count)," ", ftos(self.strength), " zapping cthon with a thing\n");
+					dprint4(ftos(self.count)," ", ftos(self.strength), " zapping cthon with a thing\n");
 					oself = self;
 					self = trace_ent;
 					self.health = self.health - 1;
@@ -342,6 +342,9 @@ void() trap_lightning_use =
 {
 	entity proxy;
 	
+	if (self.spawnflags & SF_LSHOOT_TRACKME)
+		self.enemy = activator;
+	
 	if (self.spawnflags & SF_LSHOOT_ONESHOT)
 	{
 		if (time < self.attack_finished) return;
@@ -360,8 +363,6 @@ void() trap_lightning_use =
 			proxy.enemy = activator;
 			return;
 		}
-		if (self.spawnflags & SF_LSHOOT_TRACKME)
-			self.enemy = activator;
 			
 		sound(self, CHAN_WEAPON, "weapons/lstart.wav", self.volume, ATTN_NORM);
 		trap_lightning_fire();
