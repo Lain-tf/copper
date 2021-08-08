@@ -299,6 +299,7 @@ float	icantsee;
 .float		search_time;
 .float		attack_state;
 .float 		pausetime;
+.float		corpsetime;
 
 // player only fields
 .float		walkframe;

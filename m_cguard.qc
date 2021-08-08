@@ -371,7 +371,7 @@ void()	cguard_death8	=[	$death8,	cguard_death9	] {self.solid = SOLID_NOT;}
 void()	cguard_death9	=[	$death9,	cguard_death10	] {}
 void()	cguard_death10	=[	$death10,	cguard_death11	] {}
 void()	cguard_death11	=[	$death11,	cguard_death12	] {}
-void()	cguard_death12	=[	$death12,	cguard_death12	] {}
+void()	cguard_death12	=[	$death12,	cguard_death12	] {PostDeathLogic();}
 
 void()	cguard_deathb1	=[	$deathb1,	cguard_deathb2	] {}
 void()	cguard_deathb2	=[	$deathb2,	cguard_deathb3	] {}
@@ -389,7 +389,7 @@ void()	cguard_deathb13	=[	$deathb13,	cguard_deathb14	] {}
 void()	cguard_deathb14	=[	$deathb14,	cguard_deathb15	] {self.solid = SOLID_NOT;}
 void()	cguard_deathb15	=[	$deathb15,	cguard_deathb16	] {}
 void()	cguard_deathb16	=[	$deathb16,	cguard_deathb17	] {}
-void()	cguard_deathb17	=[	$deathb17,	cguard_deathb17	] {}
+void()	cguard_deathb17	=[	$deathb17,	cguard_deathb17	] {PostDeathLogic();}
 
 void() cguard_die =
 {

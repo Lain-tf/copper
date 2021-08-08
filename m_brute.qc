@@ -320,7 +320,7 @@ void()	brute_die9	=[	$death9,	brute_die10	] {}
 void()	brute_die10	=[	$death10,	brute_die11	] {}
 void()	brute_die11	=[	$death11,	brute_die12	] {}
 void()	brute_die12	=[	$death12,	brute_die13	] {}
-void()	brute_die13	=[	$death13,	brute_die13	] {}
+void()	brute_die13	=[	$death13,	brute_die13	] {PostDeathLogic();}
 
 /* Melee */
 void() brute_meleea1	=[	$melee_a1, brute_meleea2 	] {ai_charge(0);}

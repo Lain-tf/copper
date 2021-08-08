@@ -201,7 +201,15 @@ void()	knight_die6	=[	$death6,	knight_die7	] {ai_nop();}
 void()	knight_die7	=[	$death7,	knight_die8	] {ai_nop();}
 void()	knight_die8	=[	$death8,	knight_die9	] {ai_nop();}
 void()	knight_die9	=[	$death9,	knight_die10] {ai_nop();}
-void()	knight_die10=[	$death10,	SUB_Null] {ai_nop(); if (self.lip == 555) self.think = SUB_Remove;}
+void()	knight_die10=[	$death10,	SUB_Null]
+{
+	ai_nop();
+	if (self.lip == 555) 
+	{
+		self.think = SUB_Remove;
+	}
+	PostDeathLogic();
+}
 
 
 void()	knight_dieb1	=[	$deathb1,	knight_dieb2	] {ai_nop();}
@@ -214,7 +222,15 @@ void()	knight_dieb7	=[	$deathb7,	knight_dieb8	] {ai_nop();}
 void()	knight_dieb8	=[	$deathb8,	knight_dieb9	] {ai_nop();}
 void()	knight_dieb9	=[	$deathb9,	knight_dieb10] {ai_nop();}
 void()	knight_dieb10 = [	$deathb10,	knight_dieb11] {ai_nop();}
-void()	knight_dieb11 = [	$deathb11,	SUB_Null] {ai_nop(); if (self.lip == 555) self.think = SUB_Remove;}
+void()	knight_dieb11 = [	$deathb11,	SUB_Null]
+{
+	ai_nop();
+	if (self.lip == 555) 
+	{
+		self.think = SUB_Remove;
+	}
+	PostDeathLogic();
+}
 
 
 void() knight_die =

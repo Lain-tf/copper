@@ -761,3 +761,30 @@ float() nomonster =
 	
 	return TRUE;
 }
+
+void() VanishCorpse =
+{
+    if(self.alpha <= 0.05)
+    {
+        self.alpha = 0.01;
+        self.think = SUB_Null;
+		remove(self);
+        return;
+    }
+    
+    self.alpha -= 0.05;
+    self.nextthink = time + 0.1;
+};
+
+void() PostDeathLogic = 
+{
+	if(self.corpsetime > 0)
+	{
+		if(!self.alpha)
+		{
+			self.alpha = 1;
+		}
+		self.think = VanishCorpse;
+		self.nextthink = time + self.corpsetime;
+	}
+};
