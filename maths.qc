@@ -208,6 +208,16 @@ float(float a, float limit) cycle =
 	return a;
 }
 
+float(float num) sign =
+{
+	if (num > 0) 
+		return 1;
+	else if (num < 0) 
+		return -1;
+	else
+		return 0;
+}
+
 // ================================
 //	Z-Aware Projectile Maths
 // ================================

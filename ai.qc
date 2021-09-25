@@ -1059,7 +1059,7 @@ float() ai_fishmovecheck =
 void(float dist) ai_floatmove_finish =
 {
 	vector move;
-	float interv, spd, frac;
+	float interv, spd, frac, z_dif;
 	
 	if (self.flags & (FL_FLY|FL_SWIM) == 0)
 		return;
@@ -1096,6 +1096,19 @@ void(float dist) ai_floatmove_finish =
 			move_z = frac * (self.goalentity.origin_z - self.origin_z);
 		}
 	}
+	// only hover above target if there's a clear sight, so it can follow them
+	// through lower passageways, like doors for example
+	// also ignores if target is another flymonster, or else they'd both rise to infinity
+	else if (self.height && visible(self.goalentity) && !(self.goalentity.flags & FL_FLY))
+	{
+		z_dif = self.goalentity.origin_z + self.height - self.origin_z;
+
+		if (fabs(z_dif) > 16)
+			move_z = 8 * sign(z_dif);
+		else
+			move_z = 0;
+	}
+
 	// FL_SWIM just invalidates any movement out of water, so simulate velocity 
 	// being clipped off at the surface instead
 	// TODO: support water volumes that end in other directions than up
