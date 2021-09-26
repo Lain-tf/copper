@@ -152,11 +152,11 @@ void() fog_blendTouch =
 		if (time < self.attack_finished)
 			return;
 		
-	float f, lerp_density, leaving;
+	float f, ldensity, leaving;
 	float lerp_sdensity;
 	float ent_density, ent_density2, ent_sdensity, ent_sdensity2;
 	vector dorg, mid, ovel;
-	vector lerp_color;
+	vector lcolor;
 
 	ent_density = zeroconvert(self.fog_density);
 	ent_density2 = zeroconvert(self.fog_density2);
@@ -181,14 +181,14 @@ void() fog_blendTouch =
 		leaving = other.velocity * self.movedir;
 		if (leaving > 0)
 		{
-			lerp_density = ent_density2;
-			lerp_color = self.fog_color2;
+			ldensity = ent_density2;
+			lcolor = self.fog_color2;
 			lerp_sdensity = ent_sdensity2;
 		}
 		else
 		{
-			lerp_density = ent_density;
-			lerp_color = self.fog_color;
+			ldensity = ent_density;
+			lcolor = self.fog_color;
 			lerp_sdensity = ent_sdensity;
 		}
 	}
@@ -201,12 +201,12 @@ void() fog_blendTouch =
 		f = dorg * self.movedir;
 		f = (f / self.distance) + 0.5;
 		
-		lerp_density = lerp(ent_density, ent_density2, f);
-		lerp_color = lerpVector(self.fog_color, self.fog_color2, f);
+		ldensity = lerp(ent_density, ent_density2, f);
+		lcolor = lerpVector(self.fog_color, self.fog_color2, f);
 		lerp_sdensity = lerp(ent_sdensity, ent_sdensity2, f);
 	}
 
-	if (self.fog_density || self.fog_density2) fog_set(other, lerp_density, lerp_color);
+	if (self.fog_density || self.fog_density2) fog_set(other, ldensity, lcolor);
 	if (self.skyfog_density || self.skyfog_density2) skyfog_set(other, lerp_sdensity);
 	
 	self.rad_time = time;
