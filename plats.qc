@@ -505,6 +505,8 @@ void() func_flytrain =
 	setmodel (self, self.model);
 	setsize (self, self.mins, self.maxs);
 	setorigin (self, self.origin);
+	
+	self.movedir = self.origin - BoundsCenter(self); // offset so _point and bmodel types can work the same
 }
 
 /*QUAKED func_flytrain_point (0 .5 .8) (-8 -8 -8) (8 8 8)
@@ -529,6 +531,7 @@ void() func_flytrain_point =
 
 	precache_model_safe(self.model);
 	func_flytrain();
+	self.movedir = '0 0 0';
 }
 
 //============================================================================
@@ -562,7 +565,7 @@ void() train_wait =
 	SUB_UseEntTargets(self.enemy);
 	
 	// inherit speed from path_corners on arrival
-	if (self.enemy.speed && self.spawnflags & TRAIN_INHERIT)
+	if (self.enemy.speed > 0 && self.spawnflags & TRAIN_INHERIT)
 		self.speed = self.enemy.speed;
 	
 	if (self.wait == -1)
@@ -603,14 +606,20 @@ void() train_next =
 			remove(self);
 		return;
 	}
-	
+	oself = self.enemy;
 	self.enemy = corner;
 	if (corner.wait)
 		self.wait = corner.wait;
 	else
 		self.wait = self.pausetime;
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.state = STATE_ON;
+	if (oself.speed == -1)
+	{
+		setorigin(self, corner.origin - self.mins);
+		train_wait();
+		return;
+	}
+	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	SUB_CalcMove (corner.origin - self.mins, self.speed, train_wait);
 }
 
@@ -622,7 +631,7 @@ void() func_train_find =
 	self.enemy = corner;
 	//self.target = corner.target;
 	setorigin (self, corner.origin - self.mins);
-	if ((self.spawnflags & TRAIN_INHERIT) && corner.speed)
+	if ((self.spawnflags & TRAIN_INHERIT) && corner.speed > 0)
 		self.speed = corner.speed;
 	if (self.targetname == string_null)
 	{	// not triggered, so start immediately
@@ -677,6 +686,7 @@ Keys:
 
 Spawnflags:
 PATH_SPEED: train will inherit 'speed' value from path_corners as it reaches them
+If a path_corner's speed is -1, the func_train's move when LEAVING that corner will be to snap instantly to the next corner.
 */
 /*FGD
 @SolidClass base(Train) = func_train : "Moving platform.

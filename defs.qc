@@ -262,6 +262,7 @@ float	intermission_running, intermission_exittime;
 float	modelindex_eyes, modelindex_player;
 
 float	icantsee;
+float	isKex;	// running the quake rerelease
 
 //================================================
 
@@ -519,6 +520,7 @@ void(entity e) setspawnparms		= #78;		// set parm1... to the
 												// values at level start
 												// for coop respawn
 
+float(string s) checkextension		= #99;		// check cvar("pr_checkextension") before calling
 
 //================================================
 
