@@ -124,7 +124,7 @@ void() player_quad_shotgun = {
 	}
 
 	self.qsg_firing = TRUE;
-	self.attack_finished = time + 1.6 * haste_factor;
+	self.attack_finished = time + 1.3 * haste_factor;
 	self.weaponframe = 0;
 	player_quad_shotgun_frame();
 }
