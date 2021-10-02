@@ -2,7 +2,7 @@
 // constants
 //================================================
 
-string version_s = "Dwell 1.17 - 26th September 2021\n";
+string version_s = "Dwell 1.17 - 2nd October 2021\n";
 float version_f = 1.17;
 
 float	FALSE					= 0;
@@ -88,6 +88,7 @@ float	DAMAGE_AIM				= 2;
 
 float	TRACE_NOMONSTERS		= 1;
 float	TRACE_WATER				= 2;
+//float	TRACE_PENETRATE			= 4;
 
 // monsters
 float	SPAWN_AMBUSH		= 1;
@@ -150,6 +151,7 @@ float	IT_POWERUPS				= IT_INVISIBILITY + IT_INVULNERABILITY + IT_SUIT + IT_QUAD;
 float IT_HASTE = 1;
 float IT_WETSUIT = 2;
 float IT_QUAD_SHOTGUN = 4;
+float IT_RAILGUN = 8;
 
 // Weapons (combination of weapon slot + upgrade)
 // These are deliberately the same values as the corresponding IT_ flags,
@@ -162,6 +164,7 @@ float	W_GRENADE_LAUNCHER	= 16;
 float	W_ROCKET_LAUNCHER	= 32;
 float	W_LIGHTNING			= 64;
 float   W_QUAD_SHOTGUN      = 128;
+float   W_RAILGUN  			= 256;
 float	W_AXE				= 4096;
 
 

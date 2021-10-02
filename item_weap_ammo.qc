@@ -215,6 +215,30 @@ void() weapon_quad_shotgun =
 	StartWeapon();
 }
 
+/*QUAKED weapon_railgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+RailGun.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass base(Weapon) model({ "path": ":progs/g_rail.mdl" }) = weapon_railgun : "Railgun" []
+*/
+void() weapon_railgun =
+{
+	if (!SUB_ShouldSpawn()) return;
+	precache_model ("progs/g_rail.mdl");
+	setmodel (self, "progs/g_rail.mdl");
+	self.items2 = IT_RAILGUN;
+	self.weapon = W_RAILGUN;
+	self.ammo_cells = 16;
+	self.netname = "Railgun";
+	StartWeapon();
+}
+
 /*QUAKED weapon_nailgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
 Nailgun.
 

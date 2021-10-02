@@ -29,6 +29,7 @@ void() W_Precache =
 	precache_model ("progs/lavaball.mdl");	
 	precache_sound ("weapons/lhit.wav");		//lightning
 	precache_sound ("weapons/lstart.wav");		//lightning start
+	precache_sound ("weapons/rail.wav");
 //	precache_sound ("items/damage3.wav");
 
 // ax sounds	
@@ -51,6 +52,7 @@ void() W_Precache =
 	precache_model ("progs/v_nail2.mdl");
 	precache_model ("progs/v_rock2.mdl");
 	precache_model ("progs/v_light.mdl");
+	precache_model ("progs/v_rail.mdl");
 
 }
 
@@ -105,7 +107,7 @@ void() W_SetCurrentAmmo =
 		self.currentammo = self.ammo_rockets;
 		self.items = self.items | IT_ROCKETS;
 	}
-	else if (self.weapon == W_LIGHTNING)
+	else if (self.weapon == W_RAILGUN || self.weapon == W_LIGHTNING)
 	{
 		self.currentammo = self.ammo_cells;
 		self.items = self.items | IT_CELLS;
@@ -140,6 +142,8 @@ void() W_ResetWeaponState =
 		self.weaponmodel = "progs/v_rock.mdl";
 	else if (self.weapon == W_ROCKET_LAUNCHER)
 		self.weaponmodel = "progs/v_rock2.mdl";
+	else if (self.weapon == W_RAILGUN)
+		self.weaponmodel = "progs/v_rail.mdl";
 	else if (self.weapon == W_LIGHTNING)
 		self.weaponmodel = "progs/v_light.mdl";
 	else
@@ -152,19 +156,21 @@ float(float w) W_RankForWeapon =
 {
 	if (w == W_LIGHTNING)
 		return 1;
-	if (w == W_ROCKET_LAUNCHER)
+	if (w == W_RAILGUN)
 		return 2;
-	if (w == W_SUPER_NAILGUN)
+	if (w == W_ROCKET_LAUNCHER)
 		return 3;
-	if (w == W_QUAD_SHOTGUN)
+	if (w == W_SUPER_NAILGUN)
 		return 4;
-	if (w == W_GRENADE_LAUNCHER)
+	if (w == W_QUAD_SHOTGUN)
 		return 5;
-	if (w == W_SUPER_SHOTGUN)
+	if (w == W_GRENADE_LAUNCHER)
 		return 6;
-	if (w == W_NAILGUN)
+	if (w == W_SUPER_SHOTGUN)
 		return 7;
-	return 8;
+	if (w == W_NAILGUN)
+		return 8;
+	return 9;
 }
 
 /*
@@ -212,6 +218,8 @@ float() W_BestWeapon =
 		return W_SUPER_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
+	if (self.ammo_cells >= 8 && (self.items2 & IT_RAILGUN) )
+		return W_RAILGUN;
 	if(self.ammo_nails >= 1 && (it & IT_NAILGUN) )
 		return W_NAILGUN;
 	if(self.ammo_shells >= 1 && (it & IT_SHOTGUN) )
@@ -317,6 +325,12 @@ void() W_Attack =
 		self.attack_finished = time + 0.1;
 		sound (self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
 	}
+	else if (self.weapon == W_RAILGUN)
+	{
+		if (self.rail_nextshot > time ) return;
+		player_rocket1();
+		W_FireRail();
+	}
 }
 
 /*
@@ -407,11 +421,24 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 8)
 	{
-		fl = IT_LIGHTNING;
-		weap = W_LIGHTNING;
-		it = self.items;
-		if (self.ammo_cells < 1)
-			no_ammo = 1;
+		if (self.items2 & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 8) 
+		{
+			// We can select the railgun.
+			fl = IT_RAILGUN;
+			weap = W_RAILGUN;
+			it = self.items2;
+		} 
+		else 
+		{
+			// We either don't have the railgun,
+			// don't have enough ammo for it, or already have it
+			// selected - use the LG instead.
+			fl = IT_LIGHTNING;
+			weap = W_LIGHTNING;
+			it = self.items;
+			if (self.ammo_cells < 1)
+			no_ammo = TRUE;
+		}
 	}
 
 	self.impulse = 0;
@@ -458,9 +485,9 @@ void() CycleWeaponCommand =
 
 		if (self.weapon == W_LIGHTNING)
 		{
-				self.weapon = W_AXE;
-				fl = IT_AXE;
-				it = self.items;
+			self.weapon = W_AXE;
+			fl = IT_AXE;
+			it = self.items;
 		}
 		else if (self.weapon == W_AXE)
 		{
@@ -520,8 +547,18 @@ void() CycleWeaponCommand =
 		}
 		else if (self.weapon == W_ROCKET_LAUNCHER)
 		{
-			self.weapon = IT_LIGHTNING;
-			if (self.ammo_cells < 1)
+			self.weapon = W_RAILGUN;
+			fl = IT_RAILGUN;
+			it = self.items2;
+			if (self.ammo_cells < 8)
+				am = 1;
+		}
+		else if (self.weapon == W_RAILGUN)
+		{
+			self.weapon = W_LIGHTNING;
+			fl = IT_LIGHTNING;
+			it = self.items;
+			if (self.ammo_cells < 1) 
 				am = 1;
 		}
 	
@@ -555,7 +592,7 @@ void() CycleWeaponReverseCommand =
 	{
 		am = 0;
 
-		if (self.weapon == W_LIGHTNING)
+		if (self.weapon == W_RAILGUN)
 		{
 			self.weapon = W_ROCKET_LAUNCHER;
 			fl = IT_ROCKET_LAUNCHER;
@@ -626,7 +663,14 @@ void() CycleWeaponReverseCommand =
 			if (self.ammo_cells < 1)
 				am = 1;
 		}
-	
+		else if (self.weapon == W_LIGHTNING)
+		{
+			self.weapon = W_RAILGUN;
+			fl = IT_RAILGUN;
+			it = self.items2;
+			if (self.ammo_cells < 8) 
+				am = 1;
+		}
 		if ( (it & fl) && am == 0)
 		{
 			W_ResetWeaponState ();

@@ -224,3 +224,141 @@ void() W_FireQuadShotgun =
 	FireBullets(9, dir, '0.06 0.06 0');
 	ApplyMultiDamage();
 }
+
+/*
+================
+RAILGUN
+================
+*/
+/*void() W_FireRail =
+{
+	local vector dir;
+	dir = aim(self, AUTOAIM_DIST);
+	
+};*/
+
+void() rail_fade = {
+	
+	self.think = rail_fade;
+	self.nextthink = time + 0.1;
+
+	if (self.cnt == 6)
+		self.alpha = 0.7;
+	else if (self.cnt == 5)
+		self.alpha = 0.4;
+	else if (self.cnt == 4)
+		self.alpha = 0.2;
+	else if (self.cnt == 3)
+		self.alpha = 0.15;
+	else if (self.cnt == 2)
+		self.alpha = 0.10;
+	else if (self.cnt == 1) {
+		self.alpha = 0.05;
+		self.think = SUB_Remove;
+		self.nextthink = time + 0.05;
+		
+	}	
+	self.cnt = self.cnt - 1;
+};
+
+void() W_FireRail =
+{
+	local float timetoend;
+	local vector	vel, org, dir, vec, src, loopsrc,  destination;
+	local entity thedude;
+	local float traillen, segments;
+	entity prj;
+	
+	if (self.ammo_cells < 8)
+	{
+		W_SelectBestWeapon();
+		return;
+	}
+	makevectors(self.v_angle);
+	
+	sound (self, CHAN_WEAPON, "weapons/rail.wav", 1, ATTN_NORM);
+
+	self.punchangle_z = crandom()*12;
+
+	self.currentammo = self.ammo_cells = self.ammo_cells - 8;
+
+	org = self.origin + '0 0 16';
+
+	dir = aim(self, AUTOAIM_DIST);
+	src = self.origin + v_forward * 10;
+	src_z = self.absmin_z + self.size_z * 0.7;
+	destination = src + (dir * 8192);
+	
+	loopsrc = src;
+	thedude = self;
+	
+	while ( !timetoend )
+	{
+		traceline2(loopsrc, destination, thedude, 0);
+		if (trace_fraction != 1.0)
+		{
+			vel = normalize(dir);
+			vel = vel + 2 * trace_plane_normal;
+			vel = vel * 200;
+
+			org = trace_endpos - dir*4;
+
+			if (trace_ent.takedamage && trace_ent != self)
+			{
+				thedude = trace_ent;
+				SpawnBlood (org, vel*0.2, 400);
+				if (trace_ent != self) T_Damage (trace_ent, self, self, 270);
+				loopsrc = trace_endpos;
+			}
+			else
+			{
+				WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+				WriteByte (MSG_BROADCAST, TE_GUNSHOT);
+				WriteCoord (MSG_BROADCAST, org_x);
+				WriteCoord (MSG_BROADCAST, org_y);
+				WriteCoord (MSG_BROADCAST, org_z);
+
+				timetoend = 1;
+			}
+		}
+		else timetoend = 1;
+	}
+	
+	//--- ALKALINE RAIL CODE
+
+	traceline2(src, destination, self, TRACE_NOMONSTERS);
+	traillen = vlen(trace_endpos - src);
+	segments = floor(traillen / 64);
+	
+	while (segments)
+	{
+		vec = normalize(trace_endpos - src);
+		prj = spawn ();
+		prj.owner = self;
+		prj.movetype = MOVETYPE_NONE;
+		prj.solid = SOLID_NOT;
+		prj.angles = vectoangles(dir);
+		prj.touch = SUB_Null;
+		prj.classname = "railtrail";
+		setmodel (prj, "progs/rail.mdl");
+		setsize (prj, VEC_ORIGIN, VEC_ORIGIN);		
+		//setorigin (prj, self.origin + '0 0 16');
+		setorigin (prj, src + vec * 64 * segments);
+		prj.velocity = '0 0 0';	
+		prj.frame = 4;	
+		prj.think = rail_fade;
+		prj.nextthink = time + 0.5;
+		segments = segments - 1;
+		prj.cnt = 5;	
+	}	
+	
+	local float haste_factor;
+	
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	self.rail_nextshot = time + 1.4 * haste_factor;
+	self.attack_finished = time + 0.4;
+};

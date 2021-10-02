@@ -391,8 +391,9 @@ float	isKex;	// running the quake rerelease
 // For detecting whether we just popped our head above water
 .float 		last_waterlevel;
 
-// For handling weapon switch away from the quad shotgun.
+// For handling weapon switch away from the quad shotgun and railgun.
 .float		qsg_firing;
+.float		rail_nextshot;
 
 // OVERLOADS:
 .float rand = healamount;	// for trigger_timer
