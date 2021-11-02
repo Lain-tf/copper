@@ -54,6 +54,13 @@ void() ExitIntermission =
 		WriteByte (MSG_ALL, SVC_CDTRACK);
 		WriteByte (MSG_ALL, 2);
 		WriteByte (MSG_ALL, 3);
+		
+		if (inter_text != string_null)
+		{
+			WriteByte (MSG_ALL, SVC_FINALE);
+			WriteString (MSG_ALL, inter_text);
+			return;
+		}
 		if (world.model == "maps/e1m7.bsp")
 		{
 			if (!cvar("registered"))
@@ -404,8 +411,12 @@ void() changelevel_do =
 		bprint (" exited the level\n");
 	}
 	
-		nextmap = self.map;
-		selected_exit = self;
+	nextmap = self.map;
+	selected_exit = self;
+	if (self.message != string_null)
+	{
+		inter_text = self.message;
+	}
 	
 	if ( (self.spawnflags & 1) && (deathmatch == 0) )
 	{	// NO_INTERMISSION
