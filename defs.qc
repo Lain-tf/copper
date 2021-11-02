@@ -218,6 +218,7 @@ float	gameover;		// set when a rule exits
 
 string	nextmap;		// used by changelevel code in t_level.qc - 'mapname' is current map
 string	inter_text;		// used by changelevel code in t_level.qc
+entity	selected_exit;	// trigger_changelevel that player touched
 
 nosave string	string_null;	// null string, nothing should be held here
 
