@@ -50,6 +50,7 @@ void() W_Precache =
 	precache_model ("progs/v_shot2.mdl");
 	precache_model ("progs/v_shot3.mdl");
 	precache_model ("progs/v_nail2.mdl");
+	precache_model ("progs/v_nail3.mdl");	
 	precache_model ("progs/v_rock2.mdl");
 	precache_model ("progs/v_light.mdl");
 	precache_model ("progs/v_rail.mdl");
@@ -137,7 +138,9 @@ void() W_ResetWeaponState =
 	else if (self.weapon == W_NAILGUN)
 		self.weaponmodel = "progs/v_nail.mdl";
 	else if (self.weapon == W_SUPER_NAILGUN)
-		self.weaponmodel = "progs/v_nail2.mdl";
+		self.weaponmodel = "progs/v_nail3.mdl";
+//	else if (self.weapon == W_SUPER_NAILGUN)
+//		self.weaponmodel = "progs/v_nail2.mdl";		
 	else if (self.weapon == W_GRENADE_LAUNCHER)
 		self.weaponmodel = "progs/v_rock.mdl";
 	else if (self.weapon == W_ROCKET_LAUNCHER)
@@ -274,6 +277,7 @@ void() W_Attack =
 		return;
 	}
 	
+	
 	// moved after axe so that silent swings don't wake monsters
 	self.show_hostile = time + 1;
 	
@@ -303,10 +307,16 @@ void() W_Attack =
 			player_quad_shotgun();
 		}
 	}
-	else if (self.weapon == W_NAILGUN || self.weapon == W_SUPER_NAILGUN)
+	else if (self.weapon == W_NAILGUN)
 	{
 		player_nail();
 		W_FireSpikes ();
+	}
+	else if (self.weapon == W_SUPER_NAILGUN)
+	{	
+		player_nail();
+		W_FireSpikes ();
+				
 	}
 	else if (self.weapon == W_GRENADE_LAUNCHER)
 	{

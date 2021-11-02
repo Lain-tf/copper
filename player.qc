@@ -264,10 +264,85 @@ void() player_nail =
 	if (self.frame != $nailatt1) self.frame = $nailatt1;
 	else self.frame += 1;
 	self.think = player_nail;
-	self.nextthink = time + 0.125;	// TODO: oh fuck it, it works, you're never touching this again
+	self.nextthink = time + 0.05;	// TODO: oh fuck it, it works, you're never touching this again
 	
+	if (self.weapon == W_NAILGUN)
 	self.weaponframe = self.cnt + 1;
 }
+
+void() super_nail_spindown =
+{
+
+//	if (self.button0)
+//	{	
+//		self.weaponframe = 0;
+//		self.think = player_super_nail;
+//		self.nextthink = time + 0.025;
+//		return;
+//	}	
+//	else
+//	{
+	
+		dprint("spinning down\n");
+		self.weaponframe = self.weaponframe	+ 1;
+		self.cnt = 0;
+
+		if (self.weaponframe < 51)
+		{
+			self.think = super_nail_spindown;		
+			self.nextthink = time + 0.025;
+		}	
+
+
+		if (self.weaponframe >= 51)
+		{
+			self.weaponframe = 0;
+			return;
+		}
+
+//	}
+}
+
+
+void() player_super_nail =
+{
+
+	self.weaponframe = self.weaponframe + 1;	
+	
+	if (self.weaponframe >= 9)
+	{
+		self.weaponframe = 0;
+	}	
+	
+
+	if (!self.button0)
+	{
+		player_run();
+		super_nail_spindown();
+		sound (self, CHAN_AUTO, "weapons/spindn.wav", 1, ATTN_NONE);
+		return;
+	}
+		
+	dprint(ftos(self.weaponframe));
+	dprint("\n");
+	
+
+	if (((self.weaponframe == 1) || (self.weaponframe == 5)) && (self.ammo_nails > 1))
+	{
+		W_FirePerforator();
+	}
+
+	 
+	self.effects |= EF_MUZZLEFLASH;
+
+	if ((self.weaponframe != 1) || (self.weaponframe != 4))
+	self.frame = $nailatt1;
+	else self.frame += 1;
+	self.think = player_super_nail;
+	self.nextthink = time + 0.025;	// TODO: oh fuck it, it works, you're never touching this again
+	self.cnt = self.cnt + 1;
+}
+
 
 //============================================================================
 

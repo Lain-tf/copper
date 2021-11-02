@@ -70,6 +70,7 @@ void() spike_unfatten = { self.movetype = MOVETYPE_FLY; }
 
 void() W_FirePerforator =
 {
+
 	float haste_factor;
 	vector m;
 	sound (self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
@@ -96,7 +97,7 @@ void() W_FirePerforator =
 		haste_factor = 1;
 	}
 
-	self.attack_finished = time + 0.09 * haste_factor;
+	self.attack_finished = time + 0.1 * haste_factor;
 	
 	if (has_quad(self))
 	{
@@ -124,7 +125,7 @@ void() W_FireSpikes =
 	}
 	if (self.ammo_nails >= 2 && self.weapon == IT_SUPER_NAILGUN)
 	{
-		W_FirePerforator();
+		player_super_nail();
 	}
 	else
 	{
