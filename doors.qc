@@ -567,7 +567,11 @@ void() door_key_init =
 	{
 		if (self.items & IT_KEY1)
 		{
-			if (world.worldtype == 3)
+			if (world.worldtype == 5)
+				self.message = "You need the silver crystal key";				
+			if (world.worldtype == 4)
+				self.message = "You need the silver key";		
+			else if (world.worldtype == 3)
 				self.message = "You need the silver scarab key";
 			else if (world.worldtype == 2)
 				self.message = "You need the silver keycard";
@@ -578,8 +582,12 @@ void() door_key_init =
 		}
 		else if (self.items & IT_KEY2)
 		{
-			if (world.worldtype == 3)
-				self.message = "You need the gold scarab key";	
+			if (world.worldtype == 5)
+				self.message = "You need the gold crystal key";				
+			if (world.worldtype == 4)
+				self.message = "You need the gold key";		
+			else if (world.worldtype == 3)
+				self.message = "You need the silver gold key";
 			else if (world.worldtype == 2)
 				self.message = "You need the gold keycard";
 			else if (world.worldtype == 1)
