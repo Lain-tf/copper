@@ -210,6 +210,10 @@ string() key_sound =
 		return "misc/basekey.wav";
 	if (world.worldtype == 3)
 		return "misc/scarabkey.wav";
+	if (world.worldtype == 4)
+		return "misc/hexkey.wav";
+	if (world.worldtype == 5)
+		return "misc/crykey.wav";
 
 	return "misc/medkey.wav";
 }
@@ -267,6 +271,20 @@ void() item_key1 =
 		self.netname = "silver scarab key";
 		self.skin = 0;
 	}
+	else if (world.worldtype == 4)
+	{
+		precache_model ("progs/key_hexen.mdl");
+		setmodel (self, "progs/key_hexen.mdl");
+		self.netname = "silver key";
+		self.skin = 0;
+	}
+	else if (world.worldtype == 5)
+	{
+		precache_model ("progs/key_crystal.mdl");
+		setmodel (self, "progs/key_crystal.mdl");
+		self.netname = "silver crystal key";
+		self.skin = 0;
+	}
 	key_setsounds();
 	self.touch = key_touch;
 	self.items = IT_KEY1;
@@ -320,6 +338,20 @@ void() item_key2 =
 		self.netname = "gold scarab key";
 		self.skin = 1;
 	}
+	else if (world.worldtype == 4)
+	{
+		precache_model ("progs/key_hexen.mdl");
+		setmodel (self, "progs/key_hexen.mdl");
+		self.netname = "gold key";
+		self.skin = 1;	
+	}
+	else if (world.worldtype == 5)
+	{
+		precache_model ("progs/key_crystal.mdl");
+		setmodel (self, "progs/key_crystal.mdl");
+		self.netname = "gold crystal key";
+		self.skin = 1;
+	}	
 	key_setsounds();
 	self.touch = key_touch;
 	self.items = IT_KEY2;
