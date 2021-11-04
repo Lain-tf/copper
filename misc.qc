@@ -202,6 +202,103 @@ void() misc_model =
 	}		
 }
 
+/*
+============================================================================
+
+CRYSTAL
+Mainly so mappers have something easier to use for placing crystals than misc_model
+============================================================================
+*/
+
+void() misc_crystal =
+{
+	if (!SUB_ShouldSpawn()) return;
+
+	if (self.style == 1)
+		self.model = "progs/crystal_small.mdl";
+	else if (self.style == 2)
+		self.model = "progs/crystal_smallclust.mdl";
+	else if (self.style == 3)
+		self.model = "progs/crystal_med.mdl";
+	else if (self.style == 4)
+		self.model = "progs/crystal_medclust1.mdl";
+	else if (self.style == 5)
+		self.model = "progs/crystal_medclust2.mdl";
+	else if (self.style == 6)
+		self.model = "progs/crystal_chonk.mdl";
+	else
+		self.model = "progs/crystal_med.mdl";
+
+	if (self.mangle != '0 0 0')
+	{
+		self.angles = self.mangle;
+	}
+	else if (self.angles != '0 0 0')
+	{
+		if (self.angles == '0 -1 0')
+			self.angles = '-90 0 0';
+		else if (self.angles == '0 -2 0')
+			self.angles = '90 0 0';
+	}
+	if (self.ideal_yaw)
+		self.angles_y = random()*360;
+		
+	precache_model(self.model);
+	setmodel(self,self.model);		
+	setsize(self, '-16 -16 -16', '16 16 16');
+	
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+}
+
+/*QUAKED misc_crystal (0.6 0.7 0.8) (-8 -8 -8) (8 8 8) TOGGLE_VIS START_INVIS ANIM_ONCE
+display a crystal. will not be solid!
+
+"mangle" exact orientation of the model, values are 'pitch yaw roll', positive pitch is down
+"style" - choose model 1-6
+"frame" frame of model (0-ordinal)
+"skin" skin index on model (0-ordinal)
+"ideal_yaw" randomly select yaw angle (for quickly scattering props)
+
+1: Small crystal
+2: Small crystal cluster
+3: Medium crystal
+4: Medium crystal cluster 1
+5: Medium crystal cluster 2
+6: Chonk crystal
+
+*/
+/*FGD
+@PointClass base(Appearflags) size(16 16 16) color(160 192 224) model(
+{{
+		style == "1" ->	":progs/crystal_small.mdl",
+		style == "2" ->	":progs/crystal_smallclust.mdl",
+		style == "3" ->	":progs/crystal_med.mdl",
+		style == "4" ->	":progs/crystal_medclust1.mdl",
+		style == "5" ->	":progs/crystal_medclust2.mdl",
+		style == "6" ->	":progs/crystal_chonk.mdl",
+						":progs/crystal_med"
+	}}
+) = misc_crystal : 
+"Crystal model. Not solid."
+[
+	style(choices) : "Style" : 3	=
+	[
+		1: "Small crystal"
+		2: "Small crystal cluster"
+		3: "Medium crystal"
+		4: "Medium crystal cluster 1"
+		5: "Medium crystal cluster 2"
+		6: "Chonk crystal"
+	]
+	
+	spawnflags(flags) =
+	[
+		1 : "No Sound" : 0	
+	]
+	mangle(string) : "Orientation (pitch yaw roll, positive pitch is down)"
+]
+*/	
 
 //============================================================================
 

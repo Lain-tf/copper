@@ -955,17 +955,18 @@ for a misc_model which can be toggled on or off, use a func_wall_point with a ta
 ]
 @PointClass base(Appearflags) size(16 16 16) color(160 192 224) model(
 {{
-		style = "1" ->   ":progs/crystal_small.mdl",
-		style == "2" ->   ":progs/crystal_smallclust.mdl",
-		style == "3" ->   ":progs/crystal_med.mdl",
-		style == "4" ->   ":progs/crystal_medclust1.mdl",
-		style == "5" ->   ":progs/crystal_medclust2.mdl",
-		style == "6" ->   ":progs/crystal_chonk.mdl"
-}}
+		style == "1" ->	":progs/crystal_small.mdl",
+		style == "2" ->	":progs/crystal_smallclust.mdl",
+		style == "3" ->	":progs/crystal_med.mdl",
+		style == "4" ->	":progs/crystal_medclust1.mdl",
+		style == "5" ->	":progs/crystal_medclust2.mdl",
+		style == "6" ->	":progs/crystal_chonk.mdl",
+						":progs/crystal_med"
+	}}
 ) = misc_crystal : 
 "Crystal model. Not solid."
 [
-	style(choices) : "Style" : 1 =
+	style(choices) : "Style" : 3	=
 	[
 		1: "Small crystal"
 		2: "Small crystal cluster"
@@ -975,6 +976,10 @@ for a misc_model which can be toggled on or off, use a func_wall_point with a ta
 		6: "Chonk crystal"
 	]
 	
+	spawnflags(flags) =
+	[
+		1 : "No Sound" : 0	
+	]
 	mangle(string) : "Orientation (pitch yaw roll, positive pitch is down)"
 ]
 @Pointclass base(Target, Targetname, Appearflags) color(192 64 0) size(32 32 32) = target_heal : 
