@@ -201,7 +201,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_quadshotgun : "Quad-barreled shotgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_shot3.mdl" }) = weapon_quad_shotgun : "Rotary shotgun" []
 */
 void() weapon_quad_shotgun =
 {
