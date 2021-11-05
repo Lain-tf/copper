@@ -84,8 +84,10 @@ void(entity h, float t) powerup_berserk =
 	h.items2 |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
-	h.weapon = IT_AXE;
-	W_ResetWeaponState();	
+//	h.weapon = W_AXE;
+//	W_ResetWeaponState();	
+	h.impulse = 1;
+	W_ChangeWeapon();
 	
 }
 
