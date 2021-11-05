@@ -3,6 +3,7 @@
 #define COOP 1
 
 defs.qc
+defs_2.qc
 constants.qc
 
 maths.qc
@@ -79,7 +80,7 @@ m_morph.qc
 m_boss_egypt.qc
 
 // Dwell - Ep 2
-//misc_textbook.qc
+misc_textbook.qc
 m_kamikaze.qc
 m_brute.qc
 m_cguard.qc
