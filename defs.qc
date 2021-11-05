@@ -309,6 +309,7 @@ float	isKex;	// running the quake rerelease
 .float		invisible_time, invisible_sound, invisible_finished;
 .float		super_time, super_sound, super_damage_finished;
 .float 		haste_time, haste_finished;
+.float 		berserk_time, berserk_finished;
 .float		rad_time, radsuit_finished;
 .float		wetsuit_time, wetsuit_finished;
 .float		nextmovesound;	// replaces swim_flag and fly_sound, both of which were timers

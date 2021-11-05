@@ -26,7 +26,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
-	self.items2 = self.items2 - (self.items2 & (IT_HASTE | IT_WETSUIT));
+	self.items2 = self.items2 - (self.items2 & (IT_HASTE | IT_WETSUIT | IT_BERSERK));
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -543,6 +543,7 @@ void() PutClientInServer =
 	self.radsuit_finished = 0;
 	self.invisible_finished = 0;
 	self.haste_finished = 0;
+	self.berserk_finished = 0;	
 	self.notrace = 0;	// fix for dying with the ring
 	self.invincible_finished = 0;
 	self.invincible_time = 0;
@@ -1421,6 +1422,42 @@ void() CheckPowerups =
 			self.effects = self.effects - (self.effects & EF_DIMLIGHT);
 		}
 	}
+	
+	// todo make sure the axe returns to normal
+	if (self.berserk_finished) {
+		if (self.berserk_finished < time + 3) {
+			if (self.berserk_time == 1) {
+				sprint(self, "Your rage subsides ...\n");
+				stuffcmd(self, "bf\n");
+				// TODO(JP): a different sound
+				sound (self, CHAN_AUTO, "items/axe_powerup2.wav", 1, ATTN_NORM);
+				self.berserk_time = time + 1;
+			}
+
+			if (self.berserk_time < time) {
+				self.berserk_time = time + 1;
+				stuffcmd(self, "bf\n");
+			}
+		}
+
+		if (self.berserk_finished < time) {
+			// Just stopped
+			self.items2 = self.items2 - IT_BERSERK;
+			self.berserk_finished = 0;
+			self.berserk_time = 0;
+			if (self.weapon == IT_AXE)
+				self.weaponmodel = "progs/v_axe2.mdl";
+			
+		}
+
+		if (self.berserk_finished > time) {
+			self.effects = self.effects | EF_DIMLIGHT;
+		} else {
+			self.effects = self.effects - (self.effects & EF_DIMLIGHT);
+		}
+	}	
+	
+	
 
 	if (self.wetsuit_finished) {
 		self.air_finished = time + 12;		// don't drown

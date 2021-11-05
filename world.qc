@@ -276,6 +276,9 @@ void() worldspawn =
 	precache_sound ("items/inv3.wav");			// ring (idle)
 	precache_sound ("items/damage2.wav");		// quad (finish)
 	precache_sound ("items/damage3.wav");		// quad (attack)
+	precache_sound ("items/axe_powerup.wav");
+	precache_sound ("items/axe_powerup2.wav");
+	precache_sound ("items/axe_powerup3.wav");		
 // iw -- END
 
 	// items

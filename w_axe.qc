@@ -87,8 +87,11 @@ void() W_FireAxe =
 	makevectors (self.v_angle);
 	source = self.origin + '0 0 16';
 	
-		
-		traceline2(source, source + v_forward * (64), self, 0);
+		if (self.berserk_finished > time)		
+			traceline2(source, source + v_forward * (96), self, 0);
+		else
+			traceline2(source, source + v_forward * (64), self, 0);		
+			
 		if (trace_fraction == 1.0) 
 			return;
 		
@@ -100,7 +103,11 @@ void() W_FireAxe =
 		{
 			trace_ent.customflags = trace_ent.customflags | CFL_AXEHITME;
 			SpawnBlood (org, '0 0 0', 20);
-			T_Damage (trace_ent, self, self, 24);
+			
+			if (self.berserk_finished > time)
+				T_Damage (trace_ent, self, self, 264);			
+			else			
+				T_Damage (trace_ent, self, self, 24);
 			
 			if (trace_ent.flags & FL_MONSTER)
 			{
@@ -113,8 +120,9 @@ void() W_FireAxe =
 				sound (self, CHAN_WEAPON, "zombie/z_hit.wav", 1, ATTN_IDLE);
 			}
 			
-			// do knockback with a quad
-			if (has_quad(self))
+			// beserk doubled the knockback with the axe but removed the quad knockback
+			// do knockback with berserk
+			if ((has_berserk(self)) || (has_berserk(self)))
 			{
 				if ((trace_ent.movetype == MOVETYPE_STEP || trace_ent.movetype == MOVETYPE_WALK) && 
 					// don't swat bosses or other non-standard-sized enemies around
@@ -123,7 +131,13 @@ void() W_FireAxe =
 					local vector toss;
 					toss = v_forward;
 					toss_z = 0;
-					toss = normalize(toss) * 400;
+					if (has_berserk(self))
+						toss = normalize(toss) * 800;
+					else if (has_quad(self))
+						toss = normalize(toss) * 400;
+					else	
+						toss = normalize(toss) * 200;
+					// how would this even happen ^	
 					toss_z = 100;
 					//bprint(vtos(toss));
 					//bprint("\n");

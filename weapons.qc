@@ -42,7 +42,7 @@ void() W_Precache =
 	precache_sound ("zombie/z_hit.wav");
 	
 	
-
+	precache_model ("progs/v_axeb.mdl");
 	precache_model ("progs/v_axe2.mdl");
 	precache_model ("progs/v_shot.mdl");
 	precache_model ("progs/v_nail.mdl");
@@ -73,6 +73,23 @@ void() SuperDamageSound =
 		sound (self, CHAN_BODY, "items/damage3.wav", 1, ATTN_NORM);
 	}
 }
+
+/*
+========
+Berserk Sound, scream or something
+========
+*/
+void() BerserkSound =
+{
+	if (!has_berserk(self)) return;
+	if (self.berserk_finished < time)
+	{
+		self.super_sound = time + 1;
+		sound (self, CHAN_BODY, "items/axe_powerup3.wav", 1, ATTN_NORM);
+	}
+}
+
+
 
 float() W_CanSwitchWeapon =
 {
@@ -128,29 +145,34 @@ void() W_ResetWeaponState =
 		// if any, or picking up/switching weapons can cause double attacks
 	
 	if (self.weapon == W_AXE )
-		self.weaponmodel = "progs/v_axe2.mdl";
+		{
+		if (self.berserk_finished > time)
+			self.weaponmodel = "progs/v_axeb.mdl";
+		else
+			self.weaponmodel = "progs/v_axe2.mdl";
+		}
 	else if (self.weapon == W_SHOTGUN)
-		self.weaponmodel = "progs/v_shot.mdl";
+		{self.weaponmodel = "progs/v_shot.mdl";}
 	else if (self.weapon == W_SUPER_SHOTGUN)
-		self.weaponmodel = "progs/v_shot2.mdl";
+		{self.weaponmodel = "progs/v_shot2.mdl";}
 	else if (self.weapon == W_QUAD_SHOTGUN)
-		self.weaponmodel = "progs/v_shot3.mdl";
+		{self.weaponmodel = "progs/v_shot3.mdl";}
 	else if (self.weapon == W_NAILGUN)
-		self.weaponmodel = "progs/v_nail.mdl";
+		{self.weaponmodel = "progs/v_nail.mdl";}
 	else if (self.weapon == W_SUPER_NAILGUN)
-		self.weaponmodel = "progs/v_nail3.mdl";
+		{self.weaponmodel = "progs/v_nail3.mdl";}
 //	else if (self.weapon == W_SUPER_NAILGUN)
-//		self.weaponmodel = "progs/v_nail2.mdl";		
+//		{self.weaponmodel = "progs/v_nail2.mdl";}		
 	else if (self.weapon == W_GRENADE_LAUNCHER)
-		self.weaponmodel = "progs/v_rock.mdl";
+		{self.weaponmodel = "progs/v_rock.mdl";}
 	else if (self.weapon == W_ROCKET_LAUNCHER)
-		self.weaponmodel = "progs/v_rock2.mdl";
+		{self.weaponmodel = "progs/v_rock2.mdl";}
 	else if (self.weapon == W_RAILGUN)
-		self.weaponmodel = "progs/v_rail.mdl";
+		{self.weaponmodel = "progs/v_rail.mdl";}
 	else if (self.weapon == W_LIGHTNING)
-		self.weaponmodel = "progs/v_light.mdl";
+		{self.weaponmodel = "progs/v_light.mdl";}
 	else
-		self.weaponmodel = string_null;
+		{self.weaponmodel = string_null;}
 
 	W_SetCurrentAmmo();
 }

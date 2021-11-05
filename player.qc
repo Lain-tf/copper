@@ -325,7 +325,6 @@ void() player_super_nail =
 		
 	dprint(ftos(self.weaponframe));
 	dprint("\n");
-	
 
 	if (((self.weaponframe == 1) || (self.weaponframe == 5)) && (self.ammo_nails > 1))
 	{
@@ -601,6 +600,7 @@ void() PlayerDie =
 	self.invincible_finished = 0;
 	self.super_damage_finished = 0;
 	self.haste_finished = 0;
+	self.berserk_finished = 0;
 	self.radsuit_finished = 0;
 	self.modelindex = modelindex_player;	// don't use eyes
 

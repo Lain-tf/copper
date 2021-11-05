@@ -152,6 +152,7 @@ float IT_HASTE = 1;
 float IT_WETSUIT = 2;
 float IT_QUAD_SHOTGUN = 4;
 float IT_RAILGUN = 8;
+float IT_BERSERK = 16;
 
 // Weapons (combination of weapon slot + upgrade)
 // These are deliberately the same values as the corresponding IT_ flags,

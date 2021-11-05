@@ -155,6 +155,8 @@ void(entity who) ClearItemEffects =
 		who.super_damage_finished -= time;
 	if (who.haste_finished > time)
 		who.haste_finished -= time;
+	if (who.berserk_finished > time)
+		who.berserk_finished -= time;		
 	if (who.wetsuit_finished > time)
 		who.wetsuit_finished -= time;
 	/*
@@ -197,6 +199,10 @@ void(entity who) RestoreItemEffects =
 		who.haste_finished += time;
 		who.items2 += IT_HASTE;
 	}
+	if (who.berserk_finished > 0) {
+		who.berserk_finished += time;
+		who.items2 += IT_BERSERK;
+	}	
 	if (who.wetsuit_finished > 0) {
 		who.wetsuit_finished += time;
 		who.items2 += IT_WETSUIT;

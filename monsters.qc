@@ -262,6 +262,7 @@ entity( void() spawnthink ) mon_spawner_use =
 	mon.invisible_finished = self.invisible_finished;
 	mon.super_damage_finished = self.super_damage_finished;
 	mon.haste_finished = self.haste_finished;
+	mon.berserk_finished = self.berserk_finished;	
 	mon.radsuit_finished = self.radsuit_finished;
 	mon.health = self.health;
 	mon.delay = self.delay;

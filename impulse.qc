@@ -166,6 +166,18 @@ void() Cheat_Haste =
 }
 
 // --------------------------------
+// Cheat_Berserk
+// --------------------------------
+void() Cheat_Berserk =
+{
+	if(deathmatch || coop)
+		return;
+	stuffcmd(self, "bf\n");
+	self.items2 = self.items2 | IT_BERSERK;
+	powerup_berserk(self, 30);
+}
+
+// --------------------------------
 // Cheat_Wetsuit
 // --------------------------------
 void() Cheat_Wetsuit =
@@ -313,6 +325,9 @@ void() ImpulseCommands =
 	case 255:
 		Cheat_Quad();	
 		break;
+	case 254:
+		Cheat_Berserk();	
+		break;		
 		
 	default:
 		return;
