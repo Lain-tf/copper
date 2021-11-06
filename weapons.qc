@@ -82,10 +82,10 @@ Berserk Sound, scream or something
 void() BerserkSound =
 {
 	if (!has_berserk(self)) return;
-	if (self.berserk_finished < time)
+	if (self.berserk_sound < time)
 	{
-		self.super_sound = time + 1;
-		sound (self, CHAN_BODY, "items/axe_powerup3.wav", 1, ATTN_NORM);
+		self.berserk_sound = time + 1;
+		sound (self, CHAN_AUTO, "items/axe_powerup3.wav", 1, ATTN_NORM);
 	}
 }
 
@@ -294,6 +294,7 @@ void() W_Attack =
 
 	if (self.weapon == W_AXE)
 	{
+		BerserkSound();
 		player_axe();
 		W_AxeSwing();
 		return;

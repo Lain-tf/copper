@@ -537,6 +537,9 @@ void() walkmonster_start_go =
 		self.movedir = VEC_ORIGIN;
 	}
 	
+	
+	skinhandler();
+	
 	monster_start_go();
 }
 

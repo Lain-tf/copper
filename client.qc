@@ -1430,7 +1430,7 @@ void() CheckPowerups =
 				sprint(self, "Your rage subsides ...\n");
 				stuffcmd(self, "bf\n");
 				// TODO(JP): a different sound
-				sound (self, CHAN_AUTO, "items/axe_powerup2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_WEAPON, "items/axe_powerup2.wav", 1, ATTN_NORM);
 				self.berserk_time = time + 1;
 			}
 

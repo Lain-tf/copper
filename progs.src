@@ -3,7 +3,7 @@
 #define COOP 1
 
 defs.qc
-defs_2.qc
+//defs_2.qc
 constants.qc
 
 maths.qc

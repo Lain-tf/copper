@@ -98,7 +98,9 @@ void() W_FireAxe =
 		self.show_hostile = time + 1;	// wake monsters up
 		
 		org = trace_endpos - v_forward*4;
-		
+
+		BerserkSound();
+
 		if (trace_ent.takedamage)
 		{
 			trace_ent.customflags = trace_ent.customflags | CFL_AXEHITME;

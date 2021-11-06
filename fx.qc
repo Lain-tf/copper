@@ -6,6 +6,34 @@ FX
 ================================================================
 */
 
+// really not much of a fx thing, but I didn't really know where else to put it. - snaut
+void() skinhandler =
+{
+	if ((world.worldtype == 0) || (world.worldtype == 1) || (world.worldtype == 2))
+	{
+		self.skin = 0;
+	}
+	else if (world.worldtype == 3)
+	{
+		self.skin = 1;	
+	}
+	else if (world.worldtype == 4)	
+	{
+		self.skin = 2;	
+	}
+	else if (world.worldtype == 5)
+	{
+		self.skin = 3;	
+	}
+	else
+	{
+		self.skin = 0;	
+	}
+
+}
+
+
+
 void(vector org) gunshot =
 {
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);

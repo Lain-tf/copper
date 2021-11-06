@@ -80,14 +80,21 @@ powerup_berserk
 */
 void(entity h, float t) powerup_berserk =
 {
+
+	if (h.classname != "player")
+		return;
+		
 	sprint(h, "You begin frothing with a berserkers rage ...\n");
 	h.items2 |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
-//	h.weapon = W_AXE;
-//	W_ResetWeaponState();	
-	h.impulse = 1;
-	W_ChangeWeapon();
+	
+	h.weapon = W_AXE;
+	SUB_CallAsSelf(W_ResetWeaponState, h);
+
+//	h.impulse = 1;
+//	W_ChangeWeapon();
+
 	
 }
 
