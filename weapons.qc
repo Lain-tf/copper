@@ -243,7 +243,7 @@ float() W_BestWeapon =
 		return W_SUPER_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
-	if (self.ammo_cells >= 8 && (self.items2 & IT_RAILGUN) )
+	if (self.ammo_cells >= 6 && (self.items2 & IT_RAILGUN) )
 		return W_RAILGUN;
 	if(self.ammo_nails >= 1 && (it & IT_NAILGUN) )
 		return W_NAILGUN;
@@ -454,7 +454,7 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 8)
 	{
-		if (self.items2 & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 8) 
+		if (self.items2 & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 6) 
 		{
 			// We can select the railgun.
 			fl = IT_RAILGUN;
@@ -583,7 +583,7 @@ void() CycleWeaponCommand =
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
 			it = self.items2;
-			if (self.ammo_cells < 8)
+			if (self.ammo_cells < 6)
 				am = 1;
 		}
 		else if (self.weapon == W_RAILGUN)
@@ -701,7 +701,7 @@ void() CycleWeaponReverseCommand =
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
 			it = self.items2;
-			if (self.ammo_cells < 8) 
+			if (self.ammo_cells < 6) 
 				am = 1;
 		}
 		if ( (it & fl) && am == 0)

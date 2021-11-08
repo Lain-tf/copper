@@ -235,7 +235,7 @@ void() weapon_railgun =
 	self.items2 = IT_RAILGUN;
 	self.weapon = W_RAILGUN;
 	self.ammo_cells = 16;
-	self.netname = "Railgun";
+	self.netname = "Railgun Staff";
 	StartWeapon();
 }
 

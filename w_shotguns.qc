@@ -269,7 +269,7 @@ void() W_FireRail =
 	local float traillen, segments;
 	entity prj;
 	
-	if (self.ammo_cells < 8)
+	if (self.ammo_cells < 6)
 	{
 		W_SelectBestWeapon();
 		return;
@@ -278,9 +278,9 @@ void() W_FireRail =
 	
 	sound (self, CHAN_WEAPON, "weapons/rail.wav", 1, ATTN_NORM);
 
-	self.punchangle_z = crandom()*12;
+	self.punchangle_z = crandom()*2;
 
-	self.currentammo = self.ammo_cells = self.ammo_cells - 8;
+	self.currentammo = self.ammo_cells = self.ammo_cells - 6;
 
 	org = self.origin + '0 0 16';
 

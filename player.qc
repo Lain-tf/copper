@@ -138,9 +138,9 @@ void() player_quad_shotgun_frame = {
 	}
 
 	self.weaponframe += 1;
-	if (self.weaponframe < 17) {
+	if (self.weaponframe < 33) {
 		// We're in the initial firing phase
-		if (mod(self.weaponframe, 4) == 1) {
+		if (mod(self.weaponframe, 8) == 1) {
 			self.frame = $shotatt1;
 			self.effects = self.effects | EF_MUZZLEFLASH;
 			W_FireQuadShotgun();
@@ -151,19 +151,19 @@ void() player_quad_shotgun_frame = {
 		// Now in the cooldown phase
 		self.qsg_firing = FALSE;
 		
-		if (self.weaponframe == 17) {
+		if (self.weaponframe == 33) {
 			self.frame = $rockrun1;
 		} else {
 			self.frame += 1;
 		}
 
-		if (self.weaponframe == 36) {
+		if (self.weaponframe == 72) {
 			player_run();
 			return;
 		}
 	}
 	self.think = player_quad_shotgun_frame;
-	self.nextthink = time + 0.05 * haste_factor;
+	self.nextthink = time + 0.025 * haste_factor;
 }
 
 /*
