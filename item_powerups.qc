@@ -341,9 +341,9 @@ HASTE
 void() precache_haste =
 {
 	precache_model ("progs/haste.mdl");
-	precache_sound_safe ("items/damage.wav");
-	precache_sound_safe ("items/damage2.wav");
-	precache_sound_safe ("items/damage3.wav");
+	precache_sound_safe ("items/haste1.wav");
+	precache_sound_safe ("items/haste2.wav");
+	//precache_sound_safe ("items/haste3.wav");
 }
 
 /*QUAKED item_artifact_haste (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
@@ -367,7 +367,7 @@ void() item_artifact_haste =
 	precache_haste();
 	setmodel (self, "progs/haste.mdl");
 	self.netname = "Haste";
-	self.noise = "items/damage.wav";
+	self.noise = "items/haste1.wav";
 	self.items2 = IT_HASTE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)

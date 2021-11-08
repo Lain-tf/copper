@@ -1399,7 +1399,7 @@ void() CheckPowerups =
 				sprint(self, "The haste artifact's power weakens ...\n");
 				stuffcmd(self, "bf\n");
 				// TODO(JP): a different sound
-				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_AUTO, "items/haste2.wav", 1, ATTN_NORM);
 				self.haste_time = time + 1;
 			}
 
