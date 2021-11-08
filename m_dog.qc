@@ -146,14 +146,14 @@ void() dog_run1		=[	$run1  ,	dog_run2	] {
 }
 void() dog_run2		=[	$run2  ,	dog_run3	] {ai_run(32);}
 void() dog_run3		=[	$run3  ,	dog_run4	] {ai_run(32);}
-void() dog_run4		=[	$run4  ,	dog_run5	] {ai_run(20);}
-void() dog_run5		=[	$run5  ,	dog_run6	] {ai_run(64);}
+void() dog_run4		=[	$run4  ,	dog_run5	] {ai_run(32);}
+void() dog_run5		=[	$run5  ,	dog_run6	] {ai_run(32);}
 void() dog_run6		=[	$run6  ,	dog_run7	] {ai_run(32);}
-void() dog_run7		=[	$run7  ,	dog_run8	] {ai_run(16);}
+void() dog_run7		=[	$run7  ,	dog_run8	] {ai_run(32);}
 void() dog_run8		=[	$run8  ,	dog_run9	] {ai_run(32);}
 void() dog_run9		=[	$run9  ,	dog_run10	] {ai_run(32);}
-void() dog_run10	=[	$run10  ,	dog_run11	] {ai_run(20);}
-void() dog_run11	=[	$run11  ,	dog_run12	] {ai_run(64);}
+void() dog_run10	=[	$run10  ,	dog_run11	] {ai_run(32);}
+void() dog_run11	=[	$run11  ,	dog_run12	] {ai_run(32);}
 void() dog_run12	=[	$run12  ,	dog_run1	] {ai_run(32);}
 
 void() dog_atta1	=[	$attack1,	dog_atta2	] {ai_charge(10);}
@@ -353,7 +353,7 @@ void() monster_dog_spawn =
 
 	setmodel (self, "progs/dog.mdl");
 
-	setsize (self, '-32 -32 -24', '32 32 40');
+	setsize (self, '-16 -16 -24', '16 16 16');
 	self.health = 35;
 	self.customflags |= CFL_MELEEONLY;
 
@@ -411,7 +411,7 @@ void() monster_dog =
 	precache_sound ("dog/idle.wav");
 
 	self.health = 35;
-	setsize (self, '-32 -32 -24', '32 32 40');
+setsize (self, '-16 -16 -24', '16 16 16');
 	if ( monster_spawnsetup( monster_dog_spawner ) ) return;
 
 	addmonster(1);
