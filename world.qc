@@ -187,9 +187,9 @@ Keys:
 		0 : "Medieval"
 		1 : "Metal (runic)"
 		2 : "Base"
-		3 : "Egypt"
-		4 : "Sunken"
-		5 : "Crystal"
+		3 : "Episode 1 - Egypt"
+		4 : "Episode 2 - Sunken"
+		5 : "Episode 2 - Crystal"
 	]
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
