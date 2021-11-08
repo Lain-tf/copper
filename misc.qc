@@ -215,19 +215,19 @@ void() misc_crystal =
 	if (!SUB_ShouldSpawn()) return;
 
 	if (self.style == 1)
-		self.model = "progs/crystal_small.mdl";
+		self.model = "progs/e2/crystal_small.mdl";
 	else if (self.style == 2)
-		self.model = "progs/crystal_smallclust.mdl";
+		self.model = "progs/e2/crystal_smallclust.mdl";
 	else if (self.style == 3)
-		self.model = "progs/crystal_med.mdl";
+		self.model = "progs/e2/crystal_med.mdl";
 	else if (self.style == 4)
-		self.model = "progs/crystal_medclust1.mdl";
+		self.model = "progs/e2/crystal_medclust1.mdl";
 	else if (self.style == 5)
-		self.model = "progs/crystal_medclust2.mdl";
+		self.model = "progs/e2/crystal_medclust2.mdl";
 	else if (self.style == 6)
-		self.model = "progs/crystal_chonk.mdl";
+		self.model = "progs/e2/crystal_chonk.mdl";
 	else
-		self.model = "progs/crystal_med.mdl";
+		self.model = "progs/e2/crystal_med.mdl";
 
 	if (self.mangle != '0 0 0')
 	{
@@ -271,13 +271,13 @@ display a crystal. will not be solid!
 /*FGD
 @PointClass base(Appearflags) size(16 16 16) color(160 192 224) model(
 {{
-		style == "1" ->	":progs/crystal_small.mdl",
-		style == "2" ->	":progs/crystal_smallclust.mdl",
-		style == "3" ->	":progs/crystal_med.mdl",
-		style == "4" ->	":progs/crystal_medclust1.mdl",
-		style == "5" ->	":progs/crystal_medclust2.mdl",
-		style == "6" ->	":progs/crystal_chonk.mdl",
-						":progs/crystal_med"
+		style == "1" ->	":progs/e2/crystal_small.mdl",
+		style == "2" ->	":progs/e2/crystal_smallclust.mdl",
+		style == "3" ->	":progs/e2/crystal_med.mdl",
+		style == "4" ->	":progs/e2/crystal_medclust1.mdl",
+		style == "5" ->	":progs/e2/crystal_medclust2.mdl",
+		style == "6" ->	":progs/e2/crystal_chonk.mdl",
+						":progs/e2/crystal_med"
 	}}
 ) = misc_crystal : 
 "Crystal model. Not solid."
@@ -291,11 +291,7 @@ display a crystal. will not be solid!
 		5: "Medium crystal cluster 2"
 		6: "Chonk crystal"
 	]
-	
-	spawnflags(flags) =
-	[
-		1 : "No Sound" : 0	
-	]
+
 	mangle(string) : "Orientation (pitch yaw roll, positive pitch is down)"
 ]
 */	

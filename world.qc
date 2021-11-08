@@ -164,9 +164,9 @@ Keys:
     0 = medieval
     1 = metal
     2 = base
-	3 = egypt
-	4 = hexen2
-	5 = crystal
+	3 = Episode 1 - Egypt
+	4 = Episode 2 - Sunken
+	5 = Episode 2 - Crystal
 "gravity" how fast your dreams come crashing down
 
 "_sunlight" "#"
@@ -188,7 +188,7 @@ Keys:
 		1 : "Metal (runic)"
 		2 : "Base"
 		3 : "Egypt"
-		4 : "Hexen 2"
+		4 : "Sunken"
 		5 : "Crystal"
 	]
 	sounds(integer) : "CD track to play" : 0
