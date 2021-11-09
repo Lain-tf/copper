@@ -587,7 +587,7 @@ void() door_key_init =
 			if (world.worldtype == 4)
 				self.message = "You need the gold key";		
 			else if (world.worldtype == 3)
-				self.message = "You need the silver gold key";
+				self.message = "You need the gold scarab key";
 			else if (world.worldtype == 2)
 				self.message = "You need the gold keycard";
 			else if (world.worldtype == 1)
