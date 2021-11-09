@@ -125,16 +125,16 @@ void(float sequence, float spray) BruteFireGrenade =
 	makevectors(self.angles);
 	switch (sequence) {
 	case BRUTE_GRENADE_SEQUENCE_A_LEFT:
-		gorg = self.origin + v_forward * 100 + v_up * 40 - v_right * 25;
+		gorg = self.origin + v_forward * 60 + v_up * 40 - v_right * 25;
 		break;
 
 	case BRUTE_GRENADE_SEQUENCE_A_RIGHT:
-		gorg = self.origin + v_forward * 100 + v_up * 37 + v_right * 21;
+		gorg = self.origin + v_forward * 60 + v_up * 37 + v_right * 21;
 		spray_angle = spray_angle * -1;
 		break;
 
 	case BRUTE_GRENADE_SEQUENCE_B:
-		gorg = self.origin + v_forward * 80 + v_up * 20 - v_right * 25;
+		gorg = self.origin + v_forward * 50 + v_up * 20 - v_right * 25;
 
 		// Spray both left and right
 		if (random() < 0.5) {
@@ -551,18 +551,26 @@ void(entity attacker, float damage)	brute_pain =
 
 void() brute_die =
 {
-	// check for gib
-	if (self.health < -100)
-	{
-		Gib ("progs/h_brute.mdl", self.health);
-		return;
-	}
 
 	if (random() < 0.5)	{
 		sound(self, CHAN_VOICE, "brute/death1.wav", 1, ATTN_NORM);
 	} else {
 		sound(self, CHAN_VOICE, "brute/death2.wav", 1, ATTN_NORM);
 	}
+	
+		if (self.health < -80)
+	{
+		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+		ThrowHead ("progs/h_brute.mdl", self.health);
+		ThrowGib ("progs/gib1.mdl", self.health);
+		ThrowGib ("progs/gib2.mdl", self.health);
+		ThrowGib ("progs/gib1.mdl", self.health);
+		ThrowGib ("progs/gib2.mdl", self.health);
+		ThrowGib ("progs/gib1.mdl", self.health);
+		ThrowGib ("progs/gib2.mdl", self.health);
+		ThrowGib ("progs/gib3.mdl", self.health);
+	}
+	
 	brute_die1();
 }
 
