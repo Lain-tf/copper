@@ -1557,6 +1557,47 @@ void() PlayerPreThink =
 	if (self.waterlevel == WL_WAIST)
 		CheckWaterJump ();
 
+
+	if (self.wetsuit_finished > time)
+		{
+		if (self.waterlevel==2)
+			{
+			self.velocity = self.velocity * 1.25;
+			}
+		if (self.waterlevel==3)
+			{
+			self.velocity = self.velocity * 1.5;
+			}
+      if (self.waterlevel >= 2)
+         {
+         // play scuba sound
+         if (self.swim_flag < time)
+            {
+            self.swim_flag = time + 7;
+            sound (self, CHAN_BODY, "misc/wetsuit.wav", 1, ATTN_NORM);
+            }
+         //MED 01/17/97
+         else
+            {
+            if (fabs(self.swim_flag - time - 6)<0.04)
+               {
+               DeathBubbles(1);
+               }
+            else if (fabs(self.swim_flag - time - 5.5)<0.04)
+               {
+               DeathBubbles(1);
+               }
+            else if (fabs(self.swim_flag - time - 5)<0.04)
+               {
+               DeathBubbles(1);
+               }
+            }
+         }
+
+     }
+
+
+
 	if (self.button2)
 	{
 		PlayerJump ();
@@ -1603,6 +1644,22 @@ void() PlayerPostThink =
 		return;		// intermission or finale
 	if (self.deadflag)
 		return;
+		
+	//JIM
+	//WETSUIT
+	if (self.wetsuit_finished > time)
+		{
+		if (self.waterlevel==2)
+			{
+			self.velocity = self.velocity * 0.8;
+			}
+		if (self.waterlevel==3)
+			{
+			self.velocity = self.velocity * 0.66;
+			}
+      }		
+		
+		
 	
 	if (self.customflags & CFL_LIMBO)
 	{
