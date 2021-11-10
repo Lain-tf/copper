@@ -9,38 +9,20 @@ FX
 // really not much of a fx thing, but I didn't really know where else to put it. - snaut
 void() skinhandler =
 {
-
-	//Exclude monsters without episode-exclusive skins.
 	if ((self.classname == "monster_soldier") || (self.classname == "monster_tarbaby") || (self.classname == "monster_hell_knight") || (self.classname == "monster_knight") || (self.classname == "monster_zombie") || (self.classname == "monster_enforcer"))
 	{
-			//Depending on the worldtype, override skin numbers.
-			if ((world.worldtype == 0) || (world.worldtype == 1) || (world.worldtype == 2) || (world.worldtype == 3))
-		{
-			self.skin = 0;
-		}
-		else if (world.worldtype == 4)
-		{
-			self.skin = 1;	
-		}
-		else if (world.worldtype == 5)
+		if ((world.worldtype == 5) || (world.worldtype == 4))
 		{
 			self.skin = 1;
 		}
 		else
 		{
-			self.skin = 0;	
+			self.skin = 0;
+			
 		}
-			//If the mapper sets skin as -1, use the default skin.
-			if (self.skin == -1) self.skin = 0;
 	}
-	else
-	{
 	return;
-	}
-	
-
 }
-
 
 
 void(vector org) gunshot =
