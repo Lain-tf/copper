@@ -264,7 +264,7 @@ void() rail_fade = {
 void() W_FireRail =
 {
 	local float timetoend;
-	local vector	vel, org, dir, vec, src, loopsrc,  destination, dir2;
+	local vector	vel, org, dir, vec, src, loopsrc,  destination, dir2, dir3;
 	local entity thedude;
 	local float traillen, segments;
 	entity prj;
@@ -310,29 +310,30 @@ void() W_FireRail =
 				if (trace_ent != self) 
 				{
 					T_Damage (trace_ent, self, self, 270);
-					loopsrc = trace_endpos;
 					
 					// if we have the right amount of health add some velocity if we're not gibbing
 					
-					if ((trace_ent.health > -30) && (trace_ent.health < 0))
+					if (trace_ent.health <= 0)
 					{
 						trace_ent.velocity = '0 0 0';					
 						trace_ent.velocity_z = 175;
 						// zero out the velocity and give it some z velocity so its off ground
-						trace_ent.flags = trace_ent.flags - FL_ONGROUND;
+						trace_ent.flags = trace_ent.flags - (trace_ent.flags & FL_ONGROUND);
 						// also set the flag
 						
 						// we don't want z velocity, so we're going to zero that out too.
-						dir2 = BoundsCenter(self);
+						dir3 = BoundsCenter(self);
+						dir3_z = 0;
+						dir2 = trace_ent.origin;
 						dir2_z = 0;
-						dir = trace_ent.origin;
-						dir_z = 0;
-						dir = dir - dir2;
-						dir = normalize(dir);
-						trace_ent.velocity = trace_ent.velocity + dir*400;						
+						dir2 = dir2 - dir3;
+						dir2 = normalize(dir2);
+						trace_ent.velocity = trace_ent.velocity + dir2*400;						
 											
 					}
-				}	
+				}
+									
+				loopsrc = trace_endpos;
 			}
 			else
 			{
