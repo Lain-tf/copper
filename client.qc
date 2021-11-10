@@ -1568,7 +1568,7 @@ void() PlayerPreThink =
 			{
 			self.velocity = self.velocity * 1.5;
 			}
-      if (self.waterlevel >= 2)
+ /*     if (self.waterlevel >= 2)
          {
          // play scuba sound
          if (self.swim_flag < time)
@@ -1593,7 +1593,7 @@ void() PlayerPreThink =
                }
             }
          }
-
+*/
      }
 
 
