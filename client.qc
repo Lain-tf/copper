@@ -1562,11 +1562,12 @@ void() PlayerPreThink =
 		{
 		if (self.waterlevel==2)
 			{
-			self.velocity = self.velocity * 1.25;
+			self.velocity = self.velocity * 1.1
+			;
 			}
 		if (self.waterlevel==3)
 			{
-			self.velocity = self.velocity * 1.5;
+			self.velocity = self.velocity * 1.3;
 			}
  /*     if (self.waterlevel >= 2)
          {
@@ -1651,11 +1652,11 @@ void() PlayerPostThink =
 		{
 		if (self.waterlevel==2)
 			{
-			self.velocity = self.velocity * 0.8;
+			self.velocity = self.velocity * 0.9;
 			}
 		if (self.waterlevel==3)
 			{
-			self.velocity = self.velocity * 0.66;
+			self.velocity = self.velocity * 0.769230;
 			}
       }		
 		
