@@ -213,6 +213,7 @@ void() monster_kamikaze_spawn =
 	self.cnt = 0;
 	
 	self.customflags |= CFL_MELEEONLY;
+	self.customflags |= CFL_EPSKINS;
 
 	self.th_stand = kami_stand1;
 	self.th_walk = kami_walk1;

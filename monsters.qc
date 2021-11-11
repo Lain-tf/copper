@@ -396,6 +396,7 @@ Common monster starts
 
 void() monster_start =
 {
+	skinhandler();
 	if (self.oldorigin == VEC_ORIGIN)
 		self.oldorigin = self.origin;
 	

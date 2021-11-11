@@ -9,18 +9,14 @@ FX
 // really not much of a fx thing, but I didn't really know where else to put it. - snaut
 void() skinhandler =
 {
-	if ((self.classname == "monster_soldier") || (self.classname == "monster_tarbaby") || (self.classname == "monster_hell_knight") || (self.classname == "monster_knight") || (self.classname == "monster_zombie") || (self.classname == "monster_enforcer"))
-	{
-		if ((world.worldtype == 5) || (world.worldtype == 4))
+	self.skin = 0;
+		if (self.customflags & CFL_EPSKINS)
 		{
-			self.skin = 1;
+			if ((world.worldtype == 5) || (world.worldtype == 4))
+			{
+				self.skin = 1;
+			}
 		}
-		else
-		{
-			self.skin = 0;
-			
-		}
-	}
 	return;
 }
 

@@ -399,6 +399,8 @@ void() monster_hell_knight_spawn =
 	setmodel (self, "progs/hknight.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
+	
+	self.customflags |= CFL_EPSKINS;
 
 	self.th_stand = hknight_stand1;
 	self.th_walk = hknight_walk1;

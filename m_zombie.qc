@@ -553,6 +553,8 @@ void() monster_zombie_spawn =
 	//self.movetype = MOVETYPE_STEP;
 
 	setmodel (self, "progs/zombie.mdl");
+	
+	self.customflags |= CFL_EPSKINS;
 
 	if (self.deathtype == string_null)
 		self.deathtype = "joins the Zombies";

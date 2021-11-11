@@ -297,6 +297,8 @@ void() monster_army_spawn =
 	
 	self.solid = SOLID_SLIDEBOX;
 	//self.movetype = MOVETYPE_STEP;
+	
+	self.customflags |= CFL_EPSKINS;
 
 	setmodel (self, "progs/soldier.mdl");
 

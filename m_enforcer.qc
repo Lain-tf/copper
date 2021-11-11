@@ -334,6 +334,8 @@ void() monster_enforcer_spawn =
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 80;
+	
+	self.customflags |= CFL_EPSKINS;
 
 	self.th_stand = enf_stand1;
 	self.th_walk = enf_walk1;
