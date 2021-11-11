@@ -1,4 +1,4 @@
-/*
+	/*
 ==============================================================================
 
 PLAYER
@@ -338,7 +338,7 @@ void() player_super_nail =
 	self.frame = $nailatt1;
 	else self.frame += 1;
 	self.think = player_super_nail;
-	self.nextthink = time + 0.025;	// TODO: oh fuck it, it works, you're never touching this again
+	self.nextthink = time + 0.023;	// TODO: oh fuck it, it works, you're never touching this again
 	self.cnt = self.cnt + 1;
 }
 
