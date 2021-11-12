@@ -215,19 +215,23 @@ void() misc_crystal =
 	if (!SUB_ShouldSpawn()) return;
 
 	if (self.style == 1)
-		self.model = "progs/e2/crystal_small.mdl";
+		self.model = "progs/e2/crystals/crystal_small1.bsp";
 	else if (self.style == 2)
-		self.model = "progs/e2/crystal_smallclust.mdl";
+		self.model = "progs/e2/crystals/crystal_small2.bsp";
 	else if (self.style == 3)
-		self.model = "progs/e2/crystal_med.mdl";
+		self.model = "progs/e2/crystals/crystal_smallclust1.bsp";
 	else if (self.style == 4)
-		self.model = "progs/e2/crystal_medclust1.mdl";
+		self.model = "progs/e2/crystals/crystal_med1.bsp";
 	else if (self.style == 5)
-		self.model = "progs/e2/crystal_medclust2.mdl";
+		self.model = "progs/e2/crystals/crystal_med2.bsp";
 	else if (self.style == 6)
-		self.model = "progs/e2/crystal_chonk.mdl";
+		self.model = "progs/e2/crystals/crystal_medclust1.bsp";
+	else if (self.style == 7)
+		self.model = "progs/e2/crystals/crystal_medclust2.bsp";
+	else if (self.style == 8)
+		self.model = "progs/e2/crystals/crystal_chonk1.bsp";	
 	else
-		self.model = "progs/e2/crystal_med.mdl";
+		self.model = "progs/e2/crystals/crystal_med1.bsp";
 
 	if (self.mangle != '0 0 0')
 	{
@@ -260,39 +264,46 @@ display a crystal. will not be solid!
 "skin" skin index on model (0-ordinal)
 "ideal_yaw" randomly select yaw angle (for quickly scattering props)
 
-1: Small crystal
-2: Small crystal cluster
-3: Medium crystal
-4: Medium crystal cluster 1
-5: Medium crystal cluster 2
-6: Chonk crystal
+1: Small crystal 1
+2: Small crystal 2
+3: Small crystal cluster
+4: Medium crystal 1
+5: Medium crystal 2
+6: Medium crystal cluster 1
+7: Medium crystal cluster 2
+8: Chonk crystal
 
 */
 /*FGD
 @PointClass base(Appearflags) size(16 16 16) color(160 192 224) model(
 {{
-		style == "1" ->	":progs/e2/crystal_small.mdl",
-		style == "2" ->	":progs/e2/crystal_smallclust.mdl",
-		style == "3" ->	":progs/e2/crystal_med.mdl",
-		style == "4" ->	":progs/e2/crystal_medclust1.mdl",
-		style == "5" ->	":progs/e2/crystal_medclust2.mdl",
-		style == "6" ->	":progs/e2/crystal_chonk.mdl",
-						":progs/e2/crystal_med"
+		style == "1" ->	":progs/e2/crystals/crystal_small1.bsp",
+		style == "2" ->	":progs/e2/crystals/crystal_small2.bsp",
+		style == "3" ->	":progs/e2/crystals/crystal_smallclust1.bsp",
+		style == "4" ->	":progs/e2/crystals/crystal_med1.bsp",
+		style == "5" ->	":progs/e2/crystals/crystal_med2.bsp",
+		style == "6" ->	":progs/e2/crystals/crystal_medclust1.bsp",
+		style == "7" -> ":progs/e2/crystals/crystal_medclust2.bsp",
+		style == "8" -> ":progs/e2/crystals/crystal_chonk1.bsp",
+						":progs/e2/crystals/crystal_med1.bsp"
 	}}
 ) = misc_crystal : 
 "Crystal model. Not solid."
 [
-	style(choices) : "Style" : 3	=
+	style(choices) : "Style" : 4	=
 	[
-		1: "Small crystal"
-		2: "Small crystal cluster"
-		3: "Medium crystal"
-		4: "Medium crystal cluster 1"
-		5: "Medium crystal cluster 2"
-		6: "Chonk crystal"
+		1: "Small crystal 1"
+		2: "Small crystal 2"
+		3: "Small crystal cluster"
+		4: "Medium crystal 1"
+		5: "Medium crystal 2"
+		6: "Medium crystal cluster 1"
+		7: "Medium crystal cluster 2"
+		8: "Chonk crystal"
 	]
 
 	mangle(string) : "Orientation (pitch yaw roll, positive pitch is down)"
+	alpha(string) : "Transparency, between 0 (fully transparent) and 1 (fully opaque)"
 ]
 */	
 
