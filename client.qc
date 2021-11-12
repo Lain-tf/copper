@@ -1558,45 +1558,42 @@ void() PlayerPreThink =
 		CheckWaterJump ();
 
 
-	if (self.wetsuit_finished > time)
+	if (self.wetsuit_finished > time){
+		
+		if ((pointcontents (self.origin - '0 0 -24')) ^ (pointcontents (self.origin - '0 0 32')) == -3)
+	{
 		{
-		if (self.waterlevel==1)
+		if (self.waterlevel==2)
 			{
 			self.velocity = self.velocity * 1.1;
 			}
-		if (self.waterlevel==2)
+		if (self.waterlevel==3)
 			{
 			self.velocity = self.velocity * 1.3;
 			}
- /*     if (self.waterlevel >= 2)
-         {
-         // play scuba sound
-         if (self.swim_flag < time)
-            {
-            self.swim_flag = time + 7;
-            sound (self, CHAN_BODY, "misc/wetsuit.wav", 1, ATTN_NORM);
-            }
-         //MED 01/17/97
-         else
-            {
-            if (fabs(self.swim_flag - time - 6)<0.04)
-               {
-               DeathBubbles(1);
-               }
-            else if (fabs(self.swim_flag - time - 5.5)<0.04)
-               {
-               DeathBubbles(1);
-               }
-            else if (fabs(self.swim_flag - time - 5)<0.04)
-               {
-               DeathBubbles(1);
-               }
-            }
-         }
-*/
-     }
+		}
+	}
+}
 
+if (self.wetsuit_finished > time){
+		
+		if ((pointcontents (self.origin - '0 0 -24')) && (pointcontents (self.origin - '0 0 32')) == -3)
+	{
+		{
+		if (self.waterlevel==2)
+			{
+			self.velocity = self.velocity * 1.1;
+			}
+		if (self.waterlevel==3)
+			{
+			self.velocity = self.velocity * 1.3;
+			}
+		}
+	}
+}
 
+dprint(ftos(vlen(self.velocity)));
+				dprint("\n");
 
 	if (self.button2)
 	{
@@ -1648,17 +1645,31 @@ void() PlayerPostThink =
 	//JIM
 	//WETSUIT
 	if (self.wetsuit_finished > time)
+	if ((pointcontents (self.origin - '0 0 -24')) ^ (pointcontents (self.origin - '0 0 32')) == -3){
 		{
-			
-		if (self.waterlevel==1)
+		if (self.waterlevel==2)
 			{
 			self.velocity = self.velocity * 0.9;
 			}
-		if (self.waterlevel==2)
+		if (self.waterlevel==3)
 			{
 			self.velocity = self.velocity * 0.769230;
 			}
-      }		
+		}
+}		
+
+if ((pointcontents (self.origin - '0 0 -24')) && (pointcontents (self.origin - '0 0 32')) == -3){
+		{
+		if (self.waterlevel==2)
+			{
+			self.velocity = self.velocity * 0.9;
+			}
+		if (self.waterlevel==3)
+			{
+			self.velocity = self.velocity * 0.769230;
+			}
+		}
+}		
 		
 		
 	
