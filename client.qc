@@ -1560,12 +1560,11 @@ void() PlayerPreThink =
 
 	if (self.wetsuit_finished > time)
 		{
-		if (self.waterlevel==2)
+		if (self.waterlevel==1)
 			{
-			self.velocity = self.velocity * 1.1
-			;
+			self.velocity = self.velocity * 1.1;
 			}
-		if (self.waterlevel==3)
+		if (self.waterlevel==2)
 			{
 			self.velocity = self.velocity * 1.3;
 			}
@@ -1650,11 +1649,12 @@ void() PlayerPostThink =
 	//WETSUIT
 	if (self.wetsuit_finished > time)
 		{
-		if (self.waterlevel==2)
+			
+		if (self.waterlevel==1)
 			{
 			self.velocity = self.velocity * 0.9;
 			}
-		if (self.waterlevel==3)
+		if (self.waterlevel==2)
 			{
 			self.velocity = self.velocity * 0.769230;
 			}
