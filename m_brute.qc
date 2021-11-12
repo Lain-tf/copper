@@ -558,7 +558,7 @@ void() brute_die =
 		sound(self, CHAN_VOICE, "brute/death2.wav", 1, ATTN_NORM);
 	}
 	
-		if (self.health < -80)
+		if (self.health < -180)
 	{
 		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 		ThrowHead ("progs/h_brute.mdl", self.health);
