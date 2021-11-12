@@ -53,7 +53,11 @@ PLAYER
 
 void()	player_stand1 =[	$axstnd1,	player_stand1	]
 {
-	W_SetIdleWeaponFrame();
+	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt == 1))) // don't interrupt SNG spindown
+	{	
+		W_SetIdleWeaponFrame();
+	}
+	
 	if (self.velocity_x || self.velocity_y)
 	{
 		self.walkframe=0;
@@ -73,12 +77,16 @@ void()	player_stand1 =[	$axstnd1,	player_stand1	]
 			self.walkframe = 0;
 		self.frame = $stand1 + self.walkframe;
 	}
-	self.walkframe = self.walkframe + 1;	
+	self.walkframe = self.walkframe + 1;
 }
 
 void()	player_run =[	$rockrun1,	player_run	]
 {
-	W_SetIdleWeaponFrame();
+	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt >= 1))) // don't interrupt SNG spindown
+	{	
+		W_SetIdleWeaponFrame();
+	}
+	
 	if (!self.velocity_x && !self.velocity_y)
 	{
 		self.walkframe=0;
@@ -261,8 +269,10 @@ void() player_nail =
 		
 	self.effects |= EF_MUZZLEFLASH;
 
-	if (self.frame != $nailatt1) self.frame = $nailatt1;
-	else self.frame += 1;
+	if (self.frame != $nailatt1)
+		self.frame = $nailatt1;
+	else 
+	self.frame += 1;
 	self.think = player_nail;
 	self.nextthink = time + 0.125;	// TODO: oh fuck it, it works, you're never touching this again
 	
@@ -283,63 +293,74 @@ void() super_nail_spindown =
 //	else
 //	{
 	
-		dprint("spinning down\n");
-		self.weaponframe = self.weaponframe	+ 1;
-		self.cnt = 0;
-
+//		dprint("spinning down\n");
+		self.weaponframe += 1;
+			player_run();		
+		
+		dprint(ftos(self.cnt));
+		dprint("\n");		
+		
+		
 		if (self.weaponframe < 51)
 		{
 			self.think = super_nail_spindown;		
 			self.nextthink = time + 0.025;
-		}	
-
-
-		if (self.weaponframe >= 51)
-		{
-			self.weaponframe = 0;
 			return;
+		}	
+		else
+		{
+			self.cnt = 0;
 		}
-
 //	}
 }
 
 
 void() player_super_nail =
 {
-
+	// We shouldn't really have to do the punchangle, muzzle flash and player animation in here because they're in W_FireSpikes and player_nail,
+	// but this SNG is animated at a different framerate so it wouldn't work right anyway.
 	self.weaponframe = self.weaponframe + 1;	
 	
 	if (self.weaponframe >= 9)
 	{
-		self.weaponframe = 0;
+		self.weaponframe = 1;
 	}	
-	
+
+	self.cnt = 0; //using this to keep track of if we're spinning down or not;
 
 	if (!self.button0)
-	{
+	{	
 		player_run();
+		self.cnt = 1;
 		super_nail_spindown();
-		sound (self, CHAN_AUTO, "weapons/spindn.wav", 1, ATTN_NONE);
+		sound (self, CHAN_AUTO, "weapons/spindn.wav", 1, ATTN_NONE);	
 		return;
 	}
-		
-	dprint(ftos(self.weaponframe));
+
+//	dprint(ftos(self.weaponframe));
+//	dprint("\n");
+	dprint(ftos(self.cnt));
 	dprint("\n");
 
 	if (((self.weaponframe == 1) || (self.weaponframe == 5)) && (self.ammo_nails > 1))
 	{
+		//copied from W_FireSpikes
+		if (!has_haste(self))
+			self.punchangle_x = -2;
+
+		//copied from player_nail
+		self.effects |= EF_MUZZLEFLASH;
+
+		if (self.frame != $nailatt1)
+			self.frame = $nailatt1;
+		else 
+			self.frame += 1;
+
 		W_FirePerforator();
 	}
-
-	 
-	self.effects |= EF_MUZZLEFLASH;
-
-	if ((self.weaponframe != 1) || (self.weaponframe != 4))
-	self.frame = $nailatt1;
-	else self.frame += 1;
+	
 	self.think = player_super_nail;
-	self.nextthink = time + 0.023;	// TODO: oh fuck it, it works, you're never touching this again
-	self.cnt = self.cnt + 1;
+	self.nextthink = time + 0.025;	// TODO: oh fuck it, it works, you're never touching this again
 }
 
 
