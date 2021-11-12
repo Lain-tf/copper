@@ -297,8 +297,8 @@ void() super_nail_spindown =
 		self.weaponframe += 1;
 			player_run();		
 		
-		dprint(ftos(self.cnt));
-		dprint("\n");		
+//		dprint(ftos(self.cnt));
+//		dprint("\n");		
 		
 		
 		if (self.weaponframe < 51)
@@ -339,8 +339,8 @@ void() player_super_nail =
 
 //	dprint(ftos(self.weaponframe));
 //	dprint("\n");
-	dprint(ftos(self.cnt));
-	dprint("\n");
+//	dprint(ftos(self.cnt));
+//	dprint("\n");
 
 	if (((self.weaponframe == 1) || (self.weaponframe == 5)) && (self.ammo_nails > 1))
 	{

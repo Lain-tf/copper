@@ -1592,8 +1592,8 @@ if (self.wetsuit_finished > time){
 	}
 }
 
-dprint(ftos(vlen(self.velocity)));
-				dprint("\n");
+//dprint(ftos(vlen(self.velocity)));
+//				dprint("\n");
 
 	if (self.button2)
 	{
