@@ -274,11 +274,29 @@ void() W_FireRail =
 		W_SelectBestWeapon();
 		return;
 	}
+	
+	self.weaponframe = 0;
+	
+	if (random() < 0.2)
+		{
+			self.weaponframe = 27;
+			self.punchangle_z = 3;
+		}
+	else if (random() < 0.5)
+		{
+			self.weaponframe = 0;
+			self.punchangle_z = -3;
+		}
+	else 
+		{
+			self.weaponframe = 14;
+			self.punchangle_z = 3;
+		}
+	
+	player_rail1();
 	makevectors(self.v_angle);
 	
 	sound (self, CHAN_WEAPON, "weapons/rail.wav", 1, ATTN_NORM);
-
-	self.punchangle_z = crandom()*2;
 
 	self.currentammo = self.ammo_cells = self.ammo_cells - 6;
 

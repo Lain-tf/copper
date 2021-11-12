@@ -380,6 +380,29 @@ void() player_light2   =[$light2, player_light1  ]
 	self.attack_finished = time + 0.2;
 }
 
+//Railgun
+
+void() player_rail1
+{
+	float haste_factor;
+	if (has_haste(self)) {
+		haste_factor = HASTE_FACTOR;
+	} else {
+		haste_factor = 1;
+	}
+	
+	self.weaponframe = self.weaponframe + 1;
+	
+		if ((self.weaponframe == 14) || (self.weaponframe == 27) || (self.weaponframe == 40)) {
+			self.weaponframe = 0;
+		}
+	else{
+	self.think = player_rail1;
+	self.nextthink = time + 0.1 * haste_factor;
+	}
+}
+
+
 //============================================================================
 
 

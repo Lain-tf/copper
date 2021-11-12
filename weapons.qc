@@ -361,7 +361,6 @@ void() W_Attack =
 	else if (self.weapon == W_RAILGUN)
 	{
 		if (self.rail_nextshot > time ) return;
-		player_rocket1();
 		W_FireRail();
 	}
 }
