@@ -1560,7 +1560,7 @@ void() PlayerPreThink =
 
 	if (self.wetsuit_finished > time){
 		
-		if ((pointcontents (self.origin - '0 0 -24')) ^ (pointcontents (self.origin - '0 0 32')) == -3)
+		if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3)
 	{
 		{
 		if (self.waterlevel==2)
@@ -1577,7 +1577,7 @@ void() PlayerPreThink =
 
 if (self.wetsuit_finished > time){
 		
-		if ((pointcontents (self.origin - '0 0 -24')) && (pointcontents (self.origin - '0 0 32')) == -3)
+		if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3)
 	{
 		{
 		if (self.waterlevel==2)
@@ -1644,8 +1644,8 @@ void() PlayerPostThink =
 		
 	//JIM
 	//WETSUIT
-	if (self.wetsuit_finished > time)
-	if ((pointcontents (self.origin - '0 0 -24')) ^ (pointcontents (self.origin - '0 0 32')) == -3){
+	if (self.wetsuit_finished > time){
+	if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3){
 		{
 		if (self.waterlevel==2)
 			{
@@ -1656,9 +1656,10 @@ void() PlayerPostThink =
 			self.velocity = self.velocity * 0.769230;
 			}
 		}
+	
 }		
 
-if ((pointcontents (self.origin - '0 0 -24')) && (pointcontents (self.origin - '0 0 32')) == -3){
+if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3){
 		{
 		if (self.waterlevel==2)
 			{
@@ -1670,7 +1671,7 @@ if ((pointcontents (self.origin - '0 0 -24')) && (pointcontents (self.origin - '
 			}
 		}
 }		
-		
+}	
 		
 	
 	if (self.customflags & CFL_LIMBO)
