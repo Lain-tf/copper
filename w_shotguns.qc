@@ -277,9 +277,9 @@ void() W_FireRail =
 	
 	self.weaponframe = 0;
 	
-	if (random() < 0.2)
+	if (random() < 0.05)
 		{
-			self.weaponframe = 27;
+			self.weaponframe = 31;
 			self.punchangle_z = 3;
 		}
 	else if (random() < 0.5)
@@ -289,7 +289,7 @@ void() W_FireRail =
 		}
 	else 
 		{
-			self.weaponframe = 14;
+			self.weaponframe = 15;
 			self.punchangle_z = 3;
 		}
 	
