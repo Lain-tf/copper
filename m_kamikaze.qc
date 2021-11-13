@@ -193,7 +193,7 @@ void(float dist)kami_run =
 	}
 	else
 	{
-		kami_die();
+		Killed(self,self.enemy);
 	}
 };
 
