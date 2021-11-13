@@ -277,10 +277,10 @@ void() W_FireRail =
 	
 	self.weaponframe = 0;
 	
-	if (random() < 0.05)
+	if (random() < 0.5)
 		{
 			self.weaponframe = 31;
-			self.punchangle_z = 3;
+			self.punchangle_z = -3;
 		}
 	else if (random() < 0.5)
 		{
