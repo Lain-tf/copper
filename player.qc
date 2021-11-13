@@ -414,13 +414,21 @@ void() player_rail1
 	
 	self.weaponframe = self.weaponframe + 1;
 	
-		if ((self.weaponframe == 14) || (self.weaponframe == 29) || (self.weaponframe == 45)) {
-			self.weaponframe = 0;
-		}
-	else{
-	self.think = player_rail1;
-	self.nextthink = time + 0.1 * haste_factor;
+	if ((self.weaponframe == 14) || (self.weaponframe == 29) || (self.weaponframe == 45))
+	{
+		self.weaponframe = 0;
 	}
+	else
+	{
+		self.think = player_rail1;
+		self.nextthink = time + 0.1 * haste_factor;
+	}
+	
+	if ((self.weaponframe == 1) || (self.weaponframe == 16) || (self.weaponframe == 30))
+	{	
+		self.effects = self.effects | EF_MUZZLEFLASH;
+	}
+
 }
 
 
