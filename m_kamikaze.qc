@@ -11,8 +11,14 @@ $frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8 walk9 walk10 walk11 walk1
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9 stand10
 $frame stand11 stand12 stand13 stand14 stand15 stand16 stand17 stand18 stand19 
-$frame stand20 stand21 stand22 stand23 stand24 stand25 stand26
- 
+$frame stand20 stand21 stand22 stand23 stand24 stand25
+
+$frame stuned1 stuned2 stuned3 stuned4 stuned5 stuned6 stuned7 stuned8 stuned9 stuned10
+
+$frame stunned1 stunned2 stunned3 stunned4 stunned5 stunned6 stunned7 stunned8 stunned9 stunned10
+
+$frame stunnned1 stunnned2 stunnned3 stunnned4 stunnned5 stunnned6 stunnned7 stunnned8 stunnned9 stunnned10
+
 void(float dist)kami_run;
  
 void()	kami_stand1		=[	$stand1,	kami_stand2		] {ai_stand();}
@@ -39,15 +45,41 @@ void()	kami_stand21	=[	$stand21,	kami_stand22	] {ai_stand();}
 void()	kami_stand22	=[	$stand22,	kami_stand23	] {ai_stand();}
 void()	kami_stand23	=[	$stand23,	kami_stand24	] {ai_stand();}
 void()	kami_stand24	=[	$stand24,	kami_stand25	] {ai_stand();}
-void()	kami_stand25	=[	$stand25,	kami_stand26	] {ai_stand();}
-void()	kami_stand26	=[	$stand26,	kami_stand1		] {ai_stand();}
+void()	kami_stand25	=[	$stand25,	kami_stand1		] {ai_stand();}
 
-void()	kami_stuned1	=[	$stand1,	kami_stuned2	] {}
-void()	kami_stuned2	=[	$stand2,	kami_stuned3	] {}
-void()	kami_stuned3	=[	$stand3,	kami_stuned4	] {}
-void()	kami_stuned4	=[	$stand4,	kami_stuned5	] {}
-void()	kami_stuned5	=[	$stand5,	kami_stuned6	] {}
-void()	kami_stuned6	=[	$stand6,	kami_run1		] {}
+void()	kami_stuned1	=[	$stuned1,	kami_stuned2	] {}
+void()	kami_stuned2	=[	$stuned2,	kami_stuned3	] {}
+void()	kami_stuned3	=[	$stuned3,	kami_stuned4	] {}
+void()	kami_stuned4	=[	$stuned4,	kami_stuned5	] {}
+void()	kami_stuned5	=[	$stuned5,	kami_stuned6	] {}
+void()	kami_stuned6	=[	$stuned6,	kami_stuned7	] {}
+void()	kami_stuned7	=[	$stuned7,	kami_stuned8	] {}
+void()	kami_stuned8	=[	$stuned8,	kami_stuned9	] {}
+void()	kami_stuned9	=[	$stuned9,	kami_stuned10	] {}
+void()	kami_stuned10	=[	$stuned10,	kami_run1		] {}
+
+void()	kami_stunned1	=[	$stunned1,	kami_stunned2	] {}
+void()	kami_stunned2	=[	$stunned2,	kami_stunned3	] {}
+void()	kami_stunned3	=[	$stunned3,	kami_stunned4	] {}
+void()	kami_stunned4	=[	$stunned4,	kami_stunned5	] {}
+void()	kami_stunned5	=[	$stunned5,	kami_stunned6	] {}
+void()	kami_stunned6	=[	$stunned6,	kami_stunned7	] {}
+void()	kami_stunned7	=[	$stunned7,	kami_stunned8	] {}
+void()	kami_stunned8	=[	$stunned8,	kami_stunned9	] {}
+void()	kami_stunned9	=[	$stunned9,	kami_stunned10	] {}
+void()	kami_stunned10	=[	$stunned10,	kami_run1		] {}
+
+//i wasn't typing that 3 times, go fuck yourself - lain
+void()	kami_stunnned1	=[	$stunnned1,	kami_stunnned2	] {}
+void()	kami_stunnned2	=[	$stunnned2,	kami_stunnned3	] {}
+void()	kami_stunnned3	=[	$stunnned3,	kami_stunnned4	] {}
+void()	kami_stunnned4	=[	$stunnned4,	kami_stunnned5	] {}
+void()	kami_stunnned5	=[	$stunnned5,	kami_stunnned6	] {}
+void()	kami_stunnned6	=[	$stunnned6,	kami_stunnned7	] {}
+void()	kami_stunnned7	=[	$stunnned7,	kami_stunnned8	] {}
+void()	kami_stunnned8	=[	$stunnned8,	kami_stunnned9	] {}
+void()	kami_stunnned9	=[	$stunnned9,	kami_stunnned10	] {}
+void()	kami_stunnned10	=[	$stunnned10,	kami_run1		] {}
 
 void()	kami_walk1		=[	$walk1,		kami_walk2		] {ai_walk(3);}
 void()	kami_walk2		=[	$walk2,		kami_walk3		] {ai_walk(2);}
@@ -136,10 +168,33 @@ void(entity attacker, float damage)	kami_pain =
 {
 	if (self.pain_finished > time)
 		return;
-
 	PainFinished(1.5);
 	
-	kami_stuned1();
+		if (self.frame <= 49)
+	{
+		if ((self.frame == 1) || (self.frame == 5) || (self.frame == 6) || (self.frame == 11))
+			{
+			kami_stuned1();
+			}
+		
+		if ((self.frame == 3) || (self.frame == 8) || (self.frame == 9))
+			{
+			kami_stunned1();
+			}
+		
+		if ((self.frame == 2) || (self.frame == 4) || (self.frame == 7) || (self.frame == 10))
+			{
+			kami_stunnned1();
+			}
+		
+		if ((self.frame >= 11) && (self.frame <= 49))
+			{
+			kami_stuned1();	
+			}
+		
+		
+	}
+
 	sound (self, CHAN_VOICE, "kamikaze/kami_pain.wav", 1, ATTN_NORM);
 };
 
