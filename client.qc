@@ -1730,7 +1730,7 @@ if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '
 	// doesn't seem to work there (presumably because the physics stuff modifies
 	// waterlevel after the pre-think?). Need to work out if we can fix it.
 	if (has_wetsuit(self) && self.waterlevel < WL_EYES && self.last_waterlevel >= WL_EYES) {
-		dprint4(ftos(self.last_waterlevel), " ", ftos(self.waterlevel), "\n");
+	//	dprint4(ftos(self.last_waterlevel), " ", ftos(self.waterlevel), "\n");
 		sound(self, CHAN_VOICE, "items/wetsuit3out.wav", 1, ATTN_NORM);
 	}
 	self.last_waterlevel = self.waterlevel;
