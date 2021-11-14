@@ -315,7 +315,6 @@ void() monster_tarbaby_spawn =
 	self.yaw_speed = 30;
 
 	self.customflags |= CFL_MELEEONLY;
-	self.customflags |= CFL_EPSKINS;
 
 	self.th_stand = tbaby_stand1;
 	self.th_walk = tbaby_walk1;
