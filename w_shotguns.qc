@@ -403,5 +403,5 @@ void() W_FireRail =
 		haste_factor = 1;
 	}
 	self.rail_nextshot = time + 1.4 * haste_factor;
-	self.attack_finished = time + 0.4;
+	self.attack_finished = time + 1;
 };
