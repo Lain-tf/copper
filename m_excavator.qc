@@ -69,34 +69,34 @@ void(float speed) excavator_kamikaze_move =
 	self.velocity = v_forward * speed;
 }
 
-void() excavator_kamikaze1 = [ $kamiinit1, excavator_kamikaze2 ] { ai_face(); excavator_kamikaze_move(300);}
-void() excavator_kamikaze2 = [ $kamiinit2, excavator_kamikaze3 ] {}
-void() excavator_kamikaze3 = [ $kamiinit3, excavator_kamikaze4 ] {}
-void() excavator_kamikaze4 = [ $kamiinit4, excavator_kamikaze5 ] { ai_face(); excavator_kamikaze_move(400);}
-void() excavator_kamikaze5 = [ $kamiinit5, excavator_kamikaze6 ] {}
-void() excavator_kamikaze6 = [ $kamiinit6, excavator_kamikaze7 ] {}
-void() excavator_kamikaze7 = [ $kamiinit7, excavator_kamikaze8 ] { ai_face(); excavator_kamikaze_move(400);}
-void() excavator_kamikaze8 = [ $kamiinit8, excavator_kamikaze9 ] {}
-void() excavator_kamikaze9 = [ $kamiinit9, excavator_kamikaze10 ] {}
-void() excavator_kamikaze10 = [ $kamiinit10, excavator_kamikaze11 ] { ai_face(); excavator_kamikaze_move(500); }
-void() excavator_kamikaze11 = [ $kamiinit11, excavator_kamikaze12 ] {}
-void() excavator_kamikaze12 = [ $kamiinit12, excavator_kamikaze13 ] {}
-void() excavator_kamikaze13 = [ $kamiinit13, excavator_kamikaze14 ] { ai_face(); excavator_kamikaze_move(500); }
-void() excavator_kamikaze14 = [ $kamiinit14, excavator_kamikaze15 ] {}
-void() excavator_kamikaze15 = [ $kamiinit15, excavator_kamikaze16 ] {}
-void() excavator_kamikaze16 = [ $kamiinit16, excavator_kamikaze17 ] { ai_face(); excavator_kamikaze_move(500); }
-void() excavator_kamikaze17 = [ $kamiinit17, excavator_kamikaze18 ] {}
-void() excavator_kamikaze18 = [ $kamikaze1, excavator_kamikaze19 ] {}
+void() excavator_kamikaze1 = [ $kamiinit1, excavator_kamikaze2 ] {ai_face(); excavator_kamikaze_move(200);}
+void() excavator_kamikaze2 = [ $kamiinit2, excavator_kamikaze3 ] {ai_face();}
+void() excavator_kamikaze3 = [ $kamiinit3, excavator_kamikaze4 ] {ai_face();}
+void() excavator_kamikaze4 = [ $kamiinit4, excavator_kamikaze5 ] {ai_face(); excavator_kamikaze_move(250);}
+void() excavator_kamikaze5 = [ $kamiinit5, excavator_kamikaze6 ] {ai_face();}
+void() excavator_kamikaze6 = [ $kamiinit6, excavator_kamikaze7 ] {ai_face();}
+void() excavator_kamikaze7 = [ $kamiinit7, excavator_kamikaze8 ] {ai_face(); excavator_kamikaze_move(300);}
+void() excavator_kamikaze8 = [ $kamiinit8, excavator_kamikaze9 ] {ai_face();}
+void() excavator_kamikaze9 = [ $kamiinit9, excavator_kamikaze10 ] {ai_face();}
+void() excavator_kamikaze10 = [ $kamiinit10, excavator_kamikaze11 ] {ai_face(); excavator_kamikaze_move(300);}
+void() excavator_kamikaze11 = [ $kamiinit11, excavator_kamikaze12 ] {ai_face();}
+void() excavator_kamikaze12 = [ $kamiinit12, excavator_kamikaze13 ] {ai_face();}
+void() excavator_kamikaze13 = [ $kamiinit13, excavator_kamikaze14 ] {ai_face(); excavator_kamikaze_move(400);}
+void() excavator_kamikaze14 = [ $kamiinit14, excavator_kamikaze15 ] {ai_face();}
+void() excavator_kamikaze15 = [ $kamiinit15, excavator_kamikaze16 ] {ai_face();}
+void() excavator_kamikaze16 = [ $kamiinit16, excavator_kamikaze17 ] {ai_face(); excavator_kamikaze_move(400);}
+void() excavator_kamikaze17 = [ $kamiinit17, excavator_kamikaze18 ] {ai_face();}
+void() excavator_kamikaze18 = [ $kamikaze1, excavator_kamikaze19 ] {ai_face();}
 void() excavator_kamikaze19 = [ $kamikaze2, excavator_kamikaze20 ] {ai_face(); excavator_kamikaze_move(500);}
-void() excavator_kamikaze20 = [ $kamikaze3, excavator_kamikaze21 ] {}
-void() excavator_kamikaze21 = [ $kamikaze4, excavator_kamikaze22 ] {}
-void() excavator_kamikaze22 = [ $kamikaze5, excavator_kamikaze23 ] {}
-void() excavator_kamikaze23 = [ $kamikaze6, excavator_kamikaze24 ] {}
-void() excavator_kamikaze24 = [ $kamikaze7, excavator_kamikaze25 ] {}
-void() excavator_kamikaze25 = [ $kamikaze8, excavator_kamikaze26 ] {}
-void() excavator_kamikaze26 = [ $kamikaze9, excavator_kamikaze27 ] {}
-void() excavator_kamikaze27 = [ $kamikaze10, excavator_kamikaze28 ] {}
-void() excavator_kamikaze28 = [ $kamikaze11, excavator_kamikaze29 ] {}
+void() excavator_kamikaze20 = [ $kamikaze3, excavator_kamikaze21 ] {ai_face();}
+void() excavator_kamikaze21 = [ $kamikaze4, excavator_kamikaze22 ] {ai_face();}
+void() excavator_kamikaze22 = [ $kamikaze5, excavator_kamikaze23 ] {ai_face(); excavator_kamikaze_move(500);}
+void() excavator_kamikaze23 = [ $kamikaze6, excavator_kamikaze24 ] {ai_face();}
+void() excavator_kamikaze24 = [ $kamikaze7, excavator_kamikaze25 ] {ai_face();}
+void() excavator_kamikaze25 = [ $kamikaze8, excavator_kamikaze26 ] {ai_face(); excavator_kamikaze_move(500);}
+void() excavator_kamikaze26 = [ $kamikaze9, excavator_kamikaze27 ] {ai_face();}
+void() excavator_kamikaze27 = [ $kamikaze10, excavator_kamikaze28 ] {ai_face();}
+void() excavator_kamikaze28 = [ $kamikaze11, excavator_kamikaze29 ] {ai_face(); excavator_kamikaze_move(500);}
 void() excavator_kamikaze29 = [ $kamikaze12, excavator_kamikaze30 ] {}
 void() excavator_kamikaze30 = [ $kamikaze13, excavator_kamikaze31 ] {}
 void() excavator_kamikaze31 = [ $kamikaze14, excavator_kamikaze32 ] {}
@@ -124,7 +124,7 @@ void() excavator_kamikaze_start =
 
 void(entity attacker, float damage) excavator_pain =
 {
-	if (self.health < 20) {		
+	if (self.health < 200) {		
 		excavator_kamikaze_start();
 		return;
 	}
@@ -135,7 +135,60 @@ void(entity attacker, float damage) excavator_pain =
 	excavator_pain1();
 };
 
+
 void() excavator_fire = {
+
+	vector org, vec;
+	local float r;
+	local entity e;
+	r = random();
+
+	self.effects = self.effects | EF_MUZZLEFLASH;
+	sound (self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
+
+	org = self.origin + '0 0 35';
+	vec = normalize(enemy_vispos() - org + enemy_aim_vertical());
+	
+	makevectors(self.angles);	
+	if (angledif(self.ideal_yaw, self.angles_y) > 80)	// no ass rockets
+	{
+		vec_x = v_forward_x;
+		vec_y = v_forward_y;
+		vec = normalize(vec);
+	}
+	
+	if (r < 0.5)
+	{
+	
+		e = launch_rocket(org, vec * 600);	
+	
+		e.dmg = 20;
+		vec_x = v_forward_x + 0.3;
+		vec_y = v_forward_y + 0.3;
+		vec = normalize(vec);		
+		
+		e = launch_rocket(org, vec * 500);
+		
+		e.dmg = 20;		
+		vec_x = v_forward_x - 0.3;
+		vec_y = v_forward_y - 0.3;
+		vec = normalize(vec);	
+		
+		e = launch_rocket(org, vec * 500);		
+		
+		e.dmg = 20;		
+	
+	}
+	else
+	{	
+		e = launch_rocket(org, vec * 600);
+		e.dmg = 20;
+	}
+
+};
+
+
+void() excavator_lightning = {
 	vector org, dir;
 
 	org = self.origin + '0 0 35';
@@ -308,8 +361,8 @@ void() monster_excavator_spawn =
 
 	setmodel(self, "progs/mon_excavator.mdl");
 
-	setsize (self, '-16 -16 -16', '16 16 16');
-	self.health = 80;
+	setsize (self, VEC_HULL2_MIN, '32 32 40');
+	self.health = 600;
 
 	self.th_stand = wiz_stand1;
 	self.th_walk = wiz_walk1;
@@ -318,6 +371,7 @@ void() monster_excavator_spawn =
 	self.th_pain = excavator_pain;
 	self.th_die = excavator_die;
 	self.th_checkattack = ExcavatorCheckAttack;
+	self.yaw_speed = 30;
 
 	if (self.deathtype == string_null)
 		self.deathtype = "was caved in by an Excavator";
@@ -327,8 +381,8 @@ void() monster_excavator_spawn =
 
 void() monster_excavator_spawner = {mon_spawner_use(monster_excavator_spawn);}
 
-/*QUAKED monster_excavator (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH ? ? ? TRIGGERED NOTFOG NOTELEFRAG INSTAWAKE
-Excavator, 80 health points
+/*QUAKED monster_excavator (1 0 0) (-32 -32 -24) (32 32 40) AMBUSH ? ? ? TRIGGERED NOTFOG NOTELEFRAG INSTAWAKE
+Excavator, 200 health points
 
 Flags:
 "ambush" only wake up on seeing the player, not another monster getting angry
@@ -343,7 +397,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
+@PointClass base(Monster) size(-32 -32 -24) (32 32 40) model({ "path": ":progs/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
 */
 void() monster_excavator =
 {
@@ -357,8 +411,8 @@ void() monster_excavator =
     
 	precache_model("progs/mon_excavator.mdl");
 
-	self.health = 80;	
-	setsize (self, '-16 -16 -16', '16 16 16');
+	self.health = 600;	
+	setsize (self, VEC_HULL2_MIN, '32 32 40');
 	if (monster_spawnsetup(monster_excavator_spawner)) {
 		return;
 	}

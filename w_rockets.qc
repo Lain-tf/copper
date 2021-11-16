@@ -35,7 +35,7 @@ void(vector org, float rad) T_GibDownedZombies =
 void() T_MissileExplode =
 {
 	local float	damg;
-	damg = 100 + random()*20;
+	damg = self.dmg + random()*20;
 	
 	if (other.health)
 	{
@@ -47,7 +47,7 @@ void() T_MissileExplode =
 	}
 
 	// don't do radius damage to other, because all damage will be done in the impact
-	T_RadiusDamage (self, self.trueowner, 120, other);
+	T_RadiusDamage (self, self.trueowner, self.dmg + 20, other);
 }
 
 void() T_MissileTouch =
@@ -166,6 +166,7 @@ void() W_FireGrenade =
 	}
 	
 	g = launch_grenade(self.origin, gvel);
+	g.dmg = 100;
 	self.attack_finished = time + 0.6 * haste_factor;
 	g.touch = GrenadeTouch;
 	g.th_die = GrenadeExplode;
