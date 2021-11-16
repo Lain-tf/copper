@@ -411,7 +411,7 @@ void() monster_dog =
 	precache_sound ("dog/idle.wav");
 
 	self.health = 35;
-setsize (self, '-16 -16 -24', '16 16 16');
+	setsize (self, '-16 -16 -24', '16 16 16');
 	if ( monster_spawnsetup( monster_dog_spawner ) ) return;
 
 	addmonster(1);

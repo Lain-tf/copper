@@ -83,6 +83,8 @@ void() weapon_touch =
 		if (player_items & weap_items == weap_items) {
 			// Player already has it
 			weapon_touch_coop();
+			// added for parity with copper
+			return;
 		}
 	}
 	

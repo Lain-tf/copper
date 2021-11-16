@@ -131,13 +131,17 @@ void() DecodeLevelParms =
 	armor_set_type(self);
 }
 
-
+// should this use localcmd()?
 void(entity client, string savename) autosave =
 {
-	//autosavename = savename;
-	stuffcmd(client, "echo Autosaving...; wait; save ");
-	stuffcmd(client, savename);
-	stuffcmd(client, "\n");
+	// quake rerelease default behavior is to quicksave over s0,
+	// so just go ahead and do that in that engine for consistency
+	if (!isKex)
+	{
+		stuffcmd(client, "echo Autosaving...; wait; save ");
+		stuffcmd(client, savename);
+		stuffcmd(client, "\n");
+	}
 }
 
 // this is no longer called
@@ -1121,7 +1125,9 @@ void() WaterMove =
 					T_Damage (self, world, world, max(self.dmg, 1));
 				self.deathtype = string_null;
 				self.pain_finished = time + 1;
-				self.dmg = min(15, self.dmg + 1);
+				
+				if (!has_invuln(self))	// don't advance the drowning timer with pent, or we
+					self.dmg = min(15, self.dmg + 1);	// could recover health we didn't lose
 			}
 		}
 	}
@@ -1688,7 +1694,7 @@ if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '
 	// check to see if player landed and play landing sound	
 	if ((self.jump_flag < -300) && (self.flags & FL_ONGROUND) && (self.health > 0))
 	{
-		if (self.jump_flag < -650 && !(self.customflags & CFL_PLUNGE))
+		if (self.jump_flag < -650 && !(self.customflags & CFL_PLUNGE) && !self.waterlevel)
 		{
 			self.deathtype = "falling";
 			T_Damage (self, world, world, 5); 

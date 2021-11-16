@@ -2,7 +2,7 @@
 // constants
 //================================================
 
-string version_s = "Dwell 1.17 - 2nd October 2021\n";
+string version_s = "Dwell 1.17 - 17th November 2021\n";
 float version_f = 1.17;
 
 float	FALSE					= 0;
@@ -136,7 +136,7 @@ float	IT_CELLS				= 2048;
 float	IT_ARMOR1				= 8192;
 float	IT_ARMOR2				= 16384;
 float	IT_ARMOR3				= 32768;
-// float	unused			    = 65536;
+//float	IT_SUPERHEALTH			= 65536;	// never gets used now, but the .exe expects the following flags
 
 float	IT_KEY1					= 131072;
 float	IT_KEY2					= 262144;
