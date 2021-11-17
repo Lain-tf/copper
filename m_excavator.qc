@@ -176,15 +176,13 @@ void() excavator_fire = {
 	
 		e = launch_rocket(org, vec * 700);	
 		e.dmg = 40;
-		
-		vec_x = v_forward_x;
-		vec_y = v_forward_y;
+
+		vec = normalize(enemy_vispos() - org + enemy_aim_vertical());
 		vec = normalize(vec + (v_right * 0.2));		
 		e = launch_rocket(org, vec * 600);
 		e.dmg = 40;		
 		
-		vec_x = v_forward_x;
-		vec_y = v_forward_y;
+		vec = normalize(enemy_vispos() - org + enemy_aim_vertical());		
 		vec = normalize(vec - (v_right * 0.2));		
 		e = launch_rocket(org, vec * 600);		
 		e.dmg = 40;		
