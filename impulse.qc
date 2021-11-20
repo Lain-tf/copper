@@ -297,9 +297,16 @@ void() ImpulseCommands =
 	case 195:
 		Cheat_Haste();
 		break;
+
+	//Order 67 was probably to check the jedi were dead, right?
+	case 67:
+		dev_damageprinter();
+		break;
+	
 	// how about, execute order six?
 	// nah. makes it sound like there aren't that many orders
 	case 66:
+		
 	case 205:
 		if(!deathmatch && !coop)
 			Cheat_Genocide();

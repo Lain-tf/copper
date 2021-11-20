@@ -25,6 +25,18 @@ void() dev_test =
 	bprint("-----\n");
 }
 
+void() dev_damageprinter =
+{
+	if (self.damage_printer == 0)
+	{
+		self.damage_printer = 1;
+	}
+	else if (self.damage_printer == 1)
+	{
+		self.damage_printer = 0;
+	}
+}
+
 void() dev_tracetest =
 {
 	local vector org;

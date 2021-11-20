@@ -316,6 +316,7 @@ float	isKex;	// running the quake rerelease
 .float		show_hostile;	// set to time+0.2 whenever a client fires a
 							// weapon or takes damage.  Used to alert
 							// monsters that otherwise would let the player go
+.float		damage_printer;
 .float		jump_flag;		// player jump "flag"
 .float		air_finished;	// when time > air_finished, start drowning
 .float		bubble_count;	// keeps track of the number of bubbles

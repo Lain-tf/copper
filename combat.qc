@@ -481,6 +481,13 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 	//bprint3("doing ", ftos(take), " damage\n");
 	targ.health = ceil(targ.health - take);	// be an integer dammit
 	
+			if (attacker.damage_printer == 1)
+	{ 
+		dprint("Damage Done:\n");
+		dprint(ftos(take));
+		dprint("\n");
+	}
+	
 	if (targ.health <= 0)
 	{
 		Killed (targ, attacker);
