@@ -84,17 +84,17 @@ void()	kami_walk11		=[	$walk11,	kami_walk12		] {ai_walk(3);}
 void()	kami_walk12		=[	$walk12,	kami_walk13		] {ai_walk(3);}
 void()	kami_walk13		=[	$walk13,	kami_walk1		] {ai_walk(3);}
 
-void()	kami_run1		=[	$run1,		kami_run2		] {kami_run(32);}
-void()	kami_run2		=[	$run2,		kami_run3		] {kami_run(32);}
-void()	kami_run3		=[	$run3,		kami_run4		] {kami_run(23);}
-void()	kami_run4		=[	$run4,		kami_run5		] {kami_run(32);}
-void()	kami_run5		=[	$run5,		kami_run6		] {kami_run(23);}
-void()	kami_run6		=[	$run6,		kami_run7		] {kami_run(32);}
-void()	kami_run7		=[	$run7,		kami_run8		] {kami_run(32);}
-void()	kami_run8		=[	$run8,		kami_run9		] {kami_run(32);}
-void()	kami_run9		=[	$run9,		kami_run10		] {kami_run(32);}
-void()	kami_run10		=[	$run10,		kami_run11		] {kami_run(32);}
-void()	kami_run11		=[	$run11,		kami_run1		] {kami_run(32);}
+void()	kami_run1		=[	$run1,		kami_run2		] {kami_run(28);}
+void()	kami_run2		=[	$run2,		kami_run3		] {kami_run(28);}
+void()	kami_run3		=[	$run3,		kami_run4		] {kami_run(28);}
+void()	kami_run4		=[	$run4,		kami_run5		] {kami_run(28);}
+void()	kami_run5		=[	$run5,		kami_run6		] {kami_run(28);}
+void()	kami_run6		=[	$run6,		kami_run7		] {kami_run(28);}
+void()	kami_run7		=[	$run7,		kami_run8		] {kami_run(28);}
+void()	kami_run8		=[	$run8,		kami_run9		] {kami_run(28);}
+void()	kami_run9		=[	$run9,		kami_run10		] {kami_run(28);}
+void()	kami_run10		=[	$run10,		kami_run11		] {kami_run(28);}
+void()	kami_run11		=[	$run11,		kami_run1		] {kami_run(28);}
 
 /*
 float(float dist, float dmg) KamiBlastRadius =
