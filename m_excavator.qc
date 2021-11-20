@@ -63,7 +63,9 @@ void() excavator_kamikaze_touch =
 	}
 
 	T_RadiusDamage(self, self, 60, world);
-	BecomeExplosion();
+	Killed(self,self.enemy);
+	BecomeExplosion ();
+	
 }
 
 void(float speed) excavator_kamikaze_move =
