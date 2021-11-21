@@ -82,6 +82,7 @@ void() W_FirePerforator =
 	else if (mod(self.cnt, 4) == 3) m = '1 0 -1';
 	
 	entity spike1, spike2;
+	makevectors(self.v_angle);
 	spike1 = launch_nail(W_SpikeOrigin(m), W_SpikeDir(v_forward, 2) * (940 + random()*30));
 	spike2 = launch_nail(W_SpikeOrigin(-m), W_SpikeDir(v_forward, 2) * (1020 + random()*30));
 

@@ -218,6 +218,7 @@ void() W_FireQuadShotgun =
 	sound(self ,CHAN_WEAPON, "weapons/shotgn3.wav", 1, ATTN_NORM);
 	self.punchangle_x = -2;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	makevectors(self.v_angle);
 	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
