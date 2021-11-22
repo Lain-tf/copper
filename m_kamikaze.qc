@@ -84,7 +84,10 @@ void()	kami_walk11		=[	$walk11,	kami_walk12		] {ai_walk(3);}
 void()	kami_walk12		=[	$walk12,	kami_walk13		] {ai_walk(3);}
 void()	kami_walk13		=[	$walk13,	kami_walk1		] {ai_walk(3);}
 
-void()	kami_run1		=[	$run1,		kami_run2		] {kami_run(28);}
+void()	kami_run1		=[	$run1,		kami_run2		] {
+	kami_run(28);
+	Kami_Forget();
+}
 void()	kami_run2		=[	$run2,		kami_run3		] {kami_run(28);}
 void()	kami_run3		=[	$run3,		kami_run4		] {kami_run(28);}
 void()	kami_run4		=[	$run4,		kami_run5		] {kami_run(28);}
@@ -95,6 +98,42 @@ void()	kami_run8		=[	$run8,		kami_run9		] {kami_run(28);}
 void()	kami_run9		=[	$run9,		kami_run10		] {kami_run(28);}
 void()	kami_run10		=[	$run10,		kami_run11		] {kami_run(28);}
 void()	kami_run11		=[	$run11,		kami_run1		] {kami_run(28);}
+
+float(entity e) kami_visible =
+{
+	return (visible(e) && !has_invis(e));
+}
+
+void() Kami_Forget =
+{
+	if (!self.rad_time)	// time to be RAD
+	{
+		// we just woke up, don't forget right away, because if we were awoken
+		// by another monster waking we'll just stay here.
+		self.rad_time = time + 60;
+	}
+	
+	if (time < self.rad_time)
+		return;
+		
+	if (!kami_visible(self.enemy))
+	{
+		if (kami_visible(self.oldenemy))
+		{
+			self.enemy = self.oldenemy;
+		}
+		else
+		{
+			self.enemy = world;
+		}
+		self.oldenemy = world;
+	}
+	if (!self.enemy)
+	{
+		self.rad_time = 0;	// reset the clock
+		ai_stand();
+	}
+}
 
 /*
 float(float dist, float dmg) KamiBlastRadius =
@@ -155,6 +194,8 @@ void()	kami_die =
 
 void(entity attacker, float damage)	kami_pain =
 {
+	self.rad_time = time + 60;
+
 	if (self.pain_finished > time)
 		return;
 	PainFinished(1.5);
@@ -255,6 +296,7 @@ void() monster_kamikaze_spawn =
 	self.health = 40;
 	
 	self.cnt = 0;
+	self.rad_time = 0;
 	
 	self.customflags |= CFL_MELEEONLY;
 	self.customflags |= CFL_EPSKINS;
