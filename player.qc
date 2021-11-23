@@ -275,9 +275,14 @@ void() player_nail =
 	if (self.frame != $nailatt1)
 		self.frame = $nailatt1;
 	else 
-	self.frame += 1;
+		self.frame += 1;
+
+	if (self.weapon == W_NAILGUN)
+		self.weaponframe = self.cnt + 1;
+
 	self.think = player_nail;
 	self.nextthink = time + 0.1;	// TODO: oh fuck it, it works, you're never touching this again
+
 
 }
 
