@@ -264,21 +264,27 @@ void() player_nail =
 {
 	if (!self.button0)
 	{
+		self.weaponframe = 0;
 		player_run();
 		return;
 	}
 		
 	self.effects |= EF_MUZZLEFLASH;
-
+	
+	if (self.weapon == W_NAILGUN)
+	self.weaponframe = self.cnt + 1;
+	
 	if (self.frame != $nailatt1)
 		self.frame = $nailatt1;
 	else 
 	self.frame += 1;
 	self.think = player_nail;
-	self.nextthink = time + 0.125;	// TODO: oh fuck it, it works, you're never touching this again
+	self.nextthink = time + 0.1;	// TODO: oh fuck it, it works, you're never touching this again
 	
-	if (self.weapon == W_NAILGUN)
-	self.weaponframe = self.cnt + 1;
+	if (self.weaponframe == 9)
+	{
+        self.weaponframe = 1;
+	}
 }
 
 void() player_super_nail_spindown = {
@@ -315,7 +321,6 @@ void() super_nail_spindown =
 //		dprint(ftos(self.cnt));
 //		dprint("\n");
 
-		if (self.weaponframe == 25) sound (self, 7, "weapons/spindn_click.wav", 0.15, ATTN_NORM);
 		if (self.weaponframe == 48) sound (self, 7, "weapons/spindn_click.wav", 0.3, ATTN_NORM);
 		
 		if (self.weaponframe < 51)
