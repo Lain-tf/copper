@@ -84,7 +84,8 @@ void()	player_run =[	$rockrun1,	player_run	]
 {
 	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt >= 1))) // don't interrupt SNG spindown
 	{	
-		W_SetIdleWeaponFrame();
+		player_super_nail_spindown();
+		return;
 	}
 	
 	if (!self.velocity_x && !self.velocity_y)
@@ -278,6 +279,20 @@ void() player_nail =
 	
 	if (self.weapon == W_NAILGUN)
 	self.weaponframe = self.cnt + 1;
+}
+
+void() player_super_nail_spindown = {
+
+	// thinks run at 4x the usual speed while spinning down,
+	// so only update every 4 weaponframes
+	if (self.weaponframe % 4 == 0) {
+		if (self.walkframe == 6)
+			self.walkframe = 0;
+		self.frame = self.frame + self.walkframe;
+		
+		self.walkframe = self.walkframe + 1;
+
+	}
 }
 
 void() super_nail_spindown =
