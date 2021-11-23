@@ -313,8 +313,10 @@ void() super_nail_spindown =
 			player_run();		
 		
 //		dprint(ftos(self.cnt));
-//		dprint("\n");		
-		
+//		dprint("\n");
+
+		if (self.weaponframe == 25) sound (self, 7, "weapons/spindn_click.wav", 0.15, ATTN_NORM);
+		if (self.weaponframe == 48) sound (self, 7, "weapons/spindn_click.wav", 0.3, ATTN_NORM);
 		
 		if (self.weaponframe < 51)
 		{
@@ -348,7 +350,7 @@ void() player_super_nail =
 		player_run();
 		self.cnt = 1;
 		super_nail_spindown();
-		sound (self, CHAN_AUTO, "weapons/spindn.wav", 1, ATTN_NONE);	
+		
 		return;
 	}
 
