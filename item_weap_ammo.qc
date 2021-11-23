@@ -95,10 +95,13 @@ void() weapon_touch =
 	entity	stemp;
 	stemp = self;
 	self = other;
-	if (nsw)
-		W_ResetWeaponState();
-	else
-		W_BetterWeapon(stemp.weapon);
+	// don't switch while quad shotgun is firing
+	if (W_CanSwitchWeapon()) {
+		if (nsw)
+			W_ResetWeaponState();
+		else
+			W_BetterWeapon(stemp.weapon);
+	}
 	self = stemp;
 
 	if (coop == 1)
