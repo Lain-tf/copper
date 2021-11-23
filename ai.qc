@@ -588,6 +588,14 @@ void() SightSound =
 		else
 			sound (self, CHAN_VOICE, "cguard/sight4.wav", 1, ATTN_NORM);
 	}
+	else if (self.classname == "monster_excavator")
+	{
+		rsnd = random();
+		if (rsnd < 0.5)
+			sound (self, CHAN_VOICE, "exca/ex_alert1.wav", 1, ATTN_NORM);
+		else if (rsnd > 0.5)
+			sound (self, CHAN_VOICE, "exca/ex_alert2.wav", 1, ATTN_NORM);
+	}
 }
 
 void() FoundTarget =
