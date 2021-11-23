@@ -21,9 +21,6 @@ $frame open1 open2 open3 open4 open5 open6 open7 open8 open9 open10
 
 /////////////////////////////////////
 
-float 	developer;
-float	engine;				// Type of engine active 0=Fitz, 1=DP/FTE/QSS
-
 .float suppressCenterPrint;
 .float lefty;
 .float estate;
@@ -564,7 +561,6 @@ void() info_book_setup =
 	info_book_on();
 };
 
-/*======================================================================
 /*QUAKED misc_textbook (0 0.5 0.5) (-16 -16 -8) (16 16 8) NOMODEL PLINTH1 PLINTH2 STORY COLLISION ANGLEONLY STARTOFF NOEFFECTS
 Display custom text messages
 -------- KEYS --------
@@ -592,8 +588,8 @@ NOEFFECTS : No particle or effects active
 -------- NOTES --------
 Display custom text messages
 Maximum size of message is 1024 characters, 256 is the original limit
+*/
 
-======================================================================*/
 void() misc_textbook =
 {
 	self.movetype = MOVETYPE_NONE;

@@ -343,7 +343,7 @@ void() worldspawn =
 	precache_model ("progs/grenade.mdl");
 	precache_model ("progs/spike.mdl");
 	precache_model ("progs/rail.mdl");
-	precache_sound ("weapons/spindn.wav");
+	precache_sound ("weapons/spindn_click.wav");
 	//precache_model ("progs/s_spike.mdl");
 
 	precache_model ("progs/backpack.mdl");

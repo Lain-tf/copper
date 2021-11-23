@@ -84,7 +84,8 @@ void()	player_run =[	$rockrun1,	player_run	]
 {
 	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt >= 1))) // don't interrupt SNG spindown
 	{	
-		W_SetIdleWeaponFrame();
+		player_super_nail_spindown();
+		return;
 	}
 	
 	if (!self.velocity_x && !self.velocity_y)
@@ -280,6 +281,20 @@ void() player_nail =
 	self.weaponframe = self.cnt + 1;
 }
 
+void() player_super_nail_spindown = {
+
+	// thinks run at 4x the usual speed while spinning down,
+	// so only update every 4 weaponframes
+	if (self.weaponframe % 4 == 0) {
+		if (self.walkframe == 6)
+			self.walkframe = 0;
+		self.frame = self.frame + self.walkframe;
+		
+		self.walkframe = self.walkframe + 1;
+
+	}
+}
+
 void() super_nail_spindown =
 {
 
@@ -298,8 +313,10 @@ void() super_nail_spindown =
 			player_run();		
 		
 //		dprint(ftos(self.cnt));
-//		dprint("\n");		
-		
+//		dprint("\n");
+
+		if (self.weaponframe == 25) sound (self, 7, "weapons/spindn_click.wav", 0.15, ATTN_NORM);
+		if (self.weaponframe == 48) sound (self, 7, "weapons/spindn_click.wav", 0.3, ATTN_NORM);
 		
 		if (self.weaponframe < 51)
 		{
@@ -333,7 +350,7 @@ void() player_super_nail =
 		player_run();
 		self.cnt = 1;
 		super_nail_spindown();
-		sound (self, CHAN_AUTO, "weapons/spindn.wav", 1, ATTN_NONE);	
+		
 		return;
 	}
 

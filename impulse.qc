@@ -162,7 +162,7 @@ void() Cheat_Haste =
 		return;
 	stuffcmd(self, "bf\n");
 	self.items2 = self.items2 | IT_HASTE;
-	powerup_haste(self, 15);
+	powerup_haste(self, 20);
 }
 
 // --------------------------------
