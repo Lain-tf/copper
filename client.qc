@@ -1420,6 +1420,7 @@ void() CheckPowerups =
 			self.items2 = self.items2 - IT_HASTE;
 			self.haste_finished = 0;
 			self.haste_time = 0;
+			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
 		}
 
 		if (self.haste_finished > time) {
@@ -1451,6 +1452,7 @@ void() CheckPowerups =
 			self.items2 = self.items2 - IT_BERSERK;
 			self.berserk_finished = 0;
 			self.berserk_time = 0;
+			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
 			if (self.weapon == IT_AXE)
 				self.weaponmodel = "progs/v_axe2.mdl";
 			
@@ -1535,6 +1537,7 @@ void() PlayerPreThink =
 		{
 			TintScreen(self, 255);
 		}
+		self.changevcshift = 1; // be sure to restore powerup tint on save/load (vf)
 	}
 
 	if (intermission_running || self.deadflag == DEAD_SPECTATING )
@@ -1678,7 +1681,20 @@ if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '
 		}
 }		
 }	
+	//view tint for haste and berserk (vf)
+	if (self.changevcshift == 1)
+	{
+		if (self.berserk_finished > time && self.haste_finished > time) 
+			stuffcmd(self,"\nv_cshift 255 128 0 20\n"); //mixed orange
+		else if (self.berserk_finished > time) 
+			stuffcmd(self,"\nv_cshift 255 0 0 20\n");  // berserk red
+		else if (self.haste_finished > time) 
+			stuffcmd(self,"\nv_cshift 255 255 0 10\n"); // haste yellow
+		else stuffcmd(self,"\nv_cshift 0 0 0 0\n");
 		
+		self.changevcshift = 0;
+	}
+	// view tint end
 	
 	if (self.customflags & CFL_LIMBO)
 	{

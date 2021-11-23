@@ -322,7 +322,7 @@ float	isKex;	// running the quake rerelease
 .float		bubble_count;	// keeps track of the number of bubbles
 .float		healthtime;
 .string		deathtype;		// keeps track of how the player died
-
+.float		changevcshift; 	// used for berserk and haste screen tints (vf)
 // fog
 .vector		fog_color, fog_color2;
 .float		fog_density, fog_density2;

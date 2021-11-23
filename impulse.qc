@@ -163,6 +163,7 @@ void() Cheat_Haste =
 	stuffcmd(self, "bf\n");
 	self.items2 = self.items2 | IT_HASTE;
 	powerup_haste(self, 20);
+	self.changevcshift = 1; // apply tint on cheat command (vf)
 }
 
 // --------------------------------
@@ -175,6 +176,7 @@ void() Cheat_Berserk =
 	stuffcmd(self, "bf\n");
 	self.items2 = self.items2 | IT_BERSERK;
 	powerup_berserk(self, 30);
+	self.changevcshift = 1; // apply tint on cheat command (vf)
 }
 
 // --------------------------------

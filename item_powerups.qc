@@ -70,6 +70,7 @@ void(entity h, float t) powerup_haste =
 	h.items2 |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
+	h.changevcshift = 1; // apply tint on pickup (vf)
 }
 
 
@@ -88,6 +89,7 @@ void(entity h, float t) powerup_berserk =
 	h.items2 |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
+	h.changevcshift = 1; // apply tint on pickup (vf)
 	
 	h.weapon = W_AXE;
 	SUB_CallAsSelf(W_ResetWeaponState, h);
