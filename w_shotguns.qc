@@ -59,6 +59,11 @@ Used by shotgun, super shotgun, and enemy soldier firing
 */
 void(float shotcount, vector dir, vector spread) FireBullets =
 {
+	FireBulletsEx(shotcount, dir, spread, 4);
+}
+
+void(float shotcount, vector dir, vector spread, int damage) FireBulletsEx =
+{
 	vector src, direction;
 	entity ig;
 	float s, lim;
@@ -222,7 +227,7 @@ void() W_FireQuadShotgun =
 	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
-	FireBullets(9, dir, '0.15 0.02 0');
+	FireBulletsEx(18, dir, '0.15 0.02 0', 2);
 	ApplyMultiDamage();
 }
 
