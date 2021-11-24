@@ -153,7 +153,7 @@ void() W_FireShotgun =
 	dir = aim (self, AUTOAIM_DIST);
 
 	ClearMultiDamage ();
-	FireBullets (6, dir, '0.04 0.04 0', 4);
+	FireBullets (6, dir, '0.04 0.04 0');
 
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
@@ -199,7 +199,7 @@ void() W_FireSuperShotgun =
 
 	ClearMultiDamage ();
 
-	FireBullets (14, dir, '0.14 0.08 0', 4);
+	FireBullets (14, dir, '0.14 0.08 0');
 
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
