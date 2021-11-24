@@ -237,10 +237,10 @@ float() W_BestWeapon =
 	
 	if(self.ammo_nails >= 2 && (it & IT_SUPER_NAILGUN) )
 		return W_SUPER_NAILGUN;
-	if(self.ammo_shells >= 4 && (self.items2 & IT_QUAD_SHOTGUN))
-		return W_QUAD_SHOTGUN;
 	if(self.ammo_shells >= 2 && (it & IT_SUPER_SHOTGUN) )
 		return W_SUPER_SHOTGUN;
+	if(self.ammo_shells >= 4 && (self.items2 & IT_QUAD_SHOTGUN))
+		return W_QUAD_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
 	if (self.ammo_cells >= 6 && (self.items2 & IT_RAILGUN) )
