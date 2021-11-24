@@ -62,7 +62,7 @@ void(float shotcount, vector dir, vector spread) FireBullets =
 	FireBulletsEx(shotcount, dir, spread, 4);
 }
 
-void(float shotcount, vector dir, vector spread, int damage) FireBulletsEx =
+void(float shotcount, vector dir, vector spread, float damage) FireBulletsEx =
 {
 	vector src, direction;
 	entity ig;
@@ -120,7 +120,7 @@ void(float shotcount, vector dir, vector spread, int damage) FireBulletsEx =
 		
 		if (trace_fraction != 1.0)
 		{
-			BulletImpact (4, direction);
+			BulletImpact (damage, direction);
 		}
 		
 		if (trace_debug) dprint("bullet is over\n\n");
@@ -153,7 +153,7 @@ void() W_FireShotgun =
 	dir = aim (self, AUTOAIM_DIST);
 
 	ClearMultiDamage ();
-	FireBullets (6, dir, '0.04 0.04 0');
+	FireBullets (6, dir, '0.04 0.04 0', 4);
 
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
@@ -199,7 +199,7 @@ void() W_FireSuperShotgun =
 
 	ClearMultiDamage ();
 
-	FireBullets (14, dir, '0.14 0.08 0');
+	FireBullets (14, dir, '0.14 0.08 0', 4);
 
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
