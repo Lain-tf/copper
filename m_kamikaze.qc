@@ -52,22 +52,30 @@ void()	kami_stuned2	=[	$stuned2,	kami_stuned3	] {}
 void()	kami_stuned3	=[	$stuned3,	kami_stuned4	] {}
 void()	kami_stuned4	=[	$stuned4,	kami_stuned5	] {}
 void()	kami_stuned5	=[	$stuned5,	kami_stuned6	] {}
-void()	kami_stuned6	=[	$stuned6,	kami_run1		] {}	
+void()	kami_stuned6	=[	$stuned6,	kami_stuned7	] {}
+void()	kami_stuned7	=[	$stuned7,	kami_stuned8	] {}
+void()	kami_stuned8	=[	$stuned8,	kami_stuned9	] {}
+void()	kami_stuned9	=[	$stuned9,	kami_run1		] {}
 
 void()	kami_stunned1	=[	$stunned1,	kami_stunned2	] {}
 void()	kami_stunned2	=[	$stunned2,	kami_stunned3	] {}
 void()	kami_stunned3	=[	$stunned3,	kami_stunned4	] {}
 void()	kami_stunned4	=[	$stunned4,	kami_stunned5	] {}
 void()	kami_stunned5	=[	$stunned5,	kami_stunned6	] {}
-void()	kami_stunned6	=[	$stunned6,	kami_run1		] {}
-
+void()	kami_stunned6	=[	$stunned6,	kami_stunned7	] {}
+void()	kami_stunned7	=[	$stunned7,	kami_stunned8	] {}
+void()	kami_stunned8	=[	$stunned8,	kami_stunned9	] {}
+void()	kami_stunned9	=[	$stunned9,	kami_run1		] {}
 //i wasn't typing that 3 times, go fuck yourself - lain
 void()	kami_stunnned1	=[	$stunnned1,	kami_stunnned2	] {}
 void()	kami_stunnned2	=[	$stunnned2,	kami_stunnned3	] {}
 void()	kami_stunnned3	=[	$stunnned3,	kami_stunnned4	] {}
 void()	kami_stunnned4	=[	$stunnned4,	kami_stunnned5	] {}
 void()	kami_stunnned5	=[	$stunnned5,	kami_stunnned6	] {}
-void()	kami_stunnned6	=[	$stunnned6,	kami_run1		] {}
+void()	kami_stunnned6	=[	$stunnned6,	kami_stunnned7	] {}
+void()	kami_stunnned7	=[	$stunnned7,	kami_stunnned8	] {}
+void()	kami_stunnned8	=[	$stunnned8,	kami_stunnned9	] {}
+void()	kami_stunnned9	=[	$stunnned9,	kami_run1		] {}
 
 
 void()	kami_walk1		=[	$walk1,		kami_walk2		] {ai_walk(3);}
