@@ -71,6 +71,7 @@ void() excavator_kamikaze_touch =
 
 void(float speed) excavator_kamikaze_move =
 {
+	setsize (self, '-16 -16 8', '16 16 40');
 	self.movetype = MOVETYPE_FLY;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	makevectors(self.angles);
