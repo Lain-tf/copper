@@ -36,6 +36,8 @@ $frame pain1 pain2 pain3 pain4 pain5 pain6
 $frame death1 death2 death3 death4 death5 death6 
 $frame death7 death8 death9 death10 death11
 
+float BOSS2_BALL_VEL			= 600;
+
 
 float() Boss2CheckAttack = {
 	//----------------------------------------------------------------------
@@ -142,15 +144,15 @@ void() Boss2MissileHome =
 	
 	if (dot > 0)
 	{
-		rate *= max(1, 1.5 * (1 - dot));
+		rate *= max(1, 1.3 * (1 - dot));
 	}
-	self.velocity = SHAL_BALL_VEL * ShalTurnToward(self.enemy, rate * 0.7);
+	self.velocity = BOSS2_BALL_VEL * ShalTurnToward(self.enemy, rate * 0.7);
 	
 	
 	// go faster at long distance to close the gap, so snipey vores have a better presence
-	dist = vlen(self.enemy.origin - self.origin);
-	dist = saturate( (dist-120) / 512 );
-	self.velocity *= 1 + dist;
+	//dist = vlen(self.enemy.origin - self.origin);
+	//dist = saturate( (dist-120) / 512 );
+	//self.velocity *= 1 + dist;
 	
 	self.think = Boss2MissileHome;
 	self.oldvelocity = self.velocity;
@@ -177,12 +179,12 @@ void() Boss2Missile =
 		dir = normalize(dir);
 	}
 	
-	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8, dir * SHAL_BALL_VEL, "voreball");
+	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8, dir * BOSS2_BALL_VEL, "voreball");
 
 	SUB_ChangeModel (missile, "progs/v_spike.mdl");
 
 	missile.avelocity = '300 300 300';
-	missile.nextthink = time + 0.1;
+	missile.nextthink = time + 0.2;
 	missile.think = Boss2MissileHome;
 	missile.enemy = self.enemy;
 	missile.touch = ShalMissileTouch;
@@ -299,13 +301,13 @@ void()	boss2_fast7	=[	$smash7,		boss2_fast8	] {ai_run_slide(4);}
 void()	boss2_fast8	=[	$smash8,		boss2_fast9	] {ai_run_slide(3);}
 void()	boss2_fast9	=[	$smash9,		boss2_fast10	] {ai_run_slide(12);}
 void()	boss2_fast10	=[	$smash10,		boss2_fast11	] {ai_run_slide(20);Boss2Missile();}
-void()	boss2_fast11	=[	$smash10,		boss2_fast12	] {ai_run_slide(20);}
+void()	boss2_fast11	=[	$smash10,		boss2_fast12	] {ai_run_slide(20);Boss2Missile();}
 void()	boss2_fast12	=[	$smash10,		boss2_fast13	] {ai_run_slide(20);Boss2Missile();}
-void()	boss2_fast13	=[	$smash10,		boss2_fast14	] {ai_run_slide(20);}
+void()	boss2_fast13	=[	$smash10,		boss2_fast14	] {ai_run_slide(20);Boss2Missile();}
 void()	boss2_fast14	=[	$smash10,		boss2_fast15	] {ai_run_slide(20);Boss2Missile();}
-void()	boss2_fast15	=[	$smash10,		boss2_fast16	] {ai_run_slide(20);}
+void()	boss2_fast15	=[	$smash10,		boss2_fast16	] {ai_run_slide(20);Boss2Missile();}
 void()	boss2_fast16	=[	$smash10,		boss2_fast17	] {ai_run_slide(20);Boss2Missile();}
-void()	boss2_fast17	=[	$smash11,		boss2_fast18	] {ai_run_slide(20);}
+void()	boss2_fast17	=[	$smash11,		boss2_fast18	] {ai_run_slide(20);Boss2Missile();}
 void()	boss2_fast18	=[	$smash12,		boss2_run1	] {ai_run_slide(20); ai_attack_finished(6);}
 
 void()	boss2_pain1	=[	$pain1,		boss2_pain2	] {ai_nop();PainFinished(4);}
@@ -367,7 +369,7 @@ void() monster_boss2_spawn =
 	setmodel (self, "progs/shambler.mdl");
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.health = 600;
+	self.health = 1500;
 	self.distance = self.height = 192;
 
 	self.th_stand = boss2_stand1;
@@ -436,7 +438,7 @@ void() monster_boss2 =
 	precache_sound ("shambler/melee2.wav");
 	precache_sound ("shambler/smack.wav");
 
-	self.health = 80;
+	self.health = 1500;
 	//setsize (self, '-16 -16 -24', '16 16 40');
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	if ( monster_spawnsetup( monster_boss2_spawner ) ) return;

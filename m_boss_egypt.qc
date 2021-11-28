@@ -241,7 +241,7 @@ void(vector org, vector dir) boss_egypt_missile =
 		dir = normalize(dir);
 	}
 	
-	missile = launch_projectile(org, dir * SHAL_BALL_VEL, "voreball");
+	missile = launch_projectile(org, dir * BOSS2_BALL_VEL, "voreball");
 
 	SUB_ChangeModel (missile, "progs/v_spike.mdl");
 
