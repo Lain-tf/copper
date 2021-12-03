@@ -369,7 +369,7 @@ void() monster_boss2_spawn =
 	setmodel (self, "progs/shambler.mdl");
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.health = 1500;
+	self.health = 2000;
 	self.distance = self.height = 192;
 
 	self.th_stand = boss2_stand1;
@@ -438,7 +438,7 @@ void() monster_boss2 =
 	precache_sound ("shambler/melee2.wav");
 	precache_sound ("shambler/smack.wav");
 
-	self.health = 1500;
+	self.health = 2000;
 	//setsize (self, '-16 -16 -24', '16 16 40');
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	if ( monster_spawnsetup( monster_boss2_spawner ) ) return;

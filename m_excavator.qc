@@ -172,7 +172,6 @@ void() excavator_fire = {
 	r = random();
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
-	sound (self, CHAN_WEAPON, "exca/ex_fire.wav", 1, ATTN_NORM);
 
 	org = self.origin + '0 0 35';
 	vec = normalize(enemy_vispos() - org + enemy_aim_vertical());
@@ -211,16 +210,16 @@ void() excavator_fire = {
 };
 
 
-void()	excavator_fire1	= [ $attack1, excavator_fire5 ] {
+void()	excavator_fire1	= [ $attack1, excavator_fire2 ] {
 	ai_face();
 }
-void()	excavator_fire2	= [ $attack2, excavator_fire3 ] {}
+void()	excavator_fire2	= [ $attack2, excavator_fire3 ] {sound (self, CHAN_WEAPON, "exca/ex_fire.wav", 1, ATTN_NORM);}
 void()	excavator_fire3	= [ $attack3, excavator_fire4 ] {}
 void()	excavator_fire4	= [ $attack4, excavator_fire5 ] {}
 void()	excavator_fire5	= [ $attack5, excavator_fire6 ] {}
-void()	excavator_fire6	= [ $attack6, excavator_fire7 ] {excavator_fire();}
+void()	excavator_fire6	= [ $attack6, excavator_fire7 ] {}
 void()	excavator_fire7	= [ $attack7, excavator_fire8 ] {}
-void()	excavator_fire8	= [ $attack8, excavator_fire9 ] {}
+void()	excavator_fire8	= [ $attack8, excavator_fire9 ] {excavator_fire();}
 void()	excavator_fire9	= [ $attack9, excavator_fire10 ] {}
 void()	excavator_fire10 = [ $attack10, excavator_fire11 ] {}
 void()	excavator_fire11 = [ $attack11, excavator_fire12 ] {}
