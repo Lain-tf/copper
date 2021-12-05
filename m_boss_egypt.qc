@@ -51,6 +51,8 @@ $frame mfchrg06 mfchrg07 mfchrg08 mfchrg09
 
 .float	childrenSpawned;
 
+float BOSS2_BALL_VEL = 600;
+
 // ========================
 // standing
 // ========================
