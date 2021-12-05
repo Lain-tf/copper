@@ -5,6 +5,7 @@ WIZARD
 
 ==============================================================================
 */
+float BOSS_HEALTH = 100;
 
 $cd id1/models/shams
 $origin 0 0 24
@@ -44,7 +45,8 @@ float() Boss2CheckAttack = {
 	// Check Melee range and constantly fire
 	//----------------------------------------------------------------------
 	if (enemy_range < RANGE_MELEE) {
-		self.attack_state = AS_MISSILE; //AS_MELEE;
+		self.attack_state = AS_MELEE;
+		dprint("Melee\n");
 		return TRUE;
 	}
 	
@@ -110,6 +112,25 @@ FAST ATTACKS
 
 ==============================================================================
 */
+void() Boss2MissileExplode =
+{
+	T_RadiusDamage (self, self.trueowner, 40, world);
+	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
+
+	BecomeExplosion();
+}
+
+void() Boss2MissileTouch =
+{
+	if (CheckProjectilePassthru()) return;
+	if (other == self.owner)
+		return;		// don't explode on owner
+
+	if (other.type == "zombie")
+		T_Damage (other, self, self.trueowner, other.health + 25);
+	
+	Boss2MissileExplode();
+}
 
 void() Boss2MissileHome =
 {
@@ -121,7 +142,7 @@ void() Boss2MissileHome =
 	
 	if (self.lifetime_finished < time)
 	{
-		ShalMissileExplode();
+		Boss2MissileExplode();
 		return;
 	}		
 	if (!enemy_alive())
@@ -158,8 +179,6 @@ void() Boss2MissileHome =
 	self.oldvelocity = self.velocity;
 }
 
-
-
 void() Boss2Missile =
 {
 	entity 	missile;
@@ -187,11 +206,36 @@ void() Boss2Missile =
 	missile.nextthink = time + 0.2;
 	missile.think = Boss2MissileHome;
 	missile.enemy = self.enemy;
-	missile.touch = ShalMissileTouch;
+	missile.touch = Boss2MissileTouch;
 	missile.lifetime_finished = time + 30;	 // blow up after a while
 
 }
 
+
+
+//============================================================================================
+
+
+
+void() Boss2Grenade =
+{
+	entity 	missile;
+	vector	dir;
+
+	self.effects = self.effects | EF_MUZZLEFLASH;
+	makevectors([70, random() * 360, 0]);
+	
+	
+	missile = toss_projectile(self.origin + v_up * 64, v_forward * 100, "bossgrenade");
+
+	SUB_ChangeModel (missile, "progs/v_spike.mdl");
+
+	missile.avelocity = '300 300 300';
+	missile.nextthink = time + 0.2;
+	missile.touch = Boss2MissileTouch;
+	missile.lifetime_finished = time + 5;	 // blow up after a while
+
+}
 
 
 void() boss2_idlesound =
@@ -273,7 +317,7 @@ void()	boss2_side15	=[	$stand15,		boss2_side16	] {boss2_changeheight(FALSE); ai_
 void()	boss2_side16	=[	$stand16,		boss2_side17	] {boss2_changeheight(FALSE); ai_run(8);}
 void()	boss2_side17	=[	$stand17,		boss2_side1	] {boss2_changeheight(FALSE); ai_run(8);}
 
-void()	boss2_run1	=[	$stand1,		boss2_run2	] {boss2_changeheight(FALSE); ai_run(16);boss2_idlesound();}
+void()	boss2_run1	=[	$stand1,		boss2_run2	] {self.takedamage = DAMAGE_AIM; boss2_changeheight(FALSE); ai_run(16);boss2_idlesound();}
 void()	boss2_run2	=[	$stand2,		boss2_run3	] {boss2_changeheight(FALSE); ai_run(16);}
 void()	boss2_run3	=[	$stand3,		boss2_run4	] {boss2_changeheight(FALSE); ai_run(16);}
 void()	boss2_run4	=[	$stand4,		boss2_run5	] {boss2_changeheight(FALSE); ai_run(16);}
@@ -291,7 +335,7 @@ void()	boss2_run15	=[	$stand15,		boss2_run16	] {boss2_changeheight(FALSE); ai_ru
 void()	boss2_run16	=[	$stand16,		boss2_run17	] {boss2_changeheight(FALSE); ai_run(16);}
 void()	boss2_run17	=[	$stand17,		boss2_run1	] {boss2_changeheight(FALSE); ai_run(16);}
 
-void()	boss2_fast1	=[	$smash1,		boss2_fast2	] {boss2_changeheight(TRUE);ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
+void()	boss2_fast1	=[	$smash1,		boss2_fast2	] {boss2_changeheight(TRUE); ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
 void()	boss2_fast2	=[	$smash2,		boss2_fast3	] {ai_run_slide(6);}
 void()	boss2_fast3	=[	$smash3,		boss2_fast4	] {ai_run_slide(6);}
 void()	boss2_fast4	=[	$smash4,		boss2_fast5	] {ai_run_slide(6);}
@@ -310,10 +354,117 @@ void()	boss2_fast16	=[	$smash10,		boss2_fast17	] {ai_run_slide(20);Boss2Missile(
 void()	boss2_fast17	=[	$smash11,		boss2_fast18	] {ai_run_slide(20);Boss2Missile();}
 void()	boss2_fast18	=[	$smash12,		boss2_run1	] {ai_run_slide(20); ai_attack_finished(6);}
 
+void()	boss2_hands1	=[	$smash1,		boss2_hands2	] {boss2_changeheight(TRUE);ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
+void()	boss2_hands2	=[	$smash2,		boss2_hands3	] {ai_run_slide(6);}
+void()	boss2_hands3	=[	$smash3,		boss2_hands4	] {ai_run_slide(6);}
+void()	boss2_hands4	=[	$smash4,		boss2_hands5	] {ai_run_slide(6);}
+void()	boss2_hands5	=[	$smash5,		boss2_hands6	] {ai_run_slide(5);}
+void()	boss2_hands6	=[	$smash6,		boss2_hands7	] {ai_run_slide(5);}
+void()	boss2_hands7	=[	$smash7,		boss2_hands8	] {ai_run_slide(4);}
+void()	boss2_hands8	=[	$smash8,		boss2_hands9	] {ai_run_slide(3);}
+void()	boss2_hands9	=[	$smash9,		boss2_hands10	] {ai_run_slide(12);}
+void()	boss2_hands10	=[	$smash10,		boss2_hands11	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands11	=[	$smash10,		boss2_hands12	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands12	=[	$smash10,		boss2_hands13	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands13	=[	$smash10,		boss2_hands14	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands14	=[	$smash10,		boss2_hands15	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands15	=[	$smash10,		boss2_hands16	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands16	=[	$smash10,		boss2_hands17	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands17	=[	$smash11,		boss2_hands18	] {ai_run_slide(20);Boss2Missile();}
+void()	boss2_hands18	=[	$smash12,		boss2_run1	] {ai_run_slide(20); ai_attack_finished(6);}
+
+void()	boss2_melee1	=[	$smash1,		boss2_melee2	] {sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
+void()	boss2_melee2	=[	$smash2,		boss2_melee3	] {Boss2Grenade();}
+void()	boss2_melee3	=[	$smash3,		boss2_melee4	] {}
+void()	boss2_melee4	=[	$smash4,		boss2_melee5	] {Boss2Grenade();}
+void()	boss2_melee5	=[	$smash5,		boss2_melee6	] {}
+void()	boss2_melee6	=[	$smash6,		boss2_melee7	] {Boss2Grenade();}
+void()	boss2_melee7	=[	$smash7,		boss2_melee8	] {}
+void()	boss2_melee8	=[	$smash8,		boss2_melee9	] {Boss2Grenade();}
+void()	boss2_melee9	=[	$smash9,		boss2_melee10	] {}
+void()	boss2_melee10	=[	$smash10,		boss2_melee11	] {Boss2Grenade();}
+void()	boss2_melee11	=[	$smash10,		boss2_melee12	] {}
+void()	boss2_melee12	=[	$smash10,		boss2_melee13	] {Boss2Grenade();}
+void()	boss2_melee13	=[	$smash10,		boss2_melee14	] {}
+void()	boss2_melee14	=[	$smash10,		boss2_melee15	] {Boss2Grenade();}
+void()	boss2_melee15	=[	$smash10,		boss2_melee16	] {}
+void()	boss2_melee16	=[	$smash10,		boss2_melee17	] {Boss2Grenade();}
+void()	boss2_melee17	=[	$smash11,		boss2_melee18	] {}
+void()	boss2_melee18	=[	$smash12,		boss2_run1	] {ai_attack_finished(6);}
+
+
 void()	boss2_pain1	=[	$pain1,		boss2_pain2	] {ai_nop();PainFinished(4);}
 void()	boss2_pain2	=[	$pain2,		boss2_pain3	] {ai_nop();}
 void()	boss2_pain3	=[	$pain3,		boss2_pain4	] {ai_nop();}
 void()	boss2_pain4	=[	$pain4,		boss2_run1	] {ai_nop();}
+
+
+void() boss2_sleep_frame =
+{
+	self.frame = $stand1;
+
+	if (self.attack_finished < time) {
+		self.velocity = '0 0 0';
+		self.avelocity = '0 0 0';
+	}
+
+	self.think = boss2_sleep_frame;
+	self.nextthink = time + 0.1;
+};
+
+void() boss2_startsleep =
+{
+	entity dest;
+	vector vdestdelta;
+	float traveltime, len;
+	float yawdelta;
+
+	self.takedamage = DAMAGE_NO;
+	self.health = BOSS_HEALTH;
+	self.enemy = self.goalentity = world;
+	dest = find(world, targetname, self.include);
+	
+
+	vdestdelta = dest.origin - self.origin;
+	len = vlen (vdestdelta);
+	traveltime = len / 150;
+	self.velocity = vdestdelta * (1/traveltime);
+	self.attack_finished = time + traveltime;
+
+	yawdelta = dest.angles_y - self.angles_y;
+	self.avelocity_y = yawdelta/traveltime;
+
+
+	boss2_sleep_frame();
+}
+
+float() boss2_checkdeath =
+{
+	if (self.state) {
+		boss2_startsleep();
+		
+		if (self.state == 3) {
+			SUB_UseTargetsByField(target);
+			self.target = "";
+		}
+		else if (self.state == 2) {
+			SUB_UseTargetsByField(target2);
+			self.target2 = "";
+		}
+		else if (self.state == 1) {
+			SUB_UseTargetsByField(target3);
+			self.target3 = "";
+		}
+		self.state--;
+		return TRUE;
+	}
+	else {
+		SUB_UseTargetsByField(target4);
+		self.target4 = "";
+		return FALSE;
+	}
+
+}
 
 void()	boss2_death1	=[	$death1,		boss2_death2	] {
 	self.velocity_x = -200 + 400*random();
@@ -369,16 +520,22 @@ void() monster_boss2_spawn =
 	setmodel (self, "progs/shambler.mdl");
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.health = 2000;
+
+	self.health = BOSS_HEALTH;
 	self.distance = self.height = 192;
+	//self.customflags = self.customflags | CFL_CHECKDEATH;
+
+	self.state = 3;
 
 	self.th_stand = boss2_stand1;
 	self.th_walk = boss2_walk1;
 	self.th_run = boss2_run1;
 	self.th_missile = boss2_fast1;
+	self.th_melee = boss2_melee1;
 	self.th_pain = boss2_Pain;
 	self.th_die = boss2_die;
 	self.th_checkattack = Boss2CheckAttack;
+	self.th_checkdeath = boss2_checkdeath;
 
 	if (self.deathtype == string_null)
 		self.deathtype = "was scragged by a Scrag";
@@ -438,7 +595,8 @@ void() monster_boss2 =
 	precache_sound ("shambler/melee2.wav");
 	precache_sound ("shambler/smack.wav");
 
-	self.health = 2000;
+
+	self.health = BOSS_HEALTH;
 	//setsize (self, '-16 -16 -24', '16 16 40');
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	if ( monster_spawnsetup( monster_boss2_spawner ) ) return;
