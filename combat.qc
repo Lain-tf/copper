@@ -490,7 +490,6 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 	
 	if (targ.health <= 0)
 	{
-		dprint("aqui\n");
 		if (targ.th_checkdeath)
 		{	
 			float dontdie;
@@ -502,7 +501,6 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 			self = oldself;
 			if (dontdie) return;
 		}
-		dprint("aqui\n");
 		Killed (targ, attacker);
 		return;
 	}
