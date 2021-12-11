@@ -333,7 +333,14 @@ void() W_FireRail =
 				SpawnBlood (org, vel*0.2, 400);
 				if (trace_ent != self) 
 				{
-					T_Damage (trace_ent, self, self, 270);
+					if (deathmatch != 0){
+						T_Damage (trace_ent, self, self, 150);
+						}
+						else
+						{
+						T_Damage (trace_ent, self, self, 270);
+							}
+
 					
 					// if we have the right amount of health add some velocity if we're not gibbing
 					
