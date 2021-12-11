@@ -25,7 +25,7 @@ void(entity targ, entity attacker) Killed =
 	
 	oself = self;
 	self = targ;
-	
+
 	//bprint4(self.classname, " died with ", ftos(self.health), " hp\n");
 	
 	if (self.health < -99)
@@ -481,7 +481,7 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 	//bprint3("doing ", ftos(take), " damage\n");
 	targ.health = ceil(targ.health - take);	// be an integer dammit
 	
-			if (attacker.damage_printer == 1)
+	if (attacker.damage_printer == 1)
 	{ 
 		dprint("Damage Done:\n");
 		dprint(ftos(take));
@@ -490,6 +490,17 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 	
 	if (targ.health <= 0)
 	{
+		if (targ.th_checkdeath)
+		{	
+			float dontdie;
+			oldself = self;
+			self = targ;
+			
+			dontdie = self.th_checkdeath();
+
+			self = oldself;
+			if (dontdie) return;
+		}
 		Killed (targ, attacker);
 		return;
 	}

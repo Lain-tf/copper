@@ -295,6 +295,7 @@ float	isKex;	// running the quake rerelease
 .void(entity attacker, float damage) th_pain;
 .void()		th_die;
 .float()	th_checkattack;
+.float()	th_checkdeath;
 .entity		oldenemy;		// mad at this player before taking damage
 .float 		attack_finished;
 .float		pain_finished;
