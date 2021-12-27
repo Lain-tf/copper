@@ -21,6 +21,11 @@ vector(float dm) GibVelocityForHealth =
 	v_y = 150 * crandom();
 	v_z = 150 + 150 * random();
 
+	if (dm < -99)
+		{
+		dm = -99; //Protection against crazy gibs
+		}
+
 	voom = max(1, min(10, dm * dm / 5000));
 	
 	return v * voom;
