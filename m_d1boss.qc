@@ -578,6 +578,7 @@ void() monster_d1boss_spawn =
 	//self.customflags = self.customflags | CFL_CHECKDEATH;
 
 	self.state = 3;
+	self.type = "boss";
 	
 	self.th_stand = d1boss_stand1;
 	self.th_walk = d1boss_walk1;
