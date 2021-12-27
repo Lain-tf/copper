@@ -341,6 +341,9 @@ void( entity attacker ) T_ReactToDamage =
 	
 	//	Egyptian boss fights only with players
 	if(attacker.classname != "player" && self.classname == "monster_boss_egypt") return;
+	if(attacker.classname != "player" && self.classname == "monster_d1boss") return;	
+	if(attacker.classname == "monster_d1boss") return;
+	
 	
 	// get mad unless of the same class (except for soldiers)
 	// classname check replaced with new "type" check
