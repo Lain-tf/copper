@@ -39,7 +39,7 @@ $frame death7 death8 death9 death10 death11
 
 
 float D1BOSS_BALL_VEL = 600;
-float D1BOSS_HEALTH = 100; // CHANGE BACK TO 2000!!!
+float D1BOSS_HEALTH = 2000; 
 
 float() D1BossCheckAttack = {
 	//----------------------------------------------------------------------
@@ -51,6 +51,22 @@ float() D1BossCheckAttack = {
 		return TRUE;
 	}
 	
+	
+	//----------------------------------------------------------------------
+	// Check Melee range without respect to height
+	//----------------------------------------------------------------------
+	local vector enemy_org, self_org;
+	
+	enemy_org = self.enemy.origin;
+	self_org = self.origin;
+	enemy_org_z = self_org_z;
+	if (vlen(self_org - enemy_org) < 120 && (self.origin_z >= self.enemy.origin_z))
+		{
+		self.attack_state = AS_MELEE;
+		return TRUE;		
+		}
+	
+	
 	//----------------------------------------------------------------------
 	// Range attacks (Spit and Bomb)
 	// Attack_chance override (percentage 0-1 chance)
@@ -58,7 +74,7 @@ float() D1BossCheckAttack = {
 	// Only range attack if cooldown has finished
 	if (time > self.attack_finished) {
 		// Fast/intense nail/spit attack
-		if (enemy_range < RANGE_NEAR) { // || self.attack_chance > random()) {
+		if (enemy_range < RANGE_NEAR) { 
 			// Skill 0=3s, 1=2.25s, 2=1.5s, 3=0.75s
 			//self.attack_speed = (4 - skill) * 0.75;
 			//self.attack_finished = time + self.attack_speed + random();
@@ -224,10 +240,8 @@ void() D1BossGrenade =
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	makevectors([70, random() * 360, 0]);
-	
-	
-	missile = toss_projectile(self.origin + v_up * 64, v_forward * 100, "bossgrenade");
-
+		
+	missile = toss_projectile(self.origin + '0 0 80', v_forward * 400 + v_up * 100, "bossgrenade");
 	SUB_ChangeModel (missile, "progs/v_spike.mdl");
 
 	missile.avelocity = '300 300 300';
@@ -399,6 +413,33 @@ void()	d1boss_pain3	=[	$pain3,		d1boss_pain4	] {ai_nop();}
 void()	d1boss_pain4	=[	$pain4,		d1boss_run1	] {ai_nop();}
 
 
+void() d1boss_swingl1	=[      $swingl1,      d1boss_swingl2   ] {
+	sound (self, CHAN_VOICE, "shambler/melee2.wav", 1, ATTN_NORM);
+	ai_nop();
+}
+void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_nop();}
+void() d1boss_swingl3 =[      $swingl3,      d1boss_swingl4   ] {ai_nop();}
+void() d1boss_swingl4 =[      $swingl4,      d1boss_swingl5   ] {ai_nop();}
+void() d1boss_swingl5 =[      $swingl5,      d1boss_swingl6   ] {ai_face();}
+void() d1boss_swingl6 =[      $swingl6,      d1boss_swingl7   ] {ai_face();}
+void() d1boss_swingl7 =[      $swingl7,      d1boss_swingl8   ] {ai_face(); D1BossMissile();}
+void() d1boss_swingl8 =[      $swingl8,      d1boss_swingl9   ] {ai_nop();}
+void() d1boss_swingl9 =[      $swingl9,      d1boss_run1  ] {ai_nop();d1boss_swingr1();}
+
+void() d1boss_swingr1	=[      $swingr1,      d1boss_swingr2   ] {
+	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
+	ai_nop();
+}
+void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_nop();}
+void() d1boss_swingr3 =[      $swingr3,      d1boss_swingr4   ] {ai_nop();}
+void() d1boss_swingr4 =[      $swingr4,      d1boss_swingr5   ] {ai_nop();}
+void() d1boss_swingr5 =[      $swingr5,      d1boss_swingr6   ] {ai_face();}
+void() d1boss_swingr6 =[      $swingr6,      d1boss_swingr7   ] {ai_face();}
+void() d1boss_swingr7 =[      $swingr7,      d1boss_swingr8   ] {ai_face(); D1BossMissile();}
+void() d1boss_swingr8 =[      $swingr8,      d1boss_swingr9   ] {ai_nop();}
+void() d1boss_swingr9 =[      $swingr9,      d1boss_run1  ] {ai_nop();}
+
+
 void() d1boss_sleep_frame =
 {
 	self.frame = $stand1;
@@ -509,6 +550,17 @@ void(entity attacker, float damage) d1boss_Pain =
 	d1boss_pain1 ();
 }
 
+void() d1boss_chooseattack =
+{
+
+	if (random() > 0.5)
+		d1boss_fast1();
+	else
+		d1boss_swingl1();
+
+}
+
+
 
 void() monster_d1boss_spawn =
 {
@@ -526,11 +578,11 @@ void() monster_d1boss_spawn =
 	//self.customflags = self.customflags | CFL_CHECKDEATH;
 
 	self.state = 3;
-
+	
 	self.th_stand = d1boss_stand1;
 	self.th_walk = d1boss_walk1;
 	self.th_run = d1boss_run1;
-	self.th_missile = d1boss_fast1;
+	self.th_missile = d1boss_chooseattack;
 	self.th_melee = d1boss_melee1;
 	self.th_pain = d1boss_Pain;
 	self.th_die = d1boss_die;
