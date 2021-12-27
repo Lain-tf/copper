@@ -239,7 +239,7 @@ void() weapon_railgun =
 	setmodel (self, "progs/g_rail.mdl");
 	self.items2 = IT_RAILGUN;
 	self.weapon = W_RAILGUN;
-	self.ammo_cells = 16;
+	self.ammo_cells = 18;
 	self.netname = "Railgun Staff";
 	StartWeapon();
 }
