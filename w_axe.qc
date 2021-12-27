@@ -81,6 +81,7 @@ W_FireAxe
 void() W_FireAxe =
 {
 	vector	source, org;
+	local vector toss;
 	if (self.health <= 0)
 		return;
 	
@@ -117,10 +118,9 @@ void() W_FireAxe =
 				if (trace_ent.classname == "player" && (trace_ent.health < 1))
 				{
 					toss = v_forward;
-					local vector toss;
 					toss_z = 0;
-						toss = normalize(toss) * 800;
 					if (has_berserk(self))
+						toss = normalize(toss) * 800;
 					else if (has_quad(self))
 						toss = normalize(toss) * 400;
 					else	
@@ -155,7 +155,6 @@ void() W_FireAxe =
 					// don't swat bosses or other non-standard-sized enemies around
 					trace_ent.type != "boss")
 				{
-					local vector toss;
 					toss = v_forward;
 					toss_z = 0;
 					if (has_berserk(self))
