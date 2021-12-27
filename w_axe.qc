@@ -111,6 +111,31 @@ void() W_FireAxe =
 			else			
 				T_Damage (trace_ent, self, self, 24);
 			
+			
+			if (has_berserk(self))
+			{
+				if (trace_ent.classname == "player" && (trace_ent.health < 1))
+				{
+					toss = v_forward;
+					local vector toss;
+					toss_z = 0;
+						toss = normalize(toss) * 800;
+					if (has_berserk(self))
+					else if (has_quad(self))
+						toss = normalize(toss) * 400;
+					else	
+					// how would this even happen ^	
+						toss = normalize(toss) * 200;
+					toss_z = 100;
+					//bprint(vtos(toss));
+					//bprint("\n");
+					//toss *=  - vlen(head.maxs - head.mins)
+					trace_ent.origin_z = trace_ent.origin_z + 1;
+					trace_ent.velocity = toss;
+					trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
+				}
+			}
+			
 			if (trace_ent.flags & FL_MONSTER)
 			{
 				if (trace_ent.type == "zombie")
@@ -124,11 +149,11 @@ void() W_FireAxe =
 			
 			// beserk doubled the knockback with the axe but removed the quad knockback
 			// do knockback with berserk
-			if ((has_berserk(self)) || (has_berserk(self)))
+			if (has_berserk(self))
 			{
 				if ((trace_ent.movetype == MOVETYPE_STEP || trace_ent.movetype == MOVETYPE_WALK) && 
 					// don't swat bosses or other non-standard-sized enemies around
-					trace_ent.maxs_x <= 32 && trace_ent.health > 0 && trace_ent.type != "boss")
+					trace_ent.type != "boss")
 				{
 					local vector toss;
 					toss = v_forward;

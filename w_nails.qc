@@ -57,7 +57,6 @@ void() W_FireNailgun =
 	// default sv_maxvelocity is 2000, any higher leads to weird 
 	// angular offsets caused by clamping the velocity
 	launch_nail(org, dir * 1996);
-
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
 	} else {
