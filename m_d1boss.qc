@@ -217,7 +217,7 @@ void() D1BossMissile =
 	
 	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8, dir * D1BOSS_BALL_VEL, "voreball");
 
-	SUB_ChangeModel (missile, "progs/v_spike.mdl");
+	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
 
 	missile.avelocity = '300 300 300';
 	missile.nextthink = time + 0.2;
@@ -242,7 +242,7 @@ void() D1BossGrenade =
 	makevectors([70, random() * 360, 0]);
 		
 	missile = toss_projectile(self.origin + '0 0 80', v_forward * 400 + v_up * 100, "bossgrenade");
-	SUB_ChangeModel (missile, "progs/v_spike.mdl");
+	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
 
 	missile.avelocity = '300 300 300';
 	missile.nextthink = time + 0.2;
@@ -626,7 +626,7 @@ void() monster_d1boss =
 	}
 	precache_model ("progs/shambler.mdl");
 	precache_model ("progs/h_shams.mdl");
-	precache_model ("progs/v_spike.mdl");
+	precache_model ("progs/proj_d1boss.mdl");
 
 	precache_sound ("wizard/hit.wav");		// used by c code
 	precache_sound ("wizard/wattack.wav");
