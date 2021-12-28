@@ -38,8 +38,8 @@ $frame death1 death2 death3 death4 death5 death6
 $frame death7 death8 death9 death10 death11
 
 
-float D1BOSS_BALL_VEL = 600;
-float D1BOSS_HEALTH = 2000; 
+float D1BOSS_BALL_VEL = 500;
+float D1BOSS_HEALTH = 1500; 
 
 float() D1BossCheckAttack = {
 	//----------------------------------------------------------------------
