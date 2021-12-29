@@ -40,6 +40,7 @@ $frame death7 death8 death9 death10 death11
 
 float D1BOSS_BALL_VEL = 800;
 float D1BOSS_HEALTH = 1400; 
+.float	track_finished;
 
 float() D1BossCheckAttack = {
 	//----------------------------------------------------------------------
@@ -162,6 +163,11 @@ void() D1BossMissileHome =
 		D1BossMissileExplode();
 		return;
 	}		
+	if (self.track_finished < time)
+	{
+		return;
+	}
+	
 	if (!enemy_alive())
 	{
 		remove(self);
@@ -201,6 +207,7 @@ void() D1BossMissile =
 	entity 	missile;
 	vector	dir;
 
+
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	makevectors(self.angles);
 	
@@ -226,7 +233,8 @@ void() D1BossMissile =
 	missile.think = D1BossMissileHome;
 	missile.enemy = self.enemy;
 	missile.touch = D1BossMissileTouch;
-	missile.lifetime_finished = time + 1.5;	 // blow up after a while
+	missile.lifetime_finished = time + 5;	 // blow up after a while
+	missile.track_finished = time + 1.25;
 
 }
 
