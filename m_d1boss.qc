@@ -559,15 +559,12 @@ void(entity attacker, float damage) d1boss_Pain =
 
 void() d1boss_chooseattack =
 {
-
 	if (random() > 0.75)
 		d1boss_fast1();
-	else
-		if (random() > .5)
+	else if (random() > .5)
 		d1boss_swingl1();
-			else
-			d1boss_swinogl1();
-
+	else
+		d1boss_swinogl1();
 }
 
 
