@@ -268,6 +268,8 @@ entity( void() spawnthink ) mon_spawner_use =
 	mon.delay = self.delay;
 	mon.message = self.message;
 	mon.deathtype = self.deathtype;
+	mon.include = self.include;
+	mon.distance = self.distance;
 	SUB_CopyTargets(mon);
 	mon.targetname = self.netname;
 	
