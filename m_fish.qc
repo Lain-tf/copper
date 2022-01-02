@@ -65,7 +65,7 @@ void() f_walk17 =[	$swim17, f_walk18 ] {ai_walk(7);}
 void() f_walk18 =[	$swim18, f_walk1 ] {ai_walk(6);}
 
 void() f_run1 =[	$swim1, f_run2 ] {ai_run(12);
-	if (random() < 0.5)
+	if (random() < 0.1)
 		sound (self, CHAN_VOICE, "fish/idle.wav", 1, ATTN_NORM);
 }
 void() f_run2 =[	$swim3, f_run3 ] {ai_run(14);}
