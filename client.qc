@@ -5,7 +5,19 @@ CLIENT
 
 ==============================================================================
 */
-
+void() DrawSpeed =
+{
+		if (self.speedometer == 1)
+    {
+        local float hudspeed;
+        local vector metervel;
+        metervel = self.velocity;
+        metervel_z = 0;
+        hudspeed = vlen(metervel);
+        hudspeed = ceil(hudspeed);
+        centerprint (self, ftos(hudspeed));
+    }
+}
 
 void() SetChangeParms =
 {
@@ -1465,8 +1477,6 @@ void() CheckPowerups =
 		}
 	}	
 	
-	
-
 	if (self.wetsuit_finished) {
 		self.air_finished = time + 12;		// don't drown
 
@@ -1539,6 +1549,8 @@ void() PlayerPreThink =
 		}
 		self.changevcshift = 1; // be sure to restore powerup tint on save/load (vf)
 	}
+	
+	DrawSpeed();
 
 	if (intermission_running || self.deadflag == DEAD_SPECTATING )
 	{
@@ -1567,39 +1579,17 @@ void() PlayerPreThink =
 		CheckWaterJump ();
 
 
-	if (self.wetsuit_finished > time){
-		
-		if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3)
-	{
-		{
-		if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 1.1;
-			}
-		if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 1.3;
-			}
-		}
-	}
-}
-
-if (self.wetsuit_finished > time){
-		
-		if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3)
-	{
-		{
-		if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 1.1;
-			}
-		if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 1.3;
-			}
-		}
-	}
-}
+	if (self.wetsuit_finished > time)
+    {
+        if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+            pointcontents (self.origin + '0 0 31') == CONTENT_WATER)
+        {
+                if (self.waterlevel==2)
+                    self.velocity = self.velocity * 1.1;
+                if (self.waterlevel==3)
+                    self.velocity = self.velocity * 1.3;
+        }    
+    }
 
 //dprint(ftos(vlen(self.velocity)));
 //				dprint("\n");
@@ -1653,34 +1643,17 @@ void() PlayerPostThink =
 		
 	//JIM
 	//WETSUIT
-	if (self.wetsuit_finished > time){
-	if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3){
-		{
-		if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 0.9;
-			}
-		if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 0.769230;
-			}
-		}
-	
-}		
-
-if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3){
-		{
-		if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 0.9;
-			}
-		if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 0.769230;
-			}
-		}
-}		
-}	
+		if (self.wetsuit_finished > time)
+    {
+        if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+            pointcontents (self.origin + '0 0 31') == CONTENT_WATER)
+        {
+                if (self.waterlevel==2)
+                    self.velocity = self.velocity * 0.9;
+                if (self.waterlevel==3)
+                    self.velocity = self.velocity * 0.769230;
+        }    
+    }
 	//view tint for haste and berserk (vf)
 	if (self.changevcshift == 1)
 	{

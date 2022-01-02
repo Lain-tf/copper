@@ -180,6 +180,17 @@ void() Cheat_Berserk =
 }
 
 // --------------------------------
+// Speedometer
+// --------------------------------
+void() Cheat_Speed =
+{
+	if (self.speedometer == 1)
+		self.speedometer = 0;
+	else if (self.speedometer == 0)
+		self.speedometer = 1;
+}
+
+// --------------------------------
 // Cheat_Wetsuit
 // --------------------------------
 void() Cheat_Wetsuit =
@@ -308,7 +319,7 @@ void() ImpulseCommands =
 	// how about, execute order six?
 	// nah. makes it sound like there aren't that many orders
 	case 66:
-		
+	
 	case 205:
 		if(!deathmatch && !coop)
 			Cheat_Genocide();
@@ -336,8 +347,10 @@ void() ImpulseCommands =
 		break;
 	case 254:
 		Cheat_Berserk();	
-		break;		
-		
+		break;
+	case 236:
+		Cheat_Speed();		
+		break;
 	default:
 		return;
 	}
