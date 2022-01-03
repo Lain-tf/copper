@@ -167,6 +167,8 @@ Keys:
 	3 = Episode 1 - Egypt
 	4 = Episode 2 - Sunken
 	5 = Episode 2 - Crystal
+"track_intermission" custom intermission track
+"track_end" custom episode end track
 "gravity" how fast your dreams come crashing down
 
 "_sunlight" "#"
@@ -191,6 +193,8 @@ Keys:
 		4 : "Episode 2 - Sunken"
 		5 : "Episode 2 - Crystal"
 	]
+	track_intermission(integer) : "Custom intermission track" : 0
+	track_end(integer) : "Custom episode end track" : 0
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
 	gravity(integer) : "Gravity"

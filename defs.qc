@@ -271,6 +271,9 @@ float	isKex;	// running the quake rerelease
 .string		wad;
 .string 	map;
 .float		worldtype;	// 0=medieval 1=metal 2=base 3=egypt
+// custom tracks for intermission and episode end (vf)
+.float		track_intermission; 
+.float		track_end;
 
 .string		killtarget;
 .string		target2;

@@ -19,6 +19,9 @@ void() GotoNextMap =
 
 void() ExitIntermission =
 {
+	// custom intermission track number (vf)
+	local float intertrack, endtrack;
+	
 	// skip any text in deathmatch
 	if (deathmatch)
 	{
@@ -30,6 +33,16 @@ void() ExitIntermission =
 	
 	intermission_exittime = time + 1;
 	intermission_running = intermission_running + 1;
+	
+	// custom tracks for intermission and episode end (vf)
+	intertrack = 3; 
+	endtrack = 2;
+
+	if (world.track_intermission)	
+		intertrack = world.track_intermission;
+	
+	if (world.track_end)
+		endtrack = world.track_end;
 
 	// end of episode drivel
 	if (intermission_running == 2)
@@ -51,9 +64,12 @@ void() ExitIntermission =
 			}
 		}
 		
+		//WriteByte (MSG_ALL, SVC_CDTRACK); (vf)
+		//WriteByte (MSG_ALL, 2);
+		//WriteByte (MSG_ALL, 3);
 		WriteByte (MSG_ALL, SVC_CDTRACK);
-		WriteByte (MSG_ALL, 2);
-		WriteByte (MSG_ALL, 3);
+		WriteByte (MSG_ALL, endtrack);
+		WriteByte (MSG_ALL, intertrack);
 		
 		if (inter_text != string_null)
 		{
@@ -356,6 +372,13 @@ void() move_players_to_intermission =
 
 void() execute_changelevel =
 {
+// custom intermission track number (vf)
+	local float intertrack;
+	
+	intertrack = 3;
+	if (world.track_intermission)
+		intertrack = world.track_intermission;
+		
 	intermission_running = 1;
 	
 // enforce a wait time before allowing changelevel
@@ -365,8 +388,8 @@ void() execute_changelevel =
 		intermission_exittime = time + 2;
 
 	WriteByte (MSG_ALL, SVC_CDTRACK);
-	WriteByte (MSG_ALL, 3);
-	WriteByte (MSG_ALL, 3);
+	WriteByte (MSG_ALL, intertrack);
+	WriteByte (MSG_ALL, intertrack);
 
 	move_players_to_intermission();
 
