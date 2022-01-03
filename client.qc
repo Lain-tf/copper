@@ -1577,19 +1577,16 @@ void() PlayerPreThink =
 	WaterMove();
 	if (self.waterlevel == WL_WAIST)
 		CheckWaterJump ();
-
-
+		
+// WETSUIT
+// We increase player's speed when they legs and torso is submerged into water [part 1](check post think for [part 2]) (vf)
 	if (self.wetsuit_finished > time)
-    {
-        if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
-            pointcontents (self.origin + '0 0 31') == CONTENT_WATER)
-        {
-                if (self.waterlevel==2)
-                    self.velocity = self.velocity * 1.1;
-                if (self.waterlevel==3)
-                    self.velocity = self.velocity * 1.3;
-        }    
-    }
+	{
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
+			self.velocity = self.velocity * 1.3;
+	}
+// WETSUIT END
 
 //dprint(ftos(vlen(self.velocity)));
 //				dprint("\n");
@@ -1642,18 +1639,16 @@ void() PlayerPostThink =
 		return;
 		
 	//JIM
-	//WETSUIT
-		if (self.wetsuit_finished > time)
-    {
-        if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
-            pointcontents (self.origin + '0 0 31') == CONTENT_WATER)
-        {
-                if (self.waterlevel==2)
-                    self.velocity = self.velocity * 0.9;
-                if (self.waterlevel==3)
-                    self.velocity = self.velocity * 0.769230;
-        }    
-    }
+// WETSUIT
+// We increase player's speed when they legs and torso is submerged into water [part 2](check pre think for [part 1]) (vf)
+	if (self.wetsuit_finished > time)
+	{
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
+				self.velocity = self.velocity * 0.769230;
+	}
+// WETSUIT END
+	
 	//view tint for haste and berserk (vf)
 	if (self.changevcshift == 1)
 	{
