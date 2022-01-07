@@ -669,6 +669,8 @@ void() PlayerDie =
 	self.modelindex = modelindex_player;	// don't use eyes
 
 	self.items = not(self.items, IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD);
+	self.items2 = not(self.items2, IT_BERSERK | IT_HASTE | IT_WETSUIT); // remove items2 too (vf)
+	self.changevcshift = 1; // eh, play safe i guess (vf)
 	self.effects = 0;
 
 	clientsAlive -= 1;
