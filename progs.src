@@ -83,6 +83,6 @@ m_boss_egypt.qc
 misc_textbook.qc
 m_kamikaze.qc
 m_brute.qc
-m_cguard.qc
+//m_cguard.qc
 m_excavator.qc
 m_d1boss.qc
