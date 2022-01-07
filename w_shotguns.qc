@@ -271,6 +271,7 @@ void() W_FireRail =
 {
 	local float timetoend;
 	local vector	vel, org, dir, vec, src, loopsrc,  destination, dir2, dir3;
+	local vector drawsrc;
 	local entity thedude;
 	local float traillen, segments;
 	entity prj;
@@ -309,8 +310,10 @@ void() W_FireRail =
 	org = self.origin + '0 0 16';
 
 	dir = aim(self, AUTOAIM_DIST);
-	src = self.origin + v_forward * 10;
-	src_z = self.absmin_z + self.size_z * 0.7;
+	src = self.origin + v_forward * 4;
+	drawsrc = src;
+	src_z = self.absmin_z + self.size_z * 0.84; // ~eye level
+	drawsrc_z = self.absmin_z + self.size_z * 0.6; // ~ gun level
 	destination = src + (dir * 8192);
 	
 	loopsrc = src;
@@ -364,7 +367,9 @@ void() W_FireRail =
 					}
 				}
 									
-				loopsrc = trace_endpos;
+				//loopsrc = trace_endpos; 
+				// Trace from inside of the hitted monster (vf)
+				loopsrc = trace_endpos + (dir * 4);
 			}
 			else
 			{
@@ -381,14 +386,14 @@ void() W_FireRail =
 	}
 	
 	//--- ALKALINE RAIL CODE
-
-	traceline2(src, destination, self, TRACE_NOMONSTERS);
-	traillen = vlen(trace_endpos - src);
+	// now using drawsrc instead of src now, so we trace damage from eye position and trail from gun position
+	traceline2(drawsrc, destination, self, TRACE_NOMONSTERS);
+	traillen = vlen(trace_endpos - drawsrc);
 	segments = floor(traillen / 64);
 	
 	while (segments)
 	{
-		vec = normalize(trace_endpos - src);
+		vec = normalize(trace_endpos - drawsrc);
 		prj = spawn ();
 		prj.owner = self;
 		prj.movetype = MOVETYPE_NONE;
@@ -399,11 +404,11 @@ void() W_FireRail =
 		setmodel (prj, "progs/rail.mdl");
 		setsize (prj, VEC_ORIGIN, VEC_ORIGIN);		
 		//setorigin (prj, self.origin + '0 0 16');
-		setorigin (prj, src + vec * 64 * segments);
+		setorigin (prj, drawsrc + vec * 64 * segments);
 		prj.velocity = '0 0 0';	
 		prj.frame = 4;	
 		prj.think = rail_fade;
-		prj.nextthink = time + 0.5;
+		prj.nextthink = time + 0.2 + (segments*0.05); // delay fade time using segment number for neat effect (vf)
 		segments = segments - 1;
 		prj.cnt = 5;	
 	}	

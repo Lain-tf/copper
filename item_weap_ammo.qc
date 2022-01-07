@@ -7,7 +7,7 @@ WEAPONS
 */
 
 float	ITEM_AMMO_BIG = 1;
-
+float	ITEM_AMMO_HUGE = 2; // cock
 
 void(entity e) bound_ammo =
 {
@@ -563,11 +563,12 @@ void() item_rockets =
 	StartAmmo();
 }
 
-/*QUAKED item_cells (0 .5 .5) (0 0 0) (32 32 32) BIG ? SUSPENDED
+/*QUAKED item_cells (0 .5 .5) (0 0 0) (32 32 32) BIG HUGE SUSPENDED
 6 ammo points (cells) for the  Thunderbolt (Lightning).
 
 Flags:
 "big" gives 12 instead of 6
+"huge" gives 24
     
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -579,16 +580,24 @@ Keys:
 @PointClass base(Ammo) 
     model(
         {{
+			spawnflags & 2 ->   ":maps/b_batt1.bsp",
             spawnflags & 1 ->   ":maps/b_batt1.bsp",
                                 ":maps/b_batt0.bsp"
         }}
     ) =
-    item_cells : "Thunderbolt Ammo, 6/12 cells" []
+    item_cells : "Thunderbolt Ammo, 6/12/24 cells" []
 */
+// TODO: VoidForce: please make new bsp model for editor use, than replace spawnflags & 2 case with proper name
 void() item_cells =
 {
 	if (!SUB_ShouldSpawn()) return;
-	if (self.spawnflags & ITEM_AMMO_BIG)
+	if (self.spawnflags & ITEM_AMMO_HUGE) // new huge box for episode 2 (vf)
+	{
+		self.ammo_cells = 24;
+		precache_model ("progs/m_cells3.mdl");
+		setmodel (self, "progs/m_cells3.mdl");
+	}
+	else if (self.spawnflags & ITEM_AMMO_BIG)
 	{
 		self.ammo_cells = 12;
 		precache_model ("progs/m_cells2.mdl");
