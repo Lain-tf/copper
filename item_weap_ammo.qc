@@ -172,6 +172,31 @@ void() weapon_shotgun =
 }
 
 
+/*QUAKED weapon_rifle (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+Rifle.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass base(Weapon) model({ "path": ":progs/g_rifle.mdl" }) = weapon_rifle : "Rifle" []
+*/
+void() weapon_rifle =
+{
+	if (!SUB_ShouldSpawn()) return;
+	precache_model ("progs/g_rifle.mdl");
+	setmodel (self, "progs/g_rifle.mdl");
+	self.items2 = IT_RIFLE;
+	self.weapon = W_RIFLE;
+	self.ammo_shells = 5;
+	self.netname = "Rifle";
+	StartWeapon();
+}
+
+
 /*QUAKED weapon_supershotgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
 SuperShotgun.
 

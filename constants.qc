@@ -155,6 +155,7 @@ float IT_WETSUIT = 2;
 float IT_QUAD_SHOTGUN = 4;
 float IT_RAILGUN = 8;
 float IT_BERSERK = 16;
+float IT_RIFLE = 32;
 
 // Weapons (combination of weapon slot + upgrade)
 // These are deliberately the same values as the corresponding IT_ flags,
@@ -168,6 +169,7 @@ float	W_ROCKET_LAUNCHER	= 32;
 float	W_LIGHTNING			= 64;
 float   W_QUAD_SHOTGUN      = 128;
 float   W_RAILGUN  			= 256;
+float	W_RIFLE				= 512;
 float	W_AXE				= 4096;
 
 
