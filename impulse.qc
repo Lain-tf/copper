@@ -211,14 +211,35 @@ void() ImpulseCommands =
 	{
 	case 0:
 		return;
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
+	case 1: 	// axe bucket
+	case 2: 	// rifle - sg
+	case 3: 	// qsg - ssg
+	case 4: 	// ng bucket
+	case 5: 	// sng bucket
+	case 6: 	// gl bucket
+	case 7: 	// rl bucket
+	case 8: 	// rail - lg
+	//case 21:	//axe
+	case 22:	//sg
+	case 23:	//ssg
+	//case 24:	//ng
+	//case 25:	//sng
+	//case 26:	//gl
+	//case 27:	//rl
+	case 28:	//lg
+	//case 29:	//reserved
+	//case 30:	//reserved
+	//case 31:	//reserved for slot 1
+	case 32:	//rifle
+	case 33:	//qsg
+	//case 34:	//reserved for slot 4
+	//case 35:	//reserved for slot 5
+	//case 36:	//reserved for slot 6
+	//case 37:	//reserved for slot 7
+	case 38:	// railgun
+	//case 39:	//reserved
+	//case 40:	//reserved 
+	//41-50 reserved for the third weapon in a slot if we want them later
 		if (!W_CanSwitchWeapon()) {
 			// Return here so we don't clear the impulse, and the weapon will switch as soon
 			// as possible to the last weapon that was selected.
@@ -233,7 +254,9 @@ void() ImpulseCommands =
 	case 12:
 		CycleWeaponReverseCommand();
 		break;
-		
+	/*
+	Impulses from 20 to 50 are reserved for individual weapon selection, for now (vf)
+	*/	
 /*
 	// ai_nav
 	case 80:

@@ -495,6 +495,60 @@ void() W_ChangeWeapon =
 			no_ammo = TRUE;
 		}
 	}
+	else if (self.impulse == 22)
+	{
+		// individual impulse, do not modify
+		fl = IT_SHOTGUN;
+		weap = W_SHOTGUN;
+		it = self.items;
+		if (self.ammo_shells < 1)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 32)
+	{
+		// individual impulse, do not modify
+		fl = IT_RIFLE;
+		weap = W_RIFLE;
+		it = self.items2;
+		if (self.ammo_shells < 1)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 23)
+	{
+		// individual impulse, do not modify
+		fl = IT_SUPER_SHOTGUN;
+		weap = W_SUPER_SHOTGUN;
+		it = self.items;
+		if (self.ammo_shells < 2)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 33)
+	{
+		// individual impulse, do not modify
+		fl = IT_QUAD_SHOTGUN;
+		weap = W_QUAD_SHOTGUN;
+		it = self.items2;
+		if (self.ammo_shells < 4)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 28)
+	{
+		// individual impulse, do not modify
+		fl = IT_LIGHTNING;
+		weap = W_LIGHTNING;
+		it = self.items;
+		if (self.ammo_cells < 1)
+		no_ammo = TRUE;
+	}
+	else if (self.impulse == 38)
+	{
+		// individual impulse, do not modify
+		fl = IT_RAILGUN;
+		weap = W_RAILGUN;
+		it = self.items2;
+		if (self.ammo_cells < 6)
+		no_ammo = TRUE;
+	}
 
 	self.impulse = 0;
 
