@@ -423,3 +423,33 @@ void() W_FireRail =
 	self.rail_nextshot = time + 1.4 * haste_factor;
 	self.attack_finished = time + 1;
 };
+
+/*
+================
+W_FireRifle
+================
+*/
+void() W_FireRifle =
+{
+	local vector dir;
+	float haste_factor;
+	
+	sound (self, CHAN_WEAPON, "weapons/rifle.wav", 1, ATTN_NORM);	
+
+	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	
+	makevectors(self.v_angle);
+	dir = aim (self, AUTOAIM_DIST);
+
+	ClearMultiDamage ();
+	//FireBullets (1, dir, '0.001 0.001 0'); // no control over damage, anyway it's just a wrapper
+	FireBulletsEx(1, dir, '0.001 0.001 0', 80);
+	ApplyMultiDamage ();
+	
+	self.punchangle_x = -4;
+	if (has_haste(self)) 
+		haste_factor = HASTE_FACTOR;
+	else haste_factor = 1;
+	self.rifle_nextshot = time + 1.6 * haste_factor;
+	self.attack_finished = time + 0.5;
+};

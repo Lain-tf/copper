@@ -629,7 +629,7 @@ void() misc_textbook =
 	self.think = info_book_setup;
 };
 
-/*======================================================================
+//======================================================================
 /*QUAKED misc_textstory (0 0.5 1.0) (-16 -16 -8) (16 16 8) x
 Text Book Story Chapters
 -------- KEYS --------
@@ -642,7 +642,7 @@ message4   : Body Text 3 (displayed after message3)
 -------- SPAWNFLAGS --------
 -------- NOTES --------
 Text Book Story Chapters
-
+*/
 /*QUAKED misc_textstoryctrl (0 0.1 1.0) (-16 -16 -8) (16 16 8) x
 Text Book Story Controller
 -------- KEYS --------
@@ -651,8 +651,8 @@ target : name of first chapter
 -------- SPAWNFLAGS --------
 -------- NOTES --------
 Text Book Story Controller
-
-======================================================================*/
+*/
+//======================================================================
 void() info_bookcont_setup = 
 {
 	local entity storychap, prevchap;

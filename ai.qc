@@ -576,7 +576,7 @@ void() SightSound =
 			sound (self, CHAN_VOICE, "brute/sight2.wav", 1, ATTN_NORM);
 		}
 	}
-	else if (self.classname == "monster_cguard")
+	/*else if (self.classname == "monster_cguard")
 	{
 		rsnd = random();
 		if (rsnd < 0.25)
@@ -587,7 +587,7 @@ void() SightSound =
 			sound (self, CHAN_VOICE, "cguard/sight3.wav", 1, ATTN_NORM);
 		else
 			sound (self, CHAN_VOICE, "cguard/sight4.wav", 1, ATTN_NORM);
-	}
+	}*/
 	else if (self.classname == "monster_excavator")
 	{
 		rsnd = random();
