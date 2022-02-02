@@ -46,7 +46,7 @@ void() Cheat_Items =
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
-	self.items2 = self.items2 | IT_QUAD_SHOTGUN | IT_RAILGUN | IT_RIFLE;
+	self.items2 = self.items2 | IT_QUAD_SHOTGUN | IT_RAILGUN; // IT_RIFLE excluded
 
 	self.weapon = W_ROCKET_LAUNCHER;
 
@@ -54,6 +54,18 @@ void() Cheat_Items =
 	W_ResetWeaponState();
 }
 
+void() Cheat_Rifle =
+{
+	if(deathmatch || coop)
+		return;
+
+	self.ammo_shells = MAX_AMMO_SHELLS;
+	self.items2 = self.items2 | IT_RIFLE ;
+	self.weapon = W_RIFLE;
+
+	stuffcmd(self,"bf\n");
+	W_ResetWeaponState();
+}
 // --------------------------------
 // Cheat_Genocide
 // --------------------------------
@@ -247,6 +259,9 @@ void() ImpulseCommands =
 		}
 
 		W_ChangeWeapon();
+		break;
+	case 52:
+		Cheat_Rifle();
 		break;
 	case 10:
 		CycleWeaponCommand();
