@@ -340,7 +340,7 @@ void() monster_excavator_spawn =
 		
 	self.solid = SOLID_SLIDEBOX;
 
-	setmodel(self, "progs/mon_excavator.mdl");
+	setmodel(self, "progs/e2/mon_excavator.mdl");
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 500;
@@ -378,7 +378,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-32 -32 -24) (32 32 40) model({ "path": ":progs/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
+@PointClass base(Monster) size(-32 -32 -24) (32 32 40) model({ "path": ":progs/e2/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
 */
 void() monster_excavator =
 {
@@ -390,7 +390,7 @@ void() monster_excavator =
 		return;
 	}
     
-	precache_model("progs/mon_excavator.mdl");
+	precache_model("progs/e2/mon_excavator.mdl");
 	
 	precache_sound ("exca/ex_alert1.wav");
 	precache_sound ("exca/ex_alert2.wav");

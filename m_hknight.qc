@@ -396,7 +396,7 @@ void() monster_hell_knight_spawn =
 	self.solid = SOLID_SLIDEBOX;
 	//self.movetype = MOVETYPE_STEP;
 
-	setmodel (self, "progs/hknight.mdl");
+	setmodel (self, "progs/mon_hknight.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	
@@ -437,7 +437,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/hknight.mdl" }) = monster_hell_knight : "Death knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_hknight.mdl" }) = monster_hell_knight : "Death knight" []
 */
 void() monster_hell_knight =
 {
@@ -448,7 +448,7 @@ void() monster_hell_knight =
 		remove(self);
 		return;
 	}
-	precache_model2 ("progs/hknight.mdl");
+	precache_model2 ("progs/mon_hknight.mdl");
 	precache_model2 ("progs/k_spike.mdl");
 	precache_model2 ("progs/h_hellkn.mdl");
 

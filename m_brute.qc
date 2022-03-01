@@ -561,7 +561,7 @@ void() brute_die =
 		if (self.health < -150)
 	{
 		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-		ThrowHead ("progs/h_brute.mdl", self.health);
+		ThrowHead ("progs/e2/h_brute.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
 		ThrowGib ("progs/gib2.mdl", self.health);
 		ThrowGib ("progs/gib1.mdl", self.health);
@@ -601,7 +601,7 @@ void() monster_brute_spawn =
 	
 	self.solid = SOLID_SLIDEBOX;
 
-	setmodel (self, "progs/cbrute.mdl");
+	setmodel (self, "progs/e2/mon_brute.mdl");
 
 	self.health = 700;
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);	
@@ -640,7 +640,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/cbrute.mdl" }) = monster_brute : "Crystalline Brute" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/e2/mon_brute.mdl" }) = monster_brute : "Crystalline Brute" []
 */
 void() monster_brute =
 {
@@ -652,9 +652,9 @@ void() monster_brute =
 		return;
 	}
 
-	precache_model ("progs/cbrute.mdl");
-	precache_model ("progs/h_brute.mdl");
-	precache_model ("progs/grenade.mdl");
+	precache_model ("progs/e2/mon_brute.mdl");
+	precache_model ("progs/e2/h_brute.mdl");
+	precache_model ("progs/proj_grenade.mdl");
 
 	precache_sound ("brute/death1.wav");
 	precache_sound ("brute/death2.wav");

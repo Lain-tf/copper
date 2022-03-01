@@ -552,7 +552,7 @@ void() monster_zombie_spawn =
 	self.solid = SOLID_SLIDEBOX;
 	//self.movetype = MOVETYPE_STEP;
 
-	setmodel (self, "progs/zombie.mdl");
+	setmodel (self, "progs/mon_zombie.mdl");
 	
 	self.customflags |= CFL_EPSKINS;
 
@@ -612,7 +612,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/zombie.mdl" }) = monster_zombie : "Zombie" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/mon_zombie.mdl" }) = monster_zombie : "Zombie" 
 [
 	spawnflags(Flags) = 
 	[
@@ -632,7 +632,7 @@ void() monster_zombie =
 		return;
 	}
 	
-	precache_model ("progs/zombie.mdl");
+	precache_model ("progs/mon_zombie.mdl");
 	precache_model ("progs/h_zombie.mdl");
 	precache_model ("progs/zom_gib.mdl");
 

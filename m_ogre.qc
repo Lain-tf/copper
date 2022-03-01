@@ -536,7 +536,7 @@ void() monster_ogre =
 
 	precache_model ("progs/ogre.mdl");
 	precache_model ("progs/h_ogre.mdl");
-	precache_model ("progs/grenade.mdl");
+	precache_model ("progs/proj_grenade.mdl");
 
 	precache_sound ("ogre/ogdrag.wav");
 	precache_sound ("ogre/ogdth.wav");

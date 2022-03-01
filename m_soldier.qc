@@ -300,7 +300,7 @@ void() monster_army_spawn =
 	
 	self.customflags |= CFL_EPSKINS;
 
-	setmodel (self, "progs/soldier.mdl");
+	setmodel (self, "progs/mon_grunt.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 35;
@@ -338,7 +338,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_grunt.mdl" }) = monster_army : "Grunt" []
 */
 void() monster_army =
 {	
@@ -349,7 +349,7 @@ void() monster_army =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/soldier.mdl");
+	precache_model ("progs/mon_grunt.mdl");
 	precache_model ("progs/h_guard.mdl");
 	precache_model ("progs/gib1.mdl");
 	precache_model ("progs/gib2.mdl");

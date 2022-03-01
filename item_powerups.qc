@@ -342,7 +342,7 @@ HASTE
 // TODO(JP): Set actual media
 void() precache_haste =
 {
-	precache_model ("progs/haste.mdl");
+	precache_model ("progs/e2/item_haste.mdl");
 	precache_sound_safe ("items/haste1.wav");
 	precache_sound_safe ("items/haste2.wav");
 	//precache_sound_safe ("items/haste3.wav");
@@ -358,7 +358,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/haste.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/e2/item_haste.mdl" }) =
 	item_artifact_haste : "Haste" []
 */
 void() item_artifact_haste =
@@ -367,7 +367,7 @@ void() item_artifact_haste =
 	self.touch = powerup_touch;
 
 	precache_haste();
-	setmodel (self, "progs/haste.mdl");
+	setmodel (self, "progs/e2/item_haste.mdl");
 	self.netname = "Haste";
 	self.noise = "items/haste1.wav";
 	self.items2 = IT_HASTE;
@@ -389,7 +389,7 @@ BERSKER
 // TODO(JP): Set actual media
 void() precache_berserk =
 {
-	precache_model ("progs/berserk.mdl");
+	precache_model ("progs/item_berserk.mdl");
 	precache_sound_safe ("items/axe_powerup.wav");
 	precache_sound_safe ("items/axe_powerup2.wav");
 	precache_sound_safe ("items/axe_powerup3.wav");	
@@ -405,7 +405,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/berserk.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_berserk.mdl" }) =
 	item_artifact_berserk : "Berserk" []
 */
 void() item_artifact_berserk =
@@ -414,7 +414,7 @@ void() item_artifact_berserk =
 	self.touch = powerup_touch;
 
 	precache_berserk();
-	setmodel (self, "progs/berserk.mdl");
+	setmodel (self, "progs/item_berserk.mdl");
 	self.netname = "Berserk";
 	self.noise = "items/axe_powerup.wav";
 	self.items2 = IT_BERSERK;
@@ -436,7 +436,7 @@ WETSUIT
 */
 void() precache_wetsuit =
 {
-	precache_model ("progs/artifact_wetsuit.mdl");
+	precache_model ("progs/item_wetsuit.mdl");
 	precache_sound_safe ("items/wetsuit.wav");
 	precache_sound_safe ("items/wetsuit2.wav");
 	precache_sound_safe ("items/wetsuit3.wav");
@@ -454,7 +454,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/artifact_wetsuit.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_wetsuit.mdl" }) =
 	item_artifact_wetsuit : "Wetsuit" []
 */
 void() item_artifact_wetsuit =
@@ -463,7 +463,7 @@ void() item_artifact_wetsuit =
 	self.touch = powerup_touch;
 
 	precache_wetsuit();
-	setmodel (self, "progs/artifact_wetsuit.mdl");
+	setmodel (self, "progs/item_wetsuit.mdl");
 	self.netname = "Wetsuit";
 	self.noise = "items/wetsuit.wav";
 	self.items2 = IT_WETSUIT;

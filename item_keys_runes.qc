@@ -266,22 +266,22 @@ void() item_key1 =
 	}
 	else if (world.worldtype == 3)
 	{
-		precache_model ("progs/scarab_key.mdl");
-		setmodel (self, "progs/scarab_key.mdl");
+		precache_model ("progs/e1/key_scarab.mdl");
+		setmodel (self, "progs/e1/key_scarab.mdl");
 		self.netname = "silver scarab key";
 		self.skin = 0;
 	}
 	else if (world.worldtype == 4)
 	{
-		precache_model ("progs/key_hexen.mdl");
-		setmodel (self, "progs/key_hexen.mdl");
+		precache_model ("progs/e2/key_hexen.mdl");
+		setmodel (self, "progs/e2/key_hexen.mdl");
 		self.netname = "silver key";
 		self.skin = 0;
 	}
 	else if (world.worldtype == 5)
 	{
-		precache_model ("progs/key_crystal.mdl");
-		setmodel (self, "progs/key_crystal.mdl");
+		precache_model ("progs/e2/key_crystal.mdl");
+		setmodel (self, "progs/e2/key_crystal.mdl");
 		self.netname = "silver crystal key";
 		self.skin = 0;
 	}
@@ -333,22 +333,22 @@ void() item_key2 =
 	}
 	else if (world.worldtype == 3)
 	{
-		precache_model ("progs/scarab_key.mdl");
-		setmodel (self, "progs/scarab_key.mdl");
+		precache_model ("progs/e1/key_scarab.mdl");
+		setmodel (self, "progs/e1/key_scarab.mdl");
 		self.netname = "gold scarab key";
 		self.skin = 1;
 	}
 	else if (world.worldtype == 4)
 	{
-		precache_model ("progs/key_hexen.mdl");
-		setmodel (self, "progs/key_hexen.mdl");
+		precache_model ("progs/e2/key_hexen.mdl");
+		setmodel (self, "progs/e2/key_hexen.mdl");
 		self.netname = "gold key";
 		self.skin = 1;	
 	}
 	else if (world.worldtype == 5)
 	{
-		precache_model ("progs/key_crystal.mdl");
-		setmodel (self, "progs/key_crystal.mdl");
+		precache_model ("progs/e2/key_crystal.mdl");
+		setmodel (self, "progs/e2/key_crystal.mdl");
 		self.netname = "gold crystal key";
 		self.skin = 1;
 	}	
@@ -403,7 +403,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/end1.mdl" }) = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/e1/item_ankh.mdl" }) = 
 	item_sigil : "End of episode rune"
 [
 	spawnflags(Flags) =
@@ -452,8 +452,8 @@ void() item_sigil =
 	}
 	else if (self.spawnflags & 1)
 	{
-		precache_model_safe ("progs/end1.mdl");
-		setmodel (self, "progs/end1.mdl");
+		precache_model_safe ("progs/e1/item_ankh.mdl");
+		setmodel (self, "progs/e1/item_ankh.mdl");
 		msg = "You got the\n Ankh of Life!";
 		self.svflags = 1;
 	}

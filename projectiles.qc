@@ -523,7 +523,7 @@ entity(vector org, vector vel) launch_grenade =
 	grenade = toss_projectile(org, vel, "grenade");
 	grenade.lifetime_finished = time + 2.5;
 	grenade.avelocity = '300 300 300';
-	SUB_ChangeModel (grenade, "progs/grenade.mdl");
+	SUB_ChangeModel (grenade, "progs/proj_grenade.mdl");
 	
 	return grenade;
 }

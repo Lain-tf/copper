@@ -261,7 +261,7 @@ void() monster_knight_spawn =
 	
 	self.customflags |= CFL_EPSKINS;
 
-	setmodel (self, "progs/knight.mdl");
+	setmodel (self, "progs/mon_knight.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 72;
@@ -301,7 +301,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/knight.mdl" }) = monster_knight : "Knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_knight.mdl" }) = monster_knight : "Knight" []
 */
 void() monster_knight =
 {
@@ -312,7 +312,7 @@ void() monster_knight =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/knight.mdl");
+	precache_model ("progs/mon_knight.mdl");
 	precache_model ("progs/h_knight.mdl");
 
 	// FIXME debug shit remove this

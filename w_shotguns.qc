@@ -401,7 +401,7 @@ void() W_FireRail =
 		prj.angles = vectoangles(dir);
 		prj.touch = SUB_Null;
 		prj.classname = "railtrail";
-		setmodel (prj, "progs/rail.mdl");
+		setmodel (prj, "progs/e2/proj_rail.mdl");
 		setsize (prj, VEC_ORIGIN, VEC_ORIGIN);		
 		//setorigin (prj, self.origin + '0 0 16');
 		setorigin (prj, drawsrc + vec * 64 * segments);
