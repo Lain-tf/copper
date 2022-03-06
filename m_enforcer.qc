@@ -57,7 +57,7 @@ float() enforcer_clear_attack =
 
 	traceline2(spot1, spot2, self, TRACE_WATER);
 
-	if (trace_inopen && trace_inwater) return FALSE;	// sight line crossed contents
+	//if (trace_inopen && trace_inwater) return FALSE;	// sight line crossed contents
 	if (trace_ent != self.enemy) return FALSE;			// don't have a clear shot
 	return TRUE;
 }
