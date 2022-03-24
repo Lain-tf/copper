@@ -7,7 +7,7 @@ Ep. 1 Boss
 */
 
 
-$cd id1/models/shams
+$cd id1/models/mon_d1boss
 $origin 0 0 24
 $base base		
 $skin base
@@ -15,30 +15,18 @@ $skin base
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9
 $frame stand10 stand11 stand12 stand13 stand14 stand15 stand16 stand17
 
-$frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 
-$frame walk8 walk9 walk10 walk11 walk12
-
-$frame run1 run2 run3 run4 run5 run6
-
-$frame smash1 smash2 smash3 smash4 smash5 smash6 smash7 
-$frame smash8 smash9 smash10 smash11 smash12
-
 $frame swingr1 swingr2 swingr3 swingr4 swingr5 
 $frame swingr6 swingr7 swingr8 swingr9
 
 $frame swingl1 swingl2 swingl3 swingl4 swingl5 
 $frame swingl6 swingl7 swingl8 swingl9
 
-$frame magic1 magic2 magic3 magic4 magic5 
-$frame magic6 magic7 magic8 magic9 magic10 magic11 magic12
-
-$frame pain1 pain2 pain3 pain4 pain5 pain6
-
-$frame death1 death2 death3 death4 death5 death6 
-$frame death7 death8 death9 death10 death11
+$frame smash1 smash2 smash3 smash4 smash5 
+$frame smash6 smash7 smash8 smash9
 
 
-float D1BOSS_BALL_VEL = 800;
+
+float D1BOSS_BALL_VEL = 750;
 float D1BOSS_HEALTH = 1400; 
 .float	track_finished;
 
@@ -366,6 +354,7 @@ void()	d1boss_fast4	=[	$smash4,		d1boss_fast5	] {ai_run_slide(6);D1BossMissile()
 void()	d1boss_fast5	=[	$smash5,		d1boss_fast6	] {ai_run_slide(32);D1BossMissile();}
 void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(64);D1BossMissile();}
 void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(32);D1BossMissile();}
+
 void()	d1boss_fast8	=[	$smash8,		d1boss_run1	] {ai_attack_finished(2);}
 
 void()	d1boss_melee1	=[	$smash1,		d1boss_melee2	] {sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
@@ -565,7 +554,7 @@ void() monster_d1boss_spawn =
 	self.solid = SOLID_SLIDEBOX;
 	//self.movetype = MOVETYPE_STEP;
 
-	setmodel (self, "progs/shambler.mdl");
+	setmodel (self, "progs/mon_d1boss.mdl");
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
@@ -622,7 +611,7 @@ void() monster_d1boss =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/shambler.mdl");
+	precache_model ("progs/mon_d1boss.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
 
