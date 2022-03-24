@@ -556,7 +556,7 @@ void() monster_d1boss_spawn =
 
 	setmodel (self, "progs/mon_d1boss.mdl");
 
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize (self, '-32 -32 -96', '32 32 96');
 
 	self.health = D1BOSS_HEALTH;
 	self.distance = self.height = 192;
@@ -637,7 +637,7 @@ void() monster_d1boss =
 
 	self.health = D1BOSS_HEALTH;
 	//setsize (self, '-16 -16 -24', '16 16 40');
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize (self, '-32 -32 -96', '32 32 96');
 	if ( monster_spawnsetup( monster_d1boss_spawner ) ) return;
 	
 	addmonster(1);
