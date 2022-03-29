@@ -398,7 +398,8 @@ void() W_FireRail =
 		prj.owner = self;
 		prj.movetype = MOVETYPE_NONE;
 		prj.solid = SOLID_NOT;
-		prj.angles = vectoangles(dir);
+		prj.angles = self.v_angle;
+		prj.angles_x = prj.angles_x * (-1);
 		prj.touch = SUB_Null;
 		prj.classname = "railtrail";
 		setmodel (prj, "progs/e2/proj_rail.mdl");
