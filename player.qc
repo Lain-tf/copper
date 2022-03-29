@@ -112,8 +112,19 @@ void()	player_run =[	$rockrun1,	player_run	]
 	self.walkframe = self.walkframe + 1;
 }
 
-void()	player_shot1 =	[$shotatt1, player_shot2	] {self.weaponframe=1;
-self.effects = self.effects | EF_MUZZLEFLASH;}
+void() muzzleflash =
+{
+	WriteByte (MSG_MULTICAST, SVC_MUZZLEFLASH);
+	WriteEntity (MSG_MULTICAST, self);
+	multicast (self.origin, MULTICAST_PVS);
+};
+
+
+void()	player_shot1 =	[$shotatt1, player_shot2	]
+{
+	self.weaponframe=1;
+	muzzleflash();
+}
 void()	player_shot2 =	[$shotatt2, player_shot3	] {self.weaponframe=2;}
 void()	player_shot3 =	[$shotatt3, player_shot4	] {self.weaponframe=3;}
 void()	player_shot4 =	[$shotatt4, player_shot5	] {self.weaponframe=4;}
@@ -153,7 +164,7 @@ void() player_quad_shotgun_frame = {
 		// We're in the initial firing phase
 		if (mod(self.weaponframe, 8) == 1) {
 			self.frame = $shotatt1;
-			self.effects = self.effects | EF_MUZZLEFLASH;
+			muzzleflash();
 			W_FireQuadShotgun();
 		} else {
 			self.frame += 1;
@@ -264,13 +275,13 @@ void()	player_axe =
 
 void() player_nail =
 {
-	if (!self.button0)
+	if (!self.button0 || intermission_running || self.impulse)
 	{
 		player_run();
 		return;
 	}
 		
-	self.effects |= EF_MUZZLEFLASH;
+	muzzleflash();
 	
 	if (self.frame != $nailatt1)
 		self.frame = $nailatt1;
@@ -340,7 +351,7 @@ void() player_super_nail =
 
 	self.cnt = 0; //using this to keep track of if we're spinning down or not;
 
-	if (!self.button0)
+	if (!self.button0 || intermission_running || self.impulse)
 	{	
 		player_run();
 		self.cnt = 1;
@@ -361,7 +372,7 @@ void() player_super_nail =
 			self.punchangle_x = -2;
 
 		//copied from player_nail
-		self.effects |= EF_MUZZLEFLASH;
+		muzzleflash();
 
 		if (self.frame != $nailatt1)
 			self.frame = $nailatt1;
@@ -380,9 +391,9 @@ void() player_super_nail =
 
 void() player_light1   =[$light1, player_light2  ] 
 {
-	self.effects = self.effects | EF_MUZZLEFLASH;
+	muzzleflash();
 
-	if (!self.button0)
+	if (!self.button0 || intermission_running)
 	{
 		player_run();
 		return;
@@ -397,9 +408,9 @@ void() player_light1   =[$light1, player_light2  ]
 }
 void() player_light2   =[$light2, player_light1  ]
 {
-	self.effects = self.effects | EF_MUZZLEFLASH;
+	muzzleflash();
 
-	if (!self.button0)
+	if (!self.button0 || intermission_running)
 	{
 		player_run();
 		return;
@@ -438,7 +449,7 @@ void() player_rail1
 	
 	if ((self.weaponframe == 1) || (self.weaponframe == 16) || (self.weaponframe == 30))
 	{	
-		self.effects = self.effects | EF_MUZZLEFLASH;
+		muzzleflash();
 	}
 
 }
@@ -447,8 +458,11 @@ void() player_rail1
 //============================================================================
 
 
-void() player_rocket1   =[$rockatt1, player_rocket2  ] {self.weaponframe=1;
-self.effects = self.effects | EF_MUZZLEFLASH;}
+void() player_rocket1   =[$rockatt1, player_rocket2  ]
+{
+	self.weaponframe=1;
+	muzzleflash();
+}
 void() player_rocket2   =[$rockatt2, player_rocket3  ] {self.weaponframe=2;}
 void() player_rocket3   =[$rockatt3, player_rocket4  ] {self.weaponframe=3;}
 void() player_rocket4   =[$rockatt4, player_rocket5  ] {self.weaponframe=4;}
@@ -595,7 +609,7 @@ local float		rs;
 	{
 		if (self.watertype == CONTENT_WATER || self.watertype == CONTENT_SLIME)
 		{
-			DeathBubbles(20);
+			DeathBubbles(5);
 			sound (self, CHAN_VOICE, "player/h2odeath.wav", 1, ATTN_NONE);
 			return;
 		}
@@ -617,6 +631,7 @@ local float		rs;
 	return;
 }
 
+// TODO: QW - VelocityForDamage is gone. Figure out if it's needed.
 
 void() PlayerDead =
 {
@@ -657,8 +672,38 @@ void() GibPlayer =
 
 void() PlayerDie =
 {
-	local	float	i;
+	float	i;
+	string	s;
 	
+	if ((stof(infokey(world,"dq"))) != 0)
+	{
+		if (self.super_damage_finished > 0)
+		{
+			DropQuad (self.super_damage_finished - time);
+			bprint (PRINT_LOW, self.netname);
+			if (deathmatch == 4)
+				bprint (PRINT_LOW, " lost an OctaPower with ");
+			else
+				bprint (PRINT_LOW, " lost a quad with ");
+			s = ftos(rint(self.super_damage_finished - time));
+			bprint (PRINT_LOW, s);
+			bprint (PRINT_LOW, " seconds remaining\n");
+		}
+	}
+
+	if ((stof(infokey(world,"dr"))) != 0)
+	{
+		if (self.invisible_finished > 0)
+		{
+			bprint (PRINT_LOW, self.netname);
+			bprint (PRINT_LOW, " lost a ring with ");
+			s = ftos(rint(self.invisible_finished - time));
+			bprint (PRINT_LOW, s);
+			bprint (PRINT_LOW, " seconds remaining\n");
+			DropRing (self.invisible_finished - time);
+		}
+	}
+
 	self.items = self.items - (self.items & IT_INVISIBILITY);
 	self.invisible_finished = 0;	// don't die as eyes
 	self.invincible_finished = 0;
@@ -673,7 +718,7 @@ void() PlayerDie =
 
 	clientsAlive -= 1;
 
-	ClientObituary();	// moved from Killed() so it doesn't get called when non-players die
+	//ClientObituary();	// moved from Killed() so it doesn't get called when non-players die
 	set_respawn_delay();	// coop 1 respawn lockout
 	
 	if ((deathmatch || coop) && mapname != "start")

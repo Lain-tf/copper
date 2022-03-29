@@ -323,6 +323,12 @@ void() worldspawn =
 	precache_sound ("misc/water1.wav");			// swimming
 	precache_sound ("misc/water2.wav");			// swimming
 
+// Invulnerability sounds
+	precache_sound ("items/protect.wav");
+	precache_sound ("items/protect2.wav");
+	precache_sound ("items/protect3.wav");
+
+
 	precache_model ("progs/player.mdl");
 	precache_model ("progs/eyes.mdl");
 	precache_model ("progs/h_player.mdl");
@@ -354,7 +360,11 @@ void() worldspawn =
 
 void() StartFrame =
 {
+	timelimit = cvar("timelimit") * 60;
+	fraglimit = cvar("fraglimit");
 	teamplay = cvar("teamplay");
+	deathmatch = cvar("deathmatch");
+	
 	skill = cvar("skill");
 	
 	if (cleanUpClientShit)

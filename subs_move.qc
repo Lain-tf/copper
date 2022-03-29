@@ -96,11 +96,9 @@ local float		len, traveltime;
 // divide by speed to get time to reach dest
 	traveltime = len / tspeed;
 
-	if (traveltime < 0.1)
+	if (traveltime < 0.03)
 	{
-		self.velocity = '0 0 0';
-		self.nextthink = self.ltime + 0.1;
-		return;
+		traveltime = 0.03;
 	}
 	
 // set nextthink to trigger a think when dest is reached

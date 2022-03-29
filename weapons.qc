@@ -198,6 +198,48 @@ float(float w) W_RankForWeapon =
 	return 9;
 }
 
+
+//TODO: QW - New best weapon code? Check what it does...
+//	Also if it's needed add Dwell weapons
+float (float w) WeaponCode =
+{
+	if (w == IT_SUPER_SHOTGUN)
+		return 3;
+	if (w == IT_NAILGUN)
+		return 4;
+	if (w == IT_SUPER_NAILGUN)
+		return 5;
+	if (w == IT_GRENADE_LAUNCHER)
+		return 6;
+	if (w == IT_ROCKET_LAUNCHER)
+		return 7;
+	if (w == IT_LIGHTNING)
+		return 8;
+	return 1;
+};
+
+//TODO: QW - Idk if this is needed anymore.
+/*
+=============
+Deathmatch_Weapon
+
+Deathmatch weapon change rules for picking up a weapon
+
+.float          ammo_shells, ammo_nails, ammo_rockets, ammo_cells;
+=============
+*/
+void(float old, float new) Deathmatch_Weapon =
+{
+	local float or, nr;
+
+// change self.weapon if desired
+	or = W_RankForWeapon (self.weapon);
+	nr = W_RankForWeapon (new);
+	if ( nr < or )
+		self.weapon = new;
+};
+
+
 /*
 =============
 W_BetterWeapon
@@ -477,13 +519,13 @@ void() W_ChangeWeapon =
 
 	if (!(it & fl)) {
 		// Don't have the weapon
-		sprint (self, "no weapon.\n");
+		sprint (self, PRINT_LOW, "no weapon.\n");
 		return;
 	}
 		
 	if (no_ammo)
 	{	// don't have the ammo
-		sprint (self, "not enough ammo.\n");
+		sprint (self, PRINT_LOW, "not enough ammo.\n");
 		return;
 	}
 

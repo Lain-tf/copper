@@ -238,7 +238,7 @@ void() trap_lightning_fire =
 		if (trace_ent.takedamage)
 		{
 			T_Damage(trace_ent, self, self, 10);
-			particle (trace_endpos + nudge, nudge * -8, 225, 40);
+			//particle (trace_endpos + nudge, nudge * -8, 225, 40);
 			sound (trace_ent, CHAN_BODY, "weapons/lhit.wav", 1, ATTN_NORM);
 		}
 	}
@@ -273,7 +273,7 @@ void() trap_lightning_fire =
 					if (self.strength == 2)
 					{
 						T_Damage(trace_ent, self, self, 30);
-						particle (org, nudge * -8, 225, 120);
+						//particle (org, nudge * -8, 225, 120);
 					}
 					else
 					{

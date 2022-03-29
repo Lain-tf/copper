@@ -18,16 +18,16 @@ void(float amt, string noun, entity to) print_quant =
 	
 	if (amt == 1)
 	{
-		sprint (to, "1 ");
-		sprint (to, noun);
+		sprint (to, PRINT_LOW, "1 ");
+		sprint (to, PRINT_LOW, noun);
 		return;
 	}
 	
 	s = ftos(amt);
-	sprint (to, s);
-	sprint (to, " ");
-	sprint (to, noun);
-	sprint (to, "s");
+	sprint (to, PRINT_LOW, s);
+	sprint (to, PRINT_LOW, " ");
+	sprint (to, PRINT_LOW, noun);
+	sprint (to, PRINT_LOW, "s");
 }
 
 /*
@@ -37,8 +37,23 @@ BackpackTouch
 */
 void() BackpackTouch =
 {
-	if (!CheckValidTouch()) return;
+	float   acount;
+	float   b_switch;
+	float   old, new;
 
+
+	if (!CheckValidTouch()) return;
+	
+	if (deathmatch == 4)
+		if (other.invincible_time > 0)
+			return;
+
+	if ((stof(infokey(other,"b_switch"))) == 0)
+		b_switch = 8;
+	else
+		b_switch = stof(infokey(other,"b_switch"));
+
+	
 	// coop 1: players can only pick up their own backpacks
 	if (coop == 1 && self.buddy && self.buddy != other) return;
 
@@ -51,56 +66,104 @@ void() BackpackTouch =
 	bound_ammo(other);
 	armor_give(other, self.armorvalue, 0, FALSE);	
 	
-	sprint (other, "You got ");
+	sprint (other, PRINT_LOW, "You get ");
+	
+	if (deathmatch == 4)
+	{       
+		other.health = other.health + 10;
+		sprint (other, PRINT_LOW, "10 additional health\n");
+		if ((other.health > 250) && (other.health < 300))
+			sound (other, CHAN_ITEM, "items/protect3.wav", 1, ATTN_NORM);
+		else
+			sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
+		stuffcmd (other, "bf\n");
+		remove(self);
+
+		if (other.health >299)
+		{               
+			if (other.invincible_time != 1)
+			{                       
+				other.invincible_time = 1;
+				other.invincible_finished = time + 30;
+				other.items = other.items | IT_INVULNERABILITY;
+				
+				other.super_time = 1;
+				other.super_damage_finished = time + 30;
+				other.items = other.items | IT_QUAD;
+
+				other.ammo_cells = 0;		
+		
+	
+				sound (other, CHAN_VOICE, "boss1/sight1.wav", 1, ATTN_NORM);
+				stuffcmd (other, "bf\n");               
+				bprint (PRINT_HIGH, other.netname);
+				bprint (PRINT_HIGH, " attains bonus powers!!!\n");
+			}
+		}
+		self = other;
+		return;
+	}
 
 	if (self.items && (other.items & self.items) == 0)
 	{
 		entity oself;
 		acount = TRUE;
 		other.items |= self.items;
-		sprint (other, "the ");
-		sprint (other, self.netname);
-	
+		sprint (other, PRINT_LOW, "the ");
+		sprint (other, PRINT_LOW, self.netname);
+
 		oself = self;
 		self = other;
 		// change to the weapon
 		W_BetterWeapon(oself.items);
 		self = oself;
 	}
-
+	
+//	TODO: QW - I have no clue where to put it...
+//	Is it needed?
+/*
+	new = self.items;
+	if (!new)
+		new = other.weapon;
+	old = other.items;
+*/
+	
 	if (self.armorvalue)
 	{
-		if (acount) sprint(other, ", ");
+		if (acount) sprint(other, PRINT_LOW, ", ");
 		acount = 1;
-		sprint(other, ftos(self.armorvalue));
-		sprint(other, " armor");
+		sprint(other, PRINT_LOW, ftos(self.armorvalue));
+		sprint(other, PRINT_LOW, " armor");
 	}
 	if (self.ammo_shells)
 	{
-		if (acount) sprint(other, ", ");
+		if (acount) sprint(other, PRINT_LOW, ", ");
 		acount = 2;
 		print_quant(self.ammo_shells, "shell", other);
 	}
 	if (self.ammo_nails)
 	{
-		if (acount) sprint(other, ", ");
+		if (acount) sprint(other, PRINT_LOW, ", ");
 		acount = 2;
 		print_quant(self.ammo_nails, "nail", other);
 	}
 	if (self.ammo_rockets)
 	{
-		if (acount) sprint(other, ", ");
+		if (acount) sprint(other, PRINT_LOW, ", ");
 		acount = 2;
 		print_quant(self.ammo_rockets, "rocket", other);
 	}
 	if (self.ammo_cells)
 	{
-		if (acount) sprint(other, ", ");
+		if (acount) sprint(other, PRINT_LOW, ", ");
 		acount = 2;
 		print_quant(self.ammo_cells, "cell", other);
 	}
 	
-	sprint (other, "\n");
+	if ( (deathmatch==3 || deathmatch == 5) & ( (WeaponCode(new)==6) || (WeaponCode(new)==7) ) & (other.ammo_rockets < 5) )
+		other.ammo_rockets = 5;
+
+	sprint (other, PRINT_LOW, "\n");
 	
 	// do this after because t_heal prints its own message
 	if (self.healamount)
@@ -140,9 +203,9 @@ void() BackpackAutoTouch =
 	if (!CheckValidTouch()) return;
 
 	if (self.spawnflags & 1)
-		sprint (other, "You found a big backpack!\n");
+		sprint (other, PRINT_HIGH, "You found a big backpack!\n");
 	else
-		sprint (other, "You found a backpack\n");
+		sprint (other, PRINT_HIGH, "You found a backpack\n");
 		
 	if (other.ammo_shells + self.ammo_shells > MAX_AMMO_SHELLS)
 	{

@@ -9,10 +9,16 @@ HEALTH BOXES
 float	ITEM_HEALTH_ROTTEN = 1;
 float	ITEM_HEALTH_MEGA = 2;
 
-
+//	TODO: QW - here megahealth should rot, but code in copper changed a lot. Figure out what to do...
+//	See health_touch and item_megahealth_rot in QW code
 void() health_touch =
 {
 	if (!CheckValidTouch()) return;
+		
+	if (deathmatch == 4)
+		if (other.invincible_time > 0)
+			return;
+	
 	
 	if (!T_Heal(other, self.healamount, (self.spawnflags & ITEM_HEALTH_MEGA)))
 		return;
@@ -26,9 +32,9 @@ void() health_touch =
 		{
 			if (T_Heal(pl, 100, FALSE))
 			{
-				sprint(pl, "You were restored by ");
-				sprint(pl, other.netname);
-				sprint(pl, "'s Megahealth\n");
+				sprint(pl, PRINT_HIGH, "You were restored by ");
+				sprint(pl, PRINT_HIGH, other.netname);
+				sprint(pl, PRINT_HIGH, "'s Megahealth\n");
 				sound(pl, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 			}
 			pl = get_next_client(pl);
@@ -236,11 +242,15 @@ void() armor_touch =
 {
 	if (!CheckValidTouch()) return;
 	
+	if (deathmatch == 4)
+		if (other.invincible_time > 0)
+			return;
+
 	if (!armor_give(other, self.armorvalue, self.armortype, TRUE))
 		return;
 
 	sound(other, CHAN_ITEM, "items/armor1.wav", 1, ATTN_NORM);
-	sprint(other, "You got armor\n");
+	sprint(other, PRINT_LOW, "You got armor\n");
 
 	stuffcmd (other, "bf\n");
 	ItemTouched();

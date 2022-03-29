@@ -221,6 +221,8 @@ float	CHAN_ITEM		= 3;
 float	CHAN_BODY		= 4;
 float	CHAN_ITEM2		= 5;
 float	CHAN_OTHER		= 6;
+float   CHAN_NO_PHS_ADD = 8;    // ie: CHAN_BODY+CHAN_NO_PHS_ADD
+
 
 float	ATTN_NONE		= 0;
 float	ATTN_NORM		= 1;
@@ -232,6 +234,12 @@ float	EF_BRIGHTFIELD	= 1;
 float	EF_MUZZLEFLASH 	= 2;
 float	EF_BRIGHTLIGHT 	= 4;
 float	EF_DIMLIGHT 	= 8;
+float   EF_FLAG1                = 16;
+float   EF_FLAG2                = 32;
+// GLQuakeWorld Stuff
+float 	EF_BLUE		=	64;	// Blue Globe effect for Quad
+float	EF_RED		=	128;	// Red Globe effect for Pentagram
+
 
 // attack states
 float	AS_STRAIGHT		= 1;
@@ -252,7 +260,9 @@ float	SVC_INTERMISSION	= 30;
 float	SVC_FINALE			= 31;
 float	SVC_CDTRACK			= 32;
 float	SVC_SELLSCREEN		= 33;
-float	SVC_CUTSCENE		= 34;
+float   SVC_SMALLKICK       = 34;
+float   SVC_BIGKICK         = 35;
+float   SVC_MUZZLEFLASH     = 39;
 float	SVC_FOG				= 41;	// in fitzquake, byte byte byte byte short for density r g b lerptime
 
 // svc updatestat byte types
@@ -285,8 +295,9 @@ float	TE_KNIGHTSPIKE	= 8;
 float	TE_LIGHTNING3	= 9;
 float	TE_LAVASPLASH	= 10;
 float	TE_TELEPORT		= 11;
-float	TE_EXPLOSION2	= 12;
-float	TE_BEAM			= 13;
+float   TE_BLOOD        = 12;
+float   TE_LIGHTNINGBLOOD = 13;
+
 
 // update types
 float	UPDATE_GENERAL	= 0;
@@ -299,6 +310,22 @@ float	MSG_BROADCAST	= 0;		// unreliable to all
 float	MSG_ONE			= 1;		// reliable to one (msg_entity)
 float	MSG_ALL			= 2;		// reliable to all
 float	MSG_INIT		= 3;		// write to the init string
+float   MSG_MULTICAST   = 4;            // for multicast() call
+
+// message levels
+float   PRINT_LOW       = 0;            // pickup messages
+float   PRINT_MEDIUM    = 1;            // death messages
+float   PRINT_HIGH      = 2;            // critical messages
+float   PRINT_CHAT      = 3;            // also goes to chat console
+
+// multicast sets
+float   MULTICAST_ALL   = 0;            // every client
+float   MULTICAST_PHS   = 1;            // within hearing
+float   MULTICAST_PVS   = 2;            // within sight
+float   MULTICAST_ALL_R = 3;            // every client, reliable
+float   MULTICAST_PHS_R = 4;            // within hearing, reliable
+float   MULTICAST_PVS_R = 5;            // within sight, reliable
+
 
 // misc
 float	A_SHITLOAD		= 9999999;

@@ -195,7 +195,7 @@ void() projectile_toss_think =
 	{
 		self.think = self.th_die;
 		self.nextthink = self.lifetime_finished;
-	//	bprint3("at rest, exploding in ", ftos(self.nextthink), " seconds\n");
+		//bprint3("at rest, exploding in ", ftos(self.nextthink), " seconds\n");
 		self.th_die = SUB_Null;
 		self.lifetime_finished = 0;
 		self.solid = SOLID_NOT;

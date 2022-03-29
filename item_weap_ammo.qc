@@ -45,9 +45,9 @@ void(entity to) weapon_give =
 		
 	bound_ammo(to);
 
-	sprint (to, "You got the ");
-	sprint (to, self.netname);
-	sprint (to, "\n");
+	sprint (to, PRINT_LOW, "You got the ");
+	sprint (to, PRINT_LOW, self.netname);
+	sprint (to, PRINT_LOW, "\n");
 
 	sound (to, CHAN_ITEM, "weapons/pkup.wav", 1, ATTN_NORM);
 	stuffcmd (to, "bf\n");
@@ -62,10 +62,19 @@ void() weapon_touch =
 {
 	float	leave, nsw;
 	float weap_items, player_items;
+	
+	// For client weapon_switch
+	float   w_switch;
 
 	if (!CheckValidTouch()) return;
+	
+	//if ((stof(infokey(other,"w_switch"))) == 0)
+	//	w_switch = 8;
+	//else
+	//	w_switch = stof(infokey(other,"w_switch"));
 
-	if (deathmatch == 2 || coop > 1)
+	
+	if (deathmatch == 2 || deathmatch == 3 || deathmatch == 5)
 		leave = 1;
 	else
 		leave = 0;
@@ -406,9 +415,9 @@ void() ammo_touch =
 
 	bound_ammo(other);
 	
-	sprint (other, "You got the ");
-	sprint (other, self.netname);
-	sprint (other, "\n");
+	sprint (other, PRINT_LOW, "You got the ");
+	sprint (other, PRINT_LOW, self.netname);
+	sprint (other, PRINT_LOW, "\n");
 
 	sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");

@@ -13,7 +13,7 @@ powerup_envirosuit
 */
 void(entity h, float t) powerup_envirosuit =
 {
-	sprint (h, "It's stuffy in this thing ...\n");
+	sprint (h, PRINT_LOW, "It's stuffy in this thing ...\n");
 	h.items |= IT_SUIT;
 	h.rad_time = 1;
 	h.radsuit_finished = time + t;
@@ -26,7 +26,7 @@ powerup_invulnerability
 */
 void(entity h, float t) powerup_invulnerability =
 {
-	sprint (h, "An unholy ward surrounds you ...\n");
+	sprint (h, PRINT_LOW, "An unholy ward surrounds you ...\n");
 	h.items |= IT_INVULNERABILITY;
 	h.invincible_time = 1;
 	h.invincible_finished = time + t;
@@ -39,7 +39,7 @@ powerup_invisibility
 */
 void(entity h, float t) powerup_invisibility =
 {
-	sprint (h, "Others' eyes deceive them, but yours give you away ...\n");
+	sprint (h, PRINT_LOW, "Others' eyes deceive them, but yours give you away ...\n");
 	h.items |= IT_INVISIBILITY;
 	//h.notrace = 1;
 	h.invisible_time = 1;
@@ -53,7 +53,15 @@ powerup_super_damage
 */
 void(entity h, float t) powerup_super_damage =
 {
-	sprint (h, "You begin to channel unstoppable power ...\n");
+	sprint (h, PRINT_LOW, "You begin to channel unstoppable power ...\n");
+	
+	if (deathmatch == 4)
+	{
+		h.armortype = 0;
+		h.armorvalue = 0 * 0.01;
+		h.ammo_cells = 0;
+	}
+	
 	h.items |= IT_QUAD;
 	h.super_damage_finished = time + t;
 	h.super_time = 1;
@@ -66,7 +74,7 @@ powerup_haste
 */
 void(entity h, float t) powerup_haste =
 {
-	sprint(h, "You begin to channel unbelievable speed ...\n");
+	sprint(h, PRINT_LOW, "You begin to channel unbelievable speed ...\n");
 	h.items2 |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
@@ -85,7 +93,7 @@ void(entity h, float t) powerup_berserk =
 	if (h.classname != "player")
 		return;
 		
-	sprint(h, "You begin frothing with a berserkers rage ...\n");
+	sprint(h, PRINT_LOW, "You begin frothing with a berserkers rage ...\n");
 	h.items2 |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
@@ -109,7 +117,7 @@ powerup_wetsuit
 */
 void(entity h, float t) powerup_wetsuit =
 {
-	sprint(h, "Don't pee in your wetsuit ...\n");
+	sprint(h, PRINT_LOW, "Don't pee in your wetsuit ...\n");
 	h.items2 |= IT_WETSUIT;
 	h.wetsuit_finished = time + t;
 	h.wetsuit_time = 1;
@@ -192,6 +200,7 @@ void() item_artifact_invulnerability =
 	self.noise = "items/protect.wav";
 	setmodel (self, "progs/invul.mdl");
 	self.netname = "Pentagram of Protection";
+	self.effects = self.effects | EF_RED;
 	self.items = IT_INVULNERABILITY;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
@@ -323,9 +332,13 @@ void() item_artifact_super_damage =
 
 	precache_super_damage();
 	setmodel (self, "progs/quaddama.mdl");
-	self.netname = "Quad Damage";
+	if (deathmatch == 4)
+		self.netname = "OctaPower";	
+	else
+		self.netname = "Quad Damage";
 	self.noise = "items/damage.wav";
 	self.items = IT_QUAD;
+	self.effects = self.effects | EF_BLUE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;

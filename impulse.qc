@@ -96,11 +96,11 @@ void() Cheat_Undying =
 		return;
 	if(self.customflags & CFL_UNDYING)
 	{
-		sprint(self, "Undying mode disabled\n");
+		sprint(self,PRINT_LOW, "Undying mode disabled\n");
 		self.customflags = not(self.customflags, CFL_UNDYING);
 		return;
 	}
-	sprint(self, "Undying mode enabled\n");
+	sprint(self, PRINT_MEDIUM, "Undying mode enabled\n");
 	self.customflags |= CFL_UNDYING;
 }
 

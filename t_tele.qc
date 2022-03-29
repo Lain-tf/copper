@@ -366,6 +366,8 @@ void(entity spot, entity pusher) spawn_tpush =
 // --------------------------------
 void() tdeath_touch =
 {
+	entity other2;
+	
 	if (other == self.owner)
 		return;
 
@@ -380,6 +382,19 @@ void() tdeath_touch =
 // frag anyone who teleports in on top of an invincible player
 	if (other.classname == "player")
 	{
+		if (other.invincible_finished > time &&
+			self.owner.invincible_finished > time) 
+		{
+			self.classname = "teledeath3";
+			other.invincible_finished = 0;
+			self.owner.invincible_finished = 0;
+			T_Damage (other, self, self, 50000);
+			other2 = self.owner;
+			self.owner = other;
+			T_Damage (other2, self, self, 50000);
+		}
+
+		
 		if (has_invuln(other))
 			self.classname = "teledeath2";
 		if (self.owner.classname != "player")

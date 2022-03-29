@@ -190,7 +190,7 @@ void() spike_touch =
 		if (self.classname == "laser")
 		{
 			sound (self, CHAN_WEAPON, "enforcer/enfstop.wav", 1, ATTN_STATIC);
-			particle (self.origin, self.velocity*-0.01, 235, 15);
+			//particle (self.origin, self.velocity*-0.01, 235, 15);
 		}
 	}
 	// nonsense for combining quad SNG spike damage

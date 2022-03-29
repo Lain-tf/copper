@@ -125,6 +125,13 @@ float() SUB_ShouldSpawn =
 		remove(self);
 		return FALSE;
 	}
+	
+	if (deathmatch > 3)
+	{
+		remove(self);
+		return FALSE;
+	}
+	
 	return TRUE;
 }
 

@@ -128,8 +128,8 @@ void(vector a, vector b, float color) fx_trail =
 	maxd = floor(vlen(b-a));
 	dir = normalize(b-a);
 	
-	for (i=0; i<maxd; i+=8)
-		particle(a + dir * i, dir, color, 2);
+	for (i=0; i<maxd; i+=8){}
+		//particle(a + dir * i, dir, color, 2);
 }
 
 void(vector c, float r, float color) fx_ring =
@@ -249,7 +249,7 @@ void(float num) particlefield_sweep =
 		}
 
 		// add self.origin and go
-		particle (porg + self.origin, particlefield_dir(porg), self.health, self.speed2);
+		//particle (porg + self.origin, particlefield_dir(porg), self.health, self.speed2);
 	}
 }
 
@@ -264,7 +264,7 @@ void(float num) particlefield_burst =
 		org = Vector(crandom(), crandom(), crandom());
 		org2 = vec_scale(org, self.mangle);
 		
-		particle (org2 + self.origin, particlefield_dir(org), self.health, self.speed2);
+		//particle (org2 + self.origin, particlefield_dir(org), self.health, self.speed2);
 	}
 }
 

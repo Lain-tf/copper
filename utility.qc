@@ -1,12 +1,12 @@
 
-void(string s, string ss) bprint2 = 
-	{ bprint(s); bprint(ss); }
-void(string s, string ss, string sss) bprint3 = 
-	{ bprint(s); bprint(ss); bprint(sss); }
-void(string s, string ss, string sss, string ssss) bprint4 = 
-	{ bprint(s); bprint(ss); bprint(sss); bprint(ssss); }
-void(string s, string ss, string sss, string ssss, string sssss) bprint5 = 
-	{ bprint(s); bprint(ss); bprint(sss); bprint(ssss); bprint(sssss); }
+//void(float msglev, string s, string ss) bprint2 = 
+//	{ bprint(msglev, s); bprint(msglev, ss); }
+//void(float msglev, string s, string ss, string sss) bprint3 = 
+//	{ bprint(msglev, s); bprint(msglev, ss); bprint(msglev, sss); }
+//void(float msglev, string s, string ss, string sss, string ssss) bprint4 = 
+//	{ bprint(msglev, s); bprint(msglev, ss); bprint(msglev, sss); bprint(msglev, ssss); }
+//void(float msglev, string s, string ss, string sss, string ssss, string sssss) bprint5 = 
+//	{ bprint(msglev, s); bprint(msglev, ss); bprint(msglev, sss); bprint(msglev, ssss); bprint(msglev, sssss); }
 
 void(string s, string ss) dprint2 = 
 	{ dprint(s); dprint(ss); }
@@ -70,7 +70,7 @@ void(string s, entity excl) centerprintothers =
 
 // sprint_to_others
 // for mirroring private centerprinted text to other clients
-void(string s, entity excl) sprint_to_others =
+void(float msglev, string s, entity excl) sprint_to_others =
 {
 	if (!coop) return;
 
@@ -78,7 +78,7 @@ void(string s, entity excl) sprint_to_others =
 	while (pl.flags & FL_CLIENT)
 	{
 		if (pl != excl)
-			sprint(pl, s);
+			sprint(pl, PRINT_HIGH, s);
 		pl = nextent(pl);
 	}
 }
@@ -92,8 +92,8 @@ void(string s, string ss, entity excl) sprint2_to_others =
 	{
 		if (pl != excl)
 		{
-			sprint(pl, s);
-			sprint(pl, ss);
+			sprint(pl, PRINT_HIGH, s);
+			sprint(pl, PRINT_HIGH, ss);
 		}
 		pl = nextent(pl);
 	}
@@ -108,9 +108,9 @@ void(string s, string ss, string sss, entity excl) sprint3_to_others =
 	{
 		if (pl != excl)
 		{
-			sprint(pl, s);
-			sprint(pl, ss);
-			sprint(pl, sss);
+			sprint(pl, PRINT_HIGH, s);
+			sprint(pl, PRINT_HIGH, ss);
+			sprint(pl, PRINT_HIGH, sss);
 		}
 		pl = nextent(pl);
 	}
@@ -125,10 +125,10 @@ void(string s, string ss, string sss, string ssss, entity excl) sprint4_to_other
 	{
 		if (pl != excl)
 		{
-			sprint(pl, s);
-			sprint(pl, ss);
-			sprint(pl, sss);
-			sprint(pl, ssss);
+			sprint(pl, PRINT_HIGH, s);
+			sprint(pl, PRINT_HIGH, ss);
+			sprint(pl, PRINT_HIGH, sss);
+			sprint(pl, PRINT_HIGH, ssss);
 		}
 		pl = nextent(pl);
 	}
@@ -143,11 +143,11 @@ void(string s, string ss, string sss, string ssss, string sssss, entity excl) sp
 	{
 		if (pl != excl)
 		{
-			sprint(pl, s);
-			sprint(pl, ss);
-			sprint(pl, sss);
-			sprint(pl, ssss);
-			sprint(pl, sssss);
+			sprint(pl, PRINT_HIGH, s);
+			sprint(pl, PRINT_HIGH, ss);
+			sprint(pl, PRINT_HIGH, sss);
+			sprint(pl, PRINT_HIGH, ssss);
+			sprint(pl, PRINT_HIGH, sssss);
 		}
 		pl = nextent(pl);
 	}
@@ -164,25 +164,25 @@ float(float in) bprint_int =
 	
 	switch(digit) {
 	case 9:
-		bprint("9"); break;
+		bprint(PRINT_HIGH,"9"); break;
 	case 8:
-		bprint("8"); break;
+		bprint(PRINT_HIGH,"8"); break;
 	case 7:
-		bprint("7"); break;
+		bprint(PRINT_HIGH,"7"); break;
 	case 6:
-		bprint("6"); break;
+		bprint(PRINT_HIGH,"6"); break;
 	case 5:
-		bprint("5"); break;
+		bprint(PRINT_HIGH,"5"); break;
 	case 4:
-		bprint("4"); break;
+		bprint(PRINT_HIGH,"4"); break;
 	case 3:
-		bprint("3"); break;
+		bprint(PRINT_HIGH,"3"); break;
 	case 2:
-		bprint("2"); break;
+		bprint(PRINT_HIGH,"2"); break;
 	case 1:
-		bprint("1"); break;
+		bprint(PRINT_HIGH,"1"); break;
 	case 0:
-		bprint("0"); break;
+		bprint(PRINT_HIGH,"0"); break;
 	}
 	
 	return in * 10;

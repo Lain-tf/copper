@@ -29,7 +29,7 @@ float(entity cl) key_give_silver =
 {
 	if (!(cl.items & IT_KEY1))
 	{
-		sprint (cl, "You got the Silver Key\n");
+		sprint (cl, PRINT_LOW, "You got the Silver Key\n");
 
 		cl.items |= IT_KEY1;
 		cl.worldtype += 1;
@@ -40,9 +40,9 @@ float(entity cl) key_give_silver =
 		return FALSE;	// we're full
 		
 	cl.worldtype += 1;
-	sprint (cl, "You have ");
-	sprint (cl, ftos(cl.worldtype & 15));
-	sprint (cl, " Silver Keys\n");
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos(cl.worldtype & 15));
+	sprint (cl, PRINT_LOW, " Silver Keys\n");
 	
 	return TRUE;
 }
@@ -62,12 +62,12 @@ float(entity cl) key_take_silver =
 	}
 	
 	float keys = (cl.worldtype & 15);
-	sprint (cl, "You have ");
-	sprint (cl, ftos(keys));
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos(keys));
 	if (keys > 1)
-		sprint (cl, " Silver Keys left\n");
+		sprint (cl, PRINT_LOW, " Silver Keys left\n");
 	else
-		sprint (cl, " Silver Key left\n");
+		sprint (cl, PRINT_LOW, " Silver Key left\n");
 	
 	return TRUE;
 }
@@ -88,12 +88,12 @@ float(entity cl, float num) key_take_silvers =
 	}
 	
 	float keys = (cl.worldtype & 15);
-	sprint (cl, "You have ");
-	sprint (cl, ftos(keys));
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos(keys));
 	if (keys > 1)
-		sprint (cl, " Silver Keys left\n");
+		sprint (cl, PRINT_LOW, " Silver Keys left\n");
 	else
-		sprint (cl, " Silver Key left\n");
+		sprint (cl, PRINT_LOW, " Silver Key left\n");
 	
 	return TRUE;
 }
@@ -102,7 +102,7 @@ float(entity cl) key_give_gold =
 {
 	if (!(cl.items & IT_KEY2))
 	{
-		sprint (cl, "You got the Gold Key\n");
+		sprint (cl, PRINT_LOW, "You got the Gold Key\n");
 
 		cl.items |= IT_KEY2;
 		cl.worldtype += 16;
@@ -113,9 +113,9 @@ float(entity cl) key_give_gold =
 		return FALSE;	// we're full
 	
 	cl.worldtype += 16;
-	sprint (cl, "You have ");
-	sprint (cl, ftos((cl.worldtype & 240)/16));
-	sprint (cl, " Gold Keys\n");
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos((cl.worldtype & 240)/16));
+	sprint (cl, PRINT_LOW, " Gold Keys\n");
 	
 	return TRUE;
 }
@@ -135,12 +135,12 @@ float(entity cl) key_take_gold =
 	}
 	
 	float keys = (cl.worldtype & 240)/16;
-	sprint (cl, "You have ");
-	sprint (cl, ftos(keys));
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos(keys));
 	if (keys > 1)
-		sprint (cl, " Gold Keys left\n");
+		sprint (cl, PRINT_LOW, " Gold Keys left\n");
 	else
-		sprint (cl, " Gold Key left\n");
+		sprint (cl, PRINT_LOW, " Gold Key left\n");
 	
 	return TRUE;
 }
@@ -160,12 +160,12 @@ float(entity cl, float num) key_take_golds =
 	}
 	
 	float keys = (cl.worldtype & 240)/16;
-	sprint (cl, "You have ");
-	sprint (cl, ftos(keys));
+	sprint (cl, PRINT_LOW, "You have ");
+	sprint (cl, PRINT_LOW, ftos(keys));
 	if (keys > 1)
-		sprint (cl, " Gold Keys left\n");
+		sprint (cl, PRINT_LOW, " Gold Keys left\n");
 	else
-		sprint (cl, " Gold Key left\n");
+		sprint (cl, PRINT_LOW, " Gold Key left\n");
 	
 	return TRUE;
 }

@@ -19,10 +19,10 @@ void() dev_test =
 	entity head = findalltargets(trace_ent);
 	while(head)
 	{
-		bprint4(head.classname, " @ ", vtos(head.origin), "\n");
+		//bprint4(head.classname, " @ ", vtos(head.origin), "\n");
 		head =  head.chain;
 	}
-	bprint("-----\n");
+	bprint(PRINT_HIGH, "-----\n");
 }
 
 void() dev_damageprinter =
@@ -45,39 +45,40 @@ void() dev_tracetest =
 	
 	traceline (org, org + v_forward * 2048, FALSE, self);
 	
-	bprint3("startpos: ", vtos(org), "\n");
-	bprint3("endpos: ", vtos(trace_endpos), "\n");
-	bprint3("water: ", ftos(trace_inwater), "\n");
-	bprint3("open: ", ftos(trace_inopen), "\n");
-	bprint3("allsolid: ", ftos(trace_allsolid), "\n");
+	//bprint3(PRINT_HIGH, "startpos: ", vtos(org), "\n");
+	//bprint3(PRINT_HIGH, "endpos: ", vtos(trace_endpos), "\n");
+	//bprint3(PRINT_HIGH, "water: ", ftos(trace_inwater), "\n");
+	//bprint3(PRINT_HIGH, "open: ", ftos(trace_inopen), "\n");
+	//bprint3(PRINT_HIGH, "allsolid: ", ftos(trace_allsolid), "\n");
 	
 	traceline2 (org, org + v_forward * 2048, self, 0);
 	
-	bprint3("startpos: ", vtos(org), "\n");
-	bprint3("endpos: ", vtos(trace_endpos), "\n");
-	bprint3("water: ", ftos(trace_inwater), "\n");
-	bprint3("open: ", ftos(trace_inopen), "\n");
-	bprint3("allsolid: ", ftos(trace_allsolid), "\n");
+	//bprint3(PRINT_HIGH, "startpos: ", vtos(org), "\n");
+	//bprint3(PRINT_HIGH, "endpos: ", vtos(trace_endpos), "\n");
+	//bprint3(PRINT_HIGH, "water: ", ftos(trace_inwater), "\n");
+	//bprint3(PRINT_HIGH, "open: ", ftos(trace_inopen), "\n");
+	//bprint3(PRINT_HIGH, "allsolid: ", ftos(trace_allsolid), "\n");
 }
 
 void() dev_hitpoints =
 {
 	if (!cvar("developer"))
 	{
-		bprint("start the map with developer 1 first\n");
+		bprint(PRINT_MEDIUM, "start the map with developer 1 first\n");
 		return;
 	}
 	float zdif;
 	
-	bprint("----------\nRockets: ");
-	bprint(ftos(num_rockets));
-	bprint(" Zombies: ");
-	bprint(ftos(num_zombies));
+	//bprint("----------\nRockets: ");
+	//bprint(ftos(num_rockets));
+	//bprint(" Zombies: ");
+	//bprint(ftos(num_zombies));
 	
 	zdif = num_rockets - num_zombies;
 	zdif = max(0,num_rockets);
 	ammo_total += zdif * DEBUG_DMG_PER_ROCKET;
 	
+	/*
 	bprint("\nMonster HP: ");
 	bprint(ftos(monster_health));
 	bprint("\nAmmo DP: ");
@@ -85,6 +86,7 @@ void() dev_hitpoints =
 	bprint("\nRATIO: ");
 	bprint(ftos(ammo_total / monster_health));
 	bprint("\n");
+	*/
 }
 
 void() dev_warp =
@@ -106,12 +108,14 @@ void() dev_warp =
 
 void() dev_serverflags =
 {
-	bprint3("SERVER FLAGS:\n========\n",ftos(serverflags),"\n");
+	/*
+	//bprint3("SERVER FLAGS:\n========\n",ftos(serverflags),"\n");
 	if (serverflags & SVFL_EPISODE1)	bprint("  episode 1 completed\n");
 	if (serverflags & SVFL_EPISODE2)	bprint("  episode 2 completed\n");
 	if (serverflags & SVFL_EPISODE3)	bprint("  episode 3 completed\n");
 	if (serverflags & SVFL_EPISODE4)	bprint("  episode 4 completed\n");
 	if (serverflags & SVFL_ALLEPISODES)	bprint("  all of quake completed\n");
+	*/
 }
 
 
@@ -152,14 +156,14 @@ void() dev_reveal =
 	{
 	//	trace_ent.developer = 1;
 		//bprint("hit entity:\n");
-		bprint3("time: ", ftos(time), "\n");
+		//bprint3("time: ", ftos(time), "\n");
 		eprint(trace_ent);
 		//bprint("hit ent's enemy:\n");
 		//eprint(trace_ent.enemy);
-		if (trace_ent.flags & FL_ONGROUND) bprint("  entity is ONGROUND\n");
-		if (trace_ent.flags & FL_PARTIALGROUND) bprint("  entity is PARTIAL_GROUND\n");
-		if (checkbottom(trace_ent)) bprint("  checkbottom is true\n");
-		else bprint("  checkbottom is FALSE\n");
+		if (trace_ent.flags & FL_ONGROUND) bprint(PRINT_MEDIUM, "  entity is ONGROUND\n");
+		if (trace_ent.flags & FL_PARTIALGROUND) bprint(PRINT_MEDIUM, "  entity is PARTIAL_GROUND\n");
+		if (checkbottom(trace_ent)) bprint(PRINT_MEDIUM, "  checkbottom is true\n");
+		else bprint(PRINT_MEDIUM, "  checkbottom is FALSE\n");
 	}
 }
 
@@ -194,8 +198,8 @@ void() dev_enemychain =
 		e = trace_ent;
 		do
 		{
-			bprint5(ftos(i),": ",e.classname," at ~ ",vtos((e.absmin + e.absmax)* 0.5));
-			bprint("\n");
+			//bprint5(ftos(i),": ",e.classname," at ~ ",vtos((e.absmin + e.absmax)* 0.5));
+			bprint(PRINT_MEDIUM, "\n");
 			e = e.enemy;
 			i += 1;
 		}
@@ -207,23 +211,23 @@ void() dev_enemychain =
 void() dev_remaining_monsters
 {
 	entity mon = world;
-	bprint("Remaining monsters and spawners:\n");
+	bprint(PRINT_MEDIUM, "Remaining monsters and spawners:\n");
 	do {
 		mon = nextent(mon);
 		if (mon.flags & FL_MONSTER)
 		{
 			if (mon.health <= 0 || mon.deadflag) continue;
-			bprint4(mon.classname, " at ", vtos(mon.origin), "\n");
+			//bprint4(mon.classname, " at ", vtos(mon.origin), "\n");
 		}
 		else if (mon.customflags & CFL_SPAWNER)
 		{
 			if (mon.count <= 0) continue;
-			bprint4(mon.classname, " at ", vtos(mon.origin), " (spawner: ");
-			bprint_int(mon.count);
-			bprint3(" remaining, named '", mon.targetname ,"')\n");
+			//bprint4(mon.classname, " at ", vtos(mon.origin), " (spawner: ");
+			//bprint_int(mon.count);
+			//bprint3(" remaining, named '", mon.targetname ,"')\n");
 		}
 	} while (mon != world);
-	bprint("end of list.\n----------\n");
+	//bprint("end of list.\n----------\n");
 }
 
 

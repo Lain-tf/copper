@@ -33,7 +33,7 @@ void() TallyHitpoints =
 {
 	if (!cvar("developer")) return;
 	
-	//dprint5("tally hitpoints for ",self.classname," adding ",ftos(self.health),"\n");
+	////dprint5("tally hitpoints for ",self.classname," adding ",ftos(self.health),"\n");
 	if (self.classname == "monster_boss" || self.classname == "monster_oldone")
 		return;
 	
@@ -97,8 +97,8 @@ void() monster_spawnsetup_go =
 
 	if (self.targetname == string_null)
 	{
-		dprint5("WARNING: removed triggered-spawn ", self.classname,
-			" with no targetname at ", vtos(self.origin), "\n");
+		//dprint5("WARNING: removed triggered-spawn ", self.classname,
+		//	" with no targetname at ", vtos(self.origin), "\n");
 		remove(self);
 		return;
 	}
@@ -107,9 +107,9 @@ void() monster_spawnsetup_go =
 	{
 		if (!SUB_VerifyTriggerable())
 		{
-			bprint4("WARNING: removed triggered-spawn ", self.classname,
-				" with unmatched targetname '", self.targetname);
-			bprint3("' at ", vtos(self.origin), "\n");
+			//bprint4("WARNING: removed triggered-spawn ", self.classname,
+			//	" with unmatched targetname '", self.targetname);
+			//bprint3("' at ", vtos(self.origin), "\n");
 			remove(self);
 			return;
 		}

@@ -71,10 +71,10 @@ void() ItemPiff =
 	vector org;
 	org = BoundsCenter(self);
 	org_z = self.absmin_z + 8;
-	particle(org, '8 8 0', 8, 16);
-	particle(org, '8 -8 0', 8, 16);
-	particle(org, '-8 8 0', 8, 16);
-	particle(org, '-8 -8 0', 8, 16);
+	//particle(org, '8 8 0', 8, 16);
+	//particle(org, '8 -8 0', 8, 16);
+	//particle(org, '-8 8 0', 8, 16);
+	//particle(org, '-8 -8 0', 8, 16);
 }
 
 /*
@@ -189,6 +189,21 @@ void() ItemTouched =
 		self.solid = SOLID_NOT;
 		if (self.use != SUB_regen)
 			self.use = ItemUse;
+	}
+	else if(deathmatch!=3 || deathmatch !=5)
+	{
+		// remove it in single player, or setup for respawning in deathmatch
+		self.model = string_null;
+		self.solid = SOLID_NOT;
+		if (deathmatch != 2)
+			self.nextthink = time + 30;
+		self.think = SUB_regen;
+
+	}
+	else if (deathmatch == 3 || deathmatch == 5)
+	{
+		self.nextthink = time + 15;
+		self.think = SUB_regen;
 	}
 	else
 	{
@@ -343,6 +358,134 @@ void() ItemPlace =
 
 void() PlaceItem = {ItemPlace();}
 
+void() q_touch;
+
+void() q_touch =
+{
+    local entity    stemp;
+    local float     best;
+    local string    s;
+
+	if (other.classname != "player")
+		return;
+	if (other.health <= 0)
+		return;
+
+	self.mdl = self.model;
+
+	sound (other, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	stuffcmd (other, "bf\n");
+	self.solid = SOLID_NOT;
+	other.items = other.items | IT_QUAD;
+	self.model = string_null;
+		if (deathmatch == 4)
+		{
+			other.armortype = 0;
+			other.armorvalue = 0 * 0.01;
+			other.ammo_cells = 0;
+		}
+
+// do the apropriate action
+	other.super_time = 1;
+	other.super_damage_finished = self.cnt;
+
+	s=ftos(rint(other.super_damage_finished - time));
+
+	bprint (PRINT_LOW, other.netname);
+	if (deathmatch == 4)
+		bprint (PRINT_LOW, " recovered an OctaPower with ");
+	else 
+		bprint (PRINT_LOW, " recovered a Quad with ");
+	bprint (PRINT_LOW, s);
+	bprint (PRINT_LOW, " seconds remaining!\n");
+
+	activator = other;
+	SUB_UseTargets();                               // fire all targets / killtargets
+};
+
+
+void(float timeleft) DropQuad =
+{
+	local entity    item;
+
+	item = spawn();
+	item.origin = self.origin;
+	
+	item.velocity_z = 300;
+	item.velocity_x = -100 + (random() * 200);
+	item.velocity_y = -100 + (random() * 200);
+	
+	item.flags = FL_ITEM;
+	item.solid = SOLID_TRIGGER;
+	item.movetype = MOVETYPE_TOSS;
+	item.noise = "items/damage.wav";
+	setmodel (item, "progs/quaddama.mdl");
+	setsize (item, '-16 -16 -24', '16 16 32');
+	item.cnt = time + timeleft;
+	item.touch = q_touch;
+	item.nextthink = time + timeleft;    // remove it with the time left on it
+	item.think = SUB_Remove;
+};
+
+
+void() r_touch;
+
+void() r_touch =
+{
+local entity    stemp;
+local float     best;
+local string    s;
+
+	if (other.classname != "player")
+		return;
+	if (other.health <= 0)
+		return;
+
+	self.mdl = self.model;
+
+	sound (other, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	stuffcmd (other, "bf\n");
+	self.solid = SOLID_NOT;
+	other.items = other.items | IT_INVISIBILITY;
+	self.model = string_null;
+
+// do the apropriate action
+	other.invisible_time = 1;
+	other.invisible_finished = self.cnt;
+	s=ftos(rint(other.invisible_finished - time));
+	bprint (PRINT_LOW, other.netname);
+	bprint (PRINT_LOW, " recovered a Ring with ");
+	bprint (PRINT_LOW, s);
+	bprint (PRINT_LOW, " seconds remaining!\n");
+      
+
+	activator = other;
+	SUB_UseTargets();                               // fire all targets / killtargets
+};
+
+
+void(float timeleft) DropRing =
+{
+	local entity    item;
+
+	item = spawn();
+	item.origin = self.origin;
+	
+	item.velocity_z = 300;
+	item.velocity_x = -100 + (random() * 200);
+	item.velocity_y = -100 + (random() * 200);
+	
+	item.flags = FL_ITEM;
+	item.solid = SOLID_TRIGGER;
+	item.movetype = MOVETYPE_TOSS;
+	item.noise = "items/inv1.wav";
+	setmodel (item, "progs/invisibl.mdl");
+	setsize (item, '-16 -16 -24', '16 16 32');
+	item.cnt = time + timeleft;
+	item.touch = r_touch;
+	item.nextthink = time + timeleft;    // remove after 30 seconds
+	item.think = SUB_Remove;
+}
 
 /*
 ================================

@@ -57,7 +57,9 @@ void(entity targ, entity attacker) Killed =
 		killed_monster();
 		monster_death_use();
 	}
-
+	
+	ClientObituary(self, attacker);
+	
 	if (coop && attacker.classname == "player")
 	{
 		if (self.classname == "player")
@@ -707,6 +709,7 @@ returns TRUE if healing successfully took place
 float (entity e, float healamt, float overheal) T_Heal =
 {
 	float hmax, hceil;
+	string  s;
 	
 	if (e.health <= 0)
 		return FALSE;
@@ -736,9 +739,10 @@ float (entity e, float healamt, float overheal) T_Heal =
 		e.health = e.health + healamt;
 
 		// moved here from healthtouch so any source of healing prints messages
-		sprint(e, "You are healed by ");
-		sprint(e, ftos(healamt));
-		sprint(e, "\n");
+		sprint(other, PRINT_LOW, "You receive ");
+		s = ftos(self.healamount);
+		sprint(other, PRINT_LOW, s);
+		sprint(other, PRINT_LOW, " health\n");
 		stuffcmd (e, "bf\n");
 		return TRUE;
 	}

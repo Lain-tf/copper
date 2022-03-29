@@ -116,7 +116,7 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 		// need to preserve that flag until we're done so we don't double damage
 		AddMultiDamage (targ, damage);
 		// clear and apply multidamage must be called in an enclosing function!
-		particle (end, '0 0 100', 225, damage*4);
+		//particle (end, '0 0 100', 225, damage*4);
 	}
 	
 	// we do the lightning beam after the chain lightning recursion as the stack unwinds,
@@ -157,7 +157,7 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 	if (trace_ent.takedamage && !(trace_ent.customflags & CFL_ZAPPED))	// don't add damage to any target twice
 	{
 		trace_ent.customflags |= CFL_ZAPPED;
-		particle (trace_endpos, '0 0 100', 225, damage*4);
+		//particle (trace_endpos, '0 0 100', 225, damage*4);
 		AddMultiDamage (trace_ent, damage);
 	}
 
@@ -165,7 +165,7 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 	if (trace_ent.takedamage && !(trace_ent.customflags & CFL_ZAPPED))
 	{
 		trace_ent.customflags |= CFL_ZAPPED;
-		particle (trace_endpos, '0 0 100', 225, damage*4);
+		//particle (trace_endpos, '0 0 100', 225, damage*4);
 		AddMultiDamage (trace_ent, damage);
 	}
 }

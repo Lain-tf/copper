@@ -10,10 +10,20 @@ float SHOW_MESSAGE	=	8;
 
 void() GotoNextMap =
 {
-	if (cvar("samelevel"))	// if samelevel is set, stay on same level
-		changelevel (mapname);	// name of current level
-	else
-		changelevel (nextmap);	// global set to next level
+	local string newmap;
+	
+	if (cvar("samelevel") == 1)     // if samelevel is set, stay on same level
+		changelevel (mapname);
+	else 
+	{
+		// configurable map lists, see if the current map exists as a
+		// serverinfo/localinfo var
+		newmap = infokey(world, mapname);
+		if (newmap != "")
+			changelevel (newmap);
+		else
+			changelevel (nextmap);
+	}
 }
 
 
@@ -352,8 +362,24 @@ void() move_players_to_intermission =
 		other.lifetime_finished = time + 6;
 		other = find (other, classname, "player");		
 	}
+	
+	WriteByte (MSG_ALL, SVC_INTERMISSION);
+	WriteCoord (MSG_ALL, spot.origin_x);
+	WriteCoord (MSG_ALL, spot.origin_y);
+	WriteCoord (MSG_ALL, spot.origin_z);
+	WriteAngle (MSG_ALL, spot.mangle_x);
+	WriteAngle (MSG_ALL, spot.mangle_y);
+	WriteAngle (MSG_ALL, spot.mangle_z);
 }
 
+/*
+============
+execute_changelevel
+
+The global "nextmap" has been set previously.
+Take the players to the intermission spot
+============
+*/
 void() execute_changelevel =
 {
 	intermission_running = 1;
@@ -367,10 +393,8 @@ void() execute_changelevel =
 	WriteByte (MSG_ALL, SVC_CDTRACK);
 	WriteByte (MSG_ALL, 3);
 	WriteByte (MSG_ALL, 3);
-
-	move_players_to_intermission();
-
-	WriteByte (MSG_ALL, SVC_INTERMISSION);
+	
+	move_players_to_intermission();		//	TODO: QW - This line might be redundant
 }
 
 // in timelimit coop, players who exit early can look through intermission
@@ -387,9 +411,9 @@ float() changelevel_check_coop =
 	{
 		gameover = TRUE;
 		coop_time = time + timelimit;
-		bprint("Level will end in ");
+		bprint(PRINT_MEDIUM, "Level will end in ");
 		bprint_int(timelimit);
-		bprint(" seconds\n");
+		bprint(PRINT_MEDIUM, " seconds\n");
 	}
 
 	entity pl = nextent(world); //player1
@@ -413,8 +437,8 @@ void() changelevel_do =
 {
 	if (coop || deathmatch)
 	{
-		bprint (other.netname);
-		bprint (" exited the level\n");
+		bprint (PRINT_HIGH, other.netname);
+		bprint (PRINT_HIGH," exited the level\n");
 	}
 	
 	nextmap = self.map;
@@ -446,13 +470,14 @@ void() changelevel_touch =
 	if (!CheckValidTouch()) return;
 	if (self.customflags & CFL_LOCKED) return;
 
-	if (deathmatch)
+// if "noexit" is set, blow up the player trying to leave
+//ZOID, 12-13-96, noexit isn't supported in QW.  Overload samelevel
+//      if ((cvar("noexit") == 1) || ((cvar("noexit") == 2) && (mapname != "start")))
+	if ((cvar("samelevel") == 2) || ((cvar("samelevel") == 3) && (mapname != "start")))
 	{
-		if ((cvar("noexit") == 1) || ((cvar("noexit") == 2) && (mapname != "start")))
-		{
-			T_Damage (other, self, self, 50000);
-			return;
-		}
+
+		T_Damage (other, self, self, 50000);
+		return;
 	}
 	
 	activator = other;
@@ -535,6 +560,7 @@ Keys:
 void() info_intermission =
 {
 	if (!SUB_ShouldSpawn()) return;
+	self.angles = self.mangle;      // so C can get at it
 }
 
 

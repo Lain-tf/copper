@@ -30,7 +30,8 @@ THINK FUNCTIONS
 
 void() door_blocked =
 {
-	T_Damage (other, self, self, self.dmg);
+	other.deathtype = "squish";
+	T_Damage (other, self, self.goalentity, self.dmg);
 	
 	// if a door has a negative wait, it would never come back if blocked,
 	// so let it just squash the object to death real fast
@@ -46,7 +47,7 @@ void() door_blocked =
 
 void() door_hit_top =
 {
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	sound (self, CHAN_NO_PHS_ADD+CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.state = STATE_TOP;
 	if (self.spawnflags & DOOR_TOGGLE)
 		return;		// don't come down automatically
@@ -56,7 +57,7 @@ void() door_hit_top =
 
 void() door_hit_bottom =
 {
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	sound (self, CHAN_NO_PHS_ADD+CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.frame = !self.frame;
 	self.state = STATE_BOTTOM;
 }
@@ -142,6 +143,7 @@ void() door_fire =
 	starte = self;
 	if ( !( self.spawnflags & DOOR_TOGGLE ) || ( self.spawnflags & DOOR_TOGGLE && self.state == STATE_BOTTOM) )
 	do {
+		self.goalentity = activator;		// Who fired us
 		if (self.classname == "shadowmonitor")
 			door_shadowmonitor_go();
 		else
@@ -1010,9 +1012,10 @@ void () secretdoor_done =
 		self.health = self.max_health;
 		self.takedamage = DAMAGE_YES;
 		self.th_pain = secretdoor_pain;	
+		self.th_die = secretdoor_use;
 	}
 	if (self.noise3 != string_null)
-		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+		sound(self, CHAN_NO_PHS_ADD+CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 }
 
 void () secret_blocked =
@@ -1020,6 +1023,7 @@ void () secret_blocked =
 	if (time < self.attack_finished)
 		return;
 	self.attack_finished = time + 0.5;
+	other.deathtype = "squish";
 	T_Damage (other, self, self, self.dmg);
 }
 

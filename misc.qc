@@ -522,14 +522,14 @@ void() toggle_autosave =
 			e.use = SUB_Null;
 			if (!printed)
 			{
-				bprint("Autosaves disabled\n");
+				bprint(PRINT_MEDIUM, "Autosaves disabled\n");
 				printed = TRUE;
 			}
 		} else {
 			e.use = target_autosave_use;
 			if (!printed)
 			{
-				bprint("Autosaves reenabled\n");
+				bprint(PRINT_MEDIUM, "Autosaves reenabled\n");
 				printed = TRUE;
 			}
 		}
@@ -814,7 +814,7 @@ prints a warning message when spawned
 */
 void() noclass =
 {
-	dprint3("noclass spawned at",vtos(self.origin),"\n");
+	//dprint3("noclass spawned at",vtos(self.origin),"\n");
 	remove (self);
 }
 

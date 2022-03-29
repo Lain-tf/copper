@@ -15,6 +15,11 @@ entity		world;
 float		time;
 float		frametime;
 
+entity          newmis;         // if this is set, the entity that just
+								// run created a new missile that should
+								// be simulated immediately
+
+
 float		force_retouch;		// force all entities to touch triggers
 								// next frame.  this is needed because
 								// non-moving things don't normally scan
@@ -24,10 +29,6 @@ float		force_retouch;		// force all entities to touch triggers
 								// decremented each frame, so set to 2
 								// to guarantee everything is touched
 string		mapname;
-
-float		deathmatch;
-float		coop;
-float		teamplay;
 
 float		serverflags;		// propagated from level to level, used to
 								// keep track of completed episodes
@@ -98,6 +99,8 @@ void		end_sys_globals;		// flag for structure dumping
 .vector		absmin, absmax;	// *** origin + mins / maxs
 
 .float		ltime;			// local time for entity
+.float      lastruntime;    // *** to allow entities to run out of sequence
+
 .float		movetype;
 .float		solid;
 
@@ -107,7 +110,7 @@ void		end_sys_globals;		// flag for structure dumping
 .vector		angles;
 .vector		avelocity;
 
-.vector		punchangle;		// temp angle adjust from damage or recoil
+//.vector		punchangle;		// temp angle adjust from damage or recoil
 
 .string		classname;		// spawn function
 .string		model;
@@ -151,7 +154,7 @@ void		end_sys_globals;		// flag for structure dumping
 
 .float		fixangle;
 .vector		v_angle;		// view / targeting angle for players
-.float		idealpitch;		// calculated pitch angle for lookup up slopes
+//.float		idealpitch;		// calculated pitch angle for lookup up slopes
 
 
 .string		netname;
@@ -225,6 +228,7 @@ nosave string	string_null;	// null string, nothing should be held here
 entity	activator;		// the entity that activated a trigger or brush
 
 entity	damage_attacker;	// set by T_Damage
+entity  damage_inflictor;
 
 float	framecount;
 float	reset_flag;
@@ -265,7 +269,19 @@ float	modelindex_eyes, modelindex_player;
 float	icantsee;
 float	isKex;	// running the quake rerelease
 
+//
+// cvars checked each frame
+//
+float           teamplay;
+float           timelimit;
+float           fraglimit;
+float           deathmatch;
+float           rj          =     1;
+float			coop;
+
 //================================================
+.vector		punchangle;		// temp angle adjust from damage or recoil
+.float		idealpitch;		// calculated pitch angle for lookup up slopes
 
 // world fields
 .string		wad;
@@ -302,9 +318,13 @@ float	isKex;	// running the quake rerelease
 .float		search_time;
 .float		attack_state;
 .float 		pausetime;
+.entity 	movetarget;
 .float		corpsetime;
 
 // player only fields
+.float      voided;
+.float		maxspeed;		// Used to set Maxspeed on a player
+.float		gravity;		// Gravity Multiplier (0 to 1.0)
 .float		walkframe;
 .float		invincible_time, invincible_sound, invincible_finished;
 .float		invisible_time, invisible_sound, invisible_finished;
@@ -445,8 +465,8 @@ string(string s) precache_sound		= #19;
 string(string s) precache_model		= #20;
 void(entity client, string s)stuffcmd = #21;
 entity(vector org, float rad) findradius = #22; // findradius only works on solid entities
-void(string s) bprint				= #23;
-void(entity client, string s) sprint = #24;
+void(float level, string s) bprint  = #23;
+void(entity client, float level, string s) sprint = #24;
 void(string s) dprint				= #25;
 string(float f) ftos				= #26;
 string(vector v) vtos				= #27;
@@ -473,7 +493,7 @@ vector(entity e, float speed) aim = #44;		// returns the shooting vector
 float(string s) cvar = #45;						// return cvar.value
 void(string s) localcmd = #46;					// put string into local que
 entity(entity e) nextent = #47;					// for looping through all ents
-void(vector org, vector dir, float color, float count) particle = #48;// start a particle effect
+//void(vector org, vector dir, float color, float count) particle = #48;// start a particle effect
 void() ChangeYaw = #49;						// turn towards self.ideal_yaw
 											// at self.yaw_speed
 // #50 was removed
@@ -524,6 +544,13 @@ string(string s) precache_file2		= #77;		// registered version only
 void(entity e) setspawnparms		= #78;		// set parm1... to the
 												// values at level start
 												// for coop respawn
+
+void(entity killer, entity killee) logfrag = #79;       // add to stats
+
+string(entity e, string key) infokey    = #80;  // get a key value (world = serverinfo)
+float(string s) stof                    = #81;  // convert string to float
+void(vector where, float set) multicast = #82;  // sends the temp message to a set
+
 
 float(string s) checkextension		= #99;		// check cvar("pr_checkextension") before calling
 
