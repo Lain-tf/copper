@@ -86,8 +86,12 @@ void() func_wall_use =
 }
 
 void() func_wall_flip =
-{	// change to alternate textures
-	if (self.noise) sound(self, CHAN_BODY, self.noise, 1.0, ATTN_NORM);
+{    // change to alternate textures
+    string snd;
+    if (self.noise2 != "" && self.state == STATE_TOP) snd = self.noise2;
+    else snd = self.noise;
+
+    if (snd != "") sound(self, CHAN_BODY, snd, 1.0, ATTN_NORM);
 	
 	if (self.spawnflags & SPAWN_WALL_TOGGLEVIS)
 	{
@@ -142,6 +146,7 @@ void() func_wall =
 	if (!SUB_ShouldSpawn()) return;
 	
 	if (self.noise) precache_sound_safe(self.noise);
+	if (self.noise2) precache_sound_safe(self.noise2);
 	precache_model_safe(self.model);
 	
 	self.angles = self.mangle;
@@ -175,6 +180,7 @@ Keys:
 "model" filename of model to stand in for this entity. can be a bsp or an mdl. mdls will not be solid.
 "mangle" orientation of the model, values are 'pitch yaw roll', positive pitch is down
 "noise" sound to play when triggered.
+"noise_on" sound to play when triggered visible/solid.
 "targetname"	entity name
 */
 /*FGD
