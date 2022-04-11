@@ -293,67 +293,67 @@ void()	d1boss_stand16	=[	$stand16,		d1boss_stand17	] {ai_stand();}
 void()	d1boss_stand17	=[	$stand17,		d1boss_stand1	] {ai_stand();}
 
 
-void()	d1boss_walk1	=[	$stand1,		d1boss_walk2	] {ai_walk(16);d1boss_idlesound();}
-void()	d1boss_walk2	=[	$stand2,		d1boss_walk3	] {ai_walk(16);}
-void()	d1boss_walk3	=[	$stand3,		d1boss_walk4	] {ai_walk(16);}
-void()	d1boss_walk4	=[	$stand4,		d1boss_walk5	] {ai_walk(16);}
-void()	d1boss_walk5	=[	$stand5,		d1boss_walk6	] {ai_walk(16);}
-void()	d1boss_walk6	=[	$stand6,		d1boss_walk7	] {ai_walk(16);}
-void()	d1boss_walk7	=[	$stand7,		d1boss_walk8	] {ai_walk(16);}
-void()	d1boss_walk8	=[	$stand8,		d1boss_walk9	] {ai_walk(16);}
-void()	d1boss_walk9	=[	$stand9,		d1boss_walk10	] {ai_walk(16);}
-void()	d1boss_walk10	=[	$stand10,		d1boss_walk11	] {ai_walk(16);}
-void()	d1boss_walk11	=[	$stand11,		d1boss_walk12	] {ai_walk(16);}
-void()	d1boss_walk12	=[	$stand12,		d1boss_walk13	] {ai_walk(16);}
-void()	d1boss_walk13	=[	$stand13,		d1boss_walk14	] {ai_walk(16);}
-void()	d1boss_walk14	=[	$stand14,		d1boss_walk15	] {ai_walk(16);}
-void()	d1boss_walk15	=[	$stand15,		d1boss_walk16	] {ai_walk(16);}
-void()	d1boss_walk16	=[	$stand16,		d1boss_walk17	] {ai_walk(16);}
-void()	d1boss_walk17	=[	$stand17,		d1boss_walk1	] {ai_walk(16);}
+void()	d1boss_walk1	=[	$stand1,		d1boss_walk2	] {ai_walk(24);d1boss_idlesound();}
+void()	d1boss_walk2	=[	$stand2,		d1boss_walk3	] {ai_walk(24);}
+void()	d1boss_walk3	=[	$stand3,		d1boss_walk4	] {ai_walk(24);}
+void()	d1boss_walk4	=[	$stand4,		d1boss_walk5	] {ai_walk(24);}
+void()	d1boss_walk5	=[	$stand5,		d1boss_walk6	] {ai_walk(24);}
+void()	d1boss_walk6	=[	$stand6,		d1boss_walk7	] {ai_walk(24);}
+void()	d1boss_walk7	=[	$stand7,		d1boss_walk8	] {ai_walk(24);}
+void()	d1boss_walk8	=[	$stand8,		d1boss_walk9	] {ai_walk(24);}
+void()	d1boss_walk9	=[	$stand9,		d1boss_walk10	] {ai_walk(24);}
+void()	d1boss_walk10	=[	$stand10,		d1boss_walk11	] {ai_walk(24);}
+void()	d1boss_walk11	=[	$stand11,		d1boss_walk12	] {ai_walk(24);}
+void()	d1boss_walk12	=[	$stand12,		d1boss_walk13	] {ai_walk(24);}
+void()	d1boss_walk13	=[	$stand13,		d1boss_walk14	] {ai_walk(24);}
+void()	d1boss_walk14	=[	$stand14,		d1boss_walk15	] {ai_walk(24);}
+void()	d1boss_walk15	=[	$stand15,		d1boss_walk16	] {ai_walk(24);}
+void()	d1boss_walk16	=[	$stand16,		d1boss_walk17	] {ai_walk(24);}
+void()	d1boss_walk17	=[	$stand17,		d1boss_walk1	] {ai_walk(24);}
 
-void()	d1boss_side1	=[	$stand1,		d1boss_side2	] {d1boss_changeheight(FALSE); ai_run(16);d1boss_idlesound();}
-void()	d1boss_side2	=[	$stand2,		d1boss_side3	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side3	=[	$stand3,		d1boss_side4	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side4	=[	$stand4,		d1boss_side5	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side5	=[	$stand5,		d1boss_side6	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side6	=[	$stand6,		d1boss_side7	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side7	=[	$stand7,		d1boss_side8	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side8	=[	$stand8,		d1boss_side9	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side9	=[	$stand9,		d1boss_side10	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side10	=[	$stand10,		d1boss_side11	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side11	=[	$stand11,		d1boss_side12	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side12	=[	$stand12,		d1boss_side13	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side13	=[	$stand13,		d1boss_side14	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side14	=[	$stand14,		d1boss_side15	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side15	=[	$stand15,		d1boss_side16	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side16	=[	$stand16,		d1boss_side17	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_side17	=[	$stand17,		d1boss_side1	] {d1boss_changeheight(FALSE); ai_run(16);}
+void()	d1boss_side1	=[	$stand1,		d1boss_side2	] {d1boss_changeheight(TRUE); ai_run(24);d1boss_idlesound();}
+void()	d1boss_side2	=[	$stand2,		d1boss_side3	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side3	=[	$stand3,		d1boss_side4	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side4	=[	$stand4,		d1boss_side5	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side5	=[	$stand5,		d1boss_side6	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side6	=[	$stand6,		d1boss_side7	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side7	=[	$stand7,		d1boss_side8	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side8	=[	$stand8,		d1boss_side9	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side9	=[	$stand9,		d1boss_side10	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side10	=[	$stand10,		d1boss_side11	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side11	=[	$stand11,		d1boss_side12	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side12	=[	$stand12,		d1boss_side13	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side13	=[	$stand13,		d1boss_side14	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side14	=[	$stand14,		d1boss_side15	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side15	=[	$stand15,		d1boss_side16	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side16	=[	$stand16,		d1boss_side17	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side17	=[	$stand17,		d1boss_side1	] {d1boss_changeheight(TRUE); ai_run(24);}
 
 void()	d1boss_run1	=[	$stand1,		d1boss_run2	] {self.takedamage = DAMAGE_AIM; d1boss_changeheight(FALSE); ai_run(16);d1boss_idlesound();}
-void()	d1boss_run2	=[	$stand2,		d1boss_run3	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run3	=[	$stand3,		d1boss_run4	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run4	=[	$stand4,		d1boss_run5	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run5	=[	$stand5,		d1boss_run6	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run6	=[	$stand6,		d1boss_run7	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run7	=[	$stand7,		d1boss_run8	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run8	=[	$stand8,		d1boss_run9	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run9	=[	$stand9,		d1boss_run10	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run10	=[	$stand10,		d1boss_run11	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run11	=[	$stand11,		d1boss_run12	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run12	=[	$stand12,		d1boss_run13	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run13	=[	$stand13,		d1boss_run14	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run14	=[	$stand14,		d1boss_run15	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run15	=[	$stand15,		d1boss_run16	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run16	=[	$stand16,		d1boss_run17	] {d1boss_changeheight(FALSE); ai_run(16);}
-void()	d1boss_run17	=[	$stand17,		d1boss_run1	] {d1boss_changeheight(FALSE); ai_run(16);}
+void()	d1boss_run2	=[	$stand2,		d1boss_run3	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run3	=[	$stand3,		d1boss_run4	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run4	=[	$stand4,		d1boss_run5	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run5	=[	$stand5,		d1boss_run6	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run6	=[	$stand6,		d1boss_run7	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run7	=[	$stand7,		d1boss_run8	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run8	=[	$stand8,		d1boss_run9	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run9	=[	$stand9,		d1boss_run10	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run10	=[	$stand10,		d1boss_run11	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run11	=[	$stand11,		d1boss_run12	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run12	=[	$stand12,		d1boss_run13	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run13	=[	$stand13,		d1boss_run14	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run14	=[	$stand14,		d1boss_run15	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run15	=[	$stand15,		d1boss_run16	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run16	=[	$stand16,		d1boss_run17	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run17	=[	$stand17,		d1boss_run1	] {d1boss_changeheight(TRUE); ai_run(24);}
 
 void()	d1boss_fast1	=[	$smash1,		d1boss_fast2	] {d1boss_changeheight(TRUE); ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
 void()	d1boss_fast2	=[	$smash2,		d1boss_fast3	] {ai_run_slide(6);}
 void()	d1boss_fast3	=[	$smash3,		d1boss_fast4	] {ai_run_slide(6);}
 void()	d1boss_fast4	=[	$smash4,		d1boss_fast5	] {ai_run_slide(6);D1BossMissile();}
 void()	d1boss_fast5	=[	$smash5,		d1boss_fast6	] {ai_run_slide(32);D1BossMissile();}
-void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(64);D1BossMissile();}
-void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(32);D1BossMissile();}
+void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(60);D1BossMissile();}
+void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(60);D1BossMissile();}
 
 void()	d1boss_fast8	=[	$smash8,		d1boss_run1	] {ai_attack_finished(2);}
 
@@ -376,7 +376,7 @@ void() d1boss_swingl1	=[      $swingl1,      d1boss_swingl2   ] {
 	sound (self, CHAN_VOICE, "shambler/melee2.wav", 1, ATTN_NORM);
 	ai_nop();
 }
-void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_run_slide(64);}
+void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_run_slide(60);}
 void() d1boss_swingl3 =[      $swingl3,      d1boss_swingl4   ] {ai_run_slide(32);}
 void() d1boss_swingl4 =[      $swingl4,      d1boss_swingl5   ] {ai_run_slide(16);}
 void() d1boss_swingl5 =[      $swingl5,      d1boss_swingl6   ] {ai_run_slide(8);}
@@ -389,7 +389,7 @@ void() d1boss_swingr1	=[      $swingr1,      d1boss_swingr2   ] {
 	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
 	ai_nop();
 }
-void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_run_slide(64);}
+void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_run_slide(60);}
 void() d1boss_swingr3 =[      $swingr3,      d1boss_swingr4   ] {ai_run_slide(32);}
 void() d1boss_swingr4 =[      $swingr4,      d1boss_swingr5   ] {ai_run_slide(16);}
 void() d1boss_swingr5 =[      $swingr5,      d1boss_swingr6   ] {ai_run_slide(8);}
