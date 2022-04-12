@@ -14,6 +14,7 @@ $skin base
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9
 $frame stand10 stand11 stand12 stand13 stand14 stand15 stand16 stand17
+$frame stand18 stand19 stand20 stand21 stand22 stand23
 
 $frame swingr1 swingr2 swingr3 swingr4 swingr5 
 $frame swingr6 swingr7 swingr8 swingr9
@@ -22,7 +23,8 @@ $frame swingl1 swingl2 swingl3 swingl4 swingl5
 $frame swingl6 swingl7 swingl8 swingl9
 
 $frame smash1 smash2 smash3 smash4 smash5 
-$frame smash6 smash7 smash8 smash9
+$frame smash6 smash7 smash8 smash9 smash10
+$frame smash11 smash12 smash13 smash14 smash15 smash16
 
 
 
@@ -196,10 +198,10 @@ void() D1BossMissile =
 	vector	dir;
 
 
-	self.effects = self.effects | EF_MUZZLEFLASH;
+	//self.effects = self.effects | EF_MUZZLEFLASH;
 	makevectors(self.angles);
 	
-	dir = (enemy_vispos() + '0 0 10') - self.origin + enemy_aim_vertical();
+	dir = (enemy_vispos() + '0 0 -16') - self.origin + enemy_aim_vertical();
 	dir = LeadTarget(self.origin, D1BOSS_BALL_VEL, random());
 	dir = normalize(dir);
 	
@@ -212,7 +214,7 @@ void() D1BossMissile =
 		dir = normalize(dir);
 	}
 	
-	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8, dir * D1BOSS_BALL_VEL, "voreball");
+	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 56', dir * D1BOSS_BALL_VEL, "voreball");
 
 	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
 
@@ -236,7 +238,7 @@ void() D1BossGrenade =
 {
 	entity 	missile;
 
-	self.effects = self.effects | EF_MUZZLEFLASH;
+	//self.effects = self.effects | EF_MUZZLEFLASH;
 	makevectors([70, random() * 360, 0]);
 		
 	missile = toss_projectile(self.origin + '0 0 80', v_forward * 400 + v_up * 100, "bossgrenade");
@@ -290,8 +292,13 @@ void()	d1boss_stand13	=[	$stand13,		d1boss_stand14	] {ai_stand();}
 void()	d1boss_stand14	=[	$stand14,		d1boss_stand15	] {ai_stand();}
 void()	d1boss_stand15	=[	$stand15,		d1boss_stand16	] {ai_stand();}
 void()	d1boss_stand16	=[	$stand16,		d1boss_stand17	] {ai_stand();}
-void()	d1boss_stand17	=[	$stand17,		d1boss_stand1	] {ai_stand();}
-
+void()	d1boss_stand17	=[	$stand17,		d1boss_stand18	] {ai_stand();}
+void()	d1boss_stand18	=[	$stand18,		d1boss_stand19	] {ai_stand();}
+void()	d1boss_stand19	=[	$stand19,		d1boss_stand20	] {ai_stand();}
+void()	d1boss_stand20	=[	$stand20,		d1boss_stand21	] {ai_stand();}
+void()	d1boss_stand21	=[	$stand21,		d1boss_stand22	] {ai_stand();}
+void()	d1boss_stand22	=[	$stand22,		d1boss_stand23	] {ai_stand();}
+void()	d1boss_stand23	=[	$stand23,		d1boss_stand1	] {ai_stand();}
 
 void()	d1boss_walk1	=[	$stand1,		d1boss_walk2	] {ai_walk(24);d1boss_idlesound();}
 void()	d1boss_walk2	=[	$stand2,		d1boss_walk3	] {ai_walk(24);}
@@ -309,7 +316,13 @@ void()	d1boss_walk13	=[	$stand13,		d1boss_walk14	] {ai_walk(24);}
 void()	d1boss_walk14	=[	$stand14,		d1boss_walk15	] {ai_walk(24);}
 void()	d1boss_walk15	=[	$stand15,		d1boss_walk16	] {ai_walk(24);}
 void()	d1boss_walk16	=[	$stand16,		d1boss_walk17	] {ai_walk(24);}
-void()	d1boss_walk17	=[	$stand17,		d1boss_walk1	] {ai_walk(24);}
+void()	d1boss_walk17	=[	$stand17,		d1boss_walk18	] {ai_walk(24);}
+void()	d1boss_walk18	=[	$stand18,		d1boss_walk19	] {ai_walk(24);}
+void()	d1boss_walk19	=[	$stand19,		d1boss_walk20	] {ai_walk(24);}
+void()	d1boss_walk20	=[	$stand20,		d1boss_walk21	] {ai_walk(24);}
+void()	d1boss_walk21	=[	$stand21,		d1boss_walk22	] {ai_walk(24);}
+void()	d1boss_walk22	=[	$stand22,		d1boss_walk23	] {ai_walk(24);}
+void()	d1boss_walk23	=[	$stand23,		d1boss_walk1	] {ai_walk(24);}
 
 void()	d1boss_side1	=[	$stand1,		d1boss_side2	] {d1boss_changeheight(TRUE); ai_run(24);d1boss_idlesound();}
 void()	d1boss_side2	=[	$stand2,		d1boss_side3	] {d1boss_changeheight(TRUE); ai_run(24);}
@@ -327,7 +340,13 @@ void()	d1boss_side13	=[	$stand13,		d1boss_side14	] {d1boss_changeheight(TRUE); a
 void()	d1boss_side14	=[	$stand14,		d1boss_side15	] {d1boss_changeheight(TRUE); ai_run(24);}
 void()	d1boss_side15	=[	$stand15,		d1boss_side16	] {d1boss_changeheight(TRUE); ai_run(24);}
 void()	d1boss_side16	=[	$stand16,		d1boss_side17	] {d1boss_changeheight(TRUE); ai_run(24);}
-void()	d1boss_side17	=[	$stand17,		d1boss_side1	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side17	=[	$stand17,		d1boss_side18	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side18	=[	$stand18,		d1boss_side19	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side19	=[	$stand19,		d1boss_side20	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side20	=[	$stand20,		d1boss_side21	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side21	=[	$stand21,		d1boss_side22	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side22	=[	$stand22,		d1boss_side23	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_side23	=[	$stand23,		d1boss_side1	] {d1boss_changeheight(TRUE); ai_run(24);}
 
 void()	d1boss_run1	=[	$stand1,		d1boss_run2	] {self.takedamage = DAMAGE_AIM; d1boss_changeheight(FALSE); ai_run(16);d1boss_idlesound();}
 void()	d1boss_run2	=[	$stand2,		d1boss_run3	] {d1boss_changeheight(TRUE); ai_run(24);}
@@ -345,17 +364,30 @@ void()	d1boss_run13	=[	$stand13,		d1boss_run14	] {d1boss_changeheight(TRUE); ai_
 void()	d1boss_run14	=[	$stand14,		d1boss_run15	] {d1boss_changeheight(TRUE); ai_run(24);}
 void()	d1boss_run15	=[	$stand15,		d1boss_run16	] {d1boss_changeheight(TRUE); ai_run(24);}
 void()	d1boss_run16	=[	$stand16,		d1boss_run17	] {d1boss_changeheight(TRUE); ai_run(24);}
-void()	d1boss_run17	=[	$stand17,		d1boss_run1	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run17	=[	$stand17,		d1boss_run18	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run18	=[	$stand18,		d1boss_run19	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run19	=[	$stand19,		d1boss_run20	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run20	=[	$stand20,		d1boss_run21	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run21	=[	$stand21,		d1boss_run22	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run22	=[	$stand22,		d1boss_run23	] {d1boss_changeheight(TRUE); ai_run(24);}
+void()	d1boss_run23	=[	$stand23,		d1boss_run1	] {d1boss_changeheight(TRUE); ai_run(24);}
 
+//Long attack
 void()	d1boss_fast1	=[	$smash1,		d1boss_fast2	] {d1boss_changeheight(TRUE); ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
 void()	d1boss_fast2	=[	$smash2,		d1boss_fast3	] {ai_run_slide(6);}
 void()	d1boss_fast3	=[	$smash3,		d1boss_fast4	] {ai_run_slide(6);}
-void()	d1boss_fast4	=[	$smash4,		d1boss_fast5	] {ai_run_slide(6);D1BossMissile();}
-void()	d1boss_fast5	=[	$smash5,		d1boss_fast6	] {ai_run_slide(32);D1BossMissile();}
-void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(60);D1BossMissile();}
-void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(60);D1BossMissile();}
-
-void()	d1boss_fast8	=[	$smash8,		d1boss_run1	] {ai_attack_finished(2);}
+void()	d1boss_fast4	=[	$smash4,		d1boss_fast5	] {ai_run_slide(6);}
+void()	d1boss_fast5	=[	$smash5,		d1boss_fast6	] {ai_run_slide(6);}
+void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(6);}
+void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(6);D1BossMissile();}
+void()	d1boss_fast8	=[	$smash8,		d1boss_fast9	] {ai_run_slide(32);D1BossMissile();}
+void()	d1boss_fast9	=[	$smash9,		d1boss_fast10	] {ai_run_slide(60);D1BossMissile();}
+void()	d1boss_fast10	=[	$smash10,		d1boss_fast11	] {ai_run_slide(60);D1BossMissile();}
+void()	d1boss_fast11	=[	$smash11,		d1boss_fast12	] {ai_run_slide(6);}
+void()	d1boss_fast12	=[	$smash12,		d1boss_fast13	] {ai_run_slide(12);}
+void()	d1boss_fast13	=[	$smash13,		d1boss_fast14	] {ai_run_slide(16);}
+void()	d1boss_fast14	=[	$smash14,		d1boss_fast15	] {ai_run_slide(24);}
+void()	d1boss_fast15	=[	$smash15,		d1boss_run1	] {ai_attack_finished(2);}
 
 void()	d1boss_melee1	=[	$smash1,		d1boss_melee2	] {sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
 void()	d1boss_melee2	=[	$smash2,		d1boss_melee3	] {D1BossGrenade();}
@@ -537,7 +569,7 @@ void(entity attacker, float damage) d1boss_Pain =
 
 void() d1boss_chooseattack =
 {
-	if (random() > 0.75)
+	if (random() > 0.5)
 		d1boss_fast1();
 	else if (random() > .5)
 		d1boss_swingl1();
