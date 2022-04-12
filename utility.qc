@@ -424,6 +424,21 @@ void(string s) precache_model3	= { return; }
 void(string s) precache_sound3	= { return; }
 */
 
+/*
+Gets the correct time value depending on entity movetype. MOVETYPE_PUSH ents needs to use
+'self.ltime' instead of simply 'time' for setting thinks
+*/
+float() getLocalTime =
+{
+	if (self.movetype == MOVETYPE_PUSH) return self.ltime;
+	else return time;
+}
+
+float(entity e) getEntityTime =
+{
+	if (e.movetype == MOVETYPE_PUSH) return e.ltime;
+	else return time;
+}
 
 // shorthand for turning -1 to 0 for keyvalues for which 0 is a valid non-default selection
 float(float in) zeroconvert =

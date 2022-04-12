@@ -98,7 +98,7 @@ void() plat_hit_top =
 	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.state = STATE_TOP;
 	self.think = plat_go_down;
-	self.nextthink = self.ltime + self.wait;
+	self.nextthink = getLocalTime() + self.wait;
 }
 
 void() plat_hit_bottom =
@@ -196,7 +196,7 @@ void() plat_center_touch =
 			SUB_CallAsSelf(plat_go_up, self.enemy);
 	}
 	else if (self.enemy.state == STATE_TOP)
-		self.enemy.nextthink = max(self.enemy.nextthink, self.enemy.ltime + 1);	// delay going down
+		self.enemy.nextthink = max(self.enemy.nextthink, getEntityTime(self.enemy) + 1);	// delay going down
 }
 /*
 void() plat_outside_touch =
@@ -408,7 +408,7 @@ void() train_sounds =
 void() flytrain_think = 
 {
 	self.think1();
-	self.nextthink = self.ltime + 0.1;
+	self.nextthink = getLocalTime() + 0.1;
 	
 //	dprint(ftos(vlen(self.velocity)));
 //	dprint("\n");
@@ -439,7 +439,7 @@ void() flytrain_init =
 	self.goalentity = self;		// haaax
 	self.use = flytrain_use;
 	self.think = flytrain_init2;
-	self.nextthink = self.ltime + 0.1;
+	self.nextthink = getLocalTime() + 0.1;
 	//dprint("end of flytrain_init\n");
 }
 
@@ -579,7 +579,7 @@ void() train_wait =
 	{
 		self.state = STATE_OFF;	// allow triggering while waiting
 		self.think = train_next;
-		self.nextthink = self.ltime + self.wait;
+		self.nextthink = getLocalTime() + self.wait;
 		if (self.wait > 0.1)
 			sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	}
@@ -637,7 +637,7 @@ void() func_train_find =
 	if (self.targetname == string_null)
 	{	// not triggered, so start immediately
 		self.state = STATE_ON;
-		self.nextthink = self.ltime + 0.1;
+		self.nextthink = getLocalTime() + 0.1;
 		self.think = train_next;
 	}
 }
@@ -666,7 +666,7 @@ void() func_train_setup =
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
-	self.nextthink = self.ltime + 0.1;
+	self.nextthink = getLocalTime() + 0.1;
 	self.think = func_train_find;
 
 }
@@ -814,7 +814,7 @@ void() func_bobbing_think =
 		
 	dst = func_bobbing_pos(self.delay);
 	self.velocity = (dst - self.origin) / self.length;
-	self.nextthink = self.ltime + self.length;
+	self.nextthink = getLocalTime() + self.length;
 }
 
 /*QUAKED func_bobbing (0 .5 .8) ? START_OFF CRUSHER
@@ -881,7 +881,7 @@ void() func_bobbing =
 	
 	self.state = self.spawnflags & 1;
 	if (!(self.state))
-		self.nextthink = self.ltime + self.length;
+		self.nextthink = getLocalTime() + self.length;
 	
 	train_sounds();
 	

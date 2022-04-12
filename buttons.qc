@@ -10,7 +10,7 @@ for all your button
 void() button_wait =
 {
 	self.state = STATE_TOP;
-	self.nextthink = self.ltime + self.wait;
+	self.nextthink = getLocalTime() + self.wait;
 	self.think = button_return;
 	activator = self.enemy;
 	self.frame = 1;			// use alternate textures

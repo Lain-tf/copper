@@ -75,10 +75,11 @@ void() func_wall_use =
 	
 	if (self.wait > 0)
 	{
-		if (self.nextthink <= self.ltime)
+		float localtime = getLocalTime();
+		if (self.nextthink <= localtime)
 			func_wall_flip();
 		self.think = func_wall_flip;
-		self.nextthink = self.ltime + self.wait;
+		self.nextthink = localtime + self.wait;
 		return;
 	}
 	

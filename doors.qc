@@ -51,7 +51,7 @@ void() door_hit_top =
 	if (self.spawnflags & DOOR_TOGGLE)
 		return;		// don't come down automatically
 	self.think = door_go_down;
-	self.nextthink = self.ltime + self.wait;
+	self.nextthink = getLocalTime() + self.wait;
 }
 
 void() door_hit_bottom =
@@ -81,7 +81,7 @@ void() door_go_up =
 
 	if (self.state == STATE_TOP)
 	{	// reset top wait time
-		self.nextthink = self.ltime + self.wait;
+		self.nextthink = getLocalTime() + self.wait;
 		return;
 	}
 	
@@ -380,7 +380,7 @@ void() door_shadowmonitor_go =
 
 	bmodel_lightstyle(o, light_str(frac));
 
-	self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
+	self.nextthink = time + min(0.05, (o.nextthink - getEntityTime(o)));
 	self.think = door_shadowmonitor_go;
 }
 
@@ -831,7 +831,7 @@ void() func_door =
 	// door_link can't be done until all of the doors have been spawned, so
 	// the sizes can be detected properly.
 	self.think = door_link;
-	self.nextthink = self.ltime + 0.1;
+	self.nextthink = getLocalTime() + 0.1;
 }
 
 /*
@@ -889,7 +889,7 @@ void(entity door) secret_door_force =
 	self = door;
 	if (self.think == secretdoor_move4)	// waiting in open pos, extend timer
 	{
-		self.nextthink = self.ltime + self.wait;
+		self.nextthink = getLocalTime() + self.wait;
 	}
 	else if (self.think1 == secretdoor_move5)	// 2nd reverse move in progress or done
 	{
@@ -935,7 +935,7 @@ void() secret_shadowmonitor_go =
 		return;
 	}
 	
-	self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
+	self.nextthink = time + min(0.05, (o.nextthink - getEntityTime(o)));
 	self.think = secret_shadowmonitor_go;
 }
 
@@ -945,7 +945,7 @@ void () secretdoor_move0 =
 {
 	if (self.noise1 != string_null)
 		sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
-	self.nextthink = self.ltime + 0.1;
+	self.nextthink = getLocalTime() + 0.1;
 
 	SUB_CalcMove(self.dest1, self.speed, secretdoor_move1);
 	if (self.noise2 != string_null)
@@ -963,7 +963,7 @@ void () secretdoor_move0 =
 // Wait after first movement...
 void () secretdoor_move1 = 
 {
-	self.nextthink = self.ltime + 1.0;
+	self.nextthink = getLocalTime() + 1.0;
 	self.think = secretdoor_move2;
 	if (self.noise3 != string_null)
 		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
@@ -984,7 +984,7 @@ void () secretdoor_move3 =
 		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 	if (!(self.spawnflags & SECRET_OPEN_ONCE) || self.wait > 0)
 	{
-		self.nextthink = self.ltime + self.wait;
+		self.nextthink = getLocalTime() + self.wait;
 		self.think = secretdoor_move4;
 		return;
 	}
@@ -1003,7 +1003,7 @@ void () secretdoor_move4 =
 // Wait 1 second...
 void () secretdoor_move5 = 
 {
-	self.nextthink = self.ltime + 1.0;
+	self.nextthink = getLocalTime() + 1.0;
 	self.think = secretdoor_move6;
 	if (self.noise3 != string_null)
 		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
