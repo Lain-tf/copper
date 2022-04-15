@@ -50,6 +50,7 @@ misc.qc
 shooters.qc
 walls.qc
 sound.qc
+water.qc
 
 fog.qc			// atmosfear
 t_void.qc		// bottomless pits

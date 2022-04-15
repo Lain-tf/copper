@@ -1058,9 +1058,9 @@ float() ai_floatmove_ceilcheck =
 float() ai_fishmovecheck =
 {
 	float opc;
-	opc = pointcontents(self.oldorigin);
-	if ( pointcontents(self.origin) != opc || 
-		pointcontents(self.origin + '0 0 16') != opc ||
+	opc = pointcontents2(self.oldorigin);
+	if ( pointcontents2(self.origin) != opc || 
+		pointcontents2(self.origin + '0 0 16') != opc ||
 		!ai_floatmove_ceilcheck())	// goddamn fish noclipping through ceilings
 		return FALSE;
 	return TRUE;
@@ -1078,7 +1078,7 @@ void(float dist) ai_floatmove_finish =
 	move = self.origin - self.oldorigin;
 	
 	// fish have short bounding boxes, which in quake physics land means they can noclip through ceilings
-	if (pointcontents(self.origin) == CONTENT_SOLID)
+	if (pointcontents2(self.origin) == CONTENT_SOLID)
 	{
 		setorigin(self, self.oldorigin);
 		//dprint("detected move into solid\n");

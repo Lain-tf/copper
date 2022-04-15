@@ -414,6 +414,12 @@ float	isKex;	// running the quake rerelease
 .vector rmovedir = finaldest;
 .float version = worldtype;
 
+// dynamic liquids
+.string		liquidbrush;
+.float		liquidtype;
+.vector		liquidcolor;
+.float		liquiddensity;
+
 
 //===========================================================================
 // builtin functions

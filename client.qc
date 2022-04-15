@@ -1007,26 +1007,26 @@ vector() WaterTest =
 	waist_z += (self.mins_z + self.maxs_z) * 0.5;
 
 	//wp = pointcontents(self.origin);
-	wp = pointcontents(waist);
+	wp = pointcontents2(waist);
 	// iw -- END
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents(self.origin + self.mins);
+	wp = pointcontents2(self.origin + self.mins);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents(self.origin + self.maxs);
+	wp = pointcontents2(self.origin + self.maxs);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents(self.origin + self.view_ofs);
+	wp = pointcontents2(self.origin + self.view_ofs);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
@@ -1114,7 +1114,7 @@ void() WaterMove =
 					{
 						i -= 75;
 						b = self.absmin + vec_scale(self.size, Vector(random(),random(),random()));
-						if (pointcontents(b) == CONTENT_WATER)
+						if (pointcontents2(b) == CONTENT_WATER)
 							bubble_spawn(b);
 					}
 				}
@@ -1582,8 +1582,8 @@ void() PlayerPreThink =
 // We increase player's speed when they legs and torso is submerged into water [part 1](check post think for [part 2]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
-			pointcontents (self.origin) == CONTENT_WATER)
+		if (pointcontents2 (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents2 (self.origin) == CONTENT_WATER)
 			self.velocity = self.velocity * 1.3;
 	}
 // WETSUIT END
@@ -1617,6 +1617,7 @@ void() PlayerPreThink =
 		self.flags = self.flags | FL_FLY;
 	}
 	
+	//checkSelfInWaterBrush();
 	// ai_nav
 	//nav_editorThink();
 }
@@ -1637,14 +1638,15 @@ void() PlayerPostThink =
 		return;		// intermission or finale
 	if (self.deadflag)
 		return;
-		
+
+	checkSelfInWaterBrush();	
 	//JIM
 // WETSUIT
 // We increase player's speed when they legs and torso is submerged into water [part 2](check pre think for [part 1]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
-			pointcontents (self.origin) == CONTENT_WATER)
+		if (pointcontents2 (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents2 (self.origin) == CONTENT_WATER)
 				self.velocity = self.velocity * 0.769230;
 	}
 // WETSUIT END
@@ -1658,7 +1660,19 @@ void() PlayerPostThink =
 			stuffcmd(self,"\nv_cshift 255 0 0 20\n");  // berserk red
 		else if (self.haste_finished > time) 
 			stuffcmd(self,"\nv_cshift 255 255 0 10\n"); // haste yellow
-		else stuffcmd(self,"\nv_cshift 0 0 0 0\n");
+		else if (self.liquiddensity) {
+			stuffcmd(self, "\nv_cshift ");
+			stuffcmd(self, ftos(self.liquidcolor_x));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquidcolor_y));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquidcolor_z));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquiddensity));
+			stuffcmd(self, "\n");
+		}
+		else
+			stuffcmd(self,"\nv_cshift 0 0 0 0\n");
 		
 		self.changevcshift = 0;
 	}
