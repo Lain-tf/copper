@@ -538,6 +538,8 @@ void() func_flytrain_point =
 //============================================================================
 
 float TRAIN_INHERIT = 1;
+float TRAIN_NONSOLID = 2;
+float TRAIN_HURT = 4;
 
 void() train_blocked =
 {
@@ -703,10 +705,24 @@ void() func_train =
 	if (!SUB_ShouldSpawn()) return;
 	func_train_setup();
 	
+	if (self.spawnflags & TRAIN_NONSOLID)
+	{
+		self.solid = SOLID_TRIGGER;
+		self.movetype = MOVETYPE_NOCLIP;
+	}
+
 	precache_model_safe(self.model);
 	setmodel (self, self.model);
 	setsize (self, self.mins , self.maxs);
 	setorigin (self, self.origin);
+
+	if (self.spawnflags & TRAIN_HURT)
+	{
+		self.touch = hurt_touch;
+		//self.dmg = zeroconvertdefault(self.dmg,5);
+		if (!self.delay)
+			self.delay = 1;
+	}
 }
 
 /*QUAKED func_train_point (0 .5 .8) (-8 -8 -8) (8 8 8) PATH_SPEED
