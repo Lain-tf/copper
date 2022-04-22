@@ -17,7 +17,7 @@ void() killed_monster =
 Killed
 ============
 */
-void(entity targ, entity attacker) Killed =
+void(entity targ, entity inflictor, entity attacker) Killed =
 {
 	local entity oself;
 
@@ -28,6 +28,8 @@ void(entity targ, entity attacker) Killed =
 
 	//bprint4(self.classname, " died with ", ftos(self.health), " hp\n");
 	
+	self.dmg_inflictor = inflictor;
+
 	if ((self.health < -99) && (self.classname == "player"))
 		self.health = -99;		// don't let sbar look bad (or throw gibs with crazy speed)
 
@@ -503,7 +505,7 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 			self = oldself;
 			if (dontdie) return;
 		}
-		Killed (targ, attacker);
+		Killed (targ, inflictor, attacker);
 		return;
 	}
 
