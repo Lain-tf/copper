@@ -12,7 +12,7 @@ void() explobox_respawn =
 	if (who)	// solid, can't respawn if blocked
 	{
 		self.think = explobox_respawn;
-		self.nextthink = self.ltime + 0.2;
+		self.nextthink = getLocalTime() + 0.2;
 		return;
 	}
 
@@ -31,15 +31,16 @@ void() explobox_respawn =
 
 void() explobox_flicker =
 {
-	if (self.ltime >= self.attack_finished)
+	float localtime = getLocalTime();
+	if (localtime >= self.attack_finished)
 	{
 		explobox_respawn();
 		return;
 	}
 
 	// flicker back into place
-	self.alpha = (3.5 - (self.attack_finished - self.ltime)) / 8 + (1 - mod(self.attack_finished - self.ltime, 0.5)) * 0.2;
-	self.nextthink = self.ltime + 0.1;
+	self.alpha = (3.5 - (self.attack_finished - localtime)) / 8 + (1 - mod(self.attack_finished - localtime, 0.5)) * 0.2;
+	self.nextthink = localtime + 0.1;
 }
 
 void() explobox_prespawn =
@@ -77,8 +78,8 @@ void() explobox_explode_go =
 	//self.takedamage = DAMAGE_NO;
 	
 	self.think = explobox_prespawn;
-	self.attack_finished = self.ltime + self.wait;
-	self.nextthink = max(self.ltime + 0.05, self.attack_finished - 3.5);
+	self.attack_finished = getLocalTime() + self.wait;
+	self.nextthink = max(getLocalTime() + 0.05, self.attack_finished - 3.5);
 	
 	playercount_convert(count);
 	if (self.count > 0)		// only respawn 'count' more times
@@ -100,7 +101,7 @@ void() explobox_explode =
 		return;	// already exploding
 	self.enemy = activator;
 	self.think = explobox_explode_go;
-	self.nextthink = self.ltime + 0.05;	// infini-barrel crash fixed
+	self.nextthink = getLocalTime() + 0.05;	// infini-barrel crash fixed
 }
 
 // ye olde barrel explode function preserved for maphacks
@@ -245,4 +246,156 @@ void() func_explobox =
 	self.dmg = zeroconvertdefault(self.dmg,150);
 	bmodel_lightstyle(self, "a");
 	explobox_setup();
+}
+
+//========================================================================================
+
+
+	
+void() explobox3_pain_think =
+{
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
+	//dprint2(vtos(self.velocity), "\n");
+	
+	if (self.health <= 0 && time >= self.pain_finished)
+	{		
+		//dprint("exploding now...\n");
+		explobox3_explode_go();
+		return;
+	}
+	else if (self.health <= 0 && self.cnt <= 0) {
+		//dprint("exploding later...\n");
+		self.think = explobox3_explode_go;
+		self.nextthink = self.pain_finished;
+		return;
+	}
+	else if (self.cnt > 0) {
+		self.think = explobox3_pain_think;
+		self.nextthink = time + 0.02;
+	}
+
+	self.cnt--;
+}
+
+void(entity inflictor, entity attacker, float dmg) explobox3_pain =
+{
+	vector vel;
+
+	vel = BoundsCenter(self) - inflictor.origin;
+	vel_z = 0;
+	vel = normalize(vel);
+
+	self.max_health = self.health;
+	dmg = min(dmg, 100);
+	
+	self.velocity = vel * 200;
+	self.delay = dmg / 150;
+	self.attack_finished = time + self.delay;
+	self.cnt = self.delay/0.02;
+	//dprint3("Count: ", ftos(self.cnt), "\n");
+
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
+	self.think = explobox3_pain_think;
+	self.nextthink = time + 0.02;
+	
+}
+
+void() explobox3_explode =
+{
+	if (self.pain_finished > time)
+		return;	// already exploding
+
+	self.pain_finished = time + 0.2;
+	explobox3_pain(self.dmg_inflictor, self.enemy, self.max_health - self.health);
+	
+}
+
+void() explobox3_explode_go =
+{
+	self.takedamage = DAMAGE_NO;
+	self.classname = "explo_box";
+	//sound (self, CHAN_VOICE, "weapons/r_exp3.wav", 1, ATTN_NORM);
+	entity exp;
+	self.use = SUB_Null;
+	self.health = 0;	// ensure triggered exploboxes don't hurt themselves and loop again
+	exp = kaboom(BoundsCenter(self), self.dmg, self, 0);
+	//exp.velocity = self.velocity;
+	bmodel_lightstyle(self, "m");
+	
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
+
+	if (!self.wait)
+	{
+		if (self.enemy)
+			activator = self.enemy;
+		SUB_UseTargets();
+		//SUB_Remove();
+		self.think = SUB_Remove;
+		self.nextthink = getLocalTime() + 0.1;
+		return;
+	}
+	
+	self.wad = self.model;
+	self.model = string_null;
+	self.solid = SOLID_NOT;
+	//self.takedamage = DAMAGE_NO;
+	
+	self.think = explobox_prespawn;
+	self.attack_finished = getLocalTime() + self.wait;
+	self.nextthink = max(getLocalTime() + 0.05, self.attack_finished - 3.5);
+	
+	playercount_convert(count);
+	if (self.count > 0)		// only respawn 'count' more times
+	{
+		self.count = self.count - 1;
+		if (self.count <= 0)
+		{
+			if (self.enemy)
+				activator = self.enemy;
+			SUB_UseTargets();
+			//SUB_Remove();
+			self.think = SUB_Remove;
+			self.nextthink = getLocalTime() + 0.1;
+		}
+	}
+}
+
+
+/*QUAKED misc_explobox3 (0 .5 .8) (0 0 0) (32 32 32)
+Smaller exploding box. 100 damage. REGISTERED ONLY
+will do enough damage to set off other barrels at up to ~128u distance (center to center)
+
+"target"	fires targets when it explodes
+"targetname"	will explode when triggered
+"wait"		will respawn after 'wait' seconds
+"count"		will only respawn 'count' times
+*/
+/*FGD
+@PointClass base(Appearflags, Target, Targetname) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox2 : "Small exploding container, 100 damage. 
+Explodes when triggered or shot. Fires targets when it explodes.
+will do enough damage to set off other barrels at up to ~128u distance (center to center)." 
+[
+	wait(string) : "Respawn delay"
+	count(integer) : "Respawn limit"
+]
+*/
+
+void() misc_explobox3 =
+{
+	if (!SUB_ShouldSpawn()) return;
+	self.solid = SOLID_SLIDEBOX;
+	self.movetype = MOVETYPE_STEP;
+	precache_model2 ("maps/b_exbox2.bsp");
+	setmodel (self, "maps/b_exbox2.bsp");
+	setsize(self, '-32 -32 0', '0 0 32');
+	//precache_model2 ("progs/h_shams.mdl");
+	//setmodel (self, "progs/h_shams.mdl");
+	//setsize (self, '-16 -16 0', '16 16 32');
+	self.dmg = zeroconvertdefault(self.dmg,100);
+		
+	explobox_setup();
+	self.flags = self.flags;
+	self.max_health = self.health;
+	self.th_pain_ext = explobox3_pain;
+	self.th_die = explobox3_explode;
 }
