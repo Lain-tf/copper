@@ -516,11 +516,14 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 		T_ReactToDamage( attacker );
 	
 	// if (self.th_pain && time >= self.pain_finished)	// can't do this here, breaks zombie pain handling
-	if (self.th_pain)
+	if (self.th_pain || self.th_pain_ext)
 	{
 		// nightmare scaling of .pain_finished moved to PainFinished(), called from .th_pain
 		// on appropriate monsters only
-		self.th_pain (attacker, take);
+		if (self.th_pain_ext)
+			self.th_pain_ext (inflictor, attacker, take);
+		else
+			self.th_pain (attacker, take);
 
 		// in coop, monsters will switch to the most convenient player to attack at will,
 		// but triggering a pain animation will draw dedicated attention for a few seconds

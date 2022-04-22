@@ -296,6 +296,7 @@ float	isKex;	// running the quake rerelease
 .void()		th_missile;
 .void()		th_melee;
 .void(entity attacker, float damage) th_pain;
+.void(entity inflictor, entity attacker, float damage) th_pain_ext;
 .void()		th_die;
 .float()	th_checkattack;
 .float()	th_checkdeath;
