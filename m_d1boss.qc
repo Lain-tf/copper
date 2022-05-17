@@ -25,7 +25,21 @@ $frame swingl6 swingl7 swingl8 swingl9
 $frame smash1 smash2 smash3 smash4 smash5 
 $frame smash6 smash7 smash8 smash9 smash10
 $frame smash11 smash12 smash13 smash14 smash15 smash16
+$frame smash17 smash18 smash19 smash20 smash21 smash22
+$frame smash23 smash24
 
+$frame chan1 chan2 chan3 chan4 chan5 
+$frame chan6 chan7 chan8 chan9 chan10
+$frame chan11 chan12 chan13 chan14 chan15 chan16
+$frame chan17 chan18 chan19 chan20 chan21 chan22
+$frame chan23 chan24
+
+$frame phase1 phase2 phase3 phase4 phase5 
+$frame phase6 phase7 phase8 phase9 phase10
+$frame phase11 phase12 phase13 phase14 phase15 phase16
+$frame phase17 phase18 phase19 phase20 phase21 phase22
+$frame phase23 phase24 phase25 phase26 phase27 phase28
+$frame phase29 phase30 phase31 phase32 phase33
 
 
 float D1BOSS_BALL_VEL = 750;
@@ -122,7 +136,7 @@ FAST ATTACKS
 */
 void() D1BossMissileExplode =
 {
-	T_RadiusDamage (self, self.trueowner, 50, world);
+	T_RadiusDamage (self, self.trueowner, 55, world);
 	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
 
 	BecomeExplosion();
@@ -373,21 +387,30 @@ void()	d1boss_run22	=[	$stand22,		d1boss_run23	] {d1boss_changeheight(TRUE); ai_
 void()	d1boss_run23	=[	$stand23,		d1boss_run1	] {d1boss_changeheight(TRUE); ai_run(24);}
 
 //Long attack
-void()	d1boss_fast1	=[	$smash1,		d1boss_fast2	] {d1boss_changeheight(TRUE); ai_run_slide(10);sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
+void()	d1boss_fast1	=[	$smash1,		d1boss_fast2	] {d1boss_changeheight(TRUE); ai_run_slide(10);sound (self, CHAN_VOICE, "d1boss/bigattack.wav", 1, ATTN_NORM);}
 void()	d1boss_fast2	=[	$smash2,		d1boss_fast3	] {ai_run_slide(6);}
 void()	d1boss_fast3	=[	$smash3,		d1boss_fast4	] {ai_run_slide(6);}
 void()	d1boss_fast4	=[	$smash4,		d1boss_fast5	] {ai_run_slide(6);}
 void()	d1boss_fast5	=[	$smash5,		d1boss_fast6	] {ai_run_slide(6);}
 void()	d1boss_fast6	=[	$smash6,		d1boss_fast7	] {ai_run_slide(6);}
-void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(6);D1BossMissile();}
-void()	d1boss_fast8	=[	$smash8,		d1boss_fast9	] {ai_run_slide(32);D1BossMissile();}
-void()	d1boss_fast9	=[	$smash9,		d1boss_fast10	] {ai_run_slide(60);D1BossMissile();}
-void()	d1boss_fast10	=[	$smash10,		d1boss_fast11	] {ai_run_slide(60);D1BossMissile();}
+void()	d1boss_fast7	=[	$smash7,		d1boss_fast8	] {ai_run_slide(6);}
+void()	d1boss_fast8	=[	$smash8,		d1boss_fast9	] {ai_run_slide(6);}
+void()	d1boss_fast9	=[	$smash9,		d1boss_fast10	] {ai_run_slide(6);}
+void()	d1boss_fast10	=[	$smash10,		d1boss_fast11	] {ai_run_slide(6);}
 void()	d1boss_fast11	=[	$smash11,		d1boss_fast12	] {ai_run_slide(6);}
-void()	d1boss_fast12	=[	$smash12,		d1boss_fast13	] {ai_run_slide(12);}
-void()	d1boss_fast13	=[	$smash13,		d1boss_fast14	] {ai_run_slide(16);}
-void()	d1boss_fast14	=[	$smash14,		d1boss_fast15	] {ai_run_slide(24);}
-void()	d1boss_fast15	=[	$smash15,		d1boss_run1	] {ai_attack_finished(2);}
+void()	d1boss_fast12	=[	$smash12,		d1boss_fast13	] {ai_run_slide(6);}
+void()	d1boss_fast13	=[	$smash13,		d1boss_fast14	] {ai_run_slide(6);}
+void()	d1boss_fast14	=[	$smash14,		d1boss_fast15	] {ai_run_slide(6);}
+void()	d1boss_fast15	=[	$smash15,		d1boss_fast16	] {ai_run_slide(12);}
+void()	d1boss_fast16	=[	$smash16,		d1boss_fast17	] {ai_run_slide(16);D1BossMissile();}
+void()	d1boss_fast17	=[	$smash17,		d1boss_fast18	] {ai_run_slide(24);D1BossMissile();}
+void()	d1boss_fast18	=[	$smash18,		d1boss_fast19	] {ai_run_slide(24);D1BossMissile();}
+void()	d1boss_fast19	=[	$smash19,		d1boss_fast20	] {ai_run_slide(24);}
+void()	d1boss_fast20	=[	$smash20,		d1boss_fast21	] {ai_run_slide(24);}
+void()	d1boss_fast21	=[	$smash21,		d1boss_fast22	] {ai_run_slide(24);}
+void()	d1boss_fast22	=[	$smash22,		d1boss_fast23	] {ai_run_slide(24);}
+void()	d1boss_fast23	=[	$smash23,		d1boss_fast24	] {ai_run_slide(24);}
+void()	d1boss_fast24	=[	$smash24,		d1boss_run1	] {ai_attack_finished(2);}
 
 void()	d1boss_melee1	=[	$smash1,		d1boss_melee2	] {sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
 void()	d1boss_melee2	=[	$smash2,		d1boss_melee3	] {D1BossGrenade();}
@@ -397,15 +420,8 @@ void()	d1boss_melee5	=[	$smash5,		d1boss_melee6	] {D1BossGrenade();}
 void()	d1boss_melee6	=[	$smash6,		d1boss_melee7	] {D1BossGrenade();}
 void()	d1boss_melee7	=[	$smash7,		d1boss_run1	] {ai_attack_finished(2);}
 
-
-void()	d1boss_pain1	=[	$pain1,		d1boss_pain2	] {ai_nop();PainFinished(4);}
-void()	d1boss_pain2	=[	$pain2,		d1boss_pain3	] {ai_nop();}
-void()	d1boss_pain3	=[	$pain3,		d1boss_pain4	] {ai_nop();}
-void()	d1boss_pain4	=[	$pain4,		d1boss_run1	] {ai_nop();}
-
-
 void() d1boss_swingl1	=[      $swingl1,      d1boss_swingl2   ] {
-	sound (self, CHAN_VOICE, "shambler/melee2.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_run_slide(60);}
@@ -418,7 +434,7 @@ void() d1boss_swingl8 =[      $swingl8,      d1boss_swingl9   ] {ai_run_slide(2)
 void() d1boss_swingl9 =[      $swingl9,      d1boss_run1  ] {ai_run_slide(2); d1boss_swinogr1();}
 
 void() d1boss_swingr1	=[      $swingr1,      d1boss_swingr2   ] {
-	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_run_slide(60);}
@@ -431,7 +447,7 @@ void() d1boss_swingr8 =[      $swingr8,      d1boss_swingr9   ] {ai_run_slide(2)
 void() d1boss_swingr9 =[      $swingr9,      d1boss_run1  ] {ai_run_slide(2); d1boss_swinogr1();}
 
 void() d1boss_swinogl1	=[      $swingl1,      d1boss_swinogl2   ] {
-	sound (self, CHAN_VOICE, "shambler/melee2.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swinogl2 =[      $swingl2,      d1boss_swinogl3   ] {ai_run_slide(16);}
@@ -444,7 +460,7 @@ void() d1boss_swinogl8 =[      $swingl8,      d1boss_swinogl9   ] {ai_run_slide(
 void() d1boss_swinogl9 =[      $swingl9,      d1boss_run1  ] {ai_face(); d1boss_swinogr1();}
 
 void() d1boss_swinogr1	=[      $swingr1,      d1boss_swinogr2   ] {
-	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swinogr2 =[      $swingr2,      d1boss_swinogr3   ] {ai_run_slide(16);}
@@ -557,11 +573,9 @@ void() d1boss_die =
 
 void(entity attacker, float damage) d1boss_Pain =
 {
-	sound (self, CHAN_VOICE, "shambler/shurt2.wav", 1, ATTN_NORM);
-
 	if (self.health <= 0) return;	
 	if (self.pain_finished > time) return;
-	if (random()*400 > damage) return;		// didn't flinch
+	if (random()*300 > damage) return;		// didn't flinch
 
 	PainFinished(2);
 	d1boss_pain1 ();
@@ -609,7 +623,7 @@ void() monster_d1boss_spawn =
 	self.yaw_speed = 30;
 
 	if (self.deathtype == string_null)
-		self.deathtype = "was obliterated by The Guardian";
+		self.deathtype = "was obliterated by Ryan";
 
 	flymonster_start ();
 }
@@ -665,7 +679,12 @@ void() monster_d1boss =
 	precache_sound ("shambler/melee1.wav");
 	precache_sound ("shambler/melee2.wav");
 	precache_sound ("shambler/smack.wav");
-
+	
+	precache_sound ("d1boss/dash.wav");
+	precache_sound ("d1boss/death1.wav");
+	precache_sound ("d1boss/bigattack.wav");
+	precache_sound ("d1boss/pain1.wav");
+	precache_sound ("d1boss/phasechange.wav");
 
 	self.health = D1BOSS_HEALTH;
 	//setsize (self, '-16 -16 -24', '16 16 40');
