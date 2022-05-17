@@ -578,7 +578,6 @@ void(entity attacker, float damage) d1boss_Pain =
 	if (random()*300 > damage) return;		// didn't flinch
 
 	PainFinished(2);
-	d1boss_pain1 ();
 }
 
 void() d1boss_chooseattack =
