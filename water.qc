@@ -19,6 +19,16 @@ void() startupWaterBrushes = {
 void() checkSelfInWaterBrush = {
 	entity e;
 	float lvl;
+	
+	if (self.flags & FL_CLIENT) {
+		self.gravity = 1;
+		
+		if (self.liquiddensity) {
+			self.liquiddensity = 0;
+			self.changevcshift = 1;
+		}
+		//csf_clear(self, 70);
+	}
 
 	e = find(world, liquidbrush, "1");
 
@@ -60,12 +70,6 @@ void() checkSelfInWaterBrush = {
 				}
 			}
 			return;
-		}
-		else if (self.flags & FL_CLIENT) {
-			self.gravity = 1;
-			self.liquiddensity = 0;
-			//csf_clear(self, 70);
-
 		}
 
 		e = find(e, liquidbrush, "1");

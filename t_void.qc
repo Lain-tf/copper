@@ -156,9 +156,9 @@ void() void_func_touch =
 			other.customflags |= CFL_PLUNGE;	// set this so Killed() doesn't throw gibs
 			//T_Damage(other, self, other.enemy, other.health + 10);
 			if (other.enemy.classname == "player")
-				Killed(other,other.enemy);
+				Killed(other,other.enemy, other.enemy);
 			else if (other.oldenemy.classname == "player")
-				Killed(other,other.oldenemy);
+				Killed(other,other.oldenemy, other.oldenemy);
 			// attacker must be the monster's enemy, so that players still count as the 
 			// killer if they boosh monsters into a pit
 			return;

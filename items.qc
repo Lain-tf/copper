@@ -596,7 +596,7 @@ float(entity e) target_items_takeinv =
 	{
 		e.health = max(0, e.health - self.health);
 		if (e.health <= 0)
-			Killed(e, self);
+			Killed(e, self, self);
 	}
 		
 	if (self.armorvalue)

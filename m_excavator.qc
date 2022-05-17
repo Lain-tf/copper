@@ -64,7 +64,7 @@ void() excavator_kamikaze_touch =
 
 	sound (self, CHAN_VOICE, "exca/ex_death.wav", 1, ATTN_NORM);
 	T_RadiusDamage(self, self, 60, world);
-	Killed(self,self.enemy);
+	Killed(self,self.enemy, self.enemy);
 	BecomeExplosion ();
 	
 }

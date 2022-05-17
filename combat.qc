@@ -17,7 +17,7 @@ void() killed_monster =
 Killed
 ============
 */
-void(entity targ, entity attacker) Killed =
+void(entity targ, entity inflictor, entity attacker) Killed =
 {
 	local entity oself;
 
@@ -28,6 +28,8 @@ void(entity targ, entity attacker) Killed =
 
 	//bprint4(self.classname, " died with ", ftos(self.health), " hp\n");
 	
+	self.dmg_inflictor = inflictor;
+
 	if ((self.health < -99) && (self.classname == "player"))
 		self.health = -99;		// don't let sbar look bad (or throw gibs with crazy speed)
 
@@ -503,7 +505,7 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 			self = oldself;
 			if (dontdie) return;
 		}
-		Killed (targ, attacker);
+		Killed (targ, inflictor, attacker);
 		return;
 	}
 
@@ -514,11 +516,14 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 		T_ReactToDamage( attacker );
 	
 	// if (self.th_pain && time >= self.pain_finished)	// can't do this here, breaks zombie pain handling
-	if (self.th_pain)
+	if (self.th_pain || self.th_pain_ext)
 	{
 		// nightmare scaling of .pain_finished moved to PainFinished(), called from .th_pain
 		// on appropriate monsters only
-		self.th_pain (attacker, take);
+		if (self.th_pain_ext)
+			self.th_pain_ext (inflictor, attacker, take);
+		else
+			self.th_pain (attacker, take);
 
 		// in coop, monsters will switch to the most convenient player to attack at will,
 		// but triggering a pain animation will draw dedicated attention for a few seconds
