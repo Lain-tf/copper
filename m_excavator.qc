@@ -13,41 +13,54 @@ $skin excbase
 
 $frame bind // ignore
 
-$frame fly1 fly2 fly3 fly4 fly5 fly6 fly7 fly8 fly9 fly10
-$frame fly11 fly12
+$frame wake1 wake2 wake3 wake4 wake5
+
+$frame fly1 fly2 fly3 fly4 fly5 fly6 fly7 fly8 fly9 fly10 fly11 fly12
+$frame fly13 fly14 fly15 fly16 fly17 fly18 fly19 fly20
 
 $frame fly_loop // ignore
 
-$frame attack1 attack2 attack3 attack4 attack5 attack6
-$frame attack7 attack8 attack9 attack10 attack11 attack12
+$frame kamiinit1 kamiinit2 kamiinit3 kamiinit4 kamiinit5 kamiinit6 kamiinit7
 
-$frame kamiinit1 kamiinit2 kamiinit3 kamiinit4 kamiinit5 kamiinit6
-$frame kamiinit7 kamiinit8 kamiinit9 kamiinit10 kamiinit11 kamiinit12
-$frame kamiinit13 kamiinit14 kamiinit15 kamiinit16 kamiinit17
+$frame kamigo1 kamigo2 kamigo3 kamigo4 kamigo5
+$frame kamigo6 kamigo7 kamigo8 kamigo9 kamigo10
+$frame kamigo11 kamigo12
 
-$frame kamikaze1 kamikaze2 kamikaze3 kamikaze4 kamikaze5 kamikaze6
-$frame kamikaze7 kamikaze8 kamikaze9 kamikaze10 kamikaze11 kamikaze12
-$frame kamikaze13 kamikaze14 kamikaze15 kamikaze16
+$frame kamiloop1 kamiloop2 kamiloop3 kamiloop4
+$frame kamiloop5 kamiloop6 kamiloop7 kamiloop8 kamiloop9 kamiloop10
+
+$frame s_shot1 s_shot2 s_shot3 s_shot4 s_shot5
+$frame s_shot6 s_shot7 s_shot8 s_shot9 s_shot10
 
 $frame pain1 pain2 pain3 pain4 pain5 pain6
+
+$frame painb1 painb2 painb3 painb4 painb5 painb6
 
 /*
  *==================
  * Excavator fly/run
  *==================
  */
- void() excavator_run1 = [ $fly1, excavator_run2 ] {ai_run(16);}
- void() excavator_run2 = [ $fly2, excavator_run3 ] {ai_run(16);}
- void() excavator_run3 = [ $fly3, excavator_run4 ] {ai_run(16);}
- void() excavator_run4 = [ $fly4, excavator_run5 ] {ai_run(16);}
- void() excavator_run5 = [ $fly5, excavator_run6 ] {ai_run(16);}
- void() excavator_run6 = [ $fly6, excavator_run7 ] {ai_run(16);}
- void() excavator_run7 = [ $fly7, excavator_run8 ] {ai_run(16);}
- void() excavator_run8 = [ $fly8, excavator_run9 ] {ai_run(16);}
- void() excavator_run9 = [ $fly9, excavator_run10 ] {ai_run(16);}
+ void() excavator_run1  = [ $fly1, excavator_run2 ] {ai_run(16);}
+ void() excavator_run2  = [ $fly2, excavator_run3 ] {ai_run(16);}
+ void() excavator_run3  = [ $fly3, excavator_run4 ] {ai_run(16);}
+ void() excavator_run4  = [ $fly4, excavator_run5 ] {ai_run(16);}
+ void() excavator_run5  = [ $fly5, excavator_run6 ] {ai_run(16);}
+ void() excavator_run6  = [ $fly6, excavator_run7 ] {ai_run(16);}
+ void() excavator_run7  = [ $fly7, excavator_run8 ] {ai_run(16);}
+ void() excavator_run8  = [ $fly8, excavator_run9 ] {ai_run(16);}
+ void() excavator_run9  = [ $fly9, excavator_run10 ] {ai_run(16);}
  void() excavator_run10 = [ $fly10, excavator_run11 ] {ai_run(16);}
  void() excavator_run11 = [ $fly11, excavator_run12 ] {ai_run(16);}
- void() excavator_run12 = [ $fly12, excavator_run1 ] {ai_run(16);}
+ void() excavator_run12 = [ $fly12, excavator_run13 ] {ai_run(16);}
+ void() excavator_run13 = [ $fly13, excavator_run14 ] {ai_run(16);}
+ void() excavator_run14 = [ $fly14, excavator_run15 ] {ai_run(16);}
+ void() excavator_run15 = [ $fly15, excavator_run16 ] {ai_run(16);}
+ void() excavator_run16 = [ $fly16, excavator_run17 ] {ai_run(16);}
+ void() excavator_run17 = [ $fly17, excavator_run18 ] {ai_run(16);}
+ void() excavator_run18 = [ $fly18, excavator_run19 ] {ai_run(16);}
+ void() excavator_run19 = [ $fly19, excavator_run20 ] {ai_run(16);}
+ void() excavator_run20 = [ $fly20, excavator_run1 ] {ai_run(16);}
 
 /*
  *============================
@@ -78,39 +91,35 @@ void(float speed) excavator_kamikaze_move =
 	self.velocity = v_forward * speed;
 }
 
-void() excavator_kamikaze1 = [ $kamiinit1, excavator_kamikaze2 ] {ai_face(); excavator_kamikaze_move(200);}
-void() excavator_kamikaze2 = [ $kamiinit2, excavator_kamikaze3 ] {}
-void() excavator_kamikaze3 = [ $kamiinit3, excavator_kamikaze4 ] {}
-void() excavator_kamikaze4 = [ $kamiinit4, excavator_kamikaze5 ] {ai_face(); excavator_kamikaze_move(250);}
-void() excavator_kamikaze5 = [ $kamiinit5, excavator_kamikaze6 ] {}
-void() excavator_kamikaze6 = [ $kamiinit6, excavator_kamikaze7 ] {}
-void() excavator_kamikaze7 = [ $kamiinit7, excavator_kamikaze8 ] {ai_face(); excavator_kamikaze_move(300);}
-void() excavator_kamikaze8 = [ $kamiinit8, excavator_kamikaze9 ] {}
-void() excavator_kamikaze9 = [ $kamiinit9, excavator_kamikaze10 ] {}
-void() excavator_kamikaze10 = [ $kamiinit10, excavator_kamikaze11 ] {ai_face(); excavator_kamikaze_move(350);}
-void() excavator_kamikaze11 = [ $kamiinit11, excavator_kamikaze12 ] {}
-void() excavator_kamikaze12 = [ $kamiinit12, excavator_kamikaze13 ] {}
-void() excavator_kamikaze13 = [ $kamiinit13, excavator_kamikaze14 ] {ai_face(); excavator_kamikaze_move(400);}
-void() excavator_kamikaze14 = [ $kamiinit14, excavator_kamikaze15 ] {}
-void() excavator_kamikaze15 = [ $kamiinit15, excavator_kamikaze16 ] {}
-void() excavator_kamikaze16 = [ $kamiinit16, excavator_kamikaze17 ] {ai_face(); excavator_kamikaze_move(450);}
-void() excavator_kamikaze17 = [ $kamiinit17, excavator_kamikaze18 ] {}
-void() excavator_kamikaze18 = [ $kamikaze1, excavator_kamikaze19 ] {}
-void() excavator_kamikaze19 = [ $kamikaze2, excavator_kamikaze20 ] {ai_face(); excavator_kamikaze_move(500);}
-void() excavator_kamikaze20 = [ $kamikaze3, excavator_kamikaze21 ] {}
-void() excavator_kamikaze21 = [ $kamikaze4, excavator_kamikaze22 ] {}
-void() excavator_kamikaze22 = [ $kamikaze5, excavator_kamikaze23 ] {ai_face(); excavator_kamikaze_move(550);}
-void() excavator_kamikaze23 = [ $kamikaze6, excavator_kamikaze24 ] {}
-void() excavator_kamikaze24 = [ $kamikaze7, excavator_kamikaze25 ] {}
-void() excavator_kamikaze25 = [ $kamikaze8, excavator_kamikaze26 ] {ai_face(); excavator_kamikaze_move(600);}
-void() excavator_kamikaze26 = [ $kamikaze9, excavator_kamikaze27 ] {}
-void() excavator_kamikaze27 = [ $kamikaze10, excavator_kamikaze28 ] {}
-void() excavator_kamikaze28 = [ $kamikaze11, excavator_kamikaze29 ] {ai_face(); excavator_kamikaze_move(600);}
-void() excavator_kamikaze29 = [ $kamikaze12, excavator_kamikaze30 ] {}
-void() excavator_kamikaze30 = [ $kamikaze13, excavator_kamikaze31 ] {}
-void() excavator_kamikaze31 = [ $kamikaze14, excavator_kamikaze32 ] {ai_face(); excavator_kamikaze_move(600);}
-void() excavator_kamikaze32 = [ $kamikaze15, excavator_kamikaze33 ] {}
-void() excavator_kamikaze33 = [ $kamikaze16, excavator_kamikaze18 ] {}
+void() excavator_kamikaze1 = [  $kamiinit1,  excavator_kamikaze2 ] {ai_face();}
+void() excavator_kamikaze2 = [  $kamiinit2,  excavator_kamikaze3 ] {ai_face();}
+void() excavator_kamikaze3 = [  $kamiinit3,  excavator_kamikaze4 ] {ai_face();}
+void() excavator_kamikaze4 = [  $kamiinit4,  excavator_kamikaze5 ] {ai_face();}
+void() excavator_kamikaze5 = [  $kamiinit5,  excavator_kamikaze6 ] {ai_face();}
+void() excavator_kamikaze6 = [  $kamiinit6,  excavator_kamikaze7 ] {ai_face();}
+
+void() excavator_kamikaze7 = [  $kamigo1,  excavator_kamikaze8 ] {ai_face(); excavator_kamikaze_move(50);}
+void() excavator_kamikaze8 = [  $kamigo2,  excavator_kamikaze9 ] {excavator_kamikaze_move(100);}
+void() excavator_kamikaze9 = [  $kamigo3,  excavator_kamikaze10 ] {excavator_kamikaze_move(150);}
+void() excavator_kamikaze10 = [ $kamigo4, excavator_kamikaze11 ] {ai_face(); excavator_kamikaze_move(200);}
+void() excavator_kamikaze11 = [ $kamigo5, excavator_kamikaze12 ] {excavator_kamikaze_move(200);}
+void() excavator_kamikaze12 = [ $kamigo6, excavator_kamikaze13 ] {excavator_kamikaze_move(200);}
+void() excavator_kamikaze13 = [ $kamigo7, excavator_kamikaze14 ] {ai_face(); excavator_kamikaze_move(200);}
+void() excavator_kamikaze14 = [ $kamigo8, excavator_kamikaze15 ] {excavator_kamikaze_move(200);}
+void() excavator_kamikaze15 = [ $kamigo9, excavator_kamikaze16 ] {excavator_kamikaze_move(250);}
+void() excavator_kamikaze16 = [ $kamigo10, excavator_kamikaze17 ] {ai_face(); excavator_kamikaze_move(250);}
+void() excavator_kamikaze17 = [ $kamigo11, excavator_kamikaze23 ] {excavator_kamikaze_move(350);}
+	// loop point
+void() excavator_kamikaze23 = [ $kamiloop1,  excavator_kamikaze24 ] {excavator_kamikaze_move(500);}
+void() excavator_kamikaze24 = [ $kamiloop2,  excavator_kamikaze25 ] {}
+void() excavator_kamikaze25 = [ $kamiloop3,  excavator_kamikaze26 ] {ai_face(); excavator_kamikaze_move(500);}
+void() excavator_kamikaze26 = [ $kamiloop4,  excavator_kamikaze27 ] {}
+void() excavator_kamikaze27 = [ $kamiloop5,  excavator_kamikaze28 ] {excavator_kamikaze_move(500);}
+void() excavator_kamikaze28 = [ $kamiloop6,  excavator_kamikaze29 ] {}
+void() excavator_kamikaze29 = [ $kamiloop7,  excavator_kamikaze30 ] {ai_face(); excavator_kamikaze_move(500);}
+void() excavator_kamikaze30 = [ $kamiloop8,  excavator_kamikaze23 ] {}
+void() excavator_kamikaze31 = [ $kamiloop9,  excavator_kamikaze23 ] {ai_face(); excavator_kamikaze_move(500);}
+
 
 void() excavator_kamikaze_start =
 {
@@ -210,20 +219,16 @@ void() excavator_fire = {
 };
 
 
-void()	excavator_fire1	= [ $attack1, excavator_fire2 ] {
-	ai_face();
-}
-void()	excavator_fire2	= [ $attack2, excavator_fire3 ] {sound (self, CHAN_WEAPON, "exca/ex_fire.wav", 1, ATTN_NORM);}
-void()	excavator_fire3	= [ $attack3, excavator_fire4 ] {}
-void()	excavator_fire4	= [ $attack4, excavator_fire5 ] {}
-void()	excavator_fire5	= [ $attack5, excavator_fire6 ] {}
-void()	excavator_fire6	= [ $attack6, excavator_fire7 ] {}
-void()	excavator_fire7	= [ $attack7, excavator_fire8 ] {}
-void()	excavator_fire8	= [ $attack8, excavator_fire9 ] {excavator_fire();}
-void()	excavator_fire9	= [ $attack9, excavator_fire10 ] {}
-void()	excavator_fire10 = [ $attack10, excavator_fire11 ] {}
-void()	excavator_fire11 = [ $attack11, excavator_fire12 ] {}
-void()	excavator_fire12 = [ $attack12, excavator_run1 ] { 
+void()	excavator_fire1	= [ $s_shot1, excavator_fire2 ] {ai_face();}
+void()	excavator_fire2	= [ $s_shot2, excavator_fire3 ] {sound (self, CHAN_WEAPON, "exca/ex_fire.wav", 1, ATTN_NORM);}
+void()	excavator_fire3	= [ $s_shot3, excavator_fire4 ] {}
+void()	excavator_fire4	= [ $s_shot4, excavator_fire5 ] {}
+void()	excavator_fire5	= [ $s_shot5, excavator_fire6 ] {}
+void()	excavator_fire6	= [ $s_shot6, excavator_fire7 ] {}
+void()	excavator_fire7	= [ $s_shot7, excavator_fire8 ] {}
+void()	excavator_fire8	= [ $s_shot8, excavator_fire9 ] {excavator_fire();}
+void()	excavator_fire9	= [ $s_shot9, excavator_fire10 ] {}
+void()	excavator_fire10 = [ $s_shot10, excavator_run1 ] { 
 	// Finished attacking
 	if (enemy_range >= RANGE_MID || !enemy_vis)
 	{
