@@ -39,7 +39,7 @@ $frame phase6 phase7 phase8 phase9 phase10
 $frame phase11 phase12 phase13 phase14 phase15 phase16
 $frame phase17 phase18 phase19 phase20 phase21 phase22
 $frame phase23 phase24 phase25 phase26 phase27 phase28
-$frame phase29 phase30 phase31 phase32 phase33
+$frame phase29 phase30 phase31 phase32 phase33 phase34 phase35
 
 
 float D1BOSS_BALL_VEL = 750;
@@ -228,7 +228,7 @@ void() D1BossMissile =
 		dir = normalize(dir);
 	}
 	
-	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 56', dir * D1BOSS_BALL_VEL, "voreball");
+	missile = launch_projectile(self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * D1BOSS_BALL_VEL, "voreball");
 
 	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
 
@@ -239,6 +239,7 @@ void() D1BossMissile =
 	missile.touch = D1BossMissileTouch;
 	missile.lifetime_finished = time + 5;	 // blow up after a while
 	missile.track_finished = time + 1.25;
+	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NORM);
 
 }
 
@@ -277,7 +278,7 @@ void() d1boss_idlesound =
 	{
 	 	self.wait = time + 2;
 	 	if (wr > 4.5) 
-	 		sound (self, CHAN_VOICE, "shambler/sidle.wav", 1,  ATTN_IDLE);
+	 		sound (self, CHAN_VOICE, "d1boss/idle.wav", 1,  ATTN_IDLE);
 	}
 	return;
 }
@@ -402,17 +403,17 @@ void()	d1boss_fast12	=[	$smash12,		d1boss_fast13	] {ai_run_slide(6);}
 void()	d1boss_fast13	=[	$smash13,		d1boss_fast14	] {ai_run_slide(6);}
 void()	d1boss_fast14	=[	$smash14,		d1boss_fast15	] {ai_run_slide(6);}
 void()	d1boss_fast15	=[	$smash15,		d1boss_fast16	] {ai_run_slide(12);}
-void()	d1boss_fast16	=[	$smash16,		d1boss_fast17	] {ai_run_slide(16);D1BossMissile();}
-void()	d1boss_fast17	=[	$smash17,		d1boss_fast18	] {ai_run_slide(24);D1BossMissile();}
+void()	d1boss_fast16	=[	$smash16,		d1boss_fast17	] {ai_run_slide(16);}
+void()	d1boss_fast17	=[	$smash17,		d1boss_fast18	] {ai_run_slide(24);}
 void()	d1boss_fast18	=[	$smash18,		d1boss_fast19	] {ai_run_slide(24);D1BossMissile();}
-void()	d1boss_fast19	=[	$smash19,		d1boss_fast20	] {ai_run_slide(24);}
-void()	d1boss_fast20	=[	$smash20,		d1boss_fast21	] {ai_run_slide(24);}
+void()	d1boss_fast19	=[	$smash19,		d1boss_fast20	] {ai_run_slide(24);D1BossMissile();}
+void()	d1boss_fast20	=[	$smash20,		d1boss_fast21	] {ai_run_slide(24);D1BossMissile();}
 void()	d1boss_fast21	=[	$smash21,		d1boss_fast22	] {ai_run_slide(24);}
 void()	d1boss_fast22	=[	$smash22,		d1boss_fast23	] {ai_run_slide(24);}
 void()	d1boss_fast23	=[	$smash23,		d1boss_fast24	] {ai_run_slide(24);}
 void()	d1boss_fast24	=[	$smash24,		d1boss_run1	] {ai_attack_finished(2);}
 
-void()	d1boss_melee1	=[	$smash1,		d1boss_melee2	] {sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);}
+void()	d1boss_melee1	=[	$smash1,		d1boss_melee2	] {sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);}
 void()	d1boss_melee2	=[	$smash2,		d1boss_melee3	] {D1BossGrenade();}
 void()	d1boss_melee3	=[	$smash3,		d1boss_melee4	] {D1BossGrenade();}
 void()	d1boss_melee4	=[	$smash4,		d1boss_melee5	] {D1BossGrenade();}
@@ -424,51 +425,51 @@ void() d1boss_swingl1	=[      $swingl1,      d1boss_swingl2   ] {
 	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
-void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_run_slide(60);}
-void() d1boss_swingl3 =[      $swingl3,      d1boss_swingl4   ] {ai_run_slide(32);}
-void() d1boss_swingl4 =[      $swingl4,      d1boss_swingl5   ] {ai_run_slide(16);}
-void() d1boss_swingl5 =[      $swingl5,      d1boss_swingl6   ] {ai_run_slide(8);}
-void() d1boss_swingl6 =[      $swingl6,      d1boss_swingl7   ] {ai_run_slide(2);}
-void() d1boss_swingl7 =[      $swingl7,      d1boss_swingl8   ] {ai_run_slide(2); D1BossMissile();}
-void() d1boss_swingl8 =[      $swingl8,      d1boss_swingl9   ] {ai_run_slide(2);}
+void() d1boss_swingl2 =[      $swingl2,      d1boss_swingl3   ] {ai_run_slide(64);}
+void() d1boss_swingl3 =[      $swingl3,      d1boss_swingl4   ] {ai_run_slide(50);}
+void() d1boss_swingl4 =[      $swingl4,      d1boss_swingl5   ] {ai_run_slide(48);}
+void() d1boss_swingl5 =[      $swingl5,      d1boss_swingl6   ] {ai_run_slide(32);}
+void() d1boss_swingl6 =[      $swingl6,      d1boss_swingl7   ] {ai_run_slide(8);D1BossMissile();}
+void() d1boss_swingl7 =[      $swingl7,      d1boss_swingl8   ] {ai_run_slide(8);}
+void() d1boss_swingl8 =[      $swingl8,      d1boss_swingl9   ] {ai_run_slide(8);}
 void() d1boss_swingl9 =[      $swingl9,      d1boss_run1  ] {ai_run_slide(2); d1boss_swinogr1();}
 
 void() d1boss_swingr1	=[      $swingr1,      d1boss_swingr2   ] {
 	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
 	ai_nop();
 }
-void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_run_slide(60);}
-void() d1boss_swingr3 =[      $swingr3,      d1boss_swingr4   ] {ai_run_slide(32);}
-void() d1boss_swingr4 =[      $swingr4,      d1boss_swingr5   ] {ai_run_slide(16);}
-void() d1boss_swingr5 =[      $swingr5,      d1boss_swingr6   ] {ai_run_slide(8);}
-void() d1boss_swingr6 =[      $swingr6,      d1boss_swingr7   ] {ai_run_slide(2);}
-void() d1boss_swingr7 =[      $swingr7,      d1boss_swingr8   ] {ai_run_slide(2); D1BossMissile();}
-void() d1boss_swingr8 =[      $swingr8,      d1boss_swingr9   ] {ai_run_slide(2);}
+void() d1boss_swingr2 =[      $swingr2,      d1boss_swingr3   ] {ai_run_slide(64);}
+void() d1boss_swingr3 =[      $swingr3,      d1boss_swingr4   ] {ai_run_slide(50);}
+void() d1boss_swingr4 =[      $swingr4,      d1boss_swingr5   ] {ai_run_slide(48);}
+void() d1boss_swingr5 =[      $swingr5,      d1boss_swingr6   ] {ai_run_slide(32);}
+void() d1boss_swingr6 =[      $swingr6,      d1boss_swingr7   ] {ai_run_slide(8);D1BossMissile();}
+void() d1boss_swingr7 =[      $swingr7,      d1boss_swingr8   ] {ai_run_slide(8);}
+void() d1boss_swingr8 =[      $swingr8,      d1boss_swingr9   ] {ai_run_slide(8);}
 void() d1boss_swingr9 =[      $swingr9,      d1boss_run1  ] {ai_run_slide(2); d1boss_swinogr1();}
 
 void() d1boss_swinogl1	=[      $swingl1,      d1boss_swinogl2   ] {
-	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swinogl2 =[      $swingl2,      d1boss_swinogl3   ] {ai_run_slide(16);}
 void() d1boss_swinogl3 =[      $swingl3,      d1boss_swinogl4   ] {ai_run_slide(16);}
 void() d1boss_swinogl4 =[      $swingl4,      d1boss_swinogl5   ] {ai_run_slide(16);}
 void() d1boss_swinogl5 =[      $swingl5,      d1boss_swinogl6   ] {ai_run_slide(16);}
-void() d1boss_swinogl6 =[      $swingl6,      d1boss_swinogl7   ] {ai_run_slide(16);}
-void() d1boss_swinogl7 =[      $swingl7,      d1boss_swinogl8   ] {ai_run_slide(16); D1BossMissile();}
+void() d1boss_swinogl6 =[      $swingl6,      d1boss_swinogl7   ] {ai_run_slide(16); D1BossMissile();}
+void() d1boss_swinogl7 =[      $swingl7,      d1boss_swinogl8   ] {ai_run_slide(16);}
 void() d1boss_swinogl8 =[      $swingl8,      d1boss_swinogl9   ] {ai_run_slide(16);}
 void() d1boss_swinogl9 =[      $swingl9,      d1boss_run1  ] {ai_face(); d1boss_swinogr1();}
 
 void() d1boss_swinogr1	=[      $swingr1,      d1boss_swinogr2   ] {
-	sound (self, CHAN_VOICE, "d1boss/dash.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);
 	ai_nop();
 }
 void() d1boss_swinogr2 =[      $swingr2,      d1boss_swinogr3   ] {ai_run_slide(16);}
 void() d1boss_swinogr3 =[      $swingr3,      d1boss_swinogr4   ] {ai_run_slide(16);}
 void() d1boss_swinogr4 =[      $swingr4,      d1boss_swinogr5   ] {ai_run_slide(16);}
 void() d1boss_swinogr5 =[      $swingr5,      d1boss_swinogr6   ] {ai_run_slide(16);}
-void() d1boss_swinogr6 =[      $swingr6,      d1boss_swinogr7   ] {ai_run_slide(16);}
-void() d1boss_swinogr7 =[      $swingr7,      d1boss_swinogr8   ] {ai_run_slide(16); D1BossMissile();}
+void() d1boss_swinogr6 =[      $swingr6,      d1boss_swinogr7   ] {ai_run_slide(16); D1BossMissile();}
+void() d1boss_swinogr7 =[      $swingr7,      d1boss_swinogr8   ] {ai_run_slide(16);}
 void() d1boss_swinogr8 =[      $swingr8,      d1boss_swinogr9   ] {ai_run_slide(16);}
 void() d1boss_swinogr9 =[      $swingr9,      d1boss_run1  ] {ai_face(); ai_attack_finished(1);}
 
@@ -545,7 +546,7 @@ void()	d1boss_death1	=[	$death1,		d1boss_death2	] {
 	self.velocity_y = -200 + 400*random();
 	self.velocity_z = 100 + 100*random();
 	self.flags = not(self.flags, FL_ONGROUND);
-	sound (self, CHAN_VOICE, "shambler/sdeath.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "d1boss/death.wav", 1, ATTN_NORM);
 }
 void()	d1boss_death2	=[	$death2,		d1boss_death3	] {}
 void()	d1boss_death3	=[	$death3,		d1boss_death4	] {}
@@ -570,19 +571,32 @@ void() d1boss_die =
 	d1boss_death1 ();
 }
 
-
 void(entity attacker, float damage) d1boss_Pain =
 {
 	if (self.health <= 0) return;	
-	if (self.pain_finished > time) return;
-	if (random()*300 > damage) return;		// didn't flinch
 
-	PainFinished(2);
-}
+	if ((random() * 70) + 20 > damage)
+	{
+		return;
+	}
+	
+	if ((random() > 0.5))
+	{
+	sound (self, CHAN_VOICE, "d1boss/pain1.wav", 1, ATTN_NORM);
+	}
+	else if ((random() > .75))
+	{
+	sound (self, CHAN_VOICE, "d1boss/pain2.wav", 1, ATTN_NORM);		
+	}
+	else
+	{
+		return;
+	}
+};
 
 void() d1boss_chooseattack =
 {
-	if (random() > 0.5)
+	if (random() > 0.8)
 		d1boss_fast1();
 	else if (random() > .5)
 		d1boss_swingl1();
@@ -645,7 +659,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/wizard.mdl" }) = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_d1boss.mdl" }) = monster_wizard : "Scrag" []
 */
 void() monster_d1boss =
 {
@@ -659,31 +673,18 @@ void() monster_d1boss =
 	precache_model ("progs/mon_d1boss.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
-
-	precache_sound ("wizard/hit.wav");		// used by c code
-	precache_sound ("wizard/wattack.wav");
-	precache_sound ("wizard/wdeath.wav");
-	precache_sound ("wizard/widle1.wav");
-	precache_sound ("wizard/widle2.wav");
-	precache_sound ("wizard/wpain.wav");
-	precache_sound ("wizard/wsight.wav");
-
-
-	precache_sound ("shambler/sattck1.wav");
-	precache_sound ("shambler/sboom.wav");
-	precache_sound ("shambler/sdeath.wav");
-	precache_sound ("shambler/shurt2.wav");
-	precache_sound ("shambler/sidle.wav");
-	precache_sound ("shambler/ssight.wav");
-	precache_sound ("shambler/melee1.wav");
-	precache_sound ("shambler/melee2.wav");
-	precache_sound ("shambler/smack.wav");
 	
 	precache_sound ("d1boss/dash.wav");
-	precache_sound ("d1boss/death1.wav");
+	precache_sound ("d1boss/atk.wav");
+	precache_sound ("d1boss/death.wav");
 	precache_sound ("d1boss/bigattack.wav");
 	precache_sound ("d1boss/pain1.wav");
+	precache_sound ("d1boss/pain2.wav");
 	precache_sound ("d1boss/phasechange.wav");
+	precache_sound ("d1boss/aggro.wav");
+	precache_sound ("d1boss/return.wav");
+	precache_sound ("d1boss/idle.wav");
+	precache_sound ("d1boss/proj.wav");
 
 	self.health = D1BOSS_HEALTH;
 	//setsize (self, '-16 -16 -24', '16 16 40');
