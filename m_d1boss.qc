@@ -584,33 +584,35 @@ float() d1boss_checkdeath =
 
 }
 
-void()	d1boss_death1	=[	$death1,		d1boss_death2	] {
-	self.velocity_x = -200 + 400*random();
-	self.velocity_y = -200 + 400*random();
-	self.velocity_z = 100 + 100*random();
-	self.flags = not(self.flags, FL_ONGROUND);
+void()	d1boss_death1	=[	$phase1,		d1boss_death2	] {
 	sound (self, CHAN_VOICE, "d1boss/death.wav", 1, ATTN_NORM);
+	self.solid = SOLID_NOT;
 }
-void()	d1boss_death2	=[	$death2,		d1boss_death3	] {}
-void()	d1boss_death3	=[	$death3,		d1boss_death4	] {}
-void()	d1boss_death4	=[	$death4,		d1boss_death5	] {}
-void()	d1boss_death5	=[	$death5,		d1boss_death6	] {self.solid = SOLID_NOT; self.flags = not(self.flags, FL_ONGROUND);}
-void()	d1boss_death6	=[	$death6,		d1boss_death7	] {}
-void()	d1boss_death7	=[	$death7,		d1boss_death8	] {}
-void()	d1boss_death8	=[	$death8,		d1boss_death9	] {}
-void()	d1boss_death9	=[	$death9,		d1boss_death10	] {}
-void()	d1boss_death10	=[	$death10,		d1boss_death11	] {}
-void()	d1boss_death11	=[	$death11,		d1boss_death11	] {PostDeathLogic();}
+void()	d1boss_death2	=[	$phase2,		d1boss_death3	] {}
+void()	d1boss_death3	=[	$phase3,		d1boss_death4	] {}
+void()	d1boss_death4	=[	$phase4,		d1boss_death5	] {}
+void()	d1boss_death5	=[	$phase5,		d1boss_death6	] {}
+void()	d1boss_death6	=[	$phase6,		d1boss_death7	] {}
+void()	d1boss_death7	=[	$phase7,		d1boss_death8	] {}
+void()	d1boss_death8	=[	$phase8,		d1boss_death9	] {}
+void()	d1boss_death9	=[	$phase9,		d1boss_death10	] {}
+void()	d1boss_death10	=[	$phase10,		d1boss_death11	] {}
+void()	d1boss_death11	=[	$phase11,		d1boss_death12	] {}
+void()	d1boss_death12	=[	$phase12,		d1boss_death13	] {}
+void()	d1boss_death13	=[	$phase13,		d1boss_death14	] {}
+void()	d1boss_death14	=[	$phase14,		d1boss_death15	] {}
+void()	d1boss_death15	=[	$phase15,		d1boss_death16	] {}
+void()	d1boss_death16	=[	$phase16,		d1boss_death17	] {}
+void()	d1boss_death17	=[	$phase17,		d1boss_death18	] {}
+void()	d1boss_death18	=[	$phase18,		d1boss_death19	] {}
+void()	d1boss_death19	=[	$phase19,		d1boss_death20	] {}
+void()	d1boss_death20	=[	$phase20,		d1boss_death21	] {}
+void()	d1boss_death21	=[	$phase21,		d1boss_death22	] {}
+void()	d1boss_death22	=[	$phase22,		d1boss_death1	] {PostDeathLogic();}
+
 
 void() d1boss_die =
 {
-// check for gib
-	if (self.health < -60)
-	{
-		Gib ("progs/h_shams.mdl", self.health);
-		return;
-	}
-
 	d1boss_death1 ();
 }
 
