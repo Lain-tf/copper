@@ -473,14 +473,58 @@ void() d1boss_swinogr7 =[      $swingr7,      d1boss_swinogr8   ] {ai_run_slide(
 void() d1boss_swinogr8 =[      $swingr8,      d1boss_swinogr9   ] {ai_run_slide(16);}
 void() d1boss_swinogr9 =[      $swingr9,      d1boss_run1  ] {ai_face(); ai_attack_finished(1);}
 
-
-void() d1boss_sleep_frame =
-{
-	self.frame = $stand1;
-
-	if (self.attack_finished < time) {
-		self.velocity = '0 0 0';
-		self.avelocity = '0 0 0';
+void()	d1boss_phase1	=[	$phase1,	d1boss_phase2	] {ai_face();
+	sound (self, CHAN_VOICE, "d1boss/phasechange.wav", 1, ATTN_NONE);
+}
+void()	d1boss_phase2	=[	$phase2,	d1boss_phase3	] {ai_face();}
+void()	d1boss_phase3	=[	$phase3,	d1boss_phase4	] {ai_face();}
+void()	d1boss_phase4	=[	$phase4,	d1boss_phase5	] {ai_face();}
+void()	d1boss_phase5	=[	$phase5,	d1boss_phase6	] {ai_face();}
+void()	d1boss_phase6	=[	$phase6,	d1boss_phase7	] {ai_face();}
+void()	d1boss_phase7	=[	$phase7,	d1boss_phase8	] {ai_face();}
+void()	d1boss_phase8	=[	$phase8,	d1boss_phase9	] {ai_face();}
+void()	d1boss_phase9	=[	$phase9,	d1boss_phase10	] {ai_face();}
+void()	d1boss_phase10	=[	$phase10,	d1boss_phase11	] {ai_face();}
+void()	d1boss_phase11	=[	$phase11,	d1boss_phase12	] {ai_face();}
+void()	d1boss_phase12	=[	$phase12,	d1boss_phase13	] {ai_face();}
+void()	d1boss_phase13	=[	$phase13,	d1boss_phase14	] {ai_face();}
+void()	d1boss_phase14	=[	$phase14,	d1boss_phase15	] {ai_face();}
+void()	d1boss_phase15	=[	$phase15,	d1boss_phase16	] {ai_face();}
+void()	d1boss_phase16	=[	$phase16,	d1boss_phase17	] {ai_face();
+	ThrowGib ("progs/gib3.mdl", 100); //TODO: Figure out how the fuck to raise these from self.origin
+	ThrowGib ("progs/gib2.mdl", 50);
+}
+void()	d1boss_phase17	=[	$phase17,	d1boss_phase18	] {ai_face();
+	ThrowGib ("progs/gib3.mdl", 50);
+	ThrowGib ("progs/gib1.mdl", 100);
+	ThrowGib ("progs/gib1.mdl", 50);
+	ThrowGib ("progs/gib1.mdl", 100);
+}
+void()	d1boss_phase18	=[	$phase18,	d1boss_phase19	] {ai_face();}
+void()	d1boss_phase19	=[	$phase19,	d1boss_phase20	] {ai_face();}
+void()	d1boss_phase20	=[	$phase20,	d1boss_phase21	] {ai_face();}
+void()	d1boss_phase21	=[	$phase21,	d1boss_phase22	] {ai_face();}
+void()	d1boss_phase22	=[	$phase22,	d1boss_phase23	] {ai_face();}
+void()	d1boss_phase23	=[	$phase23,	d1boss_phase24	] {ai_face();}
+void()	d1boss_phase24	=[	$phase24,	d1boss_phase25	] {ai_face();}
+void()	d1boss_phase25	=[	$phase25,	d1boss_phase26	] {ai_face();}
+void()	d1boss_phase26	=[	$phase26,	d1boss_phase27	] {ai_face();}
+void()	d1boss_phase27	=[	$phase27,	d1boss_phase28	] {ai_face();}
+void()	d1boss_phase28	=[	$phase28,	d1boss_phase29	] {ai_face();}
+void()	d1boss_phase29	=[	$phase29,	d1boss_phase30	] {ai_face();}
+void()	d1boss_phase30	=[	$phase30,	d1boss_phase31	] {ai_face();}
+void()	d1boss_phase31	=[	$phase31,	d1boss_phase32	] {ai_face();}
+void()	d1boss_phase32	=[	$phase32,	d1boss_phase33	] {ai_face();}
+void()	d1boss_phase33	=[	$phase33,	d1boss_phase34	] {ai_face();}
+void()	d1boss_phase34	=[	$phase34,	d1boss_phase35	] {ai_face();}
+void()	d1boss_phase35	=[	$phase35,	d1boss_sleep_frame] {}
+                                                                   
+                                           
+void() d1boss_sleep_frame =                
+{                                          
+	if (self.attack_finished < time) { 
+		self.velocity = '0 0 0';   
+		self.avelocity = '0 0 0';                          
 	}
 
 	self.think = d1boss_sleep_frame;
@@ -509,8 +553,7 @@ void() d1boss_startsleep =
 	yawdelta = dest.angles_y - self.angles_y;
 	self.avelocity_y = yawdelta/traveltime;
 
-
-	d1boss_sleep_frame();
+	d1boss_phase1();
 }
 
 float() d1boss_checkdeath =
