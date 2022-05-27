@@ -227,7 +227,7 @@ void() W_FireQuadShotgun =
 	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
-	FireBulletsEx(18, dir, '0.15 0.02 0', 2);
+	FireBulletsEx(20, dir, '0.13 0.01 0', 2);
 	ApplyMultiDamage();
 }
 
@@ -284,12 +284,12 @@ void() W_FireRail =
 	
 	self.weaponframe = 0;
 	
-	if (random() < 0.5)
+	if (random() < 0.3)
 		{
 			self.weaponframe = 31;
 			self.punchangle_z = -3;
 		}
-	else if (random() < 0.5)
+	else if (random() < 0.3)
 		{
 			self.weaponframe = 1;
 			self.punchangle_z = -3;
