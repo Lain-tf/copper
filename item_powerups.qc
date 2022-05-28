@@ -66,7 +66,7 @@ powerup_haste
 */
 void(entity h, float t) powerup_haste =
 {
-	sprint(h, "You begin to channel unbelievable speed ...\n");
+	sprint(h, "You begin to channel unbelievable speed ...\n\b+40% attack speed\b\n");
 	h.items2 |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
@@ -85,7 +85,7 @@ void(entity h, float t) powerup_berserk =
 	if (h.classname != "player")
 		return;
 		
-	sprint(h, "You begin frothing with a berserkers rage ...\n");
+	sprint(h, "You begin frothing with a berserkers rage ...\n\b10x melee damage\b\n");
 	h.items2 |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
@@ -109,7 +109,7 @@ powerup_wetsuit
 */
 void(entity h, float t) powerup_wetsuit =
 {
-	sprint(h, "Don't pee in your wetsuit ...\n");
+	sprint(h, "You equip the Diving Gear\n\b+40% Swim Speed & Water Breathing\b\n");
 	h.items2 |= IT_WETSUIT;
 	h.wetsuit_finished = time + t;
 	h.wetsuit_time = 1;
@@ -436,7 +436,7 @@ WETSUIT
 */
 void() precache_wetsuit =
 {
-	precache_model ("progs/item_wetsuit.mdl");
+	precache_model ("progs/item_diving.mdl");
 	precache_sound_safe ("items/wetsuit.wav");
 	precache_sound_safe ("items/wetsuit2.wav");
 	precache_sound_safe ("items/wetsuit3.wav");
@@ -454,7 +454,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_wetsuit.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_diving.mdl" }) =
 	item_artifact_wetsuit : "Wetsuit" []
 */
 void() item_artifact_wetsuit =
@@ -463,7 +463,7 @@ void() item_artifact_wetsuit =
 	self.touch = powerup_touch;
 
 	precache_wetsuit();
-	setmodel (self, "progs/item_wetsuit.mdl");
+	setmodel (self, "progs/item_diving.mdl");
 	self.netname = "Wetsuit";
 	self.noise = "items/wetsuit.wav";
 	self.items2 = IT_WETSUIT;

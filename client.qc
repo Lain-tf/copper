@@ -1482,7 +1482,9 @@ void() CheckPowerups =
 
 		if (self.wetsuit_finished < time + 3) {
 			if (self.wetsuit_time == 1) {
-				sprint(self, "Your wetsuit rips (and tears) ...\n");
+				sprint(self, "Your Diving Gear's Oxygen fades...\n");
+				//sprint(self, "Your wetsuit rips (and tears) ...\n");
+					//Rest in peace to a real one (fw)
 				stuffcmd(self, "bf\n");
 				sound (self, CHAN_AUTO, "items/wetsuit2.wav", 1, ATTN_NORM);
 				self.wetsuit_time = time + 1;
