@@ -227,7 +227,7 @@ void() W_FireQuadShotgun =
 	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
-	FireBulletsEx(20, dir, '0.13 0.01 0', 2);
+	FireBulletsEx(20, dir, '0.10 0.02 0', 2);
 	ApplyMultiDamage();
 }
 
