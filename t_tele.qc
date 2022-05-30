@@ -586,7 +586,7 @@ void() teleport_target_use =
 {
 	if (self.customflags & CFL_LOCKED)
 	{
-		dprint("  teleport_target is locked: not teleporting\n");
+		//dprint("  teleport_target is locked: not teleporting\n");
 		return;
 	}
 	

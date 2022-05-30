@@ -194,7 +194,7 @@ float() multi_trigger =
 
 	if (self.customflags & CFL_LOCKED)
 	{
-		dprint("  trigger is locked: not firing\n");
+		//dprint("  trigger is locked: not firing\n");
 		return FALSE;
 	}
 	
@@ -237,7 +237,7 @@ float() multi_trigger_coop =
 {
 	if (self.customflags & CFL_LOCKED)
 	{
-		dprint("  trigger is locked: not firing\n");
+		//dprint("  trigger is locked: not firing\n");
 		return FALSE;
 	}
 	

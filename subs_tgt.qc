@@ -222,8 +222,8 @@ void(.string fld) SUB_UseTargetsByField =
 	if (self.fld == string_null) return;
 	local entity t, act;
 	
-	dprint5(activator.classname," caused ",self.classname," to fire target '",self.fld);
-	dprint("'\n");
+	//dprint5(activator.classname," caused ",self.classname," to fire target '",self.fld);
+	//dprint("'\n");
 	
 	act = activator;
 	t = world;

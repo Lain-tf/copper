@@ -27,7 +27,7 @@ void() trigger_relay_use =
 {
 	if (self.customflags & CFL_LOCKED)
 	{
-		dprint("  trigger_relay is locked: not relaying\n");
+		//dprint("  trigger_relay is locked: not relaying\n");
 		return;
 	}
 	
