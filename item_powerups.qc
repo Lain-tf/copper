@@ -66,7 +66,7 @@ powerup_haste
 */
 void(entity h, float t) powerup_haste =
 {
-	sprint(h, "You begin to channel unbelievable speed ...\n\b+40% attack speed\b\n");
+	sprint(h, "You begin to channel unbelievable speed ...\n\b+60% attack speed\b\n");
 	h.items2 |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
@@ -109,7 +109,7 @@ powerup_wetsuit
 */
 void(entity h, float t) powerup_wetsuit =
 {
-	sprint(h, "You equip the Diving Gear\n\b+40% Swim Speed & Water Breathing\b\n");
+	sprint(h, "You equip the Diving Gear\n\b+30% Swim Speed & Water Breathing\b\n");
 	h.items2 |= IT_WETSUIT;
 	h.wetsuit_finished = time + t;
 	h.wetsuit_time = 1;
