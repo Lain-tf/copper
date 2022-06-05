@@ -80,53 +80,72 @@ void() excavator_kamikaze_touch =
 	Killed(self,self.enemy, self.enemy);
 	BecomeExplosion ();
 	
-}
+};
 
-void(float speed) excavator_kamikaze_move =
+
+float EXCAVATOR_KSPEED = 537;
+float EXCAVATOR_TURNRATE = 237; 
+
+
+void() excavator_kamikaze_move =
 {
+	local float dot, rate;
+	
 	setsize (self, '-16 -16 8', '16 16 40');
-	self.movetype = MOVETYPE_FLY;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	makevectors(self.angles);
-	self.velocity = v_forward * speed;
-}
+	
+	rate = EXCAVATOR_TURNRATE;
+	dot = normalize( self.velocity ) * normalize( self.enemy.origin - self.origin );
 
-void() excavator_kamikaze1 = [  $kamiinit1,  excavator_kamikaze2 ] {ai_face();}
-void() excavator_kamikaze2 = [  $kamiinit2,  excavator_kamikaze3 ] {ai_face();}
-void() excavator_kamikaze3 = [  $kamiinit3,  excavator_kamikaze4 ] {ai_face();}
-void() excavator_kamikaze4 = [  $kamiinit4,  excavator_kamikaze5 ] {ai_face();}
-void() excavator_kamikaze5 = [  $kamiinit5,  excavator_kamikaze6 ] {ai_face();}
-void() excavator_kamikaze6 = [  $kamiinit6,  excavator_kamikaze7 ] {ai_face();}
+	if ( dot > 0 )
+		rate *= max(1, 1.5 * (1 - dot));
 
-void() excavator_kamikaze7 = [  $kamigo1,  excavator_kamikaze8 ] {ai_face();}
-void() excavator_kamikaze8 = [  $kamigo2,  excavator_kamikaze9 ] {ai_face();}
-void() excavator_kamikaze9 = [  $kamigo3,  excavator_kamikaze10] {ai_face();}
-void() excavator_kamikaze10 = [ $kamigo4, excavator_kamikaze11 ] {ai_face();}
-void() excavator_kamikaze11 = [ $kamigo5, excavator_kamikaze12 ] {ai_face();}
-void() excavator_kamikaze12 = [ $kamigo6, excavator_kamikaze13 ] {ai_face();}
-void() excavator_kamikaze13 = [ $kamigo7, excavator_kamikaze14 ] {ai_face();}
-void() excavator_kamikaze14 = [ $kamigo8, excavator_kamikaze15 ] {ai_face();}
-void() excavator_kamikaze15 = [ $kamigo9, excavator_kamikaze16 ] {ai_face();}
-void() excavator_kamikaze16 = [ $kamigo10, excavator_kamikaze17] {ai_face();}
-void() excavator_kamikaze17 = [ $kamigo11, excavator_kamikaze23] {ai_face();}
-	// loop point
-void() excavator_kamikaze23 = [ $kamiloop1,  excavator_kamikaze24 ] {ai_face(); excavator_kamikaze_move(550);}
-void() excavator_kamikaze24 = [ $kamiloop2,  excavator_kamikaze25 ] {}
-void() excavator_kamikaze25 = [ $kamiloop3,  excavator_kamikaze26 ] {ai_face(); excavator_kamikaze_move(550);}
-void() excavator_kamikaze26 = [ $kamiloop4,  excavator_kamikaze27 ] {}
-void() excavator_kamikaze27 = [ $kamiloop5,  excavator_kamikaze28 ] {ai_face(); excavator_kamikaze_move(550);}
-void() excavator_kamikaze28 = [ $kamiloop6,  excavator_kamikaze29 ] {}
-void() excavator_kamikaze29 = [ $kamiloop7,  excavator_kamikaze30 ] {ai_face(); excavator_kamikaze_move(550);}
-void() excavator_kamikaze30 = [ $kamiloop8,  excavator_kamikaze23 ] {}
-void() excavator_kamikaze31 = [ $kamiloop9,  excavator_kamikaze23 ] {ai_face(); excavator_kamikaze_move(550);}
+	self.velocity = EXCAVATOR_KSPEED * ShalTurnToward( self.enemy, rate);
+};
+
+
+void() excavator_correct_angles =
+{
+	// change pitch as well, used instead of ai_face
+	self.angles = vectoangles(self.velocity);
+};
+
+void() excavator_kamikaze1  = [ $kamiinit1, excavator_kamikaze2  ] { ai_face(); }
+void() excavator_kamikaze2  = [ $kamiinit2, excavator_kamikaze3  ] { ai_face(); }
+void() excavator_kamikaze3  = [ $kamiinit3, excavator_kamikaze4  ] { ai_face(); }
+void() excavator_kamikaze4  = [ $kamiinit4, excavator_kamikaze5  ] { ai_face(); }
+void() excavator_kamikaze5  = [ $kamiinit5, excavator_kamikaze6  ] { ai_face(); }
+void() excavator_kamikaze6  = [ $kamiinit6, excavator_kamikaze7  ] { ai_face(); }
+void() excavator_kamikaze7  = [ $kamigo1,   excavator_kamikaze8  ] { ai_face(); }
+void() excavator_kamikaze8  = [ $kamigo2,   excavator_kamikaze9  ] { ai_face(); }
+void() excavator_kamikaze9  = [ $kamigo3,   excavator_kamikaze10 ] { ai_face(); }
+void() excavator_kamikaze10 = [ $kamigo4,   excavator_kamikaze11 ] { ai_face(); }
+void() excavator_kamikaze11 = [ $kamigo5,   excavator_kamikaze12 ] { ai_face(); }
+void() excavator_kamikaze12 = [ $kamigo6,   excavator_kamikaze13 ] { ai_face(); }
+void() excavator_kamikaze13 = [ $kamigo7,   excavator_kamikaze14 ] { ai_face(); }
+void() excavator_kamikaze14 = [ $kamigo8,   excavator_kamikaze15 ] { ai_face(); }
+void() excavator_kamikaze15 = [ $kamigo9,   excavator_kamikaze16 ] { ai_face(); }
+void() excavator_kamikaze16 = [ $kamigo10,  excavator_kamikaze17 ] { ai_face(); }
+void() excavator_kamikaze17 = [ $kamigo11,  excavator_kamikaze23 ] { ai_face(); makevectors(self.angles); self.velocity = EXCAVATOR_KSPEED * v_forward; }
+// loop point
+void() excavator_kamikaze23 = [ $kamiloop1, excavator_kamikaze24 ] { excavator_correct_angles(); excavator_kamikaze_move(); }
+void() excavator_kamikaze24 = [ $kamiloop2, excavator_kamikaze25 ] { excavator_correct_angles(); }
+void() excavator_kamikaze25 = [ $kamiloop3, excavator_kamikaze26 ] { excavator_correct_angles(); excavator_kamikaze_move(); }
+void() excavator_kamikaze26 = [ $kamiloop4, excavator_kamikaze27 ] { excavator_correct_angles(); }
+void() excavator_kamikaze27 = [ $kamiloop5, excavator_kamikaze28 ] { excavator_correct_angles(); excavator_kamikaze_move(); }
+void() excavator_kamikaze28 = [ $kamiloop6, excavator_kamikaze29 ] { excavator_correct_angles(); }
+void() excavator_kamikaze29 = [ $kamiloop7, excavator_kamikaze30 ] { excavator_correct_angles(); excavator_kamikaze_move(); }
+void() excavator_kamikaze30 = [ $kamiloop8, excavator_kamikaze23 ] { excavator_correct_angles(); }
+void() excavator_kamikaze31 = [ $kamiloop9, excavator_kamikaze23 ] { excavator_correct_angles(); excavator_kamikaze_move(); }
 
 
 void() excavator_kamikaze_start =
 {
+	//self.movetype = MOVETYPE_FLYMISSILE; //? to not interract with ai_face
 	sound (self, CHAN_VOICE, "exca/ex_kami.wav", 1, ATTN_NORM);
 	self.touch = excavator_kamikaze_touch;
 	excavator_kamikaze1();
-}
+};
 
  /*
  *==================
@@ -162,13 +181,13 @@ void(entity attacker, float damage) excavator_pain =
 	
 	if ((random() > 0.5))
 	{
-	sound (self, CHAN_VOICE, "exca/ex_pain1.wav", 1, ATTN_NORM);
-	excavator_pain1();
+		sound (self, CHAN_VOICE, "exca/ex_pain1.wav", 1, ATTN_NORM);
+		excavator_pain1();
 	}
 	else
 	{
-	sound (self, CHAN_VOICE, "exca/ex_pain2.wav", 1, ATTN_NORM);
-	excavator_pain1();		
+		sound (self, CHAN_VOICE, "exca/ex_pain2.wav", 1, ATTN_NORM);
+		excavator_pain1();		
 	}
 };
 
@@ -213,6 +232,7 @@ void() excavator_fire = {
 //	else
 //	{	
 		e = launch_rocket(org, vec * 700);
+		SUB_ChangeModel (e, "progs/e2/proj_crystal.mdl");
 		e.dmg = 40;
 //	}
 
@@ -251,7 +271,7 @@ void() excavator_die =
 	ThrowGib ("progs/e2/gib_excavatorb.mdl", 100);
 	ThrowGib ("progs/e2/gib_excavatora.mdl", 100);
 	BecomeExplosion();
-}
+};
 
 /*
 =================
@@ -341,7 +361,7 @@ float()	ExcavatorCheckAttack =
 	}
 	
 	return FALSE;
-}
+};
 
 void() monster_excavator_spawn =
 {
@@ -367,7 +387,7 @@ void() monster_excavator_spawn =
 		self.deathtype = "was caved in by an Excavator";
 
 	flymonster_start();
-}
+};
 
 void() monster_excavator_spawner = {mon_spawner_use(monster_excavator_spawn);}
 
@@ -424,4 +444,4 @@ void() monster_excavator =
 	
 	addmonster(1);
 	monster_excavator_spawn();
-}
+};
