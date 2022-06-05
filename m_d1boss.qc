@@ -365,7 +365,7 @@ void() d1boss_channelling19 =[ $chan19, d1boss_channelling20 ] { }
 void() d1boss_channelling20 =[ $chan20, d1boss_channelling21 ] { }
 void() d1boss_channelling21 =[ $chan21, d1boss_channelling22 ] { }
 void() d1boss_channelling22 =[ $chan22, d1boss_channelling23 ] { }
-void() d1boss_channelling23 =[ $chan23, d1boss_channelling1 ] { }
+void() d1boss_channelling23 =[ $chan23, d1boss_channelling2 ] { }
 //void() d1boss_channelling24 =[ $chan24, d1boss_channelling1  ] { }
 
 void() d1boss_walk1  =[ $stand1,  d1boss_walk2  ] { ai_walk(16); d1boss_idlesound(); }
