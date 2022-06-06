@@ -83,8 +83,8 @@ void() excavator_kamikaze_touch =
 };
 
 
-float EXCAVATOR_KSPEED = 537;
-float EXCAVATOR_TURNRATE = 237; 
+float EXCAVATOR_KSPEED = 600;
+float EXCAVATOR_TURNRATE = 337; 
 
 
 void() excavator_kamikaze_move =

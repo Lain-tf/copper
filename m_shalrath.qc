@@ -145,7 +145,10 @@ vector(entity targ, float turnrate) ShalTurnToward =
 {
 	vector	vel, aimdir, temp, temp2, out;
 
-	temp = targ.origin + '0 0 10';
+	if (self.classname == "monster_excavator")
+		temp = targ.origin + '0 0 -16';
+	else
+		temp = targ.origin + '0 0 10';
 	aimdir = temp - self.origin;
 	aimdir = normalize(aimdir);
 	vel = normalize(self.velocity);
