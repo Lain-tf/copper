@@ -87,6 +87,27 @@ float EXCAVATOR_KSPEED = 600;
 float EXCAVATOR_TURNRATE = 337; 
 
 
+vector(entity targ, float turnrate) ExcavTurnToward =
+{
+	vector	vel, aimdir, temp, temp2, out;
+
+	temp = targ.origin + '0 0 -16'; //vertical offset for aiming at
+
+	aimdir = temp - self.origin;
+	aimdir = normalize(aimdir);
+	vel = normalize(self.velocity);
+	
+	temp = CrossProduct(vel, aimdir);
+	out = rotateVectorAround(vel, temp, turnrate * 0.1);
+	
+	// don't turn past the desired direction
+	temp2 = CrossProduct(out, aimdir);
+	if ((temp * temp2) < 0)
+		return aimdir;
+	return out;
+};
+
+
 void() excavator_kamikaze_move =
 {
 	local float dot, rate;
@@ -100,7 +121,7 @@ void() excavator_kamikaze_move =
 	if ( dot > 0 )
 		rate *= max(1, 1.5 * (1 - dot));
 
-	self.velocity = EXCAVATOR_KSPEED * ShalTurnToward( self.enemy, rate);
+	self.velocity = EXCAVATOR_KSPEED * ExcavTurnToward( self.enemy, rate);
 };
 
 
