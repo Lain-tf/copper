@@ -366,6 +366,8 @@ void(entity spot, entity pusher) spawn_tpush =
 // --------------------------------
 void() tdeath_touch =
 {
+	entity dest;
+	
 	if (other == self.owner)
 		return;
 
@@ -388,8 +390,15 @@ void() tdeath_touch =
 			return;
 		}
 	}
-
-	if (other.health)
+	
+	if (other.classname == "monster_d1boss")
+	{
+		dest = find( world, targetname, other.include );
+		setorigin( other, dest.origin );
+		other.ideal_yaw = vectoyaw(dest.angles); 
+		ChangeYaw ();
+	}
+	else if (other.health)
 		T_Damage (other, self, self, 50000);
 }
 

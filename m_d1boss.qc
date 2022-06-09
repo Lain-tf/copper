@@ -534,7 +534,7 @@ void() d1boss_sleepreset =
 
 	dest = find( world, targetname, self.include );
 	setorigin( self, dest.origin );
-	self.ideal_yaw = 90;
+	self.ideal_yaw = vectoyaw(dest.angles); 
 	ChangeYaw ();
 
 	d1boss_stand1();
