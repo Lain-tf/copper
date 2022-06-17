@@ -43,17 +43,22 @@ float(entity targ) range =
 	d = eyeline(targ);
 	//d_z *= 2;	// don't melee guys way above or below you
 	r = vlen(d);
-	if (r < 80)
-		return RANGE_HUG;
-	if (r < 120)
-		return RANGE_MELEE;
-	if (r < 500)
-		return RANGE_NEAR;
-	if (r < 900)
-		return RANGE_MID;
-	if (r < 1250)
+	
+	if (r > 1249)
+		return RANGE_TOOFAR;
+	if (r > 899)
 		return RANGE_FAR;
-	return RANGE_TOOFAR;
+	if (r > 499)
+		return RANGE_MID;
+	if (r > 120)
+		return RANGE_NEAR;
+	if (self.classname == "monster_kamikaze")
+		if (r < 80)
+			return RANGE_HUG;
+		else 
+			return RANGE_NEAR;
+	else 
+		return RANGE_MELEE;
 }
 
 /*
