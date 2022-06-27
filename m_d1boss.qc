@@ -697,7 +697,7 @@ void() monster_d1boss_spawn =
 	self.yaw_speed = 30;
 	
 	if ( self.deathtype == string_null )
-		self.deathtype = " was obliterated by Ryan";
+		self.deathtype = " was put to sleep by The Awoken";
 	
 	flymonster_start ();
 };
