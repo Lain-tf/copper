@@ -319,7 +319,7 @@ entity( void() spawnthink ) mon_spawner_use =
 
 void(entity m) monster_kill =
 {
-	T_Damage(m, self, self, m.health + 100);
+	T_Damage(m, self, self, m.health + 1000);
 }
 
 /*
