@@ -5,13 +5,13 @@ float LIQUID_LAVA = 2;
 void() startupWaterBrushes = {
 	entity e;
 
-	e = find(world, liquidbrush, "1");
+	//e = find(world, liquidbrush, "1");
 	while (e) {
 		e.solid = SOLID_NOT;
 		e.movetype = MOVETYPE_NOCLIP;
 		setorigin(e, e.origin);
 
-		e = find(e, liquidbrush, "1");
+		//e = find(e, liquidbrush, "1");
 	}
 };
 
@@ -72,7 +72,7 @@ void() checkSelfInWaterBrush = {
 			return;
 		}
 
-		e = find(e, liquidbrush, "1");
+		//e = find(e, liquidbrush, "1");
 	}
 }
 
@@ -84,7 +84,7 @@ float(vector org) pointcontents2 = {
 	float pc = pointcontents(org);
 	if (pc != CONTENT_EMPTY) return pc;
 
-	e = find(world, liquidbrush, "1");
+	//e = find(world, liquidbrush, "1");
 
 	while (e) {
 		touched = getWaterTouch(org, e);
