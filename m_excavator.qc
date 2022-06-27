@@ -38,6 +38,13 @@ $frame painb1 painb2 painb3 painb4 painb5 painb6
 
 /*
  *==================
+ * Excavator idle
+ *==================
+ */
+ void() exca_stand1  = [ $wake1, exca_stand1 ] {ai_stand();}
+
+/*
+ *==================
  * Excavator fly/run
  *==================
  */
@@ -75,7 +82,6 @@ void() excavator_kamikaze_touch =
 		return; // don't explode on projectiles
 	}
 
-	sound (self, CHAN_VOICE, "exca/ex_death.wav", 1, ATTN_NORM);
 	T_RadiusDamage(self, self, 60, world);
 	Killed(self,self.enemy, self.enemy);
 	BecomeExplosion ();
@@ -84,7 +90,7 @@ void() excavator_kamikaze_touch =
 
 
 float EXCAVATOR_KSPEED = 600;
-float EXCAVATOR_TURNRATE = 337; 
+float EXCAVATOR_TURNRATE = 300; 
 
 
 vector(entity targ, float turnrate) ExcavTurnToward =
@@ -260,7 +266,7 @@ void() excavator_fire = {
 };
 
 
-void()	excavator_fire1	= [ $s_shot1, excavator_fire2 ] {ai_face();}
+void()	excavator_fire1	= [ $s_shot1, excavator_fire2 ] {ai_face(); self.effects = self.effects | EF_MUZZLEFLASH;}
 void()	excavator_fire2	= [ $s_shot2, excavator_fire3 ] {sound (self, CHAN_WEAPON, "exca/ex_fire.wav", 1, ATTN_NORM);}
 void()	excavator_fire3	= [ $s_shot3, excavator_fire4 ] {}
 void()	excavator_fire4	= [ $s_shot4, excavator_fire5 ] {}
@@ -395,7 +401,7 @@ void() monster_excavator_spawn =
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 800;
 
-	self.th_stand = wiz_stand1;
+	self.th_stand = exca_stand1;
 	self.th_walk = wiz_walk1;
 	self.th_run = excavator_run1;
 	self.th_missile = excavator_fire1;
