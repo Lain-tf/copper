@@ -50,7 +50,7 @@ misc.qc
 shooters.qc
 walls.qc
 sound.qc
-water.qc
+//water.qc // disabled because monsters were thinking about water too much
 
 fog.qc			// atmosfear
 t_void.qc		// bottomless pits

@@ -200,7 +200,7 @@ void() ShalHome =
 		// || has_invis(self.enemy)			// if target is invis
 		// 1.1: took ^^ this one out too, because projectiles auto-miss the player when
 		// invisible now so they might as well always move the same
-		|| pointcontents2(self.origin) < CONTENT_SOLID ) // if voreball is underwater
+		|| pointcontents(self.origin) < CONTENT_SOLID ) // if voreball is underwater
 	{
 		// voreballs headed straight at the player when he's hidden should maintain course, to
 		// make the dodge possible without it immediately turning to hit him

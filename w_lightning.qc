@@ -49,11 +49,11 @@ void(vector start, entity from, float dmg) W_ChainLightning =
 				dot = normalize(h_org - start) * dir;
 				if (dist <= len)
 				{
-					zpc = pointcontents2(from.origin);
+					zpc = pointcontents(from.origin);
 					if ( dot > 0.825 || 
 						(dist < 72 && dot > 0.725) ||
 						// extra-wide zappy cone for anyone underwater
-						(dot > 0.25 && (zpc == CONTENT_WATER || zpc == CONTENT_SLIME) && pointcontents2(head.origin) == zpc ) )
+						(dot > 0.25 && (zpc == CONTENT_WATER || zpc == CONTENT_SLIME) && pointcontents(head.origin) == zpc ) )
 					{
 						targ = head;
 						len = dist;
