@@ -305,12 +305,9 @@ void() brute_pain8	=[	$pain8,		brute_pain9	] {}
 void() brute_pain9	=[	$pain9,		brute_run1	] {}
 
 /* Die */
-void()	brute_die1	=[	$death1,	brute_die2	] {}
+void()	brute_die1	=[	$death1,	brute_die2	] {self.solid = SOLID_NOT; brute_dropammo();}
 void()	brute_die2	=[	$death2,	brute_die3	] {}
-void()	brute_die3	=[	$death3,	brute_die4	] {
-	self.solid = SOLID_NOT;
-	brute_dropammo();
-}
+void()	brute_die3	=[	$death3,	brute_die4	] {}
 void()	brute_die4	=[	$death4,	brute_die5	] {}
 void()	brute_die5	=[	$death5,	brute_die6	] {}
 void()	brute_die6	=[	$death6,	brute_die7	] {}
@@ -561,14 +558,7 @@ void() brute_die =
 		if (self.health < -150)
 	{
 		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-		ThrowHead ("progs/e2/h_brute.mdl", self.health);
-		ThrowGib ("progs/gib1.mdl", self.health);
-		ThrowGib ("progs/gib2.mdl", self.health);
-		ThrowGib ("progs/gib1.mdl", self.health);
-		ThrowGib ("progs/gib2.mdl", self.health);
-		ThrowGib ("progs/gib1.mdl", self.health);
-		ThrowGib ("progs/gib2.mdl", self.health);
-		ThrowGib ("progs/gib3.mdl", self.health);
+		Gib ("progs/e2/h_brute.mdl", self.health);
 	}
 	
 	brute_die1();
