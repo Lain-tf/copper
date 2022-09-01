@@ -118,7 +118,7 @@ void() excavator_kamikaze_move =
 {
 	local float dot, rate;
 	
-	setsize (self, '-16 -16 8', '16 16 40');
+	setsize (self, '-32 -32 -24', '32 32 64');
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	
 	rate = EXCAVATOR_TURNRATE;
@@ -398,7 +398,7 @@ void() monster_excavator_spawn =
 
 	setmodel(self, "progs/e2/mon_excavator.mdl");
 
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize (self, '32 -32 -24', '32 32 64');
 	self.health = 800;
 
 	self.th_stand = exca_stand1;
@@ -434,7 +434,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-32 -32 -24) (32 32 40) model({ "path": ":progs/e2/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/e2/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
 */
 void() monster_excavator =
 {
@@ -464,7 +464,7 @@ void() monster_excavator =
 	precache_sound ("exca/ex_bomb.wav");
 
 	self.health = 500;	
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize (self, '-32 -32 -24', '32 32 64');
 	if (monster_spawnsetup(monster_excavator_spawner)) {
 		return;
 	}
