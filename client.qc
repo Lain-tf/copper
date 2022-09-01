@@ -1007,26 +1007,26 @@ vector() WaterTest =
 	waist_z += (self.mins_z + self.maxs_z) * 0.5;
 
 	//wp = pointcontents(self.origin);
-	wp = pointcontents2(waist);
+	wp = pointcontents(waist);
 	// iw -- END
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents2(self.origin + self.mins);
+	wp = pointcontents(self.origin + self.mins);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents2(self.origin + self.maxs);
+	wp = pointcontents(self.origin + self.maxs);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
 		wt = min(wt,wp);
 	}
-	wp = pointcontents2(self.origin + self.view_ofs);
+	wp = pointcontents(self.origin + self.view_ofs);
 	if (wp < -2 && wp > -6)
 	{
 		wl += 1;
@@ -1114,7 +1114,7 @@ void() WaterMove =
 					{
 						i -= 75;
 						b = self.absmin + vec_scale(self.size, Vector(random(),random(),random()));
-						if (pointcontents2(b) == CONTENT_WATER)
+						if (pointcontents(b) == CONTENT_WATER)
 							bubble_spawn(b);
 					}
 				}
@@ -1584,8 +1584,8 @@ void() PlayerPreThink =
 // We increase player's speed when they legs and torso is submerged into water [part 1](check post think for [part 2]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-		if (pointcontents2 (self.origin + '0 0 -23') == CONTENT_WATER &&
-			pointcontents2 (self.origin) == CONTENT_WATER)
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
 			self.velocity = self.velocity * 1.3;
 	}
 // WETSUIT END
@@ -1641,14 +1641,14 @@ void() PlayerPostThink =
 	if (self.deadflag)
 		return;
 
-	checkSelfInWaterBrush();	
+	//checkSelfInWaterBrush();	
 	//JIM
 // WETSUIT
 // We increase player's speed when they legs and torso is submerged into water [part 2](check pre think for [part 1]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-		if (pointcontents2 (self.origin + '0 0 -23') == CONTENT_WATER &&
-			pointcontents2 (self.origin) == CONTENT_WATER)
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
 				self.velocity = self.velocity * 0.769230;
 	}
 // WETSUIT END

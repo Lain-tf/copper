@@ -367,7 +367,7 @@ void() StartFrame =
 	{
 		if (framecount != 3)
 			cleanUpClientShit += 2;
-		startupWaterBrushes();
+		//startupWaterBrushes();
 		gamestarted = TRUE;
 	}
 		
