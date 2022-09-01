@@ -6,7 +6,7 @@
 // for the very latest version before anything else
 
 // Based heavily on quake.fgd by autolycus/czg/et al
-// Generated from Copper QuakeC source comments on 11.04.2021
+// Generated from Copper QuakeC source comments on 07.16.2022
 
 //
 // defs.qc
@@ -202,6 +202,7 @@ TEST: behaves like TAKE, but doesn't take anything
 //
 @baseclass size(-16 -16 0, 16 16 56) color(0 0 200) base(Item) = Weapon []
 @PointClass base(Weapon) model({ "path": ":progs/g_shotgn.mdl" }) = weapon_shotgun : "Shotgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_rifle.mdl" }) = weapon_rifle : "Rifle" []
 @PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_supershotgun : "Double-barreled shotgun" []
 @PointClass base(Weapon) model({ "path": ":progs/g_shot3.mdl" }) = weapon_quad_shotgun : "Rotary shotgun" []
 @PointClass base(Weapon) model({ "path": ":progs/g_rail.mdl" }) = weapon_railgun : "Railgun" []
@@ -236,11 +237,12 @@ TEST: behaves like TAKE, but doesn't take anything
 @PointClass base(Ammo) 
     model(
         {{
+			spawnflags & 2 ->   ":maps/b_batt1.bsp",
             spawnflags & 1 ->   ":maps/b_batt1.bsp",
                                 ":maps/b_batt0.bsp"
         }}
     ) =
-    item_cells : "Thunderbolt Ammo, 6/12 cells" []
+    item_cells : "Thunderbolt Ammo, 6/12/24 cells" []
 
 
 //
@@ -254,9 +256,11 @@ TEST: behaves like TAKE, but doesn't take anything
 	item_artifact_invisibility : "Ring of Shadows" []
 @PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/quaddama.mdl" }) =
 	item_artifact_super_damage : "Quad damage" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/haste.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/e2/item_haste.mdl" }) =
 	item_artifact_haste : "Haste" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/artifact_wetsuit.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_berserk.mdl" }) =
+	item_artifact_berserk : "Berserk" []
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_diving.mdl" }) =
 	item_artifact_wetsuit : "Wetsuit" []
 
 
@@ -267,7 +271,7 @@ TEST: behaves like TAKE, but doesn't take anything
 	item_key1 : "Silver Key" []
 @PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/w_g_key.mdl" }) = 
 	item_key2 : "Gold Key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/end1.mdl" }) = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/e1/item_ankh.mdl" }) = 
 	item_sigil : "End of episode rune"
 [
 	spawnflags(Flags) =
@@ -306,10 +310,12 @@ TEST: behaves like TAKE, but doesn't take anything
 		0 : "Medieval"
 		1 : "Metal (runic)"
 		2 : "Base"
-		3 : "Egypt"
-		4 : "Sunken"
-		5 : "Crystal"
+		3 : "Episode 1 - Egypt"
+		4 : "Episode 2 - Sunken"
+		5 : "Episode 2 - Crystal"
 	]
+	track_intermission(integer) : "Custom intermission track" : 0
+	track_end(integer) : "Custom episode end track" : 0
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
 	gravity(integer) : "Gravity"
@@ -912,6 +918,13 @@ Explodes when triggered or shot. Fires targets when it explodes."
 	wait(string) : "Respawn delay"
 	count(integer) : "Respawn limit"
 ]
+@PointClass base(Appearflags, Target, Targetname) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox2 : "Small exploding container, 100 damage. 
+Explodes when triggered or shot. Fires targets when it explodes.
+will do enough damage to set off other barrels at up to ~128u distance (center to center)." 
+[
+	wait(string) : "Respawn delay"
+	count(integer) : "Respawn limit"
+]
 
 
 //
@@ -955,32 +968,33 @@ for a misc_model which can be toggled on or off, use a func_wall_point with a ta
 ]
 @PointClass base(Appearflags) size(16 16 16) color(160 192 224) model(
 {{
-		style == "1" ->	":progs/crystal_small.mdl",
-		style == "2" ->	":progs/crystal_smallclust.mdl",
-		style == "3" ->	":progs/crystal_med.mdl",
-		style == "4" ->	":progs/crystal_medclust1.mdl",
-		style == "5" ->	":progs/crystal_medclust2.mdl",
-		style == "6" ->	":progs/crystal_chonk.mdl",
-						":progs/crystal_med"
+		style == "1" ->	":progs/e2/crystals/crystal_small1.bsp",
+		style == "2" ->	":progs/e2/crystals/crystal_small2.bsp",
+		style == "3" ->	":progs/e2/crystals/crystal_smallclust1.bsp",
+		style == "4" ->	":progs/e2/crystals/crystal_med1.bsp",
+		style == "5" ->	":progs/e2/crystals/crystal_med2.bsp",
+		style == "6" ->	":progs/e2/crystals/crystal_medclust1.bsp",
+		style == "7" -> ":progs/e2/crystals/crystal_medclust2.bsp",
+		style == "8" -> ":progs/e2/crystals/crystal_chonk1.bsp",
+						":progs/e2/crystals/crystal_med1.bsp"
 	}}
 ) = misc_crystal : 
 "Crystal model. Not solid."
 [
-	style(choices) : "Style" : 3	=
+	style(choices) : "Style" : 4	=
 	[
-		1: "Small crystal"
-		2: "Small crystal cluster"
-		3: "Medium crystal"
-		4: "Medium crystal cluster 1"
-		5: "Medium crystal cluster 2"
-		6: "Chonk crystal"
+		1: "Small crystal 1"
+		2: "Small crystal 2"
+		3: "Small crystal cluster"
+		4: "Medium crystal 1"
+		5: "Medium crystal 2"
+		6: "Medium crystal cluster 1"
+		7: "Medium crystal cluster 2"
+		8: "Chonk crystal"
 	]
-	
-	spawnflags(flags) =
-	[
-		1 : "No Sound" : 0	
-	]
+
 	mangle(string) : "Orientation (pitch yaw roll, positive pitch is down)"
+	alpha(string) : "Transparency, between 0 (fully transparent) and 1 (fully opaque)"
 ]
 @Pointclass base(Target, Targetname, Appearflags) color(192 64 0) size(32 32 32) = target_heal : 
 "Heals targets when triggered, or activator if no targets set" 
@@ -1327,6 +1341,7 @@ If the func_void's first target is an info_teleport_destination, it will hurt th
 	movedir(string) : "Velocity of particles (x y z)"
 	wait(string) : "Interval" : "0.1"
 	velocity(string) : "Direction of optional sweep effect (x y z)"
+	distance(integer) : "Min player distance for dots"
 ]
 
 @Pointclass base(Targetname, Appearflags, Bounds, Particlefield) color(0 160 255) size(16 16 16) = misc_particlefield_box : 
@@ -1428,13 +1443,13 @@ Total shake duration is length + delay + wait."
 //
 // m_knight.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/knight.mdl" }) = monster_knight : "Knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_knight.mdl" }) = monster_knight : "Knight" []
 
 
 //
 // m_soldier.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_grunt.mdl" }) = monster_army : "Grunt" []
 
 
 //
@@ -1452,7 +1467,7 @@ Total shake duration is length + delay + wait."
 //
 // m_zombie.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/zombie.mdl" }) = monster_zombie : "Zombie" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/mon_zombie.mdl" }) = monster_zombie : "Zombie" 
 [
 	spawnflags(Flags) = 
 	[
@@ -1486,7 +1501,7 @@ Total shake duration is length + delay + wait."
 //
 // m_hknight.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/hknight.mdl" }) = monster_hell_knight : "Hell knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_hknight.mdl" }) = monster_hell_knight : "Death knight" []
 
 
 //
@@ -1504,7 +1519,7 @@ Total shake duration is length + delay + wait."
 //
 // m_enforcer.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/enforcer.mdl" }) = monster_enforcer : "Enforcer" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_enforcer.mdl" }) = monster_enforcer : "Enforcer" []
 
 
 //
@@ -1525,29 +1540,23 @@ if the map is end.bsp, the finale cutscene will trigger, otherwise shub will jus
 //
 // m_kamikaze.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/kamikaze.mdl" }) = monster_kamikaze : "Kamikaze" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/e1/mon_kami.mdl" }) = monster_kamikaze : "Kamikaze" []
 
 
 //
 // m_brute.qc
 //
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/cbrute.mdl" }) = monster_brute : "Crystalline Brute" []
-
-
-//
-// m_cguard.qc
-//
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/cguard.mdl" }) = monster_cguard : "Crystalline Guard:" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/e2/mon_brute.mdl" }) = monster_brute : "Crystalline Brute" []
 
 
 //
 // m_excavator.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/e2/mon_excavator.mdl" }) = monster_excavator : "Excavator" []
 
 
 //
-// m_boss_test.qc
+// m_d1boss.qc
 //
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/wizard.mdl" }) = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-32 -32 -96, 32 32 96) model({ "path": ":progs/mon_d1boss.mdl" }) = monster_d1boss : "The Awoken One" []
 
