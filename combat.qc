@@ -575,6 +575,10 @@ void(entity inflictor, entity attacker, entity tgt, float points, float multi) T
 		}
 	}
 	
+	// D2 boss - marks the attack as radius damage
+	if (tgt.classname == "d2boss_bbox")
+		tgt.state = 1;
+
 	if (multi && tgt.movetype != MOVETYPE_WALK )
 		AddMultiDamage( tgt, pnts );
 	else T_Damage (tgt, inflictor, attacker, pnts);
