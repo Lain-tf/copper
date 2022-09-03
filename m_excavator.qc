@@ -398,7 +398,7 @@ void() monster_excavator_spawn =
 
 	setmodel(self, "progs/e2/mon_excavator.mdl");
 
-	setsize (self, '32 -32 -24', '32 32 64');
+	setsize (self, '-32 -32 -24', '32 32 64');
 	self.health = 800;
 
 	self.th_stand = exca_stand1;
