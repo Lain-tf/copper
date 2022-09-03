@@ -818,3 +818,216 @@ void() noclass =
 	remove (self);
 }
 
+
+
+
+
+
+/*
+=============================================================
+
+func_fade
+
+=============================================================
+*/
+
+float FUNC_FADE_REVERSE = 1;
+float FUNC_FADE_START_ON = 2;
+
+void() func_fade = {
+
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NOCLIP; 
+
+	setmodel(self, self.model);
+
+	if (!self.alpha) self.alpha1 = 1;
+	else self.alpha1 = self.alpha;
+
+	self.alpha2 += 0.000001;
+	self.alpha = self.alpha2;
+
+	if (!self.waitmin) self.waitmin = 192;
+	if (!self.waitmax) self.waitmax = 384;
+
+	// invert the distances if min > max
+	if (self.waitmin > self.waitmax) {
+		float tmpwait = self.waitmax;
+		self.waitmax = self.waitmin;
+		self.waitmin = tmpwait;
+	}
+
+	if (self.switchshadstyle) {
+		lightstyle(self.switchshadstyle, light_str(12));
+	}
+
+	self.think = func_fade_start;
+	self.nextthink = time + 0.025;
+
+	self.use = func_fade_use;
+	//self.th_setstate = func_fade_setstate;
+	self.speed = zeroconvertdefault(self.speed, 1);
+	
+	// increment per think frame @ 40fps
+	if (!self.speed) self.delay = 1;
+	else self.delay = clamp(1/(self.speed / 0.025), 0, 1);
+
+}
+
+void() func_fade_start = {
+	// default origin point for distance calculation
+	self.dest = (self.absmin + self.absmax)/2;
+
+	entity e;
+
+	// custom origin point
+	if (self.target != "") {
+		e = find(world, targetname, self.target);
+
+		if (e)
+			self.dest = e.origin;
+	}
+
+	// light to fade in/out together
+	if (self.target2 != "") {
+		e = find(world, targetname, self.target2);
+
+		if (e && e.style)
+			self.style = e.style;
+	}
+
+
+	if (self.spawnflags & FUNC_FADE_START_ON) {
+		func_fade_setfade(1);
+		self.state = 1;
+	}
+	else
+		func_fade_setfade(0);
+
+
+	if (self.targetname == "") {
+		self.think = func_fade_think_distance;
+		self.nextthink = time + 0.05;
+	}
+	
+}
+
+void(float newstate, float stateflags) func_fade_setstate = {
+	self.estate = newstate;
+	if (self.targetname == "")
+		func_fade_think_setstate();
+}
+
+void() func_fade_think_setstate = {
+	float closest, perc, playerperc, dist;
+
+	closest = 1000000000;
+
+	entity pl = find(world, classname, "player");
+	
+	while (pl) {
+		dist = vlen(pl.origin - self.dest);
+		if (dist < closest) closest = dist;
+		pl = find(pl, classname, "player");
+	}
+
+	playerperc = clamp(1 - (closest - self.waitmin)/(self.waitmax - self.waitmin), 0, 1);
+
+	if (!self.estate) // going to on
+		perc = self.light_lev + self.delay;
+	else
+		perc = self.light_lev - self.delay;
+
+	func_fade_setfade(perc);
+
+	if (perc <= 0 || perc >= 1 ||
+		(perc >= playerperc && !self.estate)
+		//|| (perc <= playerperc && self.estate)
+	) {
+		self.think = func_fade_think_distance;
+		self.nextthink = time + 0.05;
+	}
+	else {
+		self.think = func_fade_think_setstate;
+		self.nextthink = time + 0.025;
+	}
+
+}
+
+void() func_fade_think_distance = {
+
+	//if (self.estate != STATE_ACTIVE)
+	//	return;
+
+	self.nextthink = time + 0.05;
+
+	float closest, dist, perc;
+	
+	closest = 1000000000;
+
+	entity pl = find(world, classname, "player");
+	
+	while (pl) {
+		dist = vlen(pl.origin - self.dest);
+		if (dist < closest) closest = dist;
+		pl = find(pl, classname, "player");
+	}
+
+	//dprint3("Distance: ", ftos(closest), "\n");
+	if (closest < self.waitmax + 128) {
+		perc = clamp(1 - (closest - self.waitmin)/(self.waitmax - self.waitmin), 0, 1);
+		func_fade_setfade(perc);
+
+		self.attack_finished = time + 0.2;
+	}
+	else if (time < self.attack_finished) {
+		func_fade_setfade(0);
+	}
+	else self.nextthink = time + 0.2;
+
+}
+
+
+void() func_fade_use = {
+	self.state = !self.state;
+	//dprint3("State: ", ftos(self.state), "\n");
+	func_fade_think_timed();
+}
+
+void() func_fade_think_timed = {
+	float perc;
+
+	if (self.state) // going to on
+		perc = self.light_lev + self.delay;
+	else
+		perc = self.light_lev - self.delay;
+
+	perc = clamp(perc, 0, 1);
+
+	func_fade_setfade(perc);
+
+	if (perc != 0 && perc != 1) {
+		self.think = func_fade_think_timed;
+		self.nextthink = time + 0.025;
+	}
+}
+
+void(float perc) func_fade_setfade = {
+	//dprint3("Percent: ", ftos(perc), "\n");
+	self.light_lev = perc;
+
+	if (self.spawnflags & FUNC_FADE_REVERSE) perc = 1 - perc;
+
+	self.alpha = (self.alpha1 - self.alpha2) * perc + self.alpha2;
+	//dprint3("Alpha: ", ftos(self.alpha), "\n");
+
+	if (self.style) {
+		//float step1 = rint(perc * 12);
+		lightstyle(self.style, light_str(perc));
+	}
+
+	if (self.switchshadstyle) {
+		//float step2 = rint((1 - perc) * 12);
+		lightstyle(self.switchshadstyle, light_str(1-perc));
+	}
+}

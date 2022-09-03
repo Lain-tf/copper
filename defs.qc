@@ -283,6 +283,7 @@ float	isKex;	// running the quake rerelease
 //.string		posttarget;		// to be fired after them
 
 .float		alpha;
+.float 		alpha1, alpha2;
 
 // lights
 .float		style;
@@ -352,6 +353,7 @@ float	isKex;	// running the quake rerelease
 .float		length, width, height;
 .float t_length = length;	// preserve old func_door_secret maphacks
 .float t_width = width;
+.float		waitmin, waitmax;
 
 
 .float		touch_time;
