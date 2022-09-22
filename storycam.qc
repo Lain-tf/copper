@@ -54,6 +54,7 @@ void(entity who, entity cam) MooshPlayerIntoCamera
 
 	centerprint(who, string_null);
 	fog_setFromEnt(who, cam);
+	stuffcmd(self,"+strafe\n");	// block camera view yanking in some engines
 
 	who.nextthink = time + 0.6;
 }
@@ -117,6 +118,7 @@ void(entity who) RestoreClientInfoes
 	//who.flags = not(who.flags, FL_NOTARGET);
 	
 	//RestoreCrosshair();
+	stuffcmd(self,"-strafe\n");
 	RestoreItemEffects(who);
 	fog_set(who, who.fog_density2, who.fog_color2);
 	skyfog_set(who, who.skyfog_density2);
@@ -274,11 +276,6 @@ void() PlayerCameraPreThink =
 	if (self.movetype == MOVETYPE_NOCLIP)
 		self.movetype = MOVETYPE_NONE;
 	
-	// FIXME: calling this from playerprethink is often enough to perma-lock
-	// the player's angles in regular protocols, but in 999, FTE999, or other
-	// high-server-framerate environments that don't actually call it every
-	// real frame, the player can 'fight' the camera and pull it off-angle.
-	// (and no, changing the mouse sensitivity cvar is not the right fix)
 	self.angles = self.v_angle = storyCam.mangle;
 	self.fixangle = TRUE;		// turn this way immediately
 	

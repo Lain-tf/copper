@@ -1545,6 +1545,7 @@ void() PlayerPreThink =
 		{
 			//RestoreCrosshair();
 			stuffcmd(self,"\nv_cshift\n");
+			stuffcmd(self,"-strafe\n");
 		}
 		else if ( self.customflags & CFL_LIMBO )
 		{
