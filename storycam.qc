@@ -49,9 +49,12 @@ void(entity who, entity cam) MooshPlayerIntoCamera
 	who.fixangle = TRUE;		// turn this way immediately
 	who.wait = 0;				// stop shootin'
 	setorigin (who, cam.origin);
+	who.model = string_null;
+	who.weaponmodel = string_null;
 
 	centerprint(who, string_null);
 	fog_setFromEnt(who, cam);
+
 	who.nextthink = time + 0.6;
 }
 
@@ -85,9 +88,6 @@ void(entity who) StashClientInfoes
 	
 	//HideCrosshair();
 	ClearItemEffects(who);
-	
-	who.weaponmodel = "progs/null.spr";
-	setmodel(who, "progs/null.spr");	// dumb hack I don't understand - origins don't update without SOME model
 }
 
 
@@ -104,7 +104,6 @@ void(entity who) RestoreClientInfoes
 	
 	//who.modelindex = modelindex_player;
 	setmodel(who,"progs/player.mdl");
-	setsize (who, VEC_HULL_MIN, VEC_HULL_MAX);	// player will otherwise still be tiny from his time as null.spr
 	setorigin (who, who.oldorigin);
 	who.view_ofs = '0 0 22';
 	who.angles = who.v_angle = who.mangle;
@@ -469,7 +468,5 @@ void() info_storycamera =
 	self.spawnflags |= 3;	// set them all to 'first' and 'last' - StoryCameraChain will set them appropriately
 	self.think = StoryCameraChain;
 	self.nextthink = time + 0.1;	// link cameras together once they've all spawned
-	
-	precache_model3 ("progs/null.spr");
 }
 
