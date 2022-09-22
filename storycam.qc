@@ -80,7 +80,7 @@ void(entity who) StashClientInfoes
 	
 	who.movetype = MOVETYPE_NONE;
 	who.jump_flag = who.flags;
-	who.flags = who.flags | FL_NOTARGET;
+	who.flags = not(who.flags | FL_NOTARGET, FL_ONGROUND);
 
 	who.fog_color2 = who.fog_color;
 	who.fog_density2 = who.fog_density;
