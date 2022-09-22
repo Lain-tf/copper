@@ -55,6 +55,7 @@ sound.qc
 fog.qc			// atmosfear
 t_void.qc		// bottomless pits
 fx.qc			// more dots
+storycam.qc		// text cutscene camera
 
 // prefixed all these so I can more easily open all the monster files at once
 m_ogre.qc

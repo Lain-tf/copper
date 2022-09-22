@@ -90,6 +90,8 @@ void() ItemSpawn =
 	setorigin (self, self.origin);
 	//ItemFall();
 
+	// having items going shwizz during DRAMATIC EXPOSITION is bad for DRAMATIC TENSION
+	if (storytime_running) return;
 	
 	ItemPiff();
 	

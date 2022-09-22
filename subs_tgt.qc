@@ -145,6 +145,9 @@ void() SUB_PrintMessage =
 {
 	if (self.message == string_null)
 		return;
+	if (self.classname == "info_storycamera")
+		return;
+
 	entity client = world;
 	
 	dprint5("Printing message '",self.message,"' to ",activator.classname," ...\n");

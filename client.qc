@@ -1541,8 +1541,9 @@ void() PlayerPreThink =
 	if (cleanUpClientShit)
 	{
 		fog_setFromEnt( self, self );
-		if ( !( self.customflags & (CFL_PLUNGE|CFL_LIMBO) ) )
+		if ( !storytime_running && !( self.customflags & (CFL_PLUNGE|CFL_LIMBO) ) )
 		{
+			//RestoreCrosshair();
 			stuffcmd(self,"\nv_cshift\n");
 		}
 		else if ( self.customflags & CFL_LIMBO )
@@ -1559,6 +1560,12 @@ void() PlayerPreThink =
 		IntermissionThink ();	// otherwise a button could be missed between
 		return;					// the think tics
 	}
+	else if (storytime_running)
+	{
+		PlayerCameraPreThink ();
+		return;
+	}
+
 	makevectors (self.v_angle);		// is this still used
 									// lunaran: "yes"
 
@@ -1634,7 +1641,7 @@ Called every frame after physics are run
 */
 void() PlayerPostThink =
 {
-	if ( intermission_running ) return;
+	if (storytime_running || intermission_running ) return;
 	
 	if (self.view_ofs == '0 0 0')
 		return;		// intermission or finale

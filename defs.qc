@@ -236,6 +236,9 @@ nosave float	clientsAlive;
 
 float	skill;
 float	coop_time;
+entity	storyCam;
+float	storyCamTime;
+float	storytime_running;
 
 // for balancing: total monster HP/ammo -HP/zombies/grenades in the level
 float	monster_health;	

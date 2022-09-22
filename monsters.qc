@@ -356,6 +356,7 @@ void() monster_use =
 	self.nextthink = time + 0.1;
 	self.think = FoundTarget;
 
+	if (storytime_running) ai_freeze_monster(self);
 }
 
 
@@ -495,6 +496,7 @@ void() monster_start_go =
 	// add tiny minimum in case random() ever returns exactly 0 (rare but possible)
 	self.nextthink = time + random()*0.1 + 0.05;
 
+	if (storytime_running) ai_freeze_monster(self);
 }
 
 /*
