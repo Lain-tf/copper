@@ -732,7 +732,21 @@ void(entity e, string sk) skill_set =
 
 void() target_setskill_use
 {
-	skill_set(activator, self.message);
+	skill_set(activator, self.netname);
+}
+
+void() target_setskill_think
+{
+	if (skill != self.frags)
+	{
+		self.frags = skill;
+		if ( (skill == 0 && self.netname == "0") ||
+			(skill == 1 && self.netname == "1") ||
+			(skill == 2 && self.netname == "2") ||
+			(skill == 3 && self.netname == "3"))
+			SUB_UseTargets();
+	}
+	self.nextthink = time + 0.1;
 }
 
 /*FGD
@@ -758,11 +772,29 @@ Keys:
     3 = nightmare
 */
 /*FGD
-@PointClass base(Setskill, Targetname) = target_setskill : "Target: Set Skill" []
+@PointClass base(Setskill, Target, Targetname) = target_setskill : "Target: Set Skill
+If this entity has a targetname, it can be triggered from another entity to set the skill level.
+If instead it has targets, it will fire those targets whenever it detects the skill is changed to its matching value (ie at the console). This also will happen once at map start. use if you are bal and your skill select buttons are entire bollywood films" []
 */
 void() target_setskill =
 {
-	self.use = target_setskill_use;
+	if (self.netname == string_null)
+		self.netname = self.message;
+	self.message = string_null;
+
+	if (self.targetname != string_null)
+	{
+		self.use = target_setskill_use;
+		return;
+	}
+	if (self.target == string_null && 
+		self.target2 == string_null && 
+		self.target3 == string_null && 
+		self.target4 == string_null)
+		objerror("target_setskill has neither target nor targetnames");
+	self.frags = -1;
+	self.think = target_setskill_think;
+	self.nextthink = time + 0.2;
 }
 
 void() trigger_skill_touch =
@@ -794,6 +826,9 @@ void() trigger_setskill =
 {
 	if (!SUB_ShouldSpawn()) return;
 	InitTrigger ();
+	if (self.netname == string_null)
+		self.netname = self.message;
+	self.message = string_null;
 	self.touch = trigger_skill_touch;
 }
 
