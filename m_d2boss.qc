@@ -940,8 +940,8 @@ void() monster_d2boss_spawner =
 	mon_spawner_use(monster_d2boss_spawn);
 };
 
-/*QUAKED monster_wizard (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH ? ? ? TRIGGERED NOTFOG NOTELEFRAG INSTAWAKE
-Scrag (the WIZARD), 80 health points.
+/*QUAKED monster_d2boss (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH ? ? ? TRIGGERED NOTFOG NOTELEFRAG INSTAWAKE
+Scrag (the SCULPTOR), ??? health points.
 
 Flags:
 "ambush" only wake up on seeing the player, not another monster getting angry
@@ -956,7 +956,7 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_d2boss.mdl" }) = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_d2boss.mdl" }) = monster_d2boss : "The Sculptor" []
 */
 
 void() monster_d2boss =
