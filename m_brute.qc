@@ -557,8 +557,8 @@ void() brute_die =
 	
 		if (self.health < -150)
 	{
-		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 		Gib ("progs/e2/h_brute.mdl", self.health);
+		return;
 	}
 	
 	brute_die1();
