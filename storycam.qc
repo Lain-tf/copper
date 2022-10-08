@@ -105,6 +105,7 @@ void(entity who) RestoreClientInfoes
 	
 	//who.modelindex = modelindex_player;
 	setmodel(who,"progs/player.mdl");
+	setsize (who, VEC_HULL_MIN, VEC_HULL_MAX);
 	setorigin (who, who.oldorigin);
 	who.view_ofs = '0 0 22';
 	who.angles = who.v_angle = who.mangle;
