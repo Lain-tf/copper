@@ -43,7 +43,7 @@ void(entity who, entity cam) MooshPlayerIntoCamera
 	// change screen tint right away after a page jump
 	// FIXME: there's still a 1 frame jump between camera move and tint change
 	if (!(cam.spawnflags & 1))
-		TintScreen(self, cam.strength);
+		TintScreen(who, cam.strength);
 	
 	who.angles = who.v_angle = cam.mangle;
 	who.fixangle = TRUE;		// turn this way immediately
@@ -54,7 +54,7 @@ void(entity who, entity cam) MooshPlayerIntoCamera
 
 	centerprint(who, string_null);
 	fog_setFromEnt(who, cam);
-	stuffcmd(self,"+strafe\n");	// block camera view yanking in some engines
+	stuffcmd(who,"+strafe\n");	// block camera view yanking in some engines
 
 	who.nextthink = time + 0.6;
 }
@@ -118,12 +118,12 @@ void(entity who) RestoreClientInfoes
 	//who.flags = not(who.flags, FL_NOTARGET);
 	
 	//RestoreCrosshair();
-	stuffcmd(self,"-strafe\n");
+	stuffcmd(who,"-strafe\n");
 	RestoreItemEffects(who);
 	fog_set(who, who.fog_density2, who.fog_color2);
 	skyfog_set(who, who.skyfog_density2);
 	who.nextthink = time;
-	self.think = player_stand1;
+	who.think = player_stand1;
 }
 
 
