@@ -1465,7 +1465,7 @@ void() CheckPowerups =
 			self.berserk_finished = 0;
 			self.berserk_time = 0;
 			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
-			if (self.weapon == IT_AXE)
+			if (self.weapon == W_AXE)
 				self.weaponmodel = "progs/v_axe2.mdl";
 			
 		}
@@ -1920,14 +1920,14 @@ void() ClientObituary =
 			attacker.frags = attacker.frags - 1;
 			bprint (self.netname);
 			
-			if (self.weapon == IT_LIGHTNING && self.waterlevel >= WL_WAIST)
+			if (self.weapon == W_LIGHTNING && self.waterlevel >= WL_WAIST)
 			{
 				bprint (" discharges into the water\n");
 				return;
 			}
-			if (self.weapon == IT_GRENADE_LAUNCHER)
+			if (self.weapon == W_GRENADE_LAUNCHER)
 				bprint (" tries to put the pin back in\n");
-			else if (self.weapon == IT_ROCKET_LAUNCHER)
+			else if (self.weapon == W_ROCKET_LAUNCHER)
 			{
 				if (random() < 0.5)
 					bprint (" rocket-jumps into the next world\n");

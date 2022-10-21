@@ -213,7 +213,7 @@ void() W_FireSuperShotgun =
 
 /*
 ================
-W_FireQuadhotgun
+W_FireQuadShotgun
 ================
 */
 void() W_FireQuadShotgun =
@@ -236,17 +236,13 @@ void() W_FireQuadShotgun =
 RAILGUN
 ================
 */
-/*void() W_FireRail =
-{
-	local vector dir;
-	dir = aim(self, AUTOAIM_DIST);
-	
-};*/
 
-void() rail_fade = {
-	
+void() rail_fade = 
+{
 	self.think = rail_fade;
 	self.nextthink = time + 0.1;
+	if (self.skin < 6)
+		self.skin++;
 
 	if (self.cnt == 6)
 		self.alpha = 0.7;
@@ -258,11 +254,11 @@ void() rail_fade = {
 		self.alpha = 0.15;
 	else if (self.cnt == 2)
 		self.alpha = 0.10;
-	else if (self.cnt == 1) {
+	else if (self.cnt == 1) 
+	{
 		self.alpha = 0.05;
 		self.think = SUB_Remove;
 		self.nextthink = time + 0.05;
-		
 	}	
 	self.cnt = self.cnt - 1;
 };
@@ -270,11 +266,12 @@ void() rail_fade = {
 void() W_FireRail =
 {
 	local float timetoend;
-	local vector	vel, org, dir, vec, src, loopsrc,  destination, dir2, dir3;
+	local vector vel, org, dir, vec, src, loopsrc, destination, dir2, dir3;
 	local vector drawsrc;
 	local entity thedude;
-	local float traillen, segments;
-	entity prj;
+	local float traillen, segments, timetofade;
+	local entity prj;
+	local float haste_factor;
 	
 	if (self.ammo_cells < 6)
 	{
@@ -285,20 +282,20 @@ void() W_FireRail =
 	self.weaponframe = 0;
 	
 	if (random() < 0.3)
-		{
-			self.weaponframe = 31;
-			self.punchangle_z = -3;
-		}
+	{
+		self.weaponframe = 31;
+		self.punchangle_z = -3;
+	}
 	else if (random() < 0.3)
-		{
-			self.weaponframe = 1;
-			self.punchangle_z = -3;
-		}
+	{
+		self.weaponframe = 1;
+		self.punchangle_z = -3;
+	}
 	else 
-		{
-			self.weaponframe = 16;
-			self.punchangle_z = 3;
-		}
+	{
+		self.weaponframe = 16;
+		self.punchangle_z = 3;
+	}
 	
 	player_rail1();
 	makevectors(self.v_angle);
@@ -336,38 +333,32 @@ void() W_FireRail =
 				SpawnBlood (org, vel*0.2, 400);
 				if (trace_ent != self) 
 				{
-					if (deathmatch != 0){
+					trace_ent.effects = trace_ent.effects | EF_MUZZLEFLASH;
+					
+					if (deathmatch != 0)
 						T_Damage (trace_ent, self, self, 150);
-						}
-						else
-						{
+					else
 						T_Damage (trace_ent, self, self, 270);
-							}
-
 					
 					// if we have the right amount of health add some velocity if we're not gibbing
-					
 					if (trace_ent.health <= 0)
 					{
-						trace_ent.velocity = '0 0 0';					
-						trace_ent.velocity_z = 175;
+						trace_ent.velocity = '0 0 175';					
 						// zero out the velocity and give it some z velocity so its off ground
 						trace_ent.flags = trace_ent.flags - (trace_ent.flags & FL_ONGROUND);
 						// also set the flag
 						
 						// we don't want z velocity, so we're going to zero that out too.
-						dir3 = BoundsCenter(self);
+						dir3 = BoundsCenter(self); // player
 						dir3_z = 0;
-						dir2 = trace_ent.origin;
+						dir2 = trace_ent.origin; // monster
 						dir2_z = 0;
-						dir2 = dir2 - dir3;
+						dir2 = dir2 - dir3; // direction from player to monster
 						dir2 = normalize(dir2);
-						trace_ent.velocity = trace_ent.velocity + dir2*400;						
-											
+						trace_ent.velocity = trace_ent.velocity + (dir2 * 400);										
 					}
 				}
-									
-				//loopsrc = trace_endpos; 
+
 				// Trace from inside of the hitted monster (vf)
 				loopsrc = trace_endpos + (dir * 4);
 			}
@@ -390,6 +381,7 @@ void() W_FireRail =
 	traceline2(drawsrc, destination, self, TRACE_NOMONSTERS);
 	traillen = vlen(trace_endpos - drawsrc);
 	segments = floor(traillen / 64);
+	timetoend = segments;
 	
 	while (segments)
 	{
@@ -404,24 +396,30 @@ void() W_FireRail =
 		prj.classname = "railtrail";
 		setmodel (prj, "progs/e2/proj_rail.mdl");
 		setsize (prj, VEC_ORIGIN, VEC_ORIGIN);		
-		//setorigin (prj, self.origin + '0 0 16');
 		setorigin (prj, drawsrc + vec * 64 * segments);
 		prj.velocity = '0 0 0';	
 		prj.frame = 4;	
 		prj.think = rail_fade;
-		prj.nextthink = time + 0.2 + (segments*0.05); // delay fade time using segment number for neat effect (vf)
+		timetofade = segments * 0.05;
+		
+		if ( timetofade > 0.8 )
+			timetofade = 0.8;
+		
+		prj.nextthink = time + timetofade; // delay fade time using segment number for neat effect (vf)
+		
+		if (segments == 1) 
+			prj.effects = prj.effects | EF_MUZZLEFLASH;
+		
 		segments = segments - 1;
-		prj.cnt = 5;	
+		prj.cnt = 6;
 	}	
 	
-	local float haste_factor;
-	
-	if (has_haste(self)) {
+	if ( has_haste(self) )
 		haste_factor = HASTE_FACTOR;
-	} else {
+	 else 
 		haste_factor = 1;
-	}
-	self.rail_nextshot = time + 1.4 * haste_factor;
+	
+	self.rail_nextshot = time + ( 1.4 * haste_factor );
 	self.attack_finished = time + 1;
 };
 

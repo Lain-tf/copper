@@ -37,13 +37,15 @@ BackpackTouch
 */
 void() BackpackTouch =
 {
+	local float acount;
+	local vector lvItems;
+	local entity oself;
+	
 	if (!CheckValidTouch()) return;
 
 	// coop 1: players can only pick up their own backpacks
 	if (coop == 1 && self.buddy && self.buddy != other) return;
 
-	float acount;
-	
 	other.ammo_shells = other.ammo_shells + self.ammo_shells;
 	other.ammo_nails = other.ammo_nails + self.ammo_nails;
 	other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
@@ -52,22 +54,42 @@ void() BackpackTouch =
 	armor_give(other, self.armorvalue, 0, FALSE);	
 	
 	sprint (other, "You got ");
-
-	if (self.items && (other.items & self.items) == 0)
-	{
-		entity oself;
-		acount = TRUE;
-		other.items |= self.items;
-		sprint (other, "the ");
-		sprint (other, self.netname);
 	
-		oself = self;
-		self = other;
-		// change to the weapon
-		W_BetterWeapon(oself.items);
-		self = oself;
-	}
+	lvItems = solveItems(self); //defenition in weapons.qc returns vector with [items type, bitmask, 0]
+	if (lvItems_x == 1)
+	{
+		if (lvItems_y && (other.items & lvItems_y) == 0)
+		{
 
+			acount = TRUE;
+			other.items |= lvItems_y;
+			sprint (other, "the ");
+			sprint (other, self.netname);
+		
+			oself = self;
+			self = other;
+			// change to the weapon
+			W_BetterWeapon(oself.items);
+			self = oself;
+		}
+	}
+	else if (lvItems_x == 2)
+	{
+		if (lvItems_y && (other.items2 & lvItems_y) == 0)
+		{
+			acount = TRUE;
+			other.items2 |= lvItems_y;
+			sprint (other, "the ");
+			sprint (other, self.netname);
+		
+			oself = self;
+			self = other;
+			// change to the weapon
+			W_BetterWeapon(oself.items);
+			self = oself;
+		}
+	}
+	
 	if (self.armorvalue)
 	{
 		if (acount) sprint(other, ", ");
@@ -242,26 +264,31 @@ void() DropBackpack =
 	
 	if (coop != 1)
 	{
-		item.items = self.weapon;
-		if (item.items == IT_AXE)
+		item.weapon = self.weapon;
+		if (item.weapon == W_AXE)
 			item.netname = string_null;
-		else if (item.items == IT_SHOTGUN)
+		else if (item.weapon == W_SHOTGUN)
 			item.netname = "Shotgun";
-		else if (item.items == IT_SUPER_SHOTGUN)
+		else if (item.weapon == W_SUPER_SHOTGUN)
 			item.netname = "Double-Barrelled Shotgun";
-		else if (item.items == IT_NAILGUN)
+		else if (item.weapon == W_NAILGUN)
 			item.netname = "Nailgun";
-		else if (item.items == IT_SUPER_NAILGUN)
+		else if (item.weapon == W_SUPER_NAILGUN)
 			item.netname = "Perforator";
-		else if (item.items == IT_GRENADE_LAUNCHER)
+		else if (item.weapon == W_GRENADE_LAUNCHER)
 			item.netname = "Grenade Launcher";
-		else if (item.items == IT_ROCKET_LAUNCHER)
+		else if (item.weapon == W_ROCKET_LAUNCHER)
 			item.netname = "Rocket Launcher";
-		else if (item.items == IT_LIGHTNING)
+		else if (item.weapon == W_LIGHTNING)
 			item.netname = "Thunderbolt";
+		else if (item.weapon == W_QUAD_SHOTGUN)
+			item.netname = "Rotary Shotgun";
+		else if (item.weapon == W_RAILGUN)
+			item.netname = "Railstaff";
+		else if (item.weapon == W_RIFLE)
+			item.netname = "Bolt-action Rifle";
 		else
 			item.netname = string_null;
-		
 	}
 	
 	if (coop == 1)

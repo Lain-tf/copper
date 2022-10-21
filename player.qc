@@ -53,11 +53,11 @@ PLAYER
 
 void()	player_stand1 =[	$axstnd1,	player_stand1	]
 {
-	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt == 1))) // don't interrupt SNG spindown
+/*	if(!((self.weapon == W_SUPER_NAILGUN) && (self.cnt == 1))) // don't interrupt SNG spindown
 	{	
 		W_SetIdleWeaponFrame();
 	}
-	
+*/	
 	if (self.velocity_x || self.velocity_y)
 	{
 		self.walkframe=0;
@@ -82,17 +82,11 @@ void()	player_stand1 =[	$axstnd1,	player_stand1	]
 
 void()	player_run =[	$rockrun1,	player_run	]
 {
-	if (self.weapon == W_SUPER_NAILGUN && self.cnt >= 1) // don't interrupt SNG spindown
-	{	
-		player_super_nail_spindown();
-		return;
-	}
-
 	W_SetIdleWeaponFrame();
 	
 	if (!self.velocity_x && !self.velocity_y)
 	{
-		self.walkframe=0;
+		self.walkframe = 0;
 		player_stand1();
 		return;
 	}
@@ -125,57 +119,69 @@ void()	player_shot6 =	[$shotatt6, player_run	] {self.weaponframe=6;}
 Quad shotgun
 =============
 */
-void() player_quad_shotgun = {
-	float haste_factor;
+void() player_quad_shotgun = 
+{
+	local float haste_factor;
 
-	if (has_haste(self)) {
+	if ( has_haste(self) ) 
 		haste_factor = HASTE_FACTOR;
-	} else {
+	else
 		haste_factor = 1;
-	}
-
+	
 	self.qsg_firing = TRUE;
 	self.attack_finished = time + 1.3 * haste_factor;
+	
 	self.weaponframe = 0;
-	player_quad_shotgun_frame();
-}
+	player_quad_shotgun_loop();
+};
 
-void() player_quad_shotgun_frame = {
-	float haste_factor;
-	if (has_haste(self)) {
+void() player_quad_shotgun_loop = 
+{
+	//shotatt1 shotatt2 shotatt3 shotatt4 shotatt5 shotatt6
+	local float haste_factor;
+	
+	if ( has_haste(self) )
 		haste_factor = HASTE_FACTOR;
-	} else {
+	else
 		haste_factor = 1;
-	}
-
+//---
 	self.weaponframe += 1;
-	if (self.weaponframe < 33) {
+	
+	if ( self.weaponframe < 33 ) 
+	{
 		// We're in the initial firing phase
-		if (mod(self.weaponframe, 8) == 1) {
+		if ( mod( self.weaponframe, 8 ) == 1 ) 
+		{
 			self.frame = $shotatt1;
 			self.effects = self.effects | EF_MUZZLEFLASH;
 			W_FireQuadShotgun();
-		} else {
-			self.frame += 1;
+		} 
+		else 
+		{
+			if ( self.frame < $shotatt6 )
+				self.frame++;
+			else 
+				self.frame--;
 		}
-	} else {
+	} 
+	else 
+	{
 		// Now in the cooldown phase
 		self.qsg_firing = FALSE;
 		
-		if (self.weaponframe == 33) {
-			self.frame = $rockrun1;
-		} else {
-			self.frame += 1;
-		}
+		self.frame = $shotatt6; // idle player at last frame during spindown animation
 
-		if (self.weaponframe == 72) {
+		if ( self.weaponframe == 72 ) 
+		{
+			self.weaponframe = 0;
 			player_run();
 			return;
 		}
 	}
-	self.think = player_quad_shotgun_frame;
-	self.nextthink = time + 0.025 * haste_factor;
-}
+	
+	self.think = player_quad_shotgun_loop;
+	self.nextthink = time + (0.025 * haste_factor);
+};
 
 /*
 ========================================
@@ -275,19 +281,18 @@ void() player_nail =
 	if (self.frame != $nailatt1)
 		self.frame = $nailatt1;
 	else 
-		self.frame += 1;
+		self.frame = $nailatt2;
 
 	if (self.weapon == W_NAILGUN)
 		self.weaponframe = self.cnt + 1;
 
 	self.think = player_nail;
 	self.nextthink = time + 0.1;	// TODO: oh fuck it, it works, you're never touching this again
+};
 
 
-}
-
-void() player_super_nail_spindown = {
-
+void() player_super_nail_spindown = 
+{
 	// thinks run at 4x the usual speed while spinning down,
 	// so only update every 4 weaponframes
 	if (self.weaponframe % 4 == 0) {
@@ -296,22 +301,16 @@ void() player_super_nail_spindown = {
 		self.frame = self.frame + self.walkframe;
 		
 		self.walkframe = self.walkframe + 1;
-
 	}
-}
+};
 
 void() super_nail_spindown =
 {
-
-	
-//		dprint("spinning down\n");
-		self.weaponframe += 1;
-			player_run();		
+		self.weaponframe++;
+		self.frame = $nailatt2;
 		
-//		dprint(ftos(self.cnt));
-//		dprint("\n");
-
-		if (self.weaponframe == 48) sound (self, 7, "weapons/spindn_click.wav", 0.3, ATTN_NORM);
+		if (self.weaponframe == 48) 
+			sound (self, 7, "weapons/spindn_click.wav", 0.3, ATTN_NORM);
 		
 		if (self.weaponframe < 51)
 		{
@@ -320,12 +319,9 @@ void() super_nail_spindown =
 			return;
 		}	
 		else
-		{
-			self.cnt = 0;
-		}
-//	}
-}
-
+			player_run();
+			//self.cnt = 0;
+};
 
 void() player_super_nail =
 {
@@ -334,46 +330,32 @@ void() player_super_nail =
 	self.weaponframe = self.weaponframe + 1;	
 	
 	if (self.weaponframe >= 9)
-	{
 		self.weaponframe = 1;
-	}	
-
+	
 	self.cnt = 0; //using this to keep track of if we're spinning down or not;
 
 	if (!self.button0)
 	{	
-		player_run();
-		self.cnt = 1;
+		//player_run();
+		//self.cnt = 1;
 		super_nail_spindown();
-		
 		return;
 	}
 
-//	dprint(ftos(self.weaponframe));
-//	dprint("\n");
-//	dprint(ftos(self.cnt));
-//	dprint("\n");
-
-	if (((self.weaponframe == 1) || (self.weaponframe == 5)) && (self.ammo_nails > 1))
+	if ( ( (self.weaponframe == 1) || (self.weaponframe == 5) ) && (self.ammo_nails > 1) )
 	{
-		//copied from W_FireSpikes
-		if (!has_haste(self))
-			self.punchangle_x = -2;
-
-		//copied from player_nail
+		W_FirePerforator();
 		self.effects |= EF_MUZZLEFLASH;
 
 		if (self.frame != $nailatt1)
 			self.frame = $nailatt1;
 		else 
-			self.frame += 1;
-
-		W_FirePerforator();
+			self.frame = $nailatt2;
 	}
 	
 	self.think = player_super_nail;
 	self.nextthink = time + 0.025;	// TODO: oh fuck it, it works, you're never touching this again
-}
+};
 
 
 //============================================================================
@@ -418,29 +400,34 @@ void() player_light2   =[$light2, player_light1  ]
 void() player_rail1
 {
 	float haste_factor;
-	if (has_haste(self)) {
-		haste_factor = HASTE_FACTOR;
-	} else {
-		haste_factor = 1;
+	
+	//dprint2(ftos(self.weaponframe),"\n");
+	self.weaponframe++;
+	
+	if ( (self.weaponframe == 2) || (self.weaponframe == 17) || (self.weaponframe == 32) )
+		self.frame = $rockatt1;
+	else 
+	{
+		if ( self.frame < $rockatt6 )
+			self.frame++;
 	}
 	
-	self.weaponframe = self.weaponframe + 1;
-	
-	if ((self.weaponframe == 14) || (self.weaponframe == 29) || (self.weaponframe == 45))
+	if ( (self.weaponframe == 14) || (self.weaponframe == 29) || (self.weaponframe == 45) )
 	{
 		self.weaponframe = 0;
+		player_run();
+		return;
 	}
 	else
 	{
+		if (has_haste(self)) 
+			haste_factor = HASTE_FACTOR;
+		else 
+			haste_factor = 1;
+	
 		self.think = player_rail1;
 		self.nextthink = time + 0.1 * haste_factor;
 	}
-	
-	if ((self.weaponframe == 1) || (self.weaponframe == 16) || (self.weaponframe == 30))
-	{	
-		self.effects = self.effects | EF_MUZZLEFLASH;
-	}
-
 }
 
 

@@ -58,6 +58,74 @@ void() W_Precache =
 }
 
 
+vector (entity peWho) solveItems =
+{
+	local float lfItems, lfBitmask;
+	
+	if (peWho.weapon == W_AXE)
+	{
+		lfItems = 1;
+		lfBitmask = IT_AXE;
+	}
+	else if (peWho.weapon == W_SHOTGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SHOTGUN;
+	}
+	else if (peWho.weapon == W_SUPER_SHOTGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SUPER_SHOTGUN;
+	}
+	else if (peWho.weapon == W_NAILGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_NAILGUN;
+	}
+	else if (peWho.weapon == W_SUPER_NAILGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SUPER_NAILGUN;
+	}
+	else if (peWho.weapon == W_GRENADE_LAUNCHER)
+	{
+		lfItems = 1;
+		lfBitmask = IT_GRENADE_LAUNCHER;
+	}
+	else if (peWho.weapon == W_ROCKET_LAUNCHER)
+	{
+		lfItems = 1;
+		lfBitmask = IT_ROCKET_LAUNCHER;
+	}
+	else if (peWho.weapon == W_LIGHTNING)
+	{
+		lfItems = 1;
+		lfBitmask = IT_LIGHTNING;
+	}
+	else if (peWho.weapon == W_QUAD_SHOTGUN)
+	{
+		lfItems = 2;
+		lfBitmask = IT_QUAD_SHOTGUN;
+	}
+	else if (peWho.weapon == W_RAILGUN)
+	{
+		lfItems = 2;
+		lfBitmask = IT_RAILGUN;
+	}
+	else if (peWho.weapon == W_RIFLE)
+	{
+		lfItems = 2;
+		lfBitmask = IT_RIFLE;
+	}
+	else 
+	{
+		lfItems = 0;
+		lfBitmask = 0;
+	}
+	
+	return ([lfItems, lfBitmask, 0]);
+};
+
 
 /*
 ========
@@ -273,7 +341,7 @@ float() W_CheckNoAmmo =
 	if (self.currentammo > 0)
 		return TRUE;
 
-	if (self.weapon == IT_AXE)
+	if (self.weapon == W_AXE)
 		return TRUE;
 	
 	W_SelectBestWeapon ();
