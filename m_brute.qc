@@ -125,16 +125,16 @@ void(float sequence, float spray) BruteFireGrenade =
 	makevectors(self.angles);
 	switch (sequence) {
 	case BRUTE_GRENADE_SEQUENCE_A_LEFT:
-		gorg = self.origin + v_forward * 60 + v_up * 40 - v_right * 25;
+		gorg = self.origin + v_forward * 10 + v_up * 40 - v_right * 25;
 		break;
 
 	case BRUTE_GRENADE_SEQUENCE_A_RIGHT:
-		gorg = self.origin + v_forward * 60 + v_up * 37 + v_right * 21;
+		gorg = self.origin + v_forward * 10 + v_up * 37 + v_right * 21;
 		spray_angle = spray_angle * -1;
 		break;
 
 	case BRUTE_GRENADE_SEQUENCE_B:
-		gorg = self.origin + v_forward * 50 + v_up * 20 - v_right * 25;
+		gorg = self.origin + v_forward * 10 + v_up * 20 - v_right * 25;
 
 		// Spray both left and right
 		if (random() < 0.5) {
