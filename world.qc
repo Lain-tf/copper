@@ -176,13 +176,13 @@ Keys:
 "_dirtgain" Exponent used in dirt calculation, default 1 (lower is darker)
 */
 /*FGD
-@SolidClass = worldspawn : "World entity"
+@SolidClass color(240 240 240) = worldspawn : "World entity"
 [
 	message(string) : "Map name"
 	worldtype(choices) : "Key Style" : 0 =
 	[
 		0 : "Medieval"
-		1 : "Metal (runic)"
+		1 : "Runemetal"
 		2 : "Base"
 	]
 	sounds(integer) : "CD track to play" : 0
@@ -225,6 +225,8 @@ void() worldspawn =
 	cvar_set("sv_gravity", ftos(self.gravity));
 	self.light_lev = 0;	// shut up FTEQCC warning
 	
+	keyType = "Key";	// default if there are no keys placed in the map
+
 	if (cvar("pr_checkextension"))
 	{
 		if (checkextension("QUAKE_EX"))

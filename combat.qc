@@ -26,14 +26,13 @@ void(entity targ, entity attacker) Killed =
 	oself = self;
 	self = targ;
 	
-	//bprint4(self.classname, " died with ", ftos(self.health), " hp\n");
-	
 	if (self.health < -99)
-		self.health = -99;		// don't let sbar look bad (or throw gibs with crazy speed)
+		self.health = -99;		// don't let sbar look bad
 
 	if (self.movetype == MOVETYPE_PUSH || // doors, triggers, etc
-		(self.movetype == MOVETYPE_NONE && self.classname != "player")) 
+		(self.movetype == MOVETYPE_NONE && self.classname != "player" && !(self.flags & FL_MONSTER))) 
 		// players are movetype none while hanging out in a void pit waiting to die
+		// and monsters may be movetype_none (shootable chthons)
 	{
 		//self.enemy = attacker;	// why did you do this lunaran
 		self.th_die ();
@@ -67,7 +66,12 @@ void(entity targ, entity attacker) Killed =
 	}
 
 	if (self.classname != "player" && self.customflags & CFL_PLUNGE)
-		remove(self);
+	{
+		setmodel(self, string_null);
+		self.health = 0;
+		self.think = SUB_Remove;
+		self.nextthink = time + 1;
+	}
 	else
 		self.th_die ();
 	

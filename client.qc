@@ -164,15 +164,32 @@ PLAYER GAME EDGE FUNCTIONS
 =============================================================================
 */
 
+entity() get_closest_client =
+{
+	if (coop == 0 || clients == 1)
+		return nextent(world);
+		
+	entity next, best;
+	float close, dist;
+	close = A_SHITLOAD;
+	next = nextent(world);
+	while (next.flags & FL_CLIENT)
+	{
+		dist = vlen(self.origin - next.origin);
+		if (dist < close)
+		{
+			best = next;
+			close = dist;
+		}
+		next = nextent(next);
+	}
+	return best;
+}
+
 entity(entity start) get_next_client =
 {
-	entity next;
-	/*
-	next = find(start, classname, "player");
-	if (next == world)
-		next = find(world, classname, "player");
-	*/
 	// nice trick from necros: clients are always the first entities after world
+	entity next;
 	next = nextent(start);
 	if (next.flags & FL_CLIENT == 0)
 		next = nextent(world);
@@ -567,7 +584,10 @@ void() PutClientInServer =
 // paustime is set by teleporters to keep the player from moving a while
 	self.pausetime = 0;
 	
-//	spot = SelectSpawnPoint ();
+	self.dmg_take = 0;
+	self.dmg_save = 0;
+	self.dmg_inflictor = world;
+	self.velocity = VEC_ORIGIN;
 
 	self.origin = spot.origin + '0 0 1';
 	self.v_angle = self.angles = spot.angles;
@@ -575,10 +595,10 @@ void() PutClientInServer =
 	self.attack_finished = time + 0.1;	// don't shoot on the first frame if we clicked to spawn
 	
 	// yet another thing that doesn't work on the first frame
-	if (spot.fog_density)
-		fog_save(self,spot.fog_density,spot.fog_color);
-	else if (world.fog_density)
-		fog_save(self,world.fog_density,world.fog_color);
+	if (spot.fog_density || spot.fog_color || spot.fog_sky)
+		fog_save(self, spot.fog_density, spot.fog_color, spot.fog_sky);
+	else if (world.fog_density || world.fog_color || world.fog_sky)
+		fog_save(self, world.fog_density, world.fog_color, world.fog_sky);
 	cleanUpClientShit = 2;
 
 // oh, this is a hack!
@@ -943,7 +963,7 @@ void() PlayerJump =
 	{
 		if (!(self.flags & FL_ONGROUND)) return;
 		if ( !(self.flags & FL_JUMPRELEASED) ) return;		// don't pogo stick
-		sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);	// h00rt
+		sound (self, CHAN_VOICE, "player/plyrjmp8.wav", 1, ATTN_NORM);	// h00rt
 	}
 	
 //	self.flags = self.flags - (self.flags & FL_JUMPRELEASED);
@@ -1081,7 +1101,7 @@ void() WaterMove =
 			{
 				if (self.jump_flag < -300)
 				{
-					sound (self, CHAN_ITEM2, "misc/w_under2.wav", 1, ATTN_NORM);
+					sound (self, CHAN_OTHER, "misc/w_under2.wav", 1, ATTN_NORM);
 					local float i = 0;
 					local vector b;
 					while(i > self.jump_flag)
@@ -1094,7 +1114,7 @@ void() WaterMove =
 				}
 				else
 				{
-					sound (self, CHAN_ITEM2, "misc/w_under.wav", 1, ATTN_STATIC);
+					sound (self, CHAN_OTHER, "misc/w_under.wav", 1, ATTN_STATIC);
 				}
 			}
 		}
@@ -1247,7 +1267,7 @@ void() CheckPowerups =
 // sound and screen flash when items starts to run out
 		if (self.invisible_sound < time)
 		{
-			sound (self, CHAN_AUTO, "items/inv3.wav", 0.5, ATTN_IDLE);
+			sound (self, CHAN_POWERUP, "items/inv3.wav", 0.5, ATTN_IDLE);
 			self.invisible_sound = time + ((random() * 3) + 1);
 		}
 
@@ -1258,7 +1278,7 @@ void() CheckPowerups =
 			{
 				sprint (self, "Ring of Shadows' magic is fading ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/inv2.wav", 1, ATTN_NORM);
 				self.invisible_time = time + 1;
 			}
 			
@@ -1271,7 +1291,7 @@ void() CheckPowerups =
 
 		if (self.invisible_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_INVISIBILITY;
+			self.items = not(self.items, IT_INVISIBILITY);
 			//self.notrace = 0;
 			self.invisible_finished = 0;
 			self.invisible_time = 0;
@@ -1294,7 +1314,7 @@ void() CheckPowerups =
 			{
 				sprint (self, "Protection is almost burned out ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/protect2.wav", 1, ATTN_NORM);
 				self.invincible_time = time + 1;
 			}
 			
@@ -1307,7 +1327,7 @@ void() CheckPowerups =
 		
 		if (self.invincible_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_INVULNERABILITY;
+			self.items = not(self.items, IT_INVULNERABILITY);
 			self.invincible_time = 0;
 			self.invincible_finished = 0;
 		}
@@ -1329,7 +1349,7 @@ void() CheckPowerups =
 			{
 				sprint (self, "Quad damage's power weakens ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/damage2.wav", 1, ATTN_NORM);
 				self.super_time = time + 1;
 			}	  
 			
@@ -1342,7 +1362,7 @@ void() CheckPowerups =
 
 		if (self.super_damage_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_QUAD;
+			self.items = not(self.items, IT_QUAD);
 			self.super_damage_finished = 0;
 			self.super_time = 0;
 		}
@@ -1364,7 +1384,7 @@ void() CheckPowerups =
 			{
 				sprint (self, "Air supply in Biosuit expiring ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/suit2.wav", 1, ATTN_NORM);
 				self.rad_time = time + 1;
 			}
 			
@@ -1937,7 +1957,7 @@ void() ClientObituary =
 The normal starting point for a level. Only one is allowed. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
@@ -1946,6 +1966,7 @@ void() info_player_start =
 {
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);	// for telefrag testing
 	self.mangle = self.angles;
+	fog_fixKeys();
 }
 
 
@@ -1953,7 +1974,7 @@ void() info_player_start =
 Only used on start map for the return point from an episode. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
@@ -1962,6 +1983,7 @@ void() info_player_start2 =
 {
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);	// for telefrag testing
 	self.mangle = self.angles;
+	fog_fixKeys();
 }
 
 
@@ -1969,7 +1991,7 @@ void() info_player_start2 =
 Debug starting point for a level.  Overrides info_player_start if present and 'USE' is checked, does nothing if 'USE' is not checked. Will fire its targets when a player is spawned, here with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start_test : "Developer-only spawn point" [
@@ -1986,6 +2008,7 @@ void() info_player_start_test =
 		return;
 	}
 	self.mangle = self.angles;
+	fog_fixKeys();
 }
 void() testplayerstart = {info_player_start_test();}	// back compat with old editors that use regioned compiles
 
@@ -1993,13 +2016,14 @@ void() testplayerstart = {info_player_start_test();}	// back compat with old edi
 potential spawning position for deathmatch games
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_deathmatch : "Deathmatch start" []
 */
 void() info_player_deathmatch =
 {
+	fog_fixKeys();
 }
 
 void() coop_enable =
@@ -2012,7 +2036,7 @@ void() coop_enable =
 Potential spawning position(s) for coop games. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 
 TRIGGER_FIRST - this start won't be used to spawn coop players until triggered, so respawning players don't have to walk all the way back to the action
 */
@@ -2031,5 +2055,6 @@ void() info_player_coop =
 		self.classname = "info_player_coop_notyet";
 		self.use = coop_enable;
 	}
+	fog_fixKeys();
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);	// for telefrag testing
 }

@@ -63,7 +63,7 @@ void() weapon_touch =
 
 	if (!CheckValidTouch()) return;
 
-	if (deathmatch == 2 || coop > 1)
+	if (deathmatch == 2 || deathmatch == 3 || coop > 1)
 		leave = 1;
 	else
 		leave = 0;
@@ -133,7 +133,7 @@ void() StartWeapon =
 */
 
 
-/*QUAKED weapon_shotgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_shotgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Shotgun.
 
 Keys:
@@ -143,7 +143,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_shotgn.mdl" }) = weapon_shotgun : "Shotgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_shotgn.mdl" }) = weapon_shotgun : "Shotgun. 
+5 Shells." []
 */
 void() weapon_shotgun =
 {
@@ -157,8 +158,8 @@ void() weapon_shotgun =
 }
 
 
-/*QUAKED weapon_supershotgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
-SuperShotgun.
+/*QUAKED weapon_supershotgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
+Double-barreled shotgun.
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -167,12 +168,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_supershotgun : "Double-barreled shotgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_supershotgun : "Double-barreled shotgun.
+10 shells." []
 */
 void() weapon_supershotgun =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_shot.mdl");
+	precache_model_safe ("progs/g_shot.mdl");
 	setmodel (self, "progs/g_shot.mdl");
 	self.items = IT_SUPER_SHOTGUN;
 	self.ammo_shells = 10;
@@ -180,7 +182,7 @@ void() weapon_supershotgun =
 	StartWeapon();
 }
 
-/*QUAKED weapon_nailgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_nailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Nailgun.
 
 Keys:
@@ -190,12 +192,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_nail.mdl" }) = weapon_nailgun : "Nailgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_nail.mdl" }) = weapon_nailgun : "Nailgun.
+30 nails." []
 */
 void() weapon_nailgun =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_nail.mdl");
+	precache_model_safe ("progs/g_nail.mdl");
 	setmodel (self, "progs/g_nail.mdl");
 	self.items = IT_NAILGUN;
 	self.ammo_nails = 30;
@@ -203,7 +206,7 @@ void() weapon_nailgun =
 	StartWeapon();
 }
 
-/*QUAKED weapon_supernailgun (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_supernailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Perforator (Super Nailgun).
 
 Keys:
@@ -213,12 +216,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_nail2.mdl" }) = weapon_supernailgun : "Super nailgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_nail2.mdl" }) = weapon_supernailgun : "Perforator (Super Nailgun).
+30 nails." []
 */
 void() weapon_supernailgun =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_nail2.mdl");
+	precache_model_safe ("progs/g_nail2.mdl");
 	setmodel (self, "progs/g_nail2.mdl");
 	self.items = IT_SUPER_NAILGUN;
 	self.ammo_nails = 30;
@@ -226,7 +230,7 @@ void() weapon_supernailgun =
 	StartWeapon();
 }
 
-/*QUAKED weapon_grenadelauncher (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_grenadelauncher (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Grenade Launcher.
 
 Keys:
@@ -236,12 +240,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_rock.mdl" }) = weapon_grenadelauncher : "Grenade launcher" []
+@PointClass base(Weapon) model({ "path": ":progs/g_rock.mdl" }) = weapon_grenadelauncher : "Grenade launcher.
+5 rockets." []
 */
 void() weapon_grenadelauncher =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_rock.mdl");
+	precache_model_safe ("progs/g_rock.mdl");
 	setmodel (self, "progs/g_rock.mdl");
 	self.items = IT_GRENADE_LAUNCHER;
 	self.ammo_rockets = 5;
@@ -249,7 +254,7 @@ void() weapon_grenadelauncher =
 	StartWeapon();
 }
 
-/*QUAKED weapon_rocketlauncher (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_rocketlauncher (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Rocket Launcher.
 
 Keys:
@@ -259,12 +264,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_rock2.mdl" }) = weapon_rocketlauncher : "Rocket launcher" []
+@PointClass base(Weapon) model({ "path": ":progs/g_rock2.mdl" }) = weapon_rocketlauncher : "Rocket launcher.
+5 rockets." []
 */
 void() weapon_rocketlauncher =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_rock2.mdl");
+	precache_model_safe ("progs/g_rock2.mdl");
 	setmodel (self, "progs/g_rock2.mdl");
 	self.items = IT_ROCKET_LAUNCHER;
 	self.ammo_rockets = 5;
@@ -273,7 +279,7 @@ void() weapon_rocketlauncher =
 }
 
 
-/*QUAKED weapon_lightning (0 0 1) (-16 -16 0) (16 16 32) ? ? SUSPENDED
+/*QUAKED weapon_lightning (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Thunderbolt Cannon.
 
 Keys:
@@ -283,12 +289,13 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_light.mdl" }) = weapon_lightning : "Thunderbolt" []
+@PointClass base(Weapon) model({ "path": ":progs/g_light.mdl" }) = weapon_lightning : "Thunderbolt.
+12 cells." []
 */
 void() weapon_lightning =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model ("progs/g_light.mdl");
+	precache_model_safe ("progs/g_light.mdl");
 	setmodel (self, "progs/g_light.mdl");
 	self.items = IT_LIGHTNING;
 	self.ammo_cells = 12;
@@ -362,12 +369,14 @@ void() StartAmmo =
 	self.touch = ammo_touch;
 	if (deathmatch == 1)
 		self.wait = 30;
+	if (deathmatch == 3)
+		self.wait = 15;
 	StartItem ();
 	//ItemRotateAndSize('32 32 56');
 }
 
 /*FGD
-@baseclass size(0 0 0, 32 32 56) color(80 0 200) base(Item) = Ammo [ spawnflags(flags) =  [ 1 : "Large box" : 0 ] ]
+@baseclass size(0 0 0, 32 32 32) color(0 160 160) base(Item) = Ammo [ spawnflags(flags) =  [ 1 : "Large box (2x)" : 0 ] ]
 */
 
 /*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG ? SUSPENDED
@@ -397,13 +406,13 @@ void() item_shells =
 	if (self.spawnflags & ITEM_AMMO_BIG)
 	{
 		self.ammo_shells = 40;
-		precache_model ("progs/m_shell2.mdl");
+		precache_model_safe ("progs/m_shell2.mdl");
 		setmodel (self, "progs/m_shell2.mdl");
 	}
 	else
 	{
 		self.ammo_shells = 20;
-		precache_model ("progs/m_shell1.mdl");
+		precache_model_safe ("progs/m_shell1.mdl");
 		setmodel (self, "progs/m_shell1.mdl");
 	}
 	self.weapon = 1;
@@ -438,13 +447,13 @@ void() item_spikes =
 	if (self.spawnflags & ITEM_AMMO_BIG)
 	{
 		self.ammo_nails = 50;
-		precache_model ("progs/m_nails2.mdl");
+		precache_model_safe ("progs/m_nails2.mdl");
 		setmodel (self, "progs/m_nails2.mdl");
 	}
 	else
 	{
 		self.ammo_nails = 25;
-		precache_model ("progs/m_nails1.mdl");
+		precache_model_safe ("progs/m_nails1.mdl");
 		setmodel (self, "progs/m_nails1.mdl");
 	}
 	self.weapon = 2;
@@ -480,13 +489,13 @@ void() item_rockets =
 	if (self.spawnflags & ITEM_AMMO_BIG)
 	{
 		self.ammo_rockets = 8;
-		precache_model ("progs/m_rock2.mdl");
+		precache_model_safe ("progs/m_rock2.mdl");
 		setmodel (self, "progs/m_rock2.mdl");
 	}
 	else
 	{
 		self.ammo_rockets = 4;
-		precache_model ("progs/m_rock1.mdl");
+		precache_model_safe ("progs/m_rock1.mdl");
 		setmodel (self, "progs/m_rock1.mdl");
 	}
 	self.weapon = 3;
@@ -522,13 +531,13 @@ void() item_cells =
 	if (self.spawnflags & ITEM_AMMO_BIG)
 	{
 		self.ammo_cells = 12;
-		precache_model ("progs/m_cells2.mdl");
+		precache_model_safe ("progs/m_cells2.mdl");
 		setmodel (self, "progs/m_cells2.mdl");
 	}
 	else
 	{
 		self.ammo_cells = 6;
-		precache_model ("progs/m_cells1.mdl");
+		precache_model_safe ("progs/m_cells1.mdl");
 		setmodel (self, "progs/m_cells1.mdl");
 	}
 	self.weapon = 4;

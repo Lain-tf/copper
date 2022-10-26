@@ -94,12 +94,12 @@ void() dev_warp =
 
 void() dev_serverflags =
 {
-	bprint3("SERVER FLAGS:\n========\n",ftos(serverflags),"\n");
+	bprint3("SERVER FLAGS:\n========\n  ",ftos(serverflags),"  \n");
 	if (serverflags & SVFL_EPISODE1)	bprint("  episode 1 completed\n");
 	if (serverflags & SVFL_EPISODE2)	bprint("  episode 2 completed\n");
 	if (serverflags & SVFL_EPISODE3)	bprint("  episode 3 completed\n");
 	if (serverflags & SVFL_EPISODE4)	bprint("  episode 4 completed\n");
-	if (serverflags & SVFL_ALLEPISODES)	bprint("  all of quake completed\n");
+	if (serverflags & SVFL_ALLEPISODES == SVFL_ALLEPISODES)	bprint("  all of quake completed\n");
 }
 
 
@@ -112,7 +112,6 @@ void() dev_invoke =
 	makevectors(self.v_angle);
 	org = self.origin + self.view_ofs;
 	traceline2(org, org + v_forward * 8192, self, 0);
-
 	if (trace_fraction < 1.0 && trace_ent)
 	{
 		activator = self;
@@ -125,6 +124,10 @@ void() dev_invoke =
 			secret_door_force(trace_ent);
 		else if (trace_ent.classname == "func_button")
 			button_force(trace_ent);
+		else if (trace_ent.classname == "func_plat")
+			plat_force(trace_ent);
+		else if (trace_ent.use)
+			SUB_CallAsSelf(trace_ent.use, trace_ent);		
 	}
 }
 

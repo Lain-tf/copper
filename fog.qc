@@ -4,7 +4,12 @@
 FOG
 
 adapted from similar things czg did in honey_fog.qc god bless him
-	
+
+new skyfog stuff:
+the skyfog keys will all be 0 in all existing maps, and therefore the desired
+behavior when a skyfog key is 0 has to be "do not change the skyfog". -1 is
+the new "actually mark it zero" for mappers.
+
 ====================
 */
 
@@ -13,23 +18,40 @@ float FOG_INTERVAL = 0.05; //1/20;
 @baseclass = Fog [ 
 	fog_density(string) : "Fog Density" 
 	fog_color(string) : "Fog Color" 
+	fog_sky(string) : "Sky Fog Density (-1 for clear sky)" 
 ]
 @baseclass = FogShift [ 
 	fog_density(string) : "Start Fog Density" 
 	fog_color(string) : "Start Fog Color" 
+	fog_sky(string) : "Start Sky Fog Density (-1 for clear sky)" 
 	fog_density2(string) : "End Fog Density" 
 	fog_color2(string) : "End Fog Color" 
+	fog_sky2(string) : "End Sky Fog Density (-1 for clear sky)" 
 ]
 */
 
+void() fog_fixKeys =
+{
+	if (self.fog_color_x > 1 || self.fog_color_y > 1 || self.fog_color_z > 1)
+		self.fog_color /= 255;
+	if (self.fog_color2_x > 1 || self.fog_color2_y > 1 || self.fog_color2_z > 1)
+		self.fog_color2 /= 255;
 
-float(entity e, float dens, vector col) fog_sigdif =
+	self.fog_density = zeroconvert(self.fog_density);
+	self.fog_density2 = zeroconvert(self.fog_density2);
+}
+
+float(entity e, float dens, vector col, float sky) fog_sigdif =
 {
 	float sig;
 	
 	if ((e.fog_density + dens) * 0.5 < 0.1) sig = 0.0025;
 	else sig = 0.005;
 	if (fabs(e.fog_density - dens) > sig) return TRUE;
+	
+	if ((e.fog_sky + sky) * 0.5 < 0.1) sig = 0.005;
+	else sig = 0.01;
+	if (fabs(e.fog_sky - sky) > sig) return TRUE;
 	
 	if ((e.fog_color_x + col_x) * 0.5 < 0.1) sig = 0.005;
 	else sig = 0.01;
@@ -42,6 +64,7 @@ float(entity e, float dens, vector col) fog_sigdif =
 	if ((e.fog_color_z + col_z) * 0.5 < 0.1) sig = 0.005;
 	else sig = 0.01;
 	if (fabs(e.fog_color_z - col_z) > sig) return TRUE;
+	
 	return FALSE;
 }
 
@@ -51,13 +74,14 @@ float(entity e, float dens, vector col) fog_sigdif =
 fog_save
 ================
 */
-void( entity client, float density, vector color ) fog_save =
+void( entity client, float density, vector color, float sky ) fog_save =
 {
 	if (client.classname != "player") return;
 	
 	// save whatever we set the client's fog to in case of saves/loads
 	client.fog_density = density;
 	client.fog_color = color;
+	if (sky) client.fog_sky = sky;
 }
 
 /*
@@ -75,7 +99,7 @@ void( entity client, entity fogger ) fog_setFromEnt =
 		if (!fogger.fog_density)
 			return;
 	
-	fog_set(client, fogger.fog_density, fogger.fog_color);
+	fog_set(client, fogger.fog_density, fogger.fog_color, fogger.fog_sky);
 }
 
 /*
@@ -83,18 +107,17 @@ void( entity client, entity fogger ) fog_setFromEnt =
 fog_set
 ================
 */
-void( entity client, float density, vector color ) fog_set =
+void( entity client, float density, vector color, float sky ) fog_set =
 {
 	if (client.classname != "player") return;
 	if (!cleanUpClientShit)
 	{
-		if (client.fog_density == density && client.fog_color == color)
+		if (client.fog_density == density && client.fog_color == color && client.fog_sky == sky)
 			return FALSE;
 	}
 
-	//stuffcmd(client, "r_showtris 0\n"); return;
-	//dprint3("setting fog at ", ftos(time*1000), "\n");
-	
+	//dprint5("fog ",ftos(density*1000),vtos(color),ftos(sky*100),"\n");
+
 	stuffcmd(client, "\nfog ");
 	stuffcmd_float(client, density);
 	stuffcmd(client, " ");
@@ -104,8 +127,16 @@ void( entity client, float density, vector color ) fog_set =
 	stuffcmd(client, " ");
 	stuffcmd_float(client, color_z * (icantsee + 1));
 	stuffcmd(client, "\n");
-	
-	fog_save(client, density, color);
+
+	if (sky)
+	{
+		float skyz = zeroconvert(sky);
+		stuffcmd(client, "r_skyfog ");
+		stuffcmd_float(client, skyz);
+		stuffcmd(client, "\n");
+	}
+	fog_save(client, density, color, sky);
+
 }
 
 /*
@@ -122,7 +153,7 @@ void() fog_blendTouch =
 		if (time < self.attack_finished)
 			return;
 		
-	float f, ldensity, leaving, force;
+	float f, ldensity, lsky, leaving, force;
 	vector dorg, mid, ovel;
 	vector lcolor;
 	
@@ -138,7 +169,7 @@ void() fog_blendTouch =
 				(other.absmin_x + ovel_x > self.absmax_x) ||
 				(other.absmin_y + ovel_y > self.absmax_y) ||
 				(other.absmin_z + ovel_z > self.absmax_z) );
-	
+				
 	if (leaving)
 	{
 		// last chance to set fog correctly, so snap it to the final values
@@ -147,11 +178,13 @@ void() fog_blendTouch =
 		{
 			ldensity = self.fog_density2;
 			lcolor = self.fog_color2;
+			if (self.fog_sky2) lsky = zeroconvert(self.fog_sky2);
 		}
 		else
 		{
 			ldensity = self.fog_density;
 			lcolor = self.fog_color;
+			if (self.fog_sky) lsky = zeroconvert(self.fog_sky);
 		}
 		force = TRUE;
 	}
@@ -166,12 +199,20 @@ void() fog_blendTouch =
 		
 		ldensity = lerp(self.fog_density, self.fog_density2, f);
 		lcolor = lerpVector(self.fog_color, self.fog_color2, f);
+		if (self.fog_sky && self.fog_sky2)
+		{
+			lsky = lerp(zeroconvert(self.fog_sky), zeroconvert(self.fog_sky2), f);
+		}
 	}
 	
-	if (force || fog_sigdif(other,ldensity,lcolor))
+	// fog_set does final interpretation of 0 = ignore, -1 = 0
+	if (self.fog_sky && self.fog_sky2 && !lsky)
+		lsky = -1;
+	
+	if (force || fog_sigdif(other,ldensity,lcolor,lsky))
 	{
 		self.invisible_time = time;
-		fog_set(other, ldensity, lcolor);
+		fog_set(other, ldensity, lcolor, lsky);
 	}
 	//fog_save(other, ldensity, lcolor);
 	
@@ -185,21 +226,24 @@ void() fog_blendTouch =
 
 /*QUAKED trigger_fogblend (.5 .5 .2) ?
 Acts as a smoothly blending portal between two zones of different fog. Sets the fog for any client passing through it, blending their global fog settings between "fog_color"/"fog_density" and "fog_color2"/"fog_density2" proportional to their position within the trigger.
+"fog_sky"/"fog_sky2" will affect r_skyfog at the same time if both are non-zero. Use -1 if you really want 0.
+
 The axis of motion on which the blend happens is defined by "angle", pointing to whatever zone has color2 and density2.  Trigger therefore has two 'sides' - the side that "angle" points to, and the opposite side.  
 
 "distance" - override the length of the blend period in world units - defaults to bounds size 
 	on 'angle' otherwise. this is only useful for diagonal triggers.
 
 CAVEATS:
-- will 'stuffcmd' 2 dozen times per frame so try not to make these huge
+- will 'stuffcmd' up to 20 times per frame so try not to make these huge, but as an optimization, Copper will avoid sending the stuffcmd if it determines that the fog difference frame over frame is not visually significant.
 - a bug in most quake engine ports will reset the eye position smoothing that happens when climbing stairs or riding a plat on every frame that a 'stuffcmd' is sent, so fog transitions during upwards motion will cause noticeable stuttering.
 */
 /*FGD
-@SolidClass base(Appearflags, Targetname, Target, FogShift) = trigger_fogblend : 
+@SolidClass color(128 128 0) base(Appearflags, Targetname, Target, FogShift) = trigger_fogblend : 
 "Trigger: Fog Blend
 Acts as a smoothly blending portal between two zones of different fog. Sets the fog for any client passing through it, blending their global fog settings between start and end values proportional to their position within the trigger.
+fog_sky/fog_sky2 will affect r_skyfog at the same time if both are non-zero. Use -1 if you really want 0.
 
-- will 'stuffcmd' 2 dozen times per frame so try not to make these huge
+- will 'stuffcmd' up to 20 times per frame so try not to make these huge, but as an optimization, Copper will avoid sending the stuffcmd if it determines that the fog difference frame over frame is not visually significant.
 - a bug in most quake engine ports will reset the eye position smoothing that happens when climbing stairs or riding a plat on every frame that a 'stuffcmd' is sent, so fog transitions during upwards motion will cause noticeable stuttering." 
 [
 	distance(integer) : "Length of blend distance (defaults to size of trigger)"
@@ -215,43 +259,11 @@ void() trigger_fogblend =
 	InitTrigger ();
 	self.touch = fog_blendTouch;
 	self.distance = zeroconvertdefault(self.distance, BoundsAngleSize(self.movedir, self.size));
+	fog_fixKeys();
 }
-
 
 
 // ================================
-
-void(float density, vector color) target_fogblend_save =
-{
-	if (self.spawnflags & 4)
-	{
-		entity pl;
-		pl = nextent(world);
-		while (pl.flags & FL_CLIENT)
-		{
-			fog_save(pl, density, color);
-			pl = nextent(pl);
-		}
-	}
-	else
-		fog_save(self.enemy, density, color);
-}
-
-void(float density, vector color) target_fogblend_set =
-{
-	if (self.spawnflags & 4)
-	{
-		entity pl;
-		pl = nextent(world);
-		while (pl.flags & FL_CLIENT)
-		{
-			fog_set(pl, density, color);
-			pl = nextent(pl);
-		}
-	}
-	else
-		fog_set(self.enemy, density, color);
-}
 
 /*
 ================
@@ -260,28 +272,21 @@ target_fogblend_use
 */
 void() target_fogblend_use =
 {
-	float d;
-	vector c;
+	if (activator.classname != "player") return;
+	
 	self.enemy = activator;
-	if (self.enemy.classname != "player") return;
+	
 	if (!(self.spawnflags & 1))
 		self.state = 1 - self.state;
 	
-	self.nextthink = time + self.delay;
 	if (self.state)
-	{
 		self.pain_finished = time + self.delay + self.speed;
-		d = self.fog_density2;
-		c = self.fog_color2;
-	}
 	else
-	{
 		self.pain_finished = time + self.delay + self.speed2;
-		d = self.fog_density;
-		c = self.fog_color;
-	}
-	target_fogblend_save(d, c);
-	self.use = SUB_Null;	// don't allow retriggering before the blend is done or it looks super duper wacky
+		
+	fog_blendTimeThink();
+	// don't allow retriggering before the blend is done or it looks super duper wacky
+	self.use = SUB_Null;
 }
 
 /*
@@ -291,8 +296,8 @@ fog_blendTimeThink
 */
 void() fog_blendTimeThink =
 {
-	float f, d;
-	vector c;
+	float f, ldensity, lsky;
+	vector lcolor;
 	
 	if (time >= self.pain_finished)
 	{
@@ -301,7 +306,7 @@ void() fog_blendTimeThink =
 	}
 	else
 	{
-		self.nextthink = time + FOG_INTERVAL;
+		self.nextthink = time + self.delay;
 		if (self.state && self.speed)
 			f = 1 - (self.pain_finished - time) / self.speed;
 		else if (self.speed2)
@@ -309,23 +314,56 @@ void() fog_blendTimeThink =
 		else
 			f = 1;
 	}
-	
-	if (self.state)
+
+	if (self.state == 0)
+		f = 1-f;
+
+	if (f == 1)
 	{
-		d = lerpHermite(self.fog_density, self.fog_density2, f);
-		c = lerpVectorHermite(self.fog_color, self.fog_color2, f);
+		ldensity = self.fog_density2;
+		lcolor = self.fog_color2;
+		if (self.fog_sky2) lsky = zeroconvert(self.fog_sky2);
+	}
+	else if (f == 0)
+	{
+		ldensity = self.fog_density;
+		lcolor = self.fog_color;
+		if (self.fog_sky) lsky = zeroconvert(self.fog_sky);
 	}
 	else
 	{
-		d = lerpHermite(self.fog_density2, self.fog_density, f);
-		c = lerpVectorHermite(self.fog_color2, self.fog_color, f);
+		// in transition, blend proportionally between the two fogs
+		ldensity = lerpHermite(self.fog_density, self.fog_density2, f);
+		lcolor = lerpVectorHermite(self.fog_color, self.fog_color2, f);
+		if (self.fog_sky && self.fog_sky2)
+		{
+			lsky = lerpHermite(zeroconvert(self.fog_sky), zeroconvert(self.fog_sky2), f);
+		}
 	}
-	target_fogblend_set(d, c);
+	
+	// fog_set does final interpretation of 0 = ignore, -1 = 0
+	if (self.fog_sky && self.fog_sky2 && !lsky)
+		lsky = -1;
+	
+	if (self.spawnflags & 4)
+	{
+		entity pl;
+		pl = nextent(world);
+		while (pl.flags & FL_CLIENT)
+		{
+			if (fog_sigdif(pl, ldensity, lcolor, lsky))
+				fog_set(pl, ldensity, lcolor, lsky);
+			pl = nextent(pl);
+		}
+	}
+	else if (fog_sigdif(self.enemy, ldensity, lcolor, lsky))
+		fog_set(self.enemy, ldensity, lcolor, lsky);
 }
 
 /*QUAKED target_fogblend (.5 .5 .2) (-8 -8 -8) (8 8 8) ONE_WAY REVERSE GLOBAL
 Blends the fog for a client.  activator's fog will be blended from "fog_color" and "fog_density"
 to "fog_color2" and "fog_density2".  Triggering again will blend it back, unless ONE_WAY is set.
+"fog_sky"/"fog_sky2" will affect r_skyfog at the same time if both are non-zero. Use -1 if you really want 0.
 Set REVERSE if you're tired of swapping the values by hand.
 Set GLOBAL to affect all clients in multiplayer, not just the activator.
 
@@ -334,7 +372,7 @@ Set GLOBAL to affect all clients in multiplayer, not just the activator.
 "speed2" - time to spend blending back, if different than "speed". -1 for instant.
 
 CAVEATS:
-- will 'stuffcmd' 2 dozen times per frame so try not to make this take too long
+- will 'stuffcmd' up to 20 times per frame so try not to make this take too long, but as an optimization, Copper will avoid sending the stuffcmd if it determines that the fog difference frame over frame is not visually significant.
 - a bug in most quake engine ports will reset the eye position smoothing that happens when climbing stairs or riding a plat on every frame that a 'stuffcmd' is sent, so fog transitions during upwards motion will cause noticeable stuttering.
 */
 /*FGD
@@ -342,7 +380,7 @@ CAVEATS:
 "Target: Fog Blend
 Activator's fog will be blended over time from start to end values.
 
-- will 'stuffcmd' 2 dozen times per frame so try not to make this take too long
+- will 'stuffcmd' up to 20 times per frame so try not to make this take too long, but as an optimization, Copper will avoid sending the stuffcmd if it determines that the fog difference frame over frame is not visually significant.
 - a bug in most quake engine ports will reset the eye position smoothing that happens when climbing stairs or riding a plat on every frame that a 'stuffcmd' is sent, so fog transitions during upwards motion will cause noticeable stuttering." 
 [
 	spawnflags(flags) = [
@@ -360,6 +398,7 @@ void() target_fogblend =
 	if (!SUB_ShouldSpawn()) return;
 	self.use = target_fogblend_use;
 	self.think = fog_blendTimeThink;
+	fog_fixKeys();
 	if (self.spawnflags & 2)
 		self.state = 1;
 	else

@@ -99,7 +99,20 @@ DelayThink
 void() DelayThink =
 {
 	activator = self.enemy;
-	SUB_UseTargets ();
+	SUB_PrintMessage();
+	SUB_UseTargetsGo();
+	remove(self);
+}
+
+/*
+=============
+DelayThinkSilent
+===============
+*/
+void() DelayThinkSilent =
+{
+	activator = self.enemy;
+	SUB_UseTargetsGo();
 	remove(self);
 }
 
@@ -153,8 +166,9 @@ void() SUB_PrintMessage =
 	if (activator.classname == "player")
 	{
 		centerprintlocal(activator, self.message);
+		
 		// non-triggers might play the noise themselves (buttons, etc)
-		if (self.noise == string_null && (self.solid == SOLID_TRIGGER || self.solid == SOLID_NOT))
+		if (self.noise == string_null && (self.solid == SOLID_TRIGGER || self.solid == SOLID_NOT) && self.sounds != -1)
 			sound (activator, CHAN_VOICE, "misc/talk.wav", 1, ATTN_NORM);
 	}
 	else
@@ -285,7 +299,7 @@ call stack, but entities that trigger each other in sequence within one frame
 targets not to fire.
 ==============================
 */
-float() SUB_UseCheck =
+float(float hush) SUB_UseCheck =
 {
 	if (activator == world)
 	{
@@ -296,7 +310,10 @@ float() SUB_UseCheck =
 	
 	if (self.delay)
 	{
-		SUB_UseTargetsDelay(DelayThink);
+		if (hush)
+			SUB_UseTargetsDelay(DelayThinkSilent);
+		else
+			SUB_UseTargetsDelay(DelayThink);
 		return FALSE;
 	}
 	return TRUE;
@@ -334,7 +351,7 @@ void() SUB_UseTargetsGo =
 
 void() SUB_UseTargets =
 {
-	if (!SUB_UseCheck())
+	if (!SUB_UseCheck(FALSE))
 		return;
 	SUB_PrintMessage();
 	SUB_UseTargetsGo();
@@ -342,7 +359,7 @@ void() SUB_UseTargets =
 
 void() SUB_UseTargetsSilent =
 {
-	if (SUB_UseCheck())
+	if (SUB_UseCheck(TRUE))
 		SUB_UseTargetsGo();
 }
 
@@ -514,7 +531,7 @@ float() SUB_VerifyTriggerable =
 	// some quake maps use SUB_regen as a hack to make items respawn, but
 	// they expect those items to still spawn at map start, so catch those
 	// cases and return false to force the item to spawn
-	if (self.use == SUB_regen) return FALSE;
+	if (self.use == SUB_regen || self.classname == "info_notnull") return FALSE;
 		
 	float validTriggerers;
 	entity tg;

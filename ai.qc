@@ -804,7 +804,8 @@ void() path_corner_touch =
 }
 
 /*QUAKED path_corner (0.5 0.3 0) (-8 -8 -8) (8 8 8)
-Monsters will continue walking towards the next target corner.
+Waypoint for platforms and monsters. Will stop here for good if no path_corner is targeted by this entity.
+Monsters who wait here will turn to face 'angle'.
 
 Keys:
 "targetname" must be present.  The name of this pathcorner.
@@ -814,13 +815,13 @@ Keys:
 "speed" tell a visiting func_train to change its speed. If a path_corner's speed is -1, the func_train's move when LEAVING that corner will be to snap instantly to the next corner.
 */
 /*FGD
-@PointClass base(Appearflags, Targetname, Target, Angle) size(16 16 16) color(0 255 255) = 
+@PointClass base(Appearflags, Targetname, Target, Angle) size(16 16 16) color(128 80 0) = 
 	path_corner : 
 "Waypoint for platforms and monsters. Will stop here for good if no path_corner is targeted by this entity.
 Monsters who wait here will turn to face 'angle'."
 [
-	wait(string) : "Wait (seconds)" : 0
-	speed(string) : "Speed" : "0"
+	wait(string) : "Wait time (seconds)" : "0"
+	speed(string) : "A visiting func_train to change its speed to this. If 'speed' is -1, the func_train's move when LEAVING that corner will be to snap instantly to the next corner." : "0"
 ]
 */
 void() path_corner =
@@ -910,14 +911,14 @@ void(entity vic) ai_approach_victim =
 =============
 ai_check_liquid
 
-take damage from slime and lava
+take damage from slime and lava. returns FALSE if monster died from it.
 =============
 */
-void() ai_check_liquid =
+float() ai_check_liquid =
 {
 	// there are hacked takedamage cthons out there, and they're all in the lava
 	if (self.type == "boss" || self.classname == "monster_rotfish")
-		return;
+		return TRUE;
 		
 	vector wtt;
 	wtt = WaterTest();
@@ -928,7 +929,7 @@ void() ai_check_liquid =
 	// never do liquid damage for some mild wading, since lots of ep3 has lava
 	// the monsters can step into and out of
 	if (wl < 3)
-		return;
+		return TRUE;
 	
 	// monsters that spawn in slime/lava were clearly intended to be there by the
 	// mapper, so give them special dispensation to not quietly die before the 
@@ -937,10 +938,10 @@ void() ai_check_liquid =
 	if (!wl)
 	{
 		self.customflags = not(self.customflags, CFL_LIQUID_IMMUNE);
-		return;
+		return TRUE;
 	}
 	if (self.customflags & CFL_LIQUID_IMMUNE)
-		return;
+		return TRUE;
 		
 	if (self.type == "zombie")
 	{
@@ -956,6 +957,8 @@ void() ai_check_liquid =
 			// scrags will happily fly down into slime, and they do spit green shit anyway
 			T_Damage(self, world, world, wl * 5);
 	}
+	
+	return self.health > 0;
 }
 
 /*
@@ -976,7 +979,6 @@ Stay facing the enemy
 */
 void() ai_face =
 {
-	ai_check_liquid();
 	if (self.flags & (FL_FLY|FL_SWIM))
 		self.velocity = '0 0 0';
 	
@@ -1151,6 +1153,7 @@ as part of normal melee-range attacks involving forward steps
 */
 void(float d) ai_rush =
 {
+	if (!ai_check_liquid()) return;
 	ai_face();
 	
 	if ( !walkmove_jitter(self.ideal_yaw, d) )
@@ -1189,6 +1192,8 @@ The monster is in a melee attack, so get as close as possible to .enemy
 */
 float(float d) ai_charge =
 {
+	if (!ai_check_liquid()) return FALSE;
+	
 	ai_face();
 	
 	// try to get closer
@@ -1219,6 +1224,7 @@ void() ai_charge_side =
 	local	vector	dtemp;
 	local	float	heading;
 	
+	if (!ai_check_liquid()) return;
 	
 // aim to the left of the enemy for a flyby
 
@@ -1336,7 +1342,7 @@ The monster is walking its beat
 void(float dist) ai_walk =
 {
 	//movedist = dist;
-	ai_check_liquid();
+	if (!ai_check_liquid()) return;
 
 	// check for noticing a player
 	if (FindTarget ())
@@ -1355,7 +1361,7 @@ The monster is staying in one place for a while
 */
 void() ai_stand =
 {
-	ai_check_liquid();
+	if (!ai_check_liquid()) return;
 	
 	if (self.flags & (FL_FLY|FL_SWIM))
 		self.velocity = '0 0 0';
@@ -1470,10 +1476,9 @@ The monster has an enemy it is trying to kill
 */
 void(float dist) ai_run =
 {
-	ai_check_liquid();
-	entity e;
+	if (!ai_check_liquid()) return;	// died in slime/lava already
 	
-	if (self.health <= 0) return;	// died in slime/lava already
+	entity e;
 	
 	// if infighting and we haven't damaged our enemy in a while, give up
 	if (self.enemy.classname != "player" && self.oldenemy.classname == "player")
@@ -1534,6 +1539,9 @@ void(float dist) ai_run =
 	
 	if (enemy_vis && !(self.enemy.customflags & (CFL_PLUNGE|CFL_LIMBO)))
 	{
+		if (enemy_range == RANGE_MELEE)
+			self.attack_finished = 0;
+	
 		if (self.th_checkattack())
 		{
 			if (self.attack_state == AS_MISSILE)
