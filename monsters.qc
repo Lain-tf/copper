@@ -19,11 +19,12 @@ All things spawning and initializing
 		64 : "Don't Spawn If Would Telefrag" : 0
 		128 : "Spawn Angry" : 0
 	]
-	movedir(string) : "Auto jump velocity on spawn/awaken"
-	rmovedir(string) : "Angle-relative auto jump velocity on spawn/awaken"
-	count(integer) : "Number of times to spawn if triggered (-1 for infinite)"
-	wait(string) : "Pause before spawning if triggered" : "0"
-	rand(string) : "Random extra before spawning if triggered" : "0"
+	movedir(string) : "Auto jump velocity on spawn/awaken (x y z, in worldspace)"
+	rmovedir(string) : "Angle-relative auto jump velocity on spawn/awaken (forward right up)"
+	count(integer) : "If triggered: Number of times a spawn can be triggered before stopping. -1 for infinite spawns, -4 to auto-scale the count to the number of clients in coop."
+	wait(string) : "If triggered: Pause before spawning" : "0"
+	rand(string) : "If triggered: Random extra time before spawning" : "0"
+	netname(string) : "If triggered: Spawned monster(s) will have this targetname"
 ]
 */
 
@@ -107,10 +108,10 @@ void() monster_spawnsetup_go =
 	{
 		if (!SUB_VerifyTriggerable())
 		{
-			bprint4("WARNING: removed triggered-spawn ", self.classname,
+			dprint4("WARNING: triggered-spawn ", self.classname,
 				" with unmatched targetname '", self.targetname);
-			bprint3("' at ", vtos(self.origin), "\n");
-			remove(self);
+			dprint3("' at ", vtos(self.origin), "\n");
+			//remove(self);
 			return;
 		}
 	}
@@ -236,15 +237,11 @@ entity( void() spawnthink ) mon_spawner_use =
 	
 	mon = spawn();
 	
-	// hack for QSS lerpmodels problems: force entity to move clientside for 
-	//	at least one frame before spawning to flush old lerp position
-	mon.movetype = MOVETYPE_TOSS;
-	mon.oldorigin = self.origin;
-	
+	mon.flags |= FL_MONSTER;
 	setorigin(mon, self.origin);
 	mon.angles = self.angles;
 	
-	pause = max(0.01, self.wait) + random() * max(self.rand, 0.05);
+	pause = self.wait + random() * self.rand;
 	mon.nextthink = time + pause;
 	mon.spawnflags = self.spawnflags;
 	mon.movedir = self.movedir;
@@ -379,11 +376,15 @@ void() monster_death_use =
 	if (!self.target && !self.target2 && !self.target3 && !self.target4 && !self.killtarget)
 		return;
 
-	// try to make player activator even if the monster was killed while infighting
-	if (self.enemy.classname != "player" && self.oldenemy.classname == "player")
-		activator = self.oldenemy;
-	else
-		activator = self.enemy;
+	// make a player activator even if the monster was killed while infighting
+	if (self.enemy.classname != "player")
+	{
+		if (self.oldenemy.classname == "player")
+			activator = self.oldenemy;
+		else
+			activator = get_closest_client();
+	}
+	else activator = self.enemy;
 	
 	SUB_UseTargets ();
 }
@@ -400,8 +401,8 @@ Common monster starts
 void() monster_start =
 {
 	skinhandler();
-	if (self.oldorigin == VEC_ORIGIN)
-		self.oldorigin = self.origin;
+	//if (self.oldorigin == VEC_ORIGIN)
+	//	self.oldorigin = self.origin;
 	
 	if (self.rmovedir != VEC_ORIGIN)
 	{
@@ -509,8 +510,8 @@ void() walkmonster_start_go =
 {
 	self.movetype = MOVETYPE_STEP;
 	// fix monsters being stuck in floor because of QSS fix
-	if (self.oldorigin != VEC_ORIGIN)
-		setorigin(self,self.oldorigin);
+	//if (self.oldorigin != VEC_ORIGIN)
+	//	setorigin(self,self.oldorigin);
 	
 	if (self.rmovedir != VEC_ORIGIN)
 	{

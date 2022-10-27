@@ -362,34 +362,34 @@ void() player_super_nail =
 
 void() player_light1   =[$light1, player_light2  ] 
 {
-	self.effects = self.effects | EF_MUZZLEFLASH;
-
-	if (!self.button0)
+	if (!self.button0 || (self.customflags & (CFL_PLUNGE|CFL_LIMBO)))
 	{
 		player_run();
 		return;
 	}
+
+	self.effects = self.effects | EF_MUZZLEFLASH;
 	self.weaponframe = self.weaponframe + 1;
 	if (self.weaponframe == 5)
 		self.weaponframe = 1;
-	SuperDamageSound();
+
 	W_FireLightning();
 
 	self.attack_finished = time + 0.2;
 }
 void() player_light2   =[$light2, player_light1  ]
 {
-	self.effects = self.effects | EF_MUZZLEFLASH;
-
-	if (!self.button0)
+	if (!self.button0 || (self.customflags & (CFL_PLUNGE|CFL_LIMBO)))
 	{
 		player_run();
 		return;
 	}
+	
+	self.effects = self.effects | EF_MUZZLEFLASH;
 	self.weaponframe = self.weaponframe + 1;
 	if (self.weaponframe == 5)
 		self.weaponframe = 1;
-	SuperDamageSound();
+
 	W_FireLightning();
 
 	self.attack_finished = time + 0.2;

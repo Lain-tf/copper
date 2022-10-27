@@ -86,7 +86,7 @@ void() W_FireAxe =
 		return;
 	
 	makevectors (self.v_angle);
-	source = self.origin + '0 0 16';
+	source = self.origin + self.view_ofs;//'0 0 16';
 	
 		if (self.berserk_finished > time)		
 			traceline2(source, source + v_forward * (96), self, 0);

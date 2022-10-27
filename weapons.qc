@@ -138,7 +138,7 @@ void() SuperDamageSound =
 	if (self.super_sound < time)
 	{
 		self.super_sound = time + 1;
-		sound (self, CHAN_BODY, "items/damage3.wav", 1, ATTN_NORM);
+		sound (self, CHAN_POWERUP, "items/damage3.wav", 1, ATTN_NORM);
 	}
 }
 
@@ -153,7 +153,7 @@ void() BerserkSound =
 	if (self.berserk_sound < time)
 	{
 		self.berserk_sound = time + 1;
-		sound (self, CHAN_AUTO, "items/axe_powerup3.wav", 1, ATTN_NORM);
+		sound (self, CHAN_POWERUP, "items/axe_powerup3.wav", 1, ATTN_NORM);
 	}
 }
 

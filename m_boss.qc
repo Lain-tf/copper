@@ -35,11 +35,12 @@ $frame shockc1 shockc2 shockc3 shockc4 shockc5 shockc6 shockc7 shockc8
 $frame shockc9 shockc10
 
 void() boss_rise1	=[	$rise1, boss_rise2 ] {
-self.pain_finished = time + 2;
-sound (self, CHAN_WEAPON, "boss1/out1.wav", 1, ATTN_NORM);
+	self.pain_finished = time + 3;
+	self.dmgtime = time + 3;
+	sound (self, CHAN_WEAPON, "boss1/out1.wav", 1, ATTN_NORM);
 }
 void() boss_rise2	=[	$rise2, boss_rise3 ] {
-sound (self, CHAN_VOICE, "boss1/sight1.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "boss1/sight1.wav", 1, ATTN_NORM);
 }
 void() boss_rise3	=[	$rise3, boss_rise4 ] {}
 void() boss_rise4	=[	$rise4, boss_rise5 ] {}
@@ -90,12 +91,13 @@ void() boss_idle30	=[	$walk30, boss_idle31 ] {ai_face();}
 void() boss_idle31	=[	$walk31, boss_idle1 ] {ai_face();}
 
 void() boss_missile1	=[	$attack1, boss_missile2 ] {
-	if (self.state)
+	if (self.lifetime_finished == -1)
 	{
 		boss_idle1();
 		return;
 	}
 	ai_face();
+	if (!enemy_alive()) self.enemy = get_closest_client();	// break out of infights with dead monsters
 	if (random() < 0.66) ReprioritizeEnemy();
 }
 void() boss_missile2	=[	$attack2, boss_missile3 ] {ai_face();}
@@ -108,7 +110,11 @@ void() boss_missile8	=[	$attack8, boss_missile9 ] {boss_missile('100 -100 200');
 void() boss_missile9	=[	$attack9, boss_missile10 ] {ai_face();}
 void() boss_missile10	=[	$attack10, boss_missile11 ] {ai_face();}
 void() boss_missile11	=[	$attack11, boss_missile12 ] {ai_face();}
-void() boss_missile12	=[	$attack12, boss_missile13 ] {ai_face();if (random() < 0.66) ReprioritizeEnemy();}
+void() boss_missile12	=[	$attack12, boss_missile13 ] {
+	ai_face();
+	if (!enemy_alive()) self.enemy = get_closest_client();	// break out of infights with dead monsters
+	if (random() < 0.66) ReprioritizeEnemy();
+}
 void() boss_missile13	=[	$attack13, boss_missile14 ] {ai_face();}
 void() boss_missile14	=[	$attack14, boss_missile15 ] {ai_face();}
 void() boss_missile15	=[	$attack15, boss_missile16 ] {ai_face();}
@@ -160,6 +166,16 @@ void() boss_shockc10 =[	$shockc10, boss_death1 ] {
 void() boss_death1 = [$death1, boss_death2] {
 	self.takedamage = DAMAGE_NO;
 	sound (self, CHAN_VOICE, "boss1/death.wav", 1, ATTN_NORM);
+	if (self.health == -99)	// telefragged or crushed or something
+	{
+		self.solid = SOLID_NOT;
+		ThrowGib ("progs/gib1.mdl", 96);
+		ThrowGib ("progs/gib2.mdl", 97);
+		ThrowGib ("progs/gib3.mdl", 98);
+		ThrowGib ("progs/gib1.mdl", 99);
+		ThrowGib ("progs/gib2.mdl", 101);
+		ThrowGib ("progs/gib3.mdl", 103);
+	}
 }
 void() boss_death2 = [$death2, boss_death3] {}
 void() boss_death3 = [$death3, boss_death4] {}
@@ -257,10 +273,15 @@ void(vector p) boss_missile =
 	// check for dead enemy
 	if (!enemy_alive())
 	{
-		if (!coop || (coop == 1 && !clientsAlive))
-			boss_idle1 ();
+		if (self.enemy.classname == "player")
+		{
+			if (!coop || (coop == 1 && !clientsAlive))
+				boss_idle1 ();
+			else
+				ReprioritizeEnemy();
+		}
 		else
-			ReprioritizeEnemy();
+			self.enemy = get_closest_client();	// break out of infights with dead monsters
 	}
 }
 
@@ -302,7 +323,8 @@ void() boss_awake =
 	
 	if (self.spawnflags & 1)
 	{
-		self.takedamage = DAMAGE_YES;
+		self.takedamage = DAMAGE_AIM;
+		self.flags |= FL_MONSTER;
 		self.health = zeroconvertdefault(self.health, 1000);
 		self.max_health = self.health;
 	}
@@ -318,7 +340,7 @@ void() boss_awake =
 
 	self.enemy = activator;
 	if (self.enemy.classname != "player")
-		self.enemy = nextent(world);	// just get mad at player1 for now
+		self.enemy = get_closest_client();	// just get mad at player1 for now
 
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_LAVASPLASH);
@@ -332,18 +354,24 @@ void() boss_awake =
 
 
 /*QUAKED monster_boss (1 0 0) (-128 -128 -24) (128 128 256) SHOOTABLE
-Chthon. requires event_lightning to kill but that's the oldest quake mapping tutorial on the internet, you can find it
+Ch'thon. Throws lava bombs until electrocuted to death.
+The more health he's lost, and the higher the skill level the player is on, the more accurately he leads his shots.
+The E1M7 boss fight requires an event_lightning.
 
-SPAWNFLAGS
-"Shootable" if you can't find the tutorial and just want a chthon you can blast. 'health' defaults to 1000.
+If 'SHOOTABLE' is set, he'll bleed when shot, and die the old-fashioned way when shot enough. Can even be telefragged. 'Health' defaults to 1000.
 */
 /*FGD
-@PointClass base(Angle, Appearflags, Target, Targetname, Deathtype) size(-128 -128 -24, 128 128 256) color(0 0 220) model({ "path": ":progs/boss.mdl" }) = monster_boss : "Chthon" [
+@PointClass base(Angle, Appearflags, Target, Targetname, Deathtype) size(-128 -128 -24, 128 128 256) color(240 0 0) model({ "path": ":progs/boss.mdl" }) = monster_boss : "Ch'thon. Throws lava bombs until electrocuted to death.
+The more health he's lost, and the higher the skill level the player is on, the more accurately he leads his shots.
+The E1M7 boss fight requires an event_lightning.
+
+If 'shootable' is set, he'll bleed when shot, and die the old-fashioned way when shot enough. Can even be telefragged. Health defaults to 1000."
+[
 	spawnflags(Flags) =
 	[
 		1 : "Shootable" : 0
 	]
-	health(integer) : "hit points, if shootable"
+	health(integer) : "Hit points, if shootable" : 1000
 ]
 */
 void() monster_boss =
@@ -354,20 +382,20 @@ void() monster_boss =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/boss.mdl");
-	precache_model ("progs/lavaball.mdl");
+	precache_model_safe ("progs/boss.mdl");
+	precache_model_safe ("progs/lavaball.mdl");
 
-	precache_sound ("weapons/rocket1i.wav");
-	precache_sound ("weapons/lavabal1.wav");
-	precache_sound ("weapons/lavabal2.wav");
-	precache_sound ("weapons/lavabal3.wav");
-	precache_sound ("weapons/lavabal4.wav");
-	precache_sound ("boss1/out1.wav");
-	precache_sound ("boss1/sight1.wav");
-	precache_sound ("misc/power.wav");
-	precache_sound ("boss1/throw.wav");
-	precache_sound ("boss1/pain.wav");
-	precache_sound ("boss1/death.wav");
+	precache_sound_safe ("weapons/rocket1i.wav");
+	precache_sound_safe ("weapons/lavabal1.wav");
+	precache_sound_safe ("weapons/lavabal2.wav");
+	precache_sound_safe ("weapons/lavabal3.wav");
+	precache_sound_safe ("weapons/lavabal4.wav");
+	precache_sound_safe ("boss1/out1.wav");
+	precache_sound_safe ("boss1/sight1.wav");
+	precache_sound_safe ("misc/power.wav");
+	precache_sound_safe ("boss1/throw.wav");
+	precache_sound_safe ("boss1/pain.wav");
+	precache_sound_safe ("boss1/death.wav");
 	
 	if (self.deathtype == string_null)
 		self.deathtype = "was owned by Chthon";
@@ -378,8 +406,13 @@ void() monster_boss =
 	self.use = boss_awake;
 	self.th_pain = boss_pain;
 	self.th_die = boss_death1;
+	self.th_run = boss_missile1;
+	
+	self.th_stand = boss_missile1;
+	self.th_walk = boss_missile1;
+	
 	if (cvar("nomonsters") != 0)
-		self.state = -1;
+		self.lifetime_finished = -1;
 }
 
 //===========================================================================
@@ -478,8 +511,8 @@ void() lightning_use =
 Just for boss level. Fires targets on a successful zap.
 */
 /*FGD
-@PointClass base(Appearflags, Target, Targetname) =
-	event_lightning : "Chthon lightning. Fires targets on a successful zap." []
+@PointClass base(Appearflags, Target, Targetname) color(0 255 255) = event_lightning : "Chthon lightning. Fires targets on a successful zap.
+Setup is weird and special: it must find two func_doors each with a 'target' (not targetname) of 'lightning', and it will branch the lightning between the bottom center of each door. If both doors are closed it won't hurt Ch'thon, but if both are open, it will, and otherwise lightning won't happen at all. Lightning doesn't actually have to go through Ch'thon." []
 */
 void() event_lightning =
 {

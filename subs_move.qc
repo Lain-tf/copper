@@ -70,9 +70,9 @@ self.origin traveling at speed
 */
 void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 {
-local vector	vdestdelta;
-local float		len, traveltime;
-float localtime = getLocalTime();
+	vector	vdestdelta;
+	float	len, traveltime;
+	float	localtime = getLocalTime();
 
 	if (!tspeed)
 		objerror( "No speed is defined!" );

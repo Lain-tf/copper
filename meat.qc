@@ -14,9 +14,9 @@ than fall through grates (also they look too big)
 
 vector(float dm) GibVelocityForHealth =
 {
-	local vector v;
-	local float	voom;
-
+	vector v;
+	float voom;
+	
 	v_x = 150 * crandom();
 	v_y = 150 * crandom();
 	v_z = 150 + 150 * random();
