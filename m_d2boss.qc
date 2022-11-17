@@ -46,7 +46,8 @@ $frame phase29 phase30 phase31 phase32 phase33 phase34 phase35
 //----------------------------------------------------------------------
 
 float d2boss_BALL_VEL = 750;
-float d2boss_HEALTH = 600; 
+float d2boss_HEALTH = 300; 
+float D2BOSS_MOVESPEED = 300;
 .float	track_finished;
 .float	boss_attacksleft;
 .float	boss_lastattack;
@@ -150,7 +151,7 @@ void() d2bossMissileTouch =
 	if ( CheckProjectilePassthru() ) 
 		return;
 	
-	if ( other == self.owner )
+	if ( other == self.owner || other.owner == self.owner)
 		return;		// don't explode on owner
 
 	if (other.type == "zombie")
@@ -193,24 +194,37 @@ void() d2bossMissileHome =
 };
 
 
-void(float offset_side, float offset_up, float isdash) d2bossMissile =
+vector(vector source, entity tgt, float misvel, float degree) d2boss_leadtarget =
+{
+	local vector vel, lead_offset, evel;
+	
+	vel = tgt.origin - source;
+	// don't lead if you can't see the target
+	if (has_invis(tgt))
+		return vel;
+	
+	evel = tgt.velocity;
+	if( !(tgt.flags & FL_ONGROUND) && fabs(evel_z) < 275 )
+		evel_z = 0;	// ignore if the player is jumping around
+	
+	lead_offset = (vlen(vel) / misvel) * evel * degree;
+	return vel + lead_offset;
+}
+
+void() d2bossMissile =
 {
 	entity missile;
 	vector dir;
-	float toffset_side, toffset_up;
 	vector bossorg,playerorg;
 	float distcheck;
 	float dashmod;
-	
-	if (isdash)
-		dashmod = 0.4;
-	else 
-		dashmod = 0.1;
+	entity tgt = checkclient();
+
 	
 	//self.effects = self.effects | EF_MUZZLEFLASH;
-	makevectors(self.angles);
+	makevectors([-self.angles_x, self.angles_y, self.angles_z]);
 	
-	dir = LeadTarget( self.origin, d2boss_BALL_VEL, random() );
+	dir = d2boss_leadtarget( self.origin, tgt, d2boss_BALL_VEL, random() );
 	dir = normalize( dir );
 	 
 	bossorg = self.origin;
@@ -218,51 +232,9 @@ void(float offset_side, float offset_up, float isdash) d2bossMissile =
 	playerorg = self.enemy.origin;
 	playerorg_z = 0;
 	distcheck = vlen(bossorg - playerorg);
-	//dprint3("distance to boss = ",ftos(distcheck),"\n");
-
-	// if player has strafed around behind, don't lob the missile out of our ass
-	if ( angledif(self.ideal_yaw, self.angles_y) > 80 )
-	{
-		dir_x = v_forward_x;
-		dir_y = v_forward_y;
-		dir = LeadTarget( self.origin, d2boss_BALL_VEL, 1 );
-		dir = normalize( dir );
-	}
 	
-	if (!offset_side)
-	{
-		toffset_side = 0;
-		toffset_up = 0.3;
-	}
-	else if (offset_side > 0)
-	{
-		toffset_side = 1;
-		toffset_up = 0;
-	}
-	else
-	{
-		toffset_side = -1;
-		toffset_up = 0;
-	}
 	
-	if (distcheck > 720) 
-		distcheck = 0.5; // delay before we start homing
-	else 
-	{
-		dashmod *= 0.5; // how wide our swing
-		if (distcheck > 320) 
-			distcheck = 0.25;
-		else 
-		{
-			distcheck = 0.01;
-			dashmod = 0;
-		}
-	}
-	
-	dir = dir + (v_up * toffset_up) + (v_right * toffset_side * dashmod);
-	dir = normalize( dir );
-	
-	missile = launch_projectile( self.origin + (v_forward * 16) + (v_up * offset_up) + (v_right * offset_side) + '0 0 72', dir * d2boss_BALL_VEL, "voreball" );
+	missile = launch_projectile( self.origin + (v_forward * 128), dir * d2boss_BALL_VEL, "voreball" );
 	//missile = launch_projectile( self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * d2boss_BALL_VEL, "voreball" );
 	
 	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
@@ -270,7 +242,7 @@ void(float offset_side, float offset_up, float isdash) d2bossMissile =
 	missile.avelocity = '300 300 300';
 	missile.nextthink = time + distcheck;//0.35; // 0.2
 	missile.think = d2bossMissileHome;
-	missile.enemy = self.enemy;
+	missile.enemy = tgt;
 	missile.touch = d2bossMissileTouch;
 	missile.lifetime_finished = time + 5;	 // blow up after a while
 	missile.track_finished = time + 1.25; // 1.25
@@ -441,12 +413,24 @@ void(entity attacker, float damage) d2boss_Pain =
 		sound (self, CHAN_AUTO, "d1boss/pain2.wav", 1, ATTN_NORM);		
 };
 
-void() d2boss_wake =
-{
-
+void() d2boss_reachpath = {
+	entity corner = find(world, targetname, self.enemy.target);
+	self.enemy = corner;
+	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
 }
 
+void() d2boss_wake =
+{
+	d2boss_bbox_setfield(takedamage, DAMAGE_AIM); // damageable
+	
+	self.state = 1;// phase one
+	dprint("Initiating phase one\n");
+	entity corner = find(world, targetname, self.target);
+	self.enemy = corner;
+	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+}
 
+//=============================================================================
 
 void() d2boss_createentities =
 {
@@ -458,100 +442,101 @@ void() d2boss_createentities =
 	pc.think = d2boss_paincontroller_think;
 
 	vector coords[] = {
-		'0 0 112',
-		'0 0 -112',
-		'0 32 80',
-		'0 32 -80',
-		'0 -32 80',
-		'0 -32 -80',
-		'0 64 48',
-		'0 64 -48',
-		'0 -64 48',
-		'0 -64 -48',
-		'0 96 16',
-		'0 96 -16',
-		'0 -96 16',
-		'0 -96 -16',
-		'32 0 80',
-		'32 0 -80',
-		'-32 0 80',
-		'-32 0 -80',
-		'32 32 80',
-		'32 32 -80',
-		'32 -32 80',
-		'32 -32 -80',
-		'-32 32 80',
-		'-32 32 -80',
-		'-32 -32 80',
-		'-32 -32 -80',
-		'32 64 48',
-		'32 64 -48',
-		'32 -64 48',
-		'32 -64 -48',
-		'-32 64 48',
-		'-32 64 -48',
-		'-32 -64 48',
-		'-32 -64 -48',
-		'32 96 16',
-		'32 96 -16',
-		'32 -96 16',
-		'32 -96 -16',
-		'-32 96 16',
-		'-32 96 -16',
-		'-32 -96 16',
-		'-32 -96 -16',
-		'64 0 48',
-		'64 0 -48',
-		'-64 0 48',
-		'-64 0 -48',
-		'64 32 48',
-		'64 32 -48',
-		'64 -32 48',
-		'64 -32 -48',
-		'-64 32 48',
-		'-64 32 -48',
-		'-64 -32 48',
-		'-64 -32 -48',
-		'64 64 48',
-		'64 64 -48',
-		'64 -64 48',
-		'64 -64 -48',
-		'-64 64 48',
-		'-64 64 -48',
-		'-64 -64 48',
-		'-64 -64 -48',
-		'64 96 16',
-		'64 96 -16',
-		'64 -96 16',
-		'64 -96 -16',
-		'-64 96 16',
-		'-64 96 -16',
-		'-64 -96 16',
-		'-64 -96 -16',
-		'96 0 16',
-		'96 0 -16',
-		'-96 0 16',
-		'-96 0 -16',
-		'96 32 16',
-		'96 32 -16',
-		'96 -32 16',
-		'96 -32 -16',
-		'-96 32 16',
-		'-96 32 -16',
-		'-96 -32 16',
-		'-96 -32 -16',
-		'96 64 16',
-		'96 64 -16',
-		'96 -64 16',
-		'96 -64 -16',
-		'-96 64 16',
-		'-96 64 -16',
-		'-96 -64 16',
-		'-96 -64 -16',
-		'96 96 0',
-		'96 -96 0',
-		'-96 96 0',
-		'-96 -96 0'
+		'0 96 -96',
+'0 -96 -96',
+'0 96 96',
+'0 -96 96',
+'112 0 0',
+'-112 0 0',
+'16 0 96',
+'-16 0 -96',
+'16 32 96',
+'16 -32 96',
+'-16 32 -96',
+'-16 -32 -96',
+'16 64 96',
+'16 -64 96',
+'-16 64 -96',
+'-16 -64 -96',
+'16 96 64',
+'16 -96 64',
+'-16 96 -64',
+'-16 -96 -64',
+'16 96 32',
+'16 -96 32',
+'-16 96 -32',
+'-16 -96 -32',
+'16 96 0',
+'16 -96 0',
+'-16 96 0',
+'-16 -96 0',
+'16 96 -32',
+'16 -96 -32',
+'-16 96 32',
+'-16 -96 32',
+'16 96 -64',
+'16 -96 -64',
+'-16 96 64',
+'-16 -96 64',
+'16 0 -96',
+'-16 0 96',
+'16 32 -96',
+'16 -32 -96',
+'-16 32 96',
+'-16 -32 96',
+'16 64 -96',
+'16 -64 -96',
+'-16 64 96',
+'-16 -64 96',
+'48 0 64',
+'-48 0 -64',
+'48 32 64',
+'48 -32 64',
+'-48 32 -64',
+'-48 -32 -64',
+'48 64 64',
+'48 -64 64',
+'-48 64 -64',
+'-48 -64 -64',
+'48 64 0',
+'48 -64 0',
+'-48 64 0',
+'-48 -64 0',
+'48 64 -32',
+'48 -64 -32',
+'-48 64 32',
+'-48 -64 32',
+'48 64 32',
+'48 -64 32',
+'-48 64 -32',
+'-48 -64 -32',
+'48 0 -64',
+'-48 0 64',
+'48 32 -64',
+'48 -32 -64',
+'-48 32 64',
+'-48 -32 64',
+'48 64 -64',
+'48 -64 -64',
+'-48 64 64',
+'-48 -64 64',
+'80 0 -32',
+'-80 0 32',
+'80 0 32',
+'-80 0 -32',
+'80 32 0',
+'80 -32 0',
+'-80 32 0',
+'-80 -32 0',
+'80 32 -32',
+'80 -32 -32',
+'-80 32 32',
+'-80 -32 32',
+'80 32 32',
+'80 -32 32',
+'-80 32 -32',
+'-80 -32 -32'
+
 	};
 	vector ofs, org;
 
@@ -559,9 +544,9 @@ void() d2boss_createentities =
 	e = spawn();
 	self.buddy = e;
 	e.owner = self;
-	e.classname = "d2boss_bboxcontroller";
-	e.think = d2boss_bboxcontroller_think;
-	e.nextthink = time + 0.05;
+	e.classname = "d2boss_thinker";
+	e.think = d2boss_thinker_think;
+	e.nextthink = time + 0.025;
 
 	//makevectors([-self.angles_x, self.angles_y, self.angles_z]);
 	makevectors (self.angles);
@@ -630,22 +615,60 @@ void() d2boss_paincontroller_think = {
 	self.enemy = world;
 }
 
-void() d2boss_bboxcontroller_think = {
-	makevectors(self.owner.angles);
+void() d2boss_fire = {
+	d2bossMissile();
+}
 
-	entity e = self.buddy;
+void() d2boss_thinker_think = {
+	entity boss = self.owner;
+	entity thinker = self;
+
+	self = boss;
+
+	entity targ = checkclient();
+
+	if (boss.state && targ) {
+		vector ang = vectoangles(targ.origin - boss.origin);
+
+		boss.angles_x = ang_x;
+		boss.angles_y = ang_y;
+
+		if (time > boss.pausetime) {
+			boss.pausetime = time + 5 + random()*3;
+			boss.attack_finished = time + 2;
+			boss.avelocity_z = 540;
+		}
+
+		if (time < boss.attack_finished) {
+			if (time > boss.attack_finished - 1.5 && !boss.attack_state) {
+				d2boss_fire();
+				boss.attack_state = 1;
+			}
+		} 
+		else {
+			boss.avelocity = 0;
+			boss.attack_state = 0;
+		}
+
+	}
+	
+	// update bboxes position
+
+	makevectors([-boss.angles_x, boss.angles_y, boss.angles_z]);
+
+	entity e = thinker.buddy;
 	vector org, ofs;
 
 	while (e) {
 		ofs = e.view_ofs;
 
-		org = self.owner.origin + v_forward * ofs_x + v_right * ofs_y + v_up * ofs_z;
+		org = boss.origin + v_forward * ofs_x + v_right * ofs_y + v_up * ofs_z;
 		setorigin(e, org);
 		
 		e = e.buddy;
 	}
 
-	self.nextthink = time + 0.05;
+	thinker.nextthink = time + 0.025;
 }
 
 
@@ -709,9 +732,10 @@ void() monster_d2boss =
 	setmodel (self, "progs/mon_d2boss_rot.mdl");
 	setsize (self, '0 0 0', '0 0 0');
 	
+	self.angles = '-90 0 0';
 	self.frame = 7;
 
-	self.state = 3;
+	self.state = 0;
 	self.type = "boss";
 	//self.th_stand = d2boss_channelling1; //d2boss_stand1;
 	self.th_pain = d2boss_Pain;
