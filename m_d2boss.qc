@@ -636,7 +636,7 @@ void() d2boss_thinker_think = {
 		if (time > boss.pausetime) {
 			boss.pausetime = time + 5 + random()*3;
 			boss.attack_finished = time + 2;
-			boss.avelocity_z = 540;
+			boss.avelocity_z = 270;
 		}
 
 		if (time < boss.attack_finished) {
@@ -705,7 +705,7 @@ void() monster_d2boss =
 		return;
 	}
 	
-	precache_model ("progs/mon_d2boss_rot.mdl");
+	precache_model ("progs/mon_d2bossb_rot.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
 	
@@ -729,7 +729,7 @@ void() monster_d2boss =
 	self.solid = SOLID_NOT;
 	self.takedamage = DAMAGE_NO;
 	self.movetype = MOVETYPE_FLY;
-	setmodel (self, "progs/mon_d2boss_rot.mdl");
+	setmodel (self, "progs/mon_d2bossb_rot.mdl");
 	setsize (self, '0 0 0', '0 0 0');
 	
 	self.angles = '-90 0 0';

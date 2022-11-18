@@ -239,6 +239,7 @@ float	coop_time;
 entity	storyCam;
 float	storyCamTime;
 float	storytime_running;
+float	playerscount;
 
 // for balancing: total monster HP/ammo -HP/zombies/grenades in the level
 float	monster_health;	
@@ -430,6 +431,29 @@ string	keyType;
 .vector		liquidcolor;
 .float		liquiddensity;
 
+// universal util parameters
+.float	fUtilA;
+.float	fUtilB;
+.float	fUtilC;
+.float	fUtilD;
+.float	fUtilE;
+.float	fUtilF;
+.float	fUtilG;
+.float	fUtilH;
+.float	fUtilI;
+.float	fUtilFlags;
+
+.vector	vUtilA;
+.vector	vUtilB;
+.vector	vUtilC;
+.vector	vUtilD;
+.vector	vUtilE;
+
+.entity eUtilA;
+.entity eUtilB;
+
+.entity eChildA;
+.entity eChildB;
 
 //===========================================================================
 // builtin functions

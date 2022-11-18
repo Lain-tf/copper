@@ -350,7 +350,12 @@ void() worldspawn =
 	precache_model ("progs/spike.mdl");
 	precache_model ("progs/e2/proj_rail.mdl");
 	precache_sound ("weapons/spindn_click.wav");
-	//precache_model ("progs/s_spike.mdl");
+	
+	//d2 boss bullet hell models and sounds
+	precache_model ("progs/e2/hell_bullet.mdl");
+	precache_model ("progs/e2/hell_rocket.mdl");
+	precache_sound ("sound/d2boss/hell_bullet.wav");
+	precache_sound ("sound/d2boss/hell_rocket.wav");
 
 	precache_model ("progs/backpack.mdl");
 
