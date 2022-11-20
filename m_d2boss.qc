@@ -265,7 +265,7 @@ void() d2boss_reachpath = {
 
 void() d2boss_wake =
 {
-	spawnDirector();
+	//spawnDirector();
 
 	d2boss_bbox_setfield(takedamage, DAMAGE_AIM); // damageable
 	
@@ -501,6 +501,7 @@ attack state
 
 */
 
+/*
 void() d2boss_bullethell_loop = {
 	self.angles = '-90 0 0';
 	entity ct = find(world, targetname, self.include);
@@ -532,12 +533,32 @@ void() d2boss_bullethell_loop = {
 	self.think = d2boss_bullethell_loop;
 	self.nextthink = time + 0.1;
 }
+*/
+void() d2boss_bullethell_resume = {
+	self.attack_state = 0;
+	self.buddy.think = d2boss_thinker_think;
+	self.buddy.nextthink = time + 0.01;
+
+	//dprint(self.goalentity);
+	SUB_CalcMove(self.goalentity.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+	self.use = SUB_Null;
+}
+
+void() d2boss_bullethell_wait = {
+	self.use = d2boss_bullethell_resume;
+	self.attack_state = 3;
+
+	entity ct = find(world, targetname, self.target2);
+	activator = self.enemy;
+	SUB_UseEntTargets(ct);
+}
 
 void() d2boss_movetocenter = {
 	self.pain_finished = time;
 	entity ct = find(world, targetname, self.target2);
 
-	SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_loop);
+	//SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_loop);
+	SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_wait);
 	
 }
 
