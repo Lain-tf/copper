@@ -64,40 +64,6 @@ float NO_DELAY = 0.0;
 //fUtilI used as progress indicator for Program
 //fUtilF used by Boss to tell Programs and FireTasks to terminate ongoing tasks
 
-// prototypes
-void() updatePlayersCount;
-void() simpleTouch;
-void() fadeProjectile;
-void(vector pvSource, vector pvDirection, float pfFade) setupProjectile;
-void() runProgramA;
-void() runProgramB;
-void() runProgramC;
-void() spawnDirector;
-void() initiateProgram;
-void(void() pmMethod, float pfDelay ) continueProgram;
-	//firetasks
-void(float pfFollowTarget, float pfShotsCount, float pfCycleTime, float pfDelay) startOneLine;
-void() repeatOneLine;
-
-void(float pfFollowTarget, float pfShotsCount, float pfAngle, float pfCycleTime, float pfDelay) startTwoLines;
-void() repeatTwoLines;
-
-void(float pfStartPosition, float pfEndPosition, float pfRepeatCount, float pfCycleTime, float pfAlternate, float pfFadeTime, float pfDelay ) startCircle;
-void() repeatCircle;
-
-void(float pfStartPosition, float pfEndPosition, float pfClockwise, float pfCycleTime, float pfFadeTime, float pfDelay) startSpiral;
-void() repeatSpiral;
-
-void(vector pvDirection, float pfCircleSize, float pfFadeTime, float pfDelay) startMovingWheel;
-void() startSpin;
-void() deploySatelites;
-entity(vector pvSource, vector pvDirection) returnProjectile;
-
-void(float pfMinRadius, float pfMaxRadius, float pfIdleAtMin, float pfIdleAtMax, float pfSpeed, float pfPulses, float pfDelay) startPulse;
-void() doPulseDamage;
-void() fadePulseIn;
-void() idlePulse;
-void() movePulse;
 
 //we don't use difficulty points, so this is obsolete
 void() updatePlayersCount =
@@ -1044,3 +1010,88 @@ void() fadeSatelite =
 	
 	self.cnt = self.cnt - 1;
 };
+
+
+//============================================================================
+
+float BULLET_STYLE_RANDOM = 0;
+float BULLET_STYLE_ONELINE = 1;
+float BULLET_STYLE_TWOLINES = 2;
+float BULLET_STYLE_CIRCLE = 3;
+float BULLET_STYLE_SPIRAL = 4;
+float BULLET_STYLE_WHEEL = 5;
+float BULLET_STYLE_BARRAGE = 6;
+float BULLET_STYLE_PULSE = 7;
+
+void() target_bullethell_fire = {
+	entity oldself = self;
+	self = self.eChildA;
+
+	float choice = oldself.style;
+
+	self.fUtilF = 0; //allow repeating tasks
+
+	if (choice == BULLET_STYLE_RANDOM) choice = 1 + floor(random() * 6.99 );
+
+	switch (choice)
+	{
+		case BULLET_STYLE_ONELINE:
+		// Follow player (0/1); Shots count; firerate (time bitween shots); execute after some delay
+			startOneLine(1, 10, 0.1, NO_DELAY);
+			break;
+		case BULLET_STYLE_TWOLINES:
+		// Follow player (0/1); how wide V shape gonna be; Shots count(for both); firerate (time bitween shots); execute after some delay
+			startTwoLines(0, 10, 15, 0.1, NO_DELAY);
+			break;
+		case BULLET_STYLE_CIRCLE:
+		// Start; End position on a circle: [0-24, be aware!]; repeat count(at least 1); repeat cycle; 
+		// alternate between two patterns or not (slight shift in coordinates);
+		// Time after which projectile gonna fade (fade itself takes like 0.3-0.5 sec); execute after some delay
+			startCircle( 0 , 24, 1, 0.1, 1, BULLET_FADETIME, NO_DELAY);
+			break;
+		case BULLET_STYLE_SPIRAL:
+		// Start; End position on a circle: [0-48, be aware!]; clockwise or not (1/0); fade time as above; execute after some delay
+			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME, NO_DELAY);
+			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME, 2.4);
+			break;
+		case BULLET_STYLE_WHEEL:
+		// direction; time when projectiles start to spin, basically corresponds with radius; time to fade; execute after some delay  
+			startMovingWheel([crandom()*1000, crandom()*1000, self.origin_z], 1.0, 8, NO_DELAY);
+			break;
+		case BULLET_STYLE_BARRAGE:
+			startRocketBarrage(NO_DELAY);
+			break;
+		case BULLET_STYLE_PULSE:
+		//float pfMinRadius, float pfMaxRadius, float pfIdleAtMin, float pfIdleAtMax, float pfSpeed, float pfPulses, float pfDelay
+			startPulse(64, 320, 0.5, 0.5, 640, 2, NO_DELAY);
+			break;
+	}
+
+	self = oldself;
+}
+
+// derived from spawnDirector()
+// takes the entity's own origin as epicenter for the director
+void() target_bullethell_startup = {
+
+	//SELF STATUS: d2 Boss
+	local entity leDirector;
+	
+	leDirector = spawn ();
+	leDirector.owner = self;
+	leDirector.classname = "Director";
+	leDirector.fUtilA = 0; // alternate circle patterns
+	leDirector.fUtilI = 0; // program progress indicator
+	
+	setorigin(leDirector, self.origin);
+	
+	//dprint("Director has been spawned \n");
+	self.eChildA = leDirector;
+
+	self.use = target_bullethell_fire;
+}
+
+void() target_bullethell = {
+	self.think = target_bullethell_startup;
+	self.nextthink = time + 0.025;
+}

@@ -80,6 +80,26 @@ float(float y, float x) atan2 =
 	return vectoyaw(ang);
 }
 
+// https://developer.download.nvidia.com/cg/acos.html
+float(float x) acos {
+    float negate;
+
+    if (x < 0) negate = 1;
+    else negate = 0;
+    
+    x = fabs(x);
+    float ret = -0.0187293;
+    ret = ret * x;
+    ret = ret + 0.0742610;
+    ret = ret * x;
+    ret = ret - 0.2121144;
+    ret = ret * x;
+    ret = ret + 1.5707288;
+    ret = ret * sqrt(1.0-x);
+    ret = ret - 2 * negate * ret;
+    return (negate * 3.14159265358979 + ret)/3.14159265358979 * 180;
+}
+
 vector(vector a, vector b) CrossProduct =
 {
 	vector c;
@@ -330,5 +350,10 @@ float(float num) sqrt =
 }
 
 
+vector(vector ang) normalizeAngles180 = {
+	ang_x = ang_x - floor((ang_x+180)/360) * 360;
+	ang_y = ang_y - floor((ang_y+180)/360) * 360;
+	ang_z = ang_z - floor((ang_z+180)/360) * 360;
 
-
+	return ang;
+};

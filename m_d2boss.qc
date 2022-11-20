@@ -1,131 +1,62 @@
 /*
 ==============================================================================
 
-Ep. 1 Boss
+Ep. 2 Boss
+
+CODE STRUCTURE
+
+This is a huge fucking complex thing. The boss entity itself (which we'll refer as the main entity)
+doesn't have any collision, instead it has 94 small bboxes that follow the overall model shape and
+translate/rotate with it.
+
+I've abandoned the idea of making it an actual monster, because we won't be using any AI function
+in it, so everything must be handled here - like kill counter, firing targets on death, turning to
+non-solid etc.
+
+The main entity has 3 controllers attached:
+
+- Thinker (stored on the .buddy field): General think loop. Since the main entity's think functions
+  are reserved to movement, every other logic is handled here. It decides when it'll fire a volley
+  at the player, when it'll go to the center to fire a bullet hell, and also keeps the entity
+  turned to the player on phase 2.
+  The collision bboxes are attached to the thinker's .buddy field in a linked list (each one's
+  .buddy points to the next), and this entity also updates their origin relative to the main
+  entity's origin/angles through some sick maths.
+
+- Pain controller (stored on the .trigger_field field): Controls the damage received on the
+  individual bboxes and applies them to the main entity. Necessary because it has to manage
+  multi-damage from T_RadiusDamage explosions.
+
+- Bullet hell director (stored on the .eChildA field): usually not managed directly here, only from
+  the m_d2boss_hell.qc file. Initialized when the boss wakes up with the spawnDirector() function.
+
+All of the attached entities, including each bbox segment, point back to the main entity through
+their .owner field.
+
+All the functions whose names don't with "think" assume that "self" points to the main entity.
+
+HOW TO USE IT
+
+The main entity moves on path_corners. The .target field must point to the first path_corner in the
+room, from which it'll begin its loop. .target2 points to another path_corner at the center of the
+room, where it'll stand when firing the bullet hell pattern.
+
+At the first phase, the boss will have the initial "closed" model, and will always be facing down.
+When given enough damage, it'll fire .target3 and turn to phase 2. Then, its model will be changed
+to the eye one, and will constantly be facing the player.
+
+When it dies completely, .target4 is fired.
+
+The .include field must point to yet another path_corner entity where the bullet hell pattern will
+will be fired from.
 
 ==============================================================================
 */
-
-// FRAME MACROSES 
-//----------------------------------------------------------------------
-
-$cd id1/models/mon_d2boss
-$origin 0 0 24
-$base base		
-$skin base
-
-$frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9
-$frame stand10 stand11 stand12 stand13 stand14 stand15 stand16 stand17
-$frame stand18 stand19 stand20 stand21 stand22 stand23
-
-$frame swingr1 swingr2 swingr3 swingr4 swingr5 
-$frame swingr6 swingr7 swingr8 swingr9
-
-$frame swingl1 swingl2 swingl3 swingl4 swingl5 
-$frame swingl6 swingl7 swingl8 swingl9
-
-$frame big1 big2 big3 big4 big5 
-$frame big6 big7 big8 big9 big10
-$frame big11 big12 big13 big14 big15 big16
-$frame big17 big18 big19 big20 big21 big22
-$frame big23 big24
-
-$frame chan1 chan2 chan3 chan4 chan5 
-$frame chan6 chan7 chan8 chan9 chan10
-$frame chan11 chan12 chan13 chan14 chan15 chan16
-$frame chan17 chan18 chan19 chan20 chan21 chan22
-$frame chan23 chan24
-
-$frame phase1 phase2 phase3 phase4 phase5 
-$frame phase6 phase7 phase8 phase9 phase10
-$frame phase11 phase12 phase13 phase14 phase15 phase16
-$frame phase17 phase18 phase19 phase20 phase21 phase22
-$frame phase23 phase24 phase25 phase26 phase27 phase28
-$frame phase29 phase30 phase31 phase32 phase33 phase34 phase35
-
-//----------------------------------------------------------------------
 
 float d2boss_BALL_VEL = 750;
 float d2boss_HEALTH = 300; 
 float D2BOSS_MOVESPEED = 300;
 .float	track_finished;
-.float	boss_attacksleft;
-.float	boss_lastattack;
-
-
-//offset for gibs
-/*entity(string gibname, float dm) ThrowGibBoss =
-{
-	local entity gib;
-
-	// gibs have to be thinking ballistic projectiles to pass through monsterclip/notrace :(
-	gib = toss_projectile(self.origin + '0 0 112', GibVelocityForHealth(dm), "gib");
-	MakeGib(gib, gibname);
-	
-	return gib;
-};*/
-
-void(vector org, float dist, float amount) bullethell = {
-	float step = 360/amount;
-	float yaw;
-	entity newmis;
-	vector angs;
-
-	for (yaw = 0; yaw < 360; yaw += step) {
-		angs = [0, yaw, 0];
-		makevectors(angs);
-
-		/*newmis = spawn();
-		newmis.angles = angs;
-		newmis.velocity = v_forward * 600;
-
-		newmis.owner = self;
-		newmis.movetype = MOVETYPE_FLYMISSILE;
-		newmis.solid = SOLID_BBOX;
-		
-		newmis.nextthink = time + 5;
-		newmis.think = SUB_Remove;
-		newmis.touch = Laser_Touch;
-		
-		setmodel (newmis, "progs/laser.mdl");
-		setsize (newmis, '0 0 0', '0 0 0');
-		setorigin (newmis, org + v_forward * dist);
-		*/
-		newmis = launch_laser(org + v_forward * dist, v_forward * 600);
-	}
-}
-
-float() d2bossCheckAttack = 
-{
-	local vector enemy_org, self_org;
-
-	// Check Melee range without respect to height
-	enemy_org = self.enemy.origin;
-	self_org = self.origin;
-	enemy_org_z = self_org_z;
-	
-	if ( vlen(self_org - enemy_org) < RANGE_MELEE && self.origin_z >= self.enemy.origin_z )
-	{
-		self.attack_state = AS_MELEE;
-		return TRUE;		
-	}
-
-	// Only range attack if cooldown has finished
-	if ( time > self.attack_finished ) 
-	{
-		self.attack_state = AS_MISSILE;
-		return TRUE;
-	}
-
-	// Maintain distance (strafe)
-	if ( (enemy_range >= RANGE_MID) || !enemy_vis ) 
-		if ( self.attack_state != AS_STRAIGHT ) //hmmmm?
-			self.attack_state = AS_STRAIGHT;
-	else 
-		self.attack_state = AS_SLIDING;
-	
-	return FALSE;
-};
 
 
 void() d2bossMissileExplode =
@@ -217,7 +148,7 @@ void() d2bossMissile =
 	vector dir;
 	vector bossorg,playerorg;
 	float distcheck;
-	float dashmod;
+	
 	entity tgt = checkclient();
 
 	
@@ -249,23 +180,6 @@ void() d2bossMissile =
 	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NORM);
 };
 
-/*
-void() d2bossGrenade =
-{
-	entity 	missile;
-
-	//self.effects = self.effects | EF_MUZZLEFLASH;
-	makevectors( [70, random() * 360, 0] );
-		
-	missile = toss_projectile( self.origin + '0 0 80', v_forward * 400 + v_up * 100, "bossgrenade" );
-	SUB_ChangeModel (missile, "progs/proj_d2boss.mdl");
-
-	missile.avelocity = '300 300 300';
-	missile.nextthink = time + 0.2;
-	missile.touch = d2bossMissileTouch;
-	missile.lifetime_finished = time + 5;	 // blow up after a while
-};
-*/
 
 void() d2boss_idlesound =
 {
@@ -288,124 +202,54 @@ void() d2boss_idlesound =
 };
 
 
-void(float dist, float toleft) d2bossmove =
-{
-	local float	ofs;
-	
-	self.ideal_yaw = enemy_yaw();
-	ChangeYaw ();
-	if (toleft)
-		ofs = 90;
-	else
-		ofs = -90;
-	
-	if (walkmoveplus (self.ideal_yaw + ofs, dist))
-		return;
-
-	walkmoveplus (self.ideal_yaw - ofs, dist);
-};
-
-
-void() d2boss_sleep_frame =                
-{                                          
-	if ( self.attack_finished < time ) 
-	{ 
-		self.velocity = '0 0 0';   
-		self.avelocity = '0 0 0';                          
-	}
-
-	self.think = d2boss_sleep_frame;
-	self.nextthink = time + 0.1;
-};
-
-void() d2boss_sleepreset =
-{
-	entity dest;
-
-	d2boss_bbox_setfield(takedamage, DAMAGE_AIM);
-	self.health = d2boss_HEALTH;
-
-	dest = find( world, targetname, self.include );
-	setorigin( self, dest.origin );
-	self.ideal_yaw = vectoyaw(dest.angles); 
-	ChangeYaw ();
-
-};
-
-
-void() d2boss_startsleep =
-{
-	d2boss_bbox_setfield(takedamage, DAMAGE_NO);
-	self.health = 1;
-	self.enemy = self.goalentity = world;
-
-};
-
-
-float() d2boss_checkdeath =
-{
-	if ( self.state ) 
-	{
-		d2boss_startsleep();
-		
-		if ( self.state == 3 ) 
-		{
-			//SUB_UseTargetsByField( target );
-			//self.target = "";
-		}
-		else if ( self.state == 2 ) 
-		{
-			//SUB_UseTargetsByField( target2 );
-			//self.target2 = "";
-		}
-		else if ( self.state == 1 ) 
-		{
-			//SUB_UseTargetsByField( target3 );
-			//self.target3 = "";
-		}
-		
-		self.state--;
-		return TRUE;
-	}
-	else 
-	{
-		d2boss_death22();
-		//SUB_UseTargetsByField( target4 );
-		//self.target4 = "";
-		return FALSE;
-	}
-};
-
-
+// leftover code from d1boss, change it to something better
 void() d2boss_death22 =[ 7, d2boss_death23 ] { ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50); }
 void() d2boss_death23 =[ 7, d2boss_death24 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
 void() d2boss_death24 =[ 7, d2boss_death25 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
 void() d2boss_death25 =[ 7, d2boss_death26 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50); }
 void() d2boss_death26 =[ 7, d2boss_death27 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
 void() d2boss_death27 =[ 7, d2boss_death28 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50); }
-void() d2boss_death28 =[ 7, d2boss_death29 ] { ThrowHead ("progs/gib1.mdl", -300); }
+void() d2boss_death28 =[ 7, d2boss_death29 ] { ThrowGibBoss ("progs/gib1.mdl", -300); }
 void() d2boss_death29 =[ 7, d2boss_death30 ] { ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
 void() d2boss_death30 =[ 7, d2boss_death31 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
 void() d2boss_death31 =[ 7, d2boss_death32 ] { }
 void() d2boss_death32 =[ 7, d2boss_death33 ] { }
 void() d2boss_death33 =[ 7, d2boss_death34 ] { }
 void() d2boss_death34 =[ 7, d2boss_death35 ] { }
-void() d2boss_death35 =[ 7, d2boss_death22 ] { PostDeathLogic(); SUB_UseTargetsByField( target4 ); self.target4 = ""; }
+void() d2boss_death35 =[ 7, d2boss_death22 ] {
+	activator = self.enemy;
+	SUB_UseTargetsByField(target4);
+	remove(self);
+}
 
 
 void() d2boss_die =
 {
+	d2boss_cleanup();
 	d2boss_death22();
 };
 
+void() d2boss_cleanup = {
+	if (self.trigger_field) remove(self.trigger_field);
+	if (self.buddy) {
+		entity next, e;
+		e = self.buddy;
+		while (e){
+			next = e.buddy;
+			remove(e);
+			e = next;
+		}
+		//remove(self.buddy);
+	}
+	if (self.eChildA) remove(self.eChildA);
+}
 
 void(entity attacker, float damage) d2boss_Pain =
 {
+	//dprint("Pain!\n");
 	if ( self.health <= 0 ) 
 		return;	
 
-	if ( (random() * 70) + 20 > damage )
-		return;
 	
 	if ( random() > 0.5 )
 		sound (self, CHAN_AUTO, "d1boss/pain1.wav", 1, ATTN_NORM);
@@ -414,19 +258,21 @@ void(entity attacker, float damage) d2boss_Pain =
 };
 
 void() d2boss_reachpath = {
-	entity corner = find(world, targetname, self.enemy.target);
-	self.enemy = corner;
+	entity corner = find(world, targetname, self.goalentity.target);
+	self.goalentity = corner;
 	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
 }
 
 void() d2boss_wake =
 {
+	spawnDirector();
+
 	d2boss_bbox_setfield(takedamage, DAMAGE_AIM); // damageable
 	
 	self.state = 1;// phase one
 	dprint("Initiating phase one\n");
 	entity corner = find(world, targetname, self.target);
-	self.enemy = corner;
+	self.goalentity = corner;
 	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
 }
 
@@ -441,102 +287,102 @@ void() d2boss_createentities =
 	pc.classname = "d2boss_paincontroller";
 	pc.think = d2boss_paincontroller_think;
 
+	// 94 bbox entities
 	vector coords[] = {
 		'0 96 -96',
-'0 -96 -96',
-'0 96 96',
-'0 -96 96',
-'112 0 0',
-'-112 0 0',
-'16 0 96',
-'-16 0 -96',
-'16 32 96',
-'16 -32 96',
-'-16 32 -96',
-'-16 -32 -96',
-'16 64 96',
-'16 -64 96',
-'-16 64 -96',
-'-16 -64 -96',
-'16 96 64',
-'16 -96 64',
-'-16 96 -64',
-'-16 -96 -64',
-'16 96 32',
-'16 -96 32',
-'-16 96 -32',
-'-16 -96 -32',
-'16 96 0',
-'16 -96 0',
-'-16 96 0',
-'-16 -96 0',
-'16 96 -32',
-'16 -96 -32',
-'-16 96 32',
-'-16 -96 32',
-'16 96 -64',
-'16 -96 -64',
-'-16 96 64',
-'-16 -96 64',
-'16 0 -96',
-'-16 0 96',
-'16 32 -96',
-'16 -32 -96',
-'-16 32 96',
-'-16 -32 96',
-'16 64 -96',
-'16 -64 -96',
-'-16 64 96',
-'-16 -64 96',
-'48 0 64',
-'-48 0 -64',
-'48 32 64',
-'48 -32 64',
-'-48 32 -64',
-'-48 -32 -64',
-'48 64 64',
-'48 -64 64',
-'-48 64 -64',
-'-48 -64 -64',
-'48 64 0',
-'48 -64 0',
-'-48 64 0',
-'-48 -64 0',
-'48 64 -32',
-'48 -64 -32',
-'-48 64 32',
-'-48 -64 32',
-'48 64 32',
-'48 -64 32',
-'-48 64 -32',
-'-48 -64 -32',
-'48 0 -64',
-'-48 0 64',
-'48 32 -64',
-'48 -32 -64',
-'-48 32 64',
-'-48 -32 64',
-'48 64 -64',
-'48 -64 -64',
-'-48 64 64',
-'-48 -64 64',
-'80 0 -32',
-'-80 0 32',
-'80 0 32',
-'-80 0 -32',
-'80 32 0',
-'80 -32 0',
-'-80 32 0',
-'-80 -32 0',
-'80 32 -32',
-'80 -32 -32',
-'-80 32 32',
-'-80 -32 32',
-'80 32 32',
-'80 -32 32',
-'-80 32 -32',
-'-80 -32 -32'
-
+		'0 -96 -96',
+		'0 96 96',
+		'0 -96 96',
+		'112 0 0',
+		'-112 0 0',
+		'16 0 96',
+		'-16 0 -96',
+		'16 32 96',
+		'16 -32 96',
+		'-16 32 -96',
+		'-16 -32 -96',
+		'16 64 96',
+		'16 -64 96',
+		'-16 64 -96',
+		'-16 -64 -96',
+		'16 96 64',
+		'16 -96 64',
+		'-16 96 -64',
+		'-16 -96 -64',
+		'16 96 32',
+		'16 -96 32',
+		'-16 96 -32',
+		'-16 -96 -32',
+		'16 96 0',
+		'16 -96 0',
+		'-16 96 0',
+		'-16 -96 0',
+		'16 96 -32',
+		'16 -96 -32',
+		'-16 96 32',
+		'-16 -96 32',
+		'16 96 -64',
+		'16 -96 -64',
+		'-16 96 64',
+		'-16 -96 64',
+		'16 0 -96',
+		'-16 0 96',
+		'16 32 -96',
+		'16 -32 -96',
+		'-16 32 96',
+		'-16 -32 96',
+		'16 64 -96',
+		'16 -64 -96',
+		'-16 64 96',
+		'-16 -64 96',
+		'48 0 64',
+		'-48 0 -64',
+		'48 32 64',
+		'48 -32 64',
+		'-48 32 -64',
+		'-48 -32 -64',
+		'48 64 64',
+		'48 -64 64',
+		'-48 64 -64',
+		'-48 -64 -64',
+		'48 64 0',
+		'48 -64 0',
+		'-48 64 0',
+		'-48 -64 0',
+		'48 64 -32',
+		'48 -64 -32',
+		'-48 64 32',
+		'-48 -64 32',
+		'48 64 32',
+		'48 -64 32',
+		'-48 64 -32',
+		'-48 -64 -32',
+		'48 0 -64',
+		'-48 0 64',
+		'48 32 -64',
+		'48 -32 -64',
+		'-48 32 64',
+		'-48 -32 64',
+		'48 64 -64',
+		'48 -64 -64',
+		'-48 64 64',
+		'-48 -64 64',
+		'80 0 -32',
+		'-80 0 32',
+		'80 0 32',
+		'-80 0 -32',
+		'80 32 0',
+		'80 -32 0',
+		'-80 32 0',
+		'-80 -32 0',
+		'80 32 -32',
+		'80 -32 -32',
+		'-80 32 32',
+		'-80 -32 32',
+		'80 32 32',
+		'80 -32 32',
+		'-80 32 -32',
+		'-80 -32 -32'
 	};
 	vector ofs, org;
 
@@ -604,56 +450,120 @@ void(entity attacker, float damage) d2boss_bbox_pain = {
 	pc.nextthink = time + 0.01;
 }
 
+
+void() d2boss_beginphase2 = {
+	self.state = 2;
+	self.health = d2boss_HEALTH;
+	setmodel(self, "progs/mon_d2bossb_rot.mdl");
+	
+	activator = self.enemy;
+	SUB_UseTargetsByField(target3);
+}
+
+void(entity tgt, entity attacker, float dmg) d2boss_damage = {
+	tgt.health -= dmg;
+
+	if (attacker.flags & FL_CLIENT) tgt.enemy = attacker;
+
+	if (tgt.health <= 0) {
+		if (tgt.state == 1){
+			SUB_CallAsSelf(d2boss_beginphase2, tgt);
+			return;	
+		} 
+
+		Killed (tgt, attacker, attacker);
+	}
+}
+
 void() d2boss_paincontroller_think = {
 	float totaldmg = max(self.dmg, self.multi_dmg);
 
-	T_Damage(self.owner, self.enemy, self.enemy, totaldmg);
+	//eprint(self.owner);
+	//T_Damage(self.owner, self.enemy, self.enemy, totaldmg);
+	d2boss_damage(self.owner,self.enemy, totaldmg);
 
 	dprint4("Damage: ", ftos(self.dmg), ", multi-damage: ", ftos(self.multi_dmg));
 	dprint3(", total dmg: ", ftos(totaldmg), "\n");
+	dprint3("Health: ", ftos(self.owner.health), "\n");
 	self.dmg = self.multi_dmg = 0;
 	self.enemy = world;
 }
 
-void() d2boss_fire = {
-	d2bossMissile();
+
+/*
+attack state
+0: moving around on path_corners
+1: moving shoot
+
+2: moving to room center
+3: arrived at room center, initiating lighting
+4: bullet hell fired, finishing lightning
+
+*/
+
+void() d2boss_bullethell_loop = {
+	self.angles = '-90 0 0';
+	entity ct = find(world, targetname, self.include);
+	fx_beam(self.origin, ct.origin, self);
+
+	if (self.attack_state == 2) {
+		dprint("\n----------------------\nInitiating stage 3\n\n");
+		self.attack_finished = time;
+		self.attack_state = 3;
+	}
+
+	if (self.attack_state == 3 && time > self.attack_finished + 1) {
+		dprint("\n----------------------\nFiring bullet hell\n\n");
+		SUB_CallAsSelf(chooseRandomTask, self.eChildA);
+		self.attack_state = 4;
+	}
+
+	if (self.attack_state == 4 && time > self.attack_finished + 2) {
+		dprint("\n----------------------\nEnding\n\n");
+		self.attack_state = 0;
+		self.buddy.think = d2boss_thinker_think;
+		self.buddy.nextthink = time + 0.01;
+
+		//dprint(self.goalentity);
+		SUB_CalcMove(self.goalentity.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+		return;
+	}
+
+	self.think = d2boss_bullethell_loop;
+	self.nextthink = time + 0.1;
 }
 
-void() d2boss_thinker_think = {
+void() d2boss_movetocenter = {
+	self.pain_finished = time;
+	entity ct = find(world, targetname, self.target2);
+
+	SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_loop);
+	
+}
+
+void() d2boss_thinker_smoothrotate = {
 	entity boss = self.owner;
 	entity thinker = self;
-
-	self = boss;
-
-	entity targ = checkclient();
-
-	if (boss.state && targ) {
-		vector ang = vectoangles(targ.origin - boss.origin);
-
-		boss.angles_x = ang_x;
-		boss.angles_y = ang_y;
-
-		if (time > boss.pausetime) {
-			boss.pausetime = time + 5 + random()*3;
-			boss.attack_finished = time + 2;
-			boss.avelocity_z = 270;
-		}
-
-		if (time < boss.attack_finished) {
-			if (time > boss.attack_finished - 1.5 && !boss.attack_state) {
-				d2boss_fire();
-				boss.attack_state = 1;
-			}
-		} 
-		else {
-			boss.avelocity = 0;
-			boss.attack_state = 0;
-		}
-
-	}
 	
-	// update bboxes position
+	self = boss;
+	
+	if (boss.attack_state == 3)
+		return;
 
+
+	thinker.think = d2boss_thinker_smoothrotate;
+	thinker.nextthink = time + 0.01;
+
+
+	boss.avelocity = 0;
+	boss.angles = lerpVector(boss.v_angle, '-90 0 0', (time - boss.pain_finished)/(boss.nextthink - boss.pain_finished));
+	dprint2(vtos(boss.angles), "\n");
+
+	d2boss_updatebboxes(thinker, boss);
+
+}
+
+void(entity thinker, entity boss) d2boss_updatebboxes = {
 	makevectors([-boss.angles_x, boss.angles_y, boss.angles_z]);
 
 	entity e = thinker.buddy;
@@ -667,21 +577,69 @@ void() d2boss_thinker_think = {
 		
 		e = e.buddy;
 	}
+}
 
-	thinker.nextthink = time + 0.025;
+void() d2boss_thinker_think = {
+	entity boss = self.owner;
+	entity thinker = self;
+
+	thinker.think = d2boss_thinker_think;
+	thinker.nextthink = time + 0.01;
+
+	self = boss;
+
+	entity targ = checkclient();
+
+	if (boss.state && targ && boss.attack_state <= 2) {
+		
+		// only faces player on phase 2
+		if (boss.state == 2 && boss.attack_state < 2) {
+			vector ang = vectoangles(targ.origin - boss.origin);
+			boss.angles_x = ang_x;
+			boss.angles_y = ang_y;
+		}
+		
+		if (boss.attack_state == 2) {
+			boss.v_angle = normalizeAngles180(boss.angles);
+			boss.pain_finished = time;
+			thinker.think = d2boss_thinker_smoothrotate;
+			thinker.nextthink = time + 0.01;
+		}
+
+		if (time > boss.pausetime) {
+			boss.pausetime = time + 3 + random()*3;
+			boss.attack_finished = time + 2;
+			boss.avelocity_z = 270;
+		}
+
+		if (time < boss.attack_finished) {
+			if (time > boss.attack_finished - 1.5 && !boss.attack_state) {
+				if (random() < 0.3){
+					dprint("\n----------------------\nInitiating stage 2\n\n");
+					d2boss_movetocenter();
+					boss.attack_state = 2;
+				}
+				else {
+					d2bossMissile();
+					boss.attack_state = 1;
+				}
+			}
+		} 
+		else {
+			boss.avelocity = 0;
+			boss.attack_state = 0;
+		}
+
+	}
+	
+	// update bboxes position
+
+	d2boss_updatebboxes(thinker, boss);
 }
 
 
 /*QUAKED monster_d2boss (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH ? ? ? TRIGGERED NOTFOG NOTELEFRAG INSTAWAKE
 Scrag (the SCULPTOR), ??? health points.
-
-Flags:
-"ambush" only wake up on seeing the player, not another monster getting angry
-
-"Triggered"	will not spawn until triggered - triggering again will wake him up. Set 'count' to make this a multi-use spawner.
-"NoTfog" 	supress teleport glitter when spawned with 'triggered'
-"NoTelefrag" will silently fail to spawn if doing so would telefrag an existing monster. will try again automatically 2x/second until it succeeds.
-"Instawake" spawn angry at activator
 
 Keys:
 "target" entity to trigger when killed
@@ -705,6 +663,7 @@ void() monster_d2boss =
 		return;
 	}
 	
+	precache_model ("progs/mon_d2boss_rot.mdl");
 	precache_model ("progs/mon_d2bossb_rot.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
@@ -729,7 +688,7 @@ void() monster_d2boss =
 	self.solid = SOLID_NOT;
 	self.takedamage = DAMAGE_NO;
 	self.movetype = MOVETYPE_FLY;
-	setmodel (self, "progs/mon_d2bossb_rot.mdl");
+	setmodel (self, "progs/mon_d2boss_rot.mdl");
 	setsize (self, '0 0 0', '0 0 0');
 	
 	self.angles = '-90 0 0';
@@ -738,9 +697,7 @@ void() monster_d2boss =
 	self.state = 0;
 	self.type = "boss";
 	//self.th_stand = d2boss_channelling1; //d2boss_stand1;
-	self.th_pain = d2boss_Pain;
 	self.th_die = d2boss_die;
-	self.th_checkdeath = d2boss_checkdeath;
 	self.use = d2boss_wake;
 	self.yaw_speed = 30;
 	
