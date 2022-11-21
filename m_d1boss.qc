@@ -489,16 +489,16 @@ void() d1boss_phase10 =[ $phase10, d1boss_phase11 ] { }
 void() d1boss_phase11 =[ $phase11, d1boss_phase12 ] { }
 void() d1boss_phase12 =[ $phase12, d1boss_phase13 ] { }
 void() d1boss_phase13 =[ $phase13, d1boss_phase14 ] { }
-void() d1boss_phase14 =[ $phase14, d1boss_phase15 ] { }
-void() d1boss_phase15 =[ $phase15, d1boss_phase16 ] { }
-void() d1boss_phase16 =[ $phase16, d1boss_phase17 ] { }
-void() d1boss_phase17 =[ $phase17, d1boss_phase18 ] { }
-void() d1boss_phase18 =[ $phase18, d1boss_phase19 ] { }
-void() d1boss_phase19 =[ $phase19, d1boss_phase20 ] { }
-void() d1boss_phase20 =[ $phase20, d1boss_phase21 ] { }
-void() d1boss_phase21 =[ $phase21, d1boss_phase22 ] { }
+void() d1boss_phase14 =[ $phase14, d1boss_phase15 ] { ThrowGibBoss ("progs/gib2.mdl", 100); ThrowGibBoss ("progs/gib1.mdl", 50);  }
+void() d1boss_phase15 =[ $phase15, d1boss_phase16 ] { ThrowGibBoss ("progs/gib3.mdl", 100); ThrowGibBoss ("progs/gib3.mdl", 50);  }
+void() d1boss_phase16 =[ $phase16, d1boss_phase17 ] { ThrowGibBoss ("progs/gib2.mdl", 100); ThrowGibBoss ("progs/gib2.mdl", 50);  }
+void() d1boss_phase17 =[ $phase17, d1boss_phase18 ] { ThrowGibBoss ("progs/gib3.mdl", 100); ThrowGibBoss ("progs/gib2.mdl", 50);  }
+void() d1boss_phase18 =[ $phase18, d1boss_phase19 ] { ThrowGibBoss ("progs/gib1.mdl", 100); ThrowGibBoss ("progs/gib1.mdl", 50);  }
+void() d1boss_phase19 =[ $phase19, d1boss_phase20 ] { ThrowGibBoss ("progs/gib2.mdl", 100); ThrowGibBoss ("progs/gib3.mdl", 50);  }
+void() d1boss_phase20 =[ $phase20, d1boss_phase21 ] { ThrowGibBoss ("progs/gib1.mdl", 100); ThrowGibBoss ("progs/gib3.mdl", 50);  }
+void() d1boss_phase21 =[ $phase21, d1boss_phase22 ] { ThrowGibBoss ("progs/gib3.mdl", 100); ThrowGibBoss ("progs/gib1.mdl", 50); }
 void() d1boss_phase22 =[ $phase22, d1boss_phase23 ] { ThrowGibBoss ("progs/gib3.mdl", 100); ThrowGibBoss ("progs/gib2.mdl", 50); }
-void() d1boss_phase23 =[ $phase23, d1boss_phase24 ] { ThrowGibBoss ("progs/gib3.mdl", 50); ThrowGibBoss ("progs/gib1.mdl", 100); }
+void() d1boss_phase23 =[ $phase23, d1boss_phase24 ] { ThrowGibBoss ("progs/gib2.mdl", 50); ThrowGibBoss ("progs/gib1.mdl", 100); }
 void() d1boss_phase24 =[ $phase24, d1boss_phase25 ] { ThrowGibBoss ("progs/gib1.mdl", 50); ThrowGibBoss ("progs/gib1.mdl", 100); }
 void() d1boss_phase25 =[ $phase25, d1boss_phase26 ] { }
 void() d1boss_phase26 =[ $phase26, d1boss_phase27 ] { }
@@ -586,7 +586,8 @@ float() d1boss_checkdeath =
 };
 
 
-void() d1boss_death1  =[ $phase1,  d1boss_death2  ] { sound (self, CHAN_VOICE, "d1boss/death.wav", 1, ATTN_NORM); self.solid = SOLID_NOT; }
+void() d1boss_death1  =[ $phase1,  d1boss_death2  ] { sound (self, CHAN_VOICE, "d1boss/death.wav", 1, ATTN_NORM); self.solid = SOLID_NOT;
+							PostDeathLogic(); SUB_UseTargetsByField( target4 ); self.target4 = ""; self.flags = self.flags | FL_FLY; }
 void() d1boss_death2  =[ $phase2,  d1boss_death3  ] { }
 void() d1boss_death3  =[ $phase3,  d1boss_death4  ] { }
 void() d1boss_death4  =[ $phase4,  d1boss_death5  ] { }
@@ -607,20 +608,56 @@ void() d1boss_death18 =[ $phase18, d1boss_death19 ] { }
 void() d1boss_death19 =[ $phase19, d1boss_death20 ] { }
 void() d1boss_death20 =[ $phase20, d1boss_death21 ] { }
 void() d1boss_death21 =[ $phase21, d1boss_death22 ] { }
-void() d1boss_death22 =[ $phase22, d1boss_death23 ] { ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50); }
-void() d1boss_death23 =[ $phase23, d1boss_death24 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
-void() d1boss_death24 =[ $phase24, d1boss_death25 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
-void() d1boss_death25 =[ $phase25, d1boss_death26 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50); }
-void() d1boss_death26 =[ $phase26, d1boss_death27 ] { ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
-void() d1boss_death27 =[ $phase27, d1boss_death28 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50); }
-void() d1boss_death28 =[ $phase28, d1boss_death29 ] { ThrowHead ("progs/gib1.mdl", -300); }
-void() d1boss_death29 =[ $phase29, d1boss_death30 ] { ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
-void() d1boss_death30 =[ $phase30, d1boss_death31 ] { ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50);	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50); }
+void() d1boss_death22 =[ $phase22, d1boss_death23 ] { }
+void() d1boss_death23 =[ $phase23, d1boss_death24 ] { } //Sorry -fw
+void() d1boss_death24 =[ $phase24, d1boss_death25 ] {   ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 20);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 20);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 20);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 30);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 30);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 30);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 40);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 40);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 40);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib1.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib2.mdl", 50 + random() * 50);
+							ThrowGibBoss ("progs/gib3.mdl", 50 + random() * 50);
+							ThrowHead ("progs/gib1.mdl", -300); }
+void() d1boss_death25 =[ $phase25, d1boss_death26 ] { }
+void() d1boss_death26 =[ $phase26, d1boss_death27 ] { }
+void() d1boss_death27 =[ $phase27, d1boss_death28 ] { }
+void() d1boss_death28 =[ $phase28, d1boss_death29 ] { }
+void() d1boss_death29 =[ $phase29, d1boss_death30 ] { }
+void() d1boss_death30 =[ $phase30, d1boss_death31 ] { }
 void() d1boss_death31 =[ $phase31, d1boss_death32 ] { }
 void() d1boss_death32 =[ $phase32, d1boss_death33 ] { }
 void() d1boss_death33 =[ $phase33, d1boss_death34 ] { }
 void() d1boss_death34 =[ $phase34, d1boss_death35 ] { }
-void() d1boss_death35 =[ $phase35, d1boss_death1  ] { PostDeathLogic(); SUB_UseTargetsByField( target4 ); self.target4 = ""; }
+void() d1boss_death35 =[ $phase35, d1boss_death1  ] { }
 
 
 void() d1boss_die =
