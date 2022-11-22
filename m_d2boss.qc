@@ -13,7 +13,7 @@ I've abandoned the idea of making it an actual monster, because we won't be usin
 in it, so everything must be handled here - like kill counter, firing targets on death, turning to
 non-solid etc.
 
-The main entity has 3 controllers attached:
+The main entity has 2 controllers attached:
 
 - Thinker (stored on the .buddy field): General think loop. Since the main entity's think functions
   are reserved to movement, every other logic is handled here. It decides when it'll fire a volley
@@ -27,9 +27,6 @@ The main entity has 3 controllers attached:
   individual bboxes and applies them to the main entity. Necessary because it has to manage
   multi-damage from T_RadiusDamage explosions.
 
-- Bullet hell director (stored on the .eChildA field): usually not managed directly here, only from
-  the m_d2boss_hell.qc file. Initialized when the boss wakes up with the spawnDirector() function.
-
 All of the attached entities, including each bbox segment, point back to the main entity through
 their .owner field.
 
@@ -37,25 +34,29 @@ All the functions whose names don't with "think" assume that "self" points to th
 
 HOW TO USE IT
 
-The main entity moves on path_corners. The .target field must point to the first path_corner in the
+The boss entity moves on path_corners. The .target field must point to the first path_corner in the
 room, from which it'll begin its loop. .target2 points to another path_corner at the center of the
-room, where it'll stand when firing the bullet hell pattern.
+room, where it'll move to initiate the bullet hell sequence.
+
+At every few seconds, the boss will fire a project volley at the player. Randomly, it may instead
+initiate the bullet hell sequence: it moves to the central path_corner at the center of the room
+(pointed by its .target2 field), and that central path_corner will fire its targets. Here, you must
+set up relays to manage the whole sequence - show up beams, shake the screen, etc - as well as fire
+the target_bullethell entity. While all this happens, the boss entity will sit there waiting, and
+will only resume its path after triggered again, so you must include that into the relay sequence
+as well.
 
 At the first phase, the boss will have the initial "closed" model, and will always be facing down.
 When given enough damage, it'll fire .target3 and turn to phase 2. Then, its model will be changed
-to the eye one, and will constantly be facing the player.
+to the eye one, and will be constantly facing the player.
 
-When it dies completely, .target4 is fired.
-
-The .include field must point to yet another path_corner entity where the bullet hell pattern will
-will be fired from.
+When it dies completely, .target4 gets fired.
 
 ==============================================================================
 */
 
-float d2boss_BALL_VEL = 750;
-float d2boss_HEALTH = 300; 
-float D2BOSS_MOVESPEED = 300;
+float D2BOSS_BALL_VEL = 750;
+
 .float	track_finished;
 
 
@@ -119,7 +120,7 @@ void() d2bossMissileHome =
 	if ( dot > 0 )
 		rate *= max(1, 1.3 * (1 - dot));
 	
-	self.velocity = d2boss_BALL_VEL * ShalTurnToward( self.enemy, rate * 0.7 ); // 0.7
+	self.velocity = D2BOSS_BALL_VEL * ShalTurnToward( self.enemy, rate * 0.7 ); // 0.7
 	self.think = d2bossMissileHome;
 	self.oldvelocity = self.velocity;
 };
@@ -155,7 +156,7 @@ void() d2bossMissile =
 	//self.effects = self.effects | EF_MUZZLEFLASH;
 	makevectors([-self.angles_x, self.angles_y, self.angles_z]);
 	
-	dir = d2boss_leadtarget( self.origin, tgt, d2boss_BALL_VEL, random() );
+	dir = d2boss_leadtarget( self.origin, tgt, D2BOSS_BALL_VEL, random() );
 	dir = normalize( dir );
 	 
 	bossorg = self.origin;
@@ -165,8 +166,8 @@ void() d2bossMissile =
 	distcheck = vlen(bossorg - playerorg);
 	
 	
-	missile = launch_projectile( self.origin + (v_forward * 128), dir * d2boss_BALL_VEL, "voreball" );
-	//missile = launch_projectile( self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * d2boss_BALL_VEL, "voreball" );
+	missile = launch_projectile( self.origin + (v_forward * 128), dir * D2BOSS_BALL_VEL, "voreball" );
+	//missile = launch_projectile( self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * D2BOSS_BALL_VEL, "voreball" );
 	
 	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
 
@@ -260,7 +261,7 @@ void(entity attacker, float damage) d2boss_Pain =
 void() d2boss_reachpath = {
 	entity corner = find(world, targetname, self.goalentity.target);
 	self.goalentity = corner;
-	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+	SUB_CalcMove(corner.origin, self.speed, d2boss_reachpath);
 }
 
 void() d2boss_wake =
@@ -273,7 +274,7 @@ void() d2boss_wake =
 	dprint("Initiating phase one\n");
 	entity corner = find(world, targetname, self.target);
 	self.goalentity = corner;
-	SUB_CalcMove(corner.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+	SUB_CalcMove(corner.origin, self.speed, d2boss_reachpath);
 }
 
 //=============================================================================
@@ -453,7 +454,7 @@ void(entity attacker, float damage) d2boss_bbox_pain = {
 
 void() d2boss_beginphase2 = {
 	self.state = 2;
-	self.health = d2boss_HEALTH;
+	self.health = self.max_health;
 	setmodel(self, "progs/mon_d2bossb_rot.mdl");
 	
 	activator = self.enemy;
@@ -483,8 +484,8 @@ void() d2boss_paincontroller_think = {
 	d2boss_damage(self.owner,self.enemy, totaldmg);
 
 	dprint4("Damage: ", ftos(self.dmg), ", multi-damage: ", ftos(self.multi_dmg));
-	dprint3(", total dmg: ", ftos(totaldmg), "\n");
-	dprint3("Health: ", ftos(self.owner.health), "\n");
+	dprint2(", total dmg: ", ftos(totaldmg));
+	dprint3(", health: ", ftos(self.owner.health), "\n");
 	self.dmg = self.multi_dmg = 0;
 	self.enemy = world;
 }
@@ -526,7 +527,7 @@ void() d2boss_bullethell_loop = {
 		self.buddy.nextthink = time + 0.01;
 
 		//dprint(self.goalentity);
-		SUB_CalcMove(self.goalentity.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+		SUB_CalcMove(self.goalentity.origin, self.speed, d2boss_reachpath);
 		return;
 	}
 
@@ -540,7 +541,7 @@ void() d2boss_bullethell_resume = {
 	self.buddy.nextthink = time + 0.01;
 
 	//dprint(self.goalentity);
-	SUB_CalcMove(self.goalentity.origin, D2BOSS_MOVESPEED, d2boss_reachpath);
+	SUB_CalcMove(self.goalentity.origin, self.speed, d2boss_reachpath);
 	self.use = SUB_Null;
 }
 
@@ -557,8 +558,8 @@ void() d2boss_movetocenter = {
 	self.pain_finished = time;
 	entity ct = find(world, targetname, self.target2);
 
-	//SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_loop);
-	SUB_CalcMove(ct.origin, D2BOSS_MOVESPEED*2, d2boss_bullethell_wait);
+	//SUB_CalcMove(ct.origin, self.speed*2, d2boss_bullethell_loop);
+	SUB_CalcMove(ct.origin, self.speed*2, d2boss_bullethell_wait);
 	
 }
 
@@ -578,7 +579,6 @@ void() d2boss_thinker_smoothrotate = {
 
 	boss.avelocity = 0;
 	boss.angles = lerpVector(boss.v_angle, '-90 0 0', (time - boss.pain_finished)/(boss.nextthink - boss.pain_finished));
-	dprint2(vtos(boss.angles), "\n");
 
 	d2boss_updatebboxes(thinker, boss);
 
@@ -628,14 +628,14 @@ void() d2boss_thinker_think = {
 		}
 
 		if (time > boss.pausetime) {
-			boss.pausetime = time + 3 + random()*3;
+			boss.pausetime = time + boss.wait + random()*boss.wait;
 			boss.attack_finished = time + 2;
-			boss.avelocity_z = 270;
+			boss.avelocity_z = boss.fixangle;
 		}
 
 		if (time < boss.attack_finished) {
 			if (time > boss.attack_finished - 1.5 && !boss.attack_state) {
-				if (random() < 0.3){
+				if (random() < boss.lip){
 					dprint("\n----------------------\nInitiating stage 2\n\n");
 					d2boss_movetocenter();
 					boss.attack_state = 2;
@@ -667,7 +667,15 @@ Keys:
 "targetname" entity name
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_d2boss.mdl" }) = monster_d2boss : "The Sculptor" []
+@PointClass base(Angle, Appearflags, Target, Targetname) color(220 0 0) size(32 32 32) model({ "path": ":progs/mon_d2boss_rot.mdl" }) = monster_d2boss : "The Sculptor"
+[
+	strength(integer) : "Phase 1 health" : 300
+	max_health(integer) : "Phase 2 health" : 300
+	speed(integer) : "Movement speed" : 300
+	wait(integer) : "Time between firings" : 3
+	lip(float) : "Chance of initiating bullethell sequence (0 to 1)" : "0.3"
+	fixangle(integer) : "Spin velocity (-1 for no spin)" : 180
+]
 */
 
 void() monster_d2boss =
@@ -701,8 +709,25 @@ void() monster_d2boss =
 	precache_sound ("d1boss/idle.wav");
 	precache_sound ("d1boss/proj.wav");
 
-	self.health = d2boss_HEALTH;
-	//setsize (self, '-16 -16 -24', '16 16 40');
+	// phase 1 health
+	if (!self.strength) self.strength = 300;
+
+	// phase 2 health
+	if (!self.max_health) self.max_health = 300;
+
+	self.health = self.strength;
+
+	// movement speed
+	if (!self.speed) self.speed = 300;
+
+	// time between attacks
+	if (!self.wait) self.wait = 3;
+
+	// bullet hell chance
+	if (!self.lip) self.lip = 0.3;
+
+	// spin velocity
+	self.fixangle = zeroconvertdefault(self.fixangle, 180);
 	
 	addmonster(1);
 		
@@ -712,12 +737,11 @@ void() monster_d2boss =
 	setmodel (self, "progs/mon_d2boss_rot.mdl");
 	setsize (self, '0 0 0', '0 0 0');
 	
-	self.angles = '-90 0 0';
+	self.angles_x = -90;
 	self.frame = 7;
 
 	self.state = 0;
 	self.type = "boss";
-	//self.th_stand = d2boss_channelling1; //d2boss_stand1;
 	self.th_die = d2boss_die;
 	self.use = d2boss_wake;
 	self.yaw_speed = 30;
@@ -725,6 +749,5 @@ void() monster_d2boss =
 	if ( self.deathtype == string_null )
 		self.deathtype = " was killed by the Sculptor";
 
-	//flymonster_start();
 	d2boss_createentities();
 };

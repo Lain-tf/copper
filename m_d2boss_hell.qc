@@ -1023,6 +1023,8 @@ float BULLET_STYLE_WHEEL = 5;
 float BULLET_STYLE_BARRAGE = 6;
 float BULLET_STYLE_PULSE = 7;
 
+// derived from chooseRandomTask()
+// selects a firing pattern according to the .style field, or at random if the field is unset/0
 void() target_bullethell_fire = {
 	entity oldself = self;
 	self = self.eChildA;
@@ -1090,6 +1092,36 @@ void() target_bullethell_startup = {
 
 	self.use = target_bullethell_fire;
 }
+
+/*QUAKED target_bullethell (1 0 0) (-16 -16 -16) (16 16 16)
+Bullethell Shooter
+
+Fires a bullet hell pattern when triggered, with the entity's origin as center.
+Select the pattern type with the 'style' key, or leave it empty for a random pattern.
+
+Keys:
+"style" attack style
+*/
+/*FGD
+@PointClass base(Appearflags, Targetname) color(220 150 150) = target_bullethell : "Bullethell Shooter
+
+Fires a bullet hell pattern when triggered, with the entity's origin as center.
+Select the pattern type with the 'style' key, or leave it empty for a random pattern.
+"
+[
+	style(choices) : "Attack style" : 0 =
+	[
+		0 : "Select at Random"
+		1 : "One line"
+		2 : "Two lines"
+		3 : "Circle"
+		4 : "Spiral"
+		5 : "Wheel"
+		6 : "Rocket barrage"
+		7 : "Pulse"
+	]
+]
+*/
 
 void() target_bullethell = {
 	self.think = target_bullethell_startup;

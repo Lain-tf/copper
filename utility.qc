@@ -458,6 +458,13 @@ float(float in, float def) zeroconvertdefault =
 	if (in == 0) return def;
 	return in;
 }
+float(float in, float def) convertdefault =
+{
+	if (in == 0) return def;
+	return in;
+}
+
+
 
 //count -4 = numclients in coop
 void(.float fld) playercount_convert =

@@ -1566,11 +1566,54 @@ if the map is end.bsp, the finale cutscene will trigger, otherwise shub will jus
 //
 @PointClass base(Monster) size(-32 -32 -96, 32 32 96) model({ "path": ":progs/mon_d1boss.mdl" }) = monster_d1boss : "The Awoken One" []
 
+
 //
 // m_d2boss.qc
 //
-@PointClass base(Monster) size(0 0 0, 0 0 0) model({ "path": ":progs/mon_d2boss.mdl" }) = monster_d2boss : "Huge Fucking Octohedron" []
+@PointClass base(Angle, Appearflags, Targetname) color(220 0 0) size(32 32 32) model({ "path": ":progs/mon_d2boss_rot.mdl" }) = monster_d2boss : "The Sculptor
 
+The boss entity moves on path_corners.
+
+The 'target' key must point to the first path_corner in the room from which it'll follow a corner loop like a train.
+'target2' points to a separate, out-of-loop path_corner at the center of the room, where it'll move to when firing the bullet hell pattern.
+
+At every few seconds, the boss will fire a project volley at the player. Randomly, it may instead initiate the bullet hell sequence: it moves to the central path_corner at the center of the room (pointed by its 'target2' key), and that central path_corner will fire its targets. Here, you must set up relays to manage the whole sequence - show up beams, shake the screen, etc - as well as fire the target_bullethell entity. While all this happens, the boss entity will sit there and wait for a retrigger when it has to resume its path, so you must include that into the relay sequence as well.
+
+At the first phase, the boss will have the initial 'closed' model, and will always be facing down. When given enough damage, it'll fire 'target3' and turn to phase 2. Then, it'll change to the eye model, and from then on will be constantly facing the player.
+
+When it dies completely, 'target4' gets fired.
+"
+[
+	target(target_destination) : "Initial path_corner" 
+	target2(target_destination) : "Central path_corner" 
+	target3(target_destination) : "Fired when changing phase" 
+	target4(target_destination) : "Fired when killed" 
+	strength(integer) : "Phase 1 health" : 300
+	max_health(integer) : "Phase 2 health" : 300
+	speed(integer) : "Movement speed" : 300
+	wait(integer) : "Time between firings" : 3
+	lip(float) : "Chance of initiating bullethell sequence (0 to 1)" : "0.3"
+	fixangle(integer) : "Spin velocity (-1 for no spin)" : 180
+]
+
+@PointClass base(Appearflags, Targetname) color(220 150 150) = target_bullethell : "Bullethell Shooter
+
+Fires a bullet hell pattern when triggered, with the entity's origin as center.
+Select the pattern type with the 'style' key, or leave it empty for a random pattern.
+"
+[
+	style(choices) : "Attack style" : 0 =
+	[
+		0 : "Select at Random"
+		1 : "One line"
+		2 : "Two lines"
+		3 : "Circle"
+		4 : "Spiral"
+		5 : "Wheel"
+		6 : "Rocket barrage"
+		7 : "Pulse"
+	]
+]
 
 @SolidClass base(Appearflags, SwitchShadow, Targetname) = func_fade : "A non-solid entity that smoothly fades in/out.
 It has two operating methods: by proximity and by trigger.
