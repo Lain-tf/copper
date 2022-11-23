@@ -40,9 +40,17 @@ void() ExitIntermission =
 
 	if (world.track_intermission)	
 		intertrack = world.track_intermission;
-	
+		
 	if (world.track_end)
 		endtrack = world.track_end;
+	else if (world.worldtype == 4 || world.worldtype == 5)
+	{
+		endtrack = 5;
+	}
+	else
+	{
+		endtrack = 2;
+	}
 
 	// end of episode drivel
 	if (intermission_running == 2)
@@ -378,6 +386,15 @@ void() execute_changelevel =
 	intertrack = 3;
 	if (world.track_intermission)
 		intertrack = world.track_intermission;
+	// intermission track #s = worldtype (gotta set dXm1's though :c)
+	else if (world.worldtype == 4 || world.worldtype == 5)
+	{
+		intertrack = 3;
+	}
+	else
+	{
+		intertrack = 4;
+	}
 		
 	intermission_running = 1;
 	
