@@ -299,7 +299,7 @@ void() d1boss_channeling =
 };
 
 // ANIMATION CYCLES
-void() d1boss_stand1  =[ $stand1,  d1boss_stand2  ] { ai_stand(); d1boss_idlesound(); }
+void() d1boss_stand1  =[ $stand1,  d1boss_stand2  ] { ai_stand();}
 void() d1boss_stand2  =[ $stand2,  d1boss_stand3  ] { ai_stand(); }
 void() d1boss_stand3  =[ $stand3,  d1boss_stand4  ] { ai_stand(); }
 void() d1boss_stand4  =[ $stand4,  d1boss_stand5  ] { ai_stand(); }
@@ -348,7 +348,7 @@ void() d1boss_channelling22 =[ $chan22, d1boss_channelling23 ] { }
 void() d1boss_channelling23 =[ $chan23, d1boss_channelling2 ] { }
 //void() d1boss_channelling24 =[ $chan24, d1boss_channelling1  ] { }
 
-void() d1boss_walk1  =[ $stand1,  d1boss_walk2  ] { ai_walk(16); d1boss_idlesound(); }
+void() d1boss_walk1  =[ $stand1,  d1boss_walk2  ] { ai_walk(16);}
 void() d1boss_walk2  =[ $stand2,  d1boss_walk3  ] { ai_walk(16); }
 void() d1boss_walk3  =[ $stand3,  d1boss_walk4  ] { ai_walk(16); }
 void() d1boss_walk4  =[ $stand4,  d1boss_walk5  ] { ai_walk(16); }
@@ -391,7 +391,7 @@ void() d1boss_run7  =[ $stand7,  d1boss_run8  ] { }
 void() d1boss_run8  =[ $stand8,  d1boss_run1  ] { }
 
 //Long attack
-void() d1boss_atkbig1  =[ $big1,  d1boss_atkbig2  ] { d1boss_changeheight(TRUE); ai_run_slide(10); self.boss_lastattack = 1; }
+void() d1boss_atkbig1  =[ $big1,  d1boss_atkbig2  ] { sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);  d1boss_changeheight(TRUE); ai_run_slide(10); self.boss_lastattack = 1; }
 void() d1boss_atkbig2  =[ $big2,  d1boss_atkbig3  ] { ai_run_slide(6); }
 void() d1boss_atkbig3  =[ $big3,  d1boss_atkbig4  ] { ai_run_slide(6); }
 void() d1boss_atkbig4  =[ $big4,  d1boss_atkbig5  ] { ai_run_slide(6); }
@@ -416,7 +416,7 @@ void() d1boss_atkbig22 =[ $big22, d1boss_atkbig23 ] { ai_run_slide(24); }
 void() d1boss_atkbig23 =[ $big23, d1boss_atkbig24 ] { ai_run_slide(24); }
 void() d1boss_atkbig24 =[ $big24, d1boss_run1     ] { }
 
-void() d1boss_dashl1 =[ $swingl1, d1boss_dashl2 ] { ai_nop(); self.boss_attacksleft -= 1; }
+void() d1boss_dashl1 =[ $swingl1, d1boss_dashl2 ] { sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);  ai_nop(); self.boss_attacksleft -= 1; }
 void() d1boss_dashl2 =[ $swingl2, d1boss_dashl3 ] { boss_move( 64, 1 ); }
 void() d1boss_dashl3 =[ $swingl3, d1boss_dashl4 ] { boss_move( 50, 1 ); }
 void() d1boss_dashl4 =[ $swingl4, d1boss_dashl5 ] { boss_move( 48, 1 ); }
@@ -426,7 +426,7 @@ void() d1boss_dashl7 =[ $swingl7, d1boss_dashl8 ] { boss_move( 8 , 1 ); }
 void() d1boss_dashl8 =[ $swingl8, d1boss_dashl9 ] { boss_move( 8 , 1 ); }
 void() d1boss_dashl9 =[ $swingl9, d1boss_run1   ] { boss_move( 2 , 1 ); d1boss_atkright1(); }
 
-void() d1boss_dashr1 =[ $swingr1, d1boss_dashr2 ] { ai_nop(); self.boss_attacksleft -= 1; }
+void() d1boss_dashr1 =[ $swingr1, d1boss_dashr2 ] { sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);  ai_nop(); self.boss_attacksleft -= 1; }
 void() d1boss_dashr2 =[ $swingr2, d1boss_dashr3 ] { boss_move( 64, 0 ); }
 void() d1boss_dashr3 =[ $swingr3, d1boss_dashr4 ] { boss_move( 50, 0 ); }
 void() d1boss_dashr4 =[ $swingr4, d1boss_dashr5 ] { boss_move( 48, 0 ); }
@@ -436,7 +436,7 @@ void() d1boss_dashr7 =[ $swingr7, d1boss_dashr8 ] { boss_move( 8 , 0 ); }
 void() d1boss_dashr8 =[ $swingr8, d1boss_dashr9 ] { boss_move( 8 , 0 ); }
 void() d1boss_dashr9 =[ $swingr9, d1boss_run1   ] { boss_move( 2 , 0 ); d1boss_atkleft1(); }
 
-void() d1boss_atkleft1 =[ $swingl1, d1boss_atkleft2 ] { ai_nop(); self.boss_attacksleft -= 1; }
+void() d1boss_atkleft1 =[ $swingl1, d1boss_atkleft2 ] { sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM);  ai_nop(); self.boss_attacksleft -= 1; }
 void() d1boss_atkleft2 =[ $swingl2, d1boss_atkleft3 ] { boss_move( 24, 1 ); }
 void() d1boss_atkleft3 =[ $swingl3, d1boss_atkleft4 ] { boss_move( 20, 1 ); }
 void() d1boss_atkleft4 =[ $swingl4, d1boss_atkleft5 ] { boss_move( 18, 1 ); }
@@ -446,7 +446,7 @@ void() d1boss_atkleft7 =[ $swingl7, d1boss_atkleft8 ] { boss_move( 16, 1 ); }
 void() d1boss_atkleft8 =[ $swingl8, d1boss_atkleft9 ] { boss_move( 16, 1 ); }
 void() d1boss_atkleft9 =[ $swingl9, d1boss_run1     ] { ai_face(); if ( self.boss_attacksleft > 0 ) d1boss_atkright1(); }
 
-void() d1boss_atkright1 =[ $swingr1, d1boss_atkright2 ] { ai_nop(); self.boss_attacksleft -= 1; }
+void() d1boss_atkright1 =[ $swingr1, d1boss_atkright2 ] { sound (self, CHAN_VOICE, "d1boss/atk.wav", 1, ATTN_NORM); ai_nop(); self.boss_attacksleft -= 1; }
 void() d1boss_atkright2 =[ $swingr2, d1boss_atkright3 ] { boss_move( 24, 0 ); }
 void() d1boss_atkright3 =[ $swingr3, d1boss_atkright4 ] { boss_move( 20, 0 ); }
 void() d1boss_atkright4 =[ $swingr4, d1boss_atkright5 ] { boss_move( 18, 0 ); }
@@ -763,6 +763,7 @@ void() monster_d1boss =
 	precache_model ("progs/proj_d1boss.mdl");
 	
 	precache_sound ("d1boss/aggro.wav");
+	precache_sound ("d1boss/atk.wav");
 	precache_sound ("d1boss/phasechange.wav");
 	precache_sound ("d1boss/pain1.wav");
 	precache_sound ("d1boss/pain2.wav");
