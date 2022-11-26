@@ -190,7 +190,7 @@ void() excavator_kamikaze_start =
 void(entity attacker, float damage) excavator_pain =
 {
 
-	if ((self.health < 500) && (self.touch != excavator_kamikaze_touch)) 
+	if ((self.health < 340) && (self.touch != excavator_kamikaze_touch)) 
 	{		
 		excavator_kamikaze_start();
 		return;
@@ -399,7 +399,7 @@ void() monster_excavator_spawn =
 	setmodel(self, "progs/e2/mon_excavator.mdl");
 
 	setsize (self, '-32 -32 -16', '32 32 72');
-	self.health = 800;
+	self.health = 600;
 
 	self.th_stand = exca_stand1;
 	self.th_walk = wiz_walk1;
@@ -463,7 +463,7 @@ void() monster_excavator =
 	precache_sound ("exca/ex_fire.wav");
 	precache_sound ("exca/ex_bomb.wav");
 
-	self.health = 500;	
+	self.health = 600;	
 	setsize (self, '-32 -32 -16', '32 32 72');
 	if (monster_spawnsetup(monster_excavator_spawner)) {
 		return;
