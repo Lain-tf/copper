@@ -558,6 +558,8 @@ void() SightSound =
 		sound (self, CHAN_VOICE, "hknight/sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_tarbaby")
 		sound (self, CHAN_VOICE, "blob/sight1.wav", 1, ATTN_NORM);
+	else if (self.classname == "monster_d1boss")
+		sound (self, CHAN_VOICE, "d1boss/aggro.wav", 1, ATTN_NONE);
 	else if (self.classname == "monster_enforcer")
 	{
 		rsnd = random();
