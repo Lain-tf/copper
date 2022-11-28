@@ -292,7 +292,6 @@ void()	excavator_fire10 = [ $s_shot10, excavator_run1 ] {
 
 void() excavator_die =
 {
-	sound (self, CHAN_VOICE, "exca/ex_death.wav", 1, ATTN_NORM);
 	ThrowGib ("progs/e2/gib_excavatord.mdl", 100);
 	ThrowGib ("progs/e2/gib_excavatorc.mdl", 100);
 	ThrowGib ("progs/e2/gib_excavatorb.mdl", 100);
@@ -411,7 +410,7 @@ void() monster_excavator_spawn =
 	self.yaw_speed = 30;
 
 	if (self.deathtype == string_null)
-		self.deathtype = "was caved in by an Excavator";
+		self.deathtype = "was deconstructed by a Construct";
 
 	flymonster_start();
 };
@@ -456,12 +455,10 @@ void() monster_excavator =
 		
 	precache_sound ("exca/ex_alert1.wav");
 	precache_sound ("exca/ex_alert2.wav");
-	precache_sound ("exca/ex_death.wav");
 	precache_sound ("exca/ex_kami.wav");
 	precache_sound ("exca/ex_pain1.wav");
 	precache_sound ("exca/ex_pain2.wav");
 	precache_sound ("exca/ex_fire.wav");
-	precache_sound ("exca/ex_bomb.wav");
 
 	self.health = 600;	
 	setsize (self, '-32 -32 -16', '32 32 72');
