@@ -391,6 +391,7 @@ string	keyType;
 .string		type;			// to make find()ing easier, and for tons of useful misc. classification
 .entity		buddy;			// a common entity reference without the specific implications of 'owner' or 'enemy'
 .float		strength;
+.entity		hitbox;			// used for d2boss, pointer to the first element of hitboxes array
 
 .float		lifetime_finished;
 .float		notrace;		// entity will be invisible to traceline2()
@@ -454,6 +455,8 @@ string	keyType;
 
 .entity eChildA;
 .entity eChildB;
+.entity eChildC;
+.entity eChildD;
 
 //===========================================================================
 // builtin functions

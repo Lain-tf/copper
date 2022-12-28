@@ -150,27 +150,27 @@ const float	IT_POWERUPS				= IT_INVISIBILITY + IT_INVULNERABILITY + IT_SUIT + IT
 
 // Powerups and weapon upgrades stored separately to other items,
 // as we have more than fit in the items flags.
-float IT_HASTE = 1;
-float IT_WETSUIT = 2;
-float IT_QUAD_SHOTGUN = 4;
-float IT_RAILGUN = 8;
-float IT_BERSERK = 16;
-float IT_RIFLE = 32;
+const float IT_HASTE = 1;
+const float IT_WETSUIT = 2;
+const float IT_QUAD_SHOTGUN = 4;
+const float IT_RAILGUN = 8;
+const float IT_BERSERK = 16;
+const float IT_RIFLE = 32;
 
 // Weapons (combination of weapon slot + upgrade)
 // These are deliberately the same values as the corresponding IT_ flags,
 // incase we miss somewhere checking the IT_ flags instead of these.
-float	W_SHOTGUN			= 1;
-float	W_SUPER_SHOTGUN		= 2;
-float	W_NAILGUN			= 4;
-float	W_SUPER_NAILGUN		= 8;
-float	W_GRENADE_LAUNCHER	= 16;
-float	W_ROCKET_LAUNCHER	= 32;
-float	W_LIGHTNING			= 64;
-float   W_QUAD_SHOTGUN      = 128;
-float   W_RAILGUN  			= 256;
-float	W_RIFLE				= 512;
-float	W_AXE				= 4096;
+const float	W_SHOTGUN			= 1;
+const float	W_SUPER_SHOTGUN		= 2;
+const float	W_NAILGUN			= 4;
+const float	W_SUPER_NAILGUN		= 8;
+const float	W_GRENADE_LAUNCHER	= 16;
+const float	W_ROCKET_LAUNCHER	= 32;
+const float	W_LIGHTNING			= 64;
+const float   W_QUAD_SHOTGUN      = 128;
+const float   W_RAILGUN  			= 256;
+const float	W_RIFLE				= 512;
+const float	W_AXE				= 4096;
 
 
 // point content values
@@ -316,7 +316,7 @@ const float	MAX_AMMO_NAILS			= 200;
 const float	MAX_AMMO_ROCKETS		= 100;
 const float	MAX_AMMO_CELLS			= 100;
 
-float HASTE_FACTOR = 0.6; // How much haste speeds up weapon firing by
+const float HASTE_FACTOR = 0.6; // How much haste speeds up weapon firing by
 
 //================================================
 

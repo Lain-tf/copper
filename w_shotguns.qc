@@ -272,6 +272,7 @@ void() W_FireRail =
 	local float traillen, segments, timetofade;
 	local entity prj;
 	local float haste_factor;
+	local float e2bosshit;
 	
 	if (self.ammo_cells < 6)
 	{
@@ -315,6 +316,8 @@ void() W_FireRail =
 	
 	loopsrc = src;
 	thedude = self;
+//voidforce: should be zero anyway, but who knows what could happen, right?
+	e2bosshit = 0;
 	
 	while ( !timetoend )
 	{
@@ -334,8 +337,16 @@ void() W_FireRail =
 				if (trace_ent != self) 
 				{
 					trace_ent.effects = trace_ent.effects | EF_MUZZLEFLASH;
-					
-					if (deathmatch != 0)
+				//special case for episode 2 boss
+					if (trace_ent.classname == "d2boss_bbox")
+					{
+						if (!e2bosshit)
+						{
+							T_Damage (trace_ent, self, self, 270);
+							e2bosshit = 1;
+						}
+					}
+					else if (deathmatch != 0)
 						T_Damage (trace_ent, self, self, 150);
 					else
 						T_Damage (trace_ent, self, self, 270);

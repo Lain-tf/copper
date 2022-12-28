@@ -28,7 +28,7 @@ float c48y[48] = { 0.00, 0.13, 0.26, 0.38, 0.50, 0.61, 0.71, 0.79, 0.87, 0.92, 0
                    0.00,-0.13,-0.26,-0.38,-0.50,-0.61,-0.71,-0.79,-0.87,-0.92,-0.97,-0.99,-1.00,-0.99,-0.97,-0.92,-0.87,-0.79,-0.71,-0.61,-0.50,-0.38,-0.26,-0.13 };
 //--------------------------------------------------
 //defaults
-float BULLET_FADETIME = 1.5;
+float BULLET_FADETIME = 2;
 float BULLET_SPEED = 200.0;
 float BULLET_DAMAGE = 5;
 float JUMPABLE_HEIGHT = 0;
@@ -1053,8 +1053,8 @@ void() target_bullethell_fire = {
 			break;
 		case BULLET_STYLE_SPIRAL:
 		// Start; End position on a circle: [0-48, be aware!]; clockwise or not (1/0); fade time as above; execute after some delay
-			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME, NO_DELAY);
-			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME, 2.4);
+			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME * 1.5, NO_DELAY);
+			startSpiral(0, 48, 1, 0.05, BULLET_FADETIME * 1.5, 2.4);
 			break;
 		case BULLET_STYLE_WHEEL:
 		// direction; time when projectiles start to spin, basically corresponds with radius; time to fade; execute after some delay  

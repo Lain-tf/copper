@@ -95,8 +95,10 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 		targ.customflags |= CFL_ZAPPED;
 
 		// don't chain from doors, buttons, or special wonky shootable triggers
+		// voidforce: special case of hitting ep2 boss
 		if ((targ.solid == SOLID_BBOX || targ.solid == SOLID_SLIDEBOX) && 
-			targ.movetype && targ.movetype != MOVETYPE_PUSH)
+			targ.movetype && targ.movetype != MOVETYPE_PUSH && 
+			targ.classname != "d2boss_bbox")
 		{
 			end = trace_endpos;
 			
