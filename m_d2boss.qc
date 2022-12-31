@@ -217,7 +217,7 @@ void() d2boss_idlesound =
 void () d2boss_idle =
 {
 	//self.frame = 0; //- intendent way 
-	self.frame = 7;
+	self.frame = 0;
 };
 
 void() d2boss_teleport_out	 =[ 1, d2boss_teleport_out02 ] { };
@@ -653,8 +653,8 @@ void() d2boss_idle_start =
 	self.think = d2boss_flying_start;
 	self.nextthink = time + self.wait;
 // start spinning
-	self.eChildB.avelocity_z = self.yaw_speed;
-	self.avelocity_z = self.yaw_speed;
+	self.eChildB.avelocity_z = self.yaw_speed * 0.5; //slowdown a bit
+	self.avelocity_z = self.yaw_speed * 0.5; //slowdown a bit
 };
 
 
@@ -727,7 +727,7 @@ void() d2boss_shield_up =
 	
 	setorigin(self.eChildB, self.origin);
 	self.eChildB.angles = self.angles;
-	self.eChildB.alpha = 1;
+	self.eChildB.alpha = 0.5;
 	self.state = D2BOSS_WAITFORSHIELD;
 // should be already set
 //	d2boss_bbox_setfield(takedamage, DAMAGE_NO); 
@@ -843,7 +843,9 @@ entity(entity peWho, float isShield) d2boss_spawn_childs =
 	{
 		setmodel ( e, "progs/mon_d2bossf.mdl" );
 		e.classname = "d2boss_shield";
-		e.angles_x = -90;
+		e.angles = peWho.angles;
+		e.angles_x = D2BOSS_LOOKDOWN;
+		e.alpha = 0.5;
 	}
 	else 
 	{
@@ -917,7 +919,7 @@ void() monster_d2boss =
 	setmodel ( self, "progs/mon_d2boss.mdl" );
 	setsize ( self, '0 0 0', '0 0 0' );
 	self.angles_x = -90;
-	self.frame = 7; //idle
+	self.frame = 0; //idle
 	self.state = D2BOSS_SLEEPING;
 	self.type = "boss";
 	self.th_die = d2boss_die;
