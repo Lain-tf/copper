@@ -363,76 +363,6 @@ void() worldspawn =
 	
 }
 
-//=================================================
-// EndFrame code from Preach
-//=================================================
-entity backstop;
-float prevframe;
-
-entity() spawn = {
-	entity e;
-	e = spawn_builtin();
-	if (nextent(e) != world)
-		return e;
-	// e is now the last entity on the list
-	// so we need to swap it with the backstop
-	entity f;
-	f = backstop;
-	f.think = e.think;
-	f.nextthink = e.nextthink;
-	f.classname = e.classname;
-	 
-	e.think = EndFrame;
-	e.nextthink = time;
-	e.classname = "backstop";
-	backstop = e;
-	
-	return f;
-}
-
-void() CreateBackstop = {
-	entity e, f, head;
-	//begin our list with the temp backstop
-	e = f = head = backstop;
-	// spawn() already contains the code to make a backstop
-	// so we just burn off enough entities that one appears
-	// at the back
-	do {
-		f = spawn();
-		e.chain = f;
-		e = e.chain;
-	} while (nextent(backstop) != world);
-
-	while (head != f) {
-		e = head;
-		head = e.chain;
-		remove(e);
-	}
-}
-
-
-
-void() EndFrame = {
-	// don't let it run twice at the same frame
-	if (prevframe == framecount) {
-		return;
-	}
-
-	prevframe = framecount;
-	// set ourselves up to think again next frame
-	backstop.nextthink = time;// + 0.05;
-	// prevent accidental modification of the backstop
-	self = world;
-	
-	if (framecount <= 2) {
-		return;
-	}
-
-
-}
-
-//=================================================
-
 void() StartFrame =
 {
 	teamplay = cvar("teamplay");
@@ -464,10 +394,6 @@ void() StartFrame =
 	impossible to reproduce moment.
 	*/
 	activator = world;
-
-	if (framecount == 1)
-		CreateBackstop();
-	
 }
 
 /*
