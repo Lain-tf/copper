@@ -1211,9 +1211,12 @@ void() WaterMove =
 			sound (self, CHAN_BODY, "player/inlava.wav", 1, ATTN_NORM);
 		else if (self.watertype == CONTENT_WATER)
 		{
-			if (has_wetsuit(self))
-				sound (self, CHAN_BODY, "items/wetsuit3.wav", 1, ATTN_NORM);
-			else if (self.jump_flag < -300)
+			//if (has_wetsuit(self))
+				//if (self.enemy.waterlevel <= WL_FEET){
+					//sound (self, CHAN_BODY, "items/wetsuit3.wav", 1, ATTN_NORM);
+				//}
+			//else
+			if (self.jump_flag < -300)
 				sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
 			else
 				sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
