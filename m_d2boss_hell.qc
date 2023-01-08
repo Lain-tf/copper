@@ -10,54 +10,54 @@ Ep. 2 Boss - Sculptor
 // COS FOR X
 // SIN FOR Y
 // 22.5 degree step - 16 projectiles in total
-//                  0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22    23
-float c16x[16] =  { 1.00, 0.92, 0.71, 0.38, 0.00,-0.38,-0.71,-0.92,-1.00,-0.92,-0.71,-0.38, 0.00, 0.38, 0.71, 0.92 };
-float c16y[16] =  { 0.00, 0.38, 0.71, 0.92, 1.00, 0.92, 0.71, 0.38, 0.00,-0.38,-0.71,-0.92,-1.00,-0.92,-0.71,-0.38 };
+//                  		0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22    23
+const float c16x[16] =  { 1.00, 0.92, 0.71, 0.38, 0.00,-0.38,-0.71,-0.92,-1.00,-0.92,-0.71,-0.38, 0.00, 0.38, 0.71, 0.92 };
+const float c16y[16] =  { 0.00, 0.38, 0.71, 0.92, 1.00, 0.92, 0.71, 0.38, 0.00,-0.38,-0.71,-0.92,-1.00,-0.92,-0.71,-0.38 };
 // 15 degree step - 24 projectiles in total
-//                  0     15    30    45    60    75    90    105   120   135   150   165   180   195   210   225   240   255   270   285   300   315   330   345
-float c24Ax[24] = { 1.00, 0.97, 0.87, 0.71, 0.50, 0.26, 0.00,-0.26,-0.50,-0.71,-0.87,-0.97,-1.00,-0.97,-0.87,-0.71,-0.50,-0.26, 0.00, 0.26, 0.50, 0.71, 0.87, 0.97 };
-float c24Ay[24] = { 0.00, 0.26, 0.50, 0.71, 0.87, 0.97, 1.00, 0.97, 0.87, 0.71, 0.50, 0.26, 0.00,-0.26,-0.50,-0.71,-0.87,-0.97,-1.00,-0.97,-0.87,-0.71,-0.50,-0.26 };
-//                  7.5   22.5  37.5  52.5  67.5  82.5  97.5  112.5 127.5 142.5 157.5 172.5 187.5 202.5 217.5 232.5 247.5 262.5 277.5 292.5 307.5 322.5 337.5 352.5
-float c24Bx[24] = { 0.99, 0.92, 0.79, 0.61, 0.38, 0.13,-0.13,-0.38,-0.61,-0.79,-0.92,-0.99,-0.99,-0.92,-0.79,-0.61,-0.38,-0.13, 0.13, 0.38, 0.61, 0.79, 0.92, 0.99 };
-float c24By[24] = { 0.13, 0.38, 0.61, 0.79, 0.92, 0.99, 0.99, 0.92, 0.79, 0.61, 0.38, 0.13,-0.13,-0.38,-0.61,-0.79,-0.92,-0.99,-0.99,-0.92,-0.79,-0.61,-0.38,-0.13 };
+//                 		 	0     15    30    45    60    75    90    105   120   135   150   165   180   195   210   225   240   255   270   285   300   315   330   345
+const float c24Ax[24] = { 1.00, 0.97, 0.87, 0.71, 0.50, 0.26, 0.00,-0.26,-0.50,-0.71,-0.87,-0.97,-1.00,-0.97,-0.87,-0.71,-0.50,-0.26, 0.00, 0.26, 0.50, 0.71, 0.87, 0.97 };
+const float c24Ay[24] = { 0.00, 0.26, 0.50, 0.71, 0.87, 0.97, 1.00, 0.97, 0.87, 0.71, 0.50, 0.26, 0.00,-0.26,-0.50,-0.71,-0.87,-0.97,-1.00,-0.97,-0.87,-0.71,-0.50,-0.26 };
+//                  		7.5   22.5  37.5  52.5  67.5  82.5  97.5  112.5 127.5 142.5 157.5 172.5 187.5 202.5 217.5 232.5 247.5 262.5 277.5 292.5 307.5 322.5 337.5 352.5
+const float c24Bx[24] = { 0.99, 0.92, 0.79, 0.61, 0.38, 0.13,-0.13,-0.38,-0.61,-0.79,-0.92,-0.99,-0.99,-0.92,-0.79,-0.61,-0.38,-0.13, 0.13, 0.38, 0.61, 0.79, 0.92, 0.99 };
+const float c24By[24] = { 0.13, 0.38, 0.61, 0.79, 0.92, 0.99, 0.99, 0.92, 0.79, 0.61, 0.38, 0.13,-0.13,-0.38,-0.61,-0.79,-0.92,-0.99,-0.99,-0.92,-0.79,-0.61,-0.38,-0.13 };
 
 // mix of A and B patterns will make a 48 directions circle
-float c48x[48] = { 1.00, 0.99, 0.97, 0.92, 0.87, 0.79, 0.71, 0.61, 0.50, 0.38, 0.26, 0.13, 0.00,-0.13,-0.26,-0.38,-0.50,-0.61,-0.71,-0.79,-0.87,-0.92,-0.97,-0.99,
-                  -1.00,-0.99,-0.97,-0.92,-0.87,-0.79,-0.71,-0.61,-0.50,-0.38,-0.26,-0.13, 0.00, 0.13, 0.26, 0.38, 0.50, 0.61, 0.71, 0.79, 0.87, 0.92, 0.97, 0.99 };
-float c48y[48] = { 0.00, 0.13, 0.26, 0.38, 0.50, 0.61, 0.71, 0.79, 0.87, 0.92, 0.97, 0.99, 1.00, 0.99, 0.97, 0.92, 0.87, 0.79, 0.71, 0.61, 0.50, 0.38, 0.26, 0.13,
-                   0.00,-0.13,-0.26,-0.38,-0.50,-0.61,-0.71,-0.79,-0.87,-0.92,-0.97,-0.99,-1.00,-0.99,-0.97,-0.92,-0.87,-0.79,-0.71,-0.61,-0.50,-0.38,-0.26,-0.13 };
+const float c48x[48] = { 1.00, 0.99, 0.97, 0.92, 0.87, 0.79, 0.71, 0.61, 0.50, 0.38, 0.26, 0.13, 0.00,-0.13,-0.26,-0.38,-0.50,-0.61,-0.71,-0.79,-0.87,-0.92,-0.97,-0.99,
+						-1.00,-0.99,-0.97,-0.92,-0.87,-0.79,-0.71,-0.61,-0.50,-0.38,-0.26,-0.13, 0.00, 0.13, 0.26, 0.38, 0.50, 0.61, 0.71, 0.79, 0.87, 0.92, 0.97, 0.99 };
+const float c48y[48] = { 0.00, 0.13, 0.26, 0.38, 0.50, 0.61, 0.71, 0.79, 0.87, 0.92, 0.97, 0.99, 1.00, 0.99, 0.97, 0.92, 0.87, 0.79, 0.71, 0.61, 0.50, 0.38, 0.26, 0.13,
+						 0.00,-0.13,-0.26,-0.38,-0.50,-0.61,-0.71,-0.79,-0.87,-0.92,-0.97,-0.99,-1.00,-0.99,-0.97,-0.92,-0.87,-0.79,-0.71,-0.61,-0.50,-0.38,-0.26,-0.13 };
 //--------------------------------------------------
 //defaults
-float BULLET_FADETIME = 2;
-float BULLET_SPEED = 200.0;
-float BULLET_DAMAGE = 5;
-float JUMPABLE_HEIGHT = 0;
-float UNJUMPABLE_HEIGHT = 24;
+const float BULLET_FADETIME = 2;
+const float BULLET_SPEED = 200.0;
+const float BULLET_DAMAGE = 5;
+const float JUMPABLE_HEIGHT = 0;
+const float UNJUMPABLE_HEIGHT = 24;
 
-float ONELINE_SPEED = 700.0;
-float ONELINE_DAMAGE = 10;
-float ONELINE_HEIGHT = 0;
+const float ONELINE_SPEED = 700.0;
+const float ONELINE_DAMAGE = 10;
+const float ONELINE_HEIGHT = 0;
 
-float TWOLINES_SPEED = 800.0;
-float TWOLINES_DAMAGE = 5;
-float TWOLINES_HEIGHT = 0;
+const float TWOLINES_SPEED = 800.0;
+const float TWOLINES_DAMAGE = 5;
+const float TWOLINES_HEIGHT = 0;
 
-float CIRCLE_SPEED = 300;
-float CIRCLE_DAMAGE = 5;
-float CIRCLE_HEIGHT = 0;
+const float CIRCLE_SPEED = 300;
+const float CIRCLE_DAMAGE = 5;
+const float CIRCLE_HEIGHT = 0;
 
-float SPIRAL_SPEED = 200;
-float SPIRAL_DAMAGE = 5;
-float SPIRAL_HEIGHT = 0;
+const float SPIRAL_SPEED = 200;
+const float SPIRAL_DAMAGE = 5;
+const float SPIRAL_HEIGHT = 0;
 
-float WHEEL_SPEED = 100;
-float WHEEL_DAMAGE = 2;
-float WHEEL_HEIGHT = 0;
+const float WHEEL_SPEED = 100;
+const float WHEEL_DAMAGE = 2;
+const float WHEEL_HEIGHT = 0;
 
-float PULSE_DAMAGE = 2;
-float PULSE_HEIGHT = 0;
+const float PULSE_DAMAGE = 2;
+const float PULSE_HEIGHT = 0;
 
-float NO_DELAY = 0.0;
+const float NO_DELAY = 0.0;
 //--------------------------------------------------
 //eChildA used by Boss to target Director
 //eChildA used by Director to target Program
@@ -644,7 +644,40 @@ void() repeatMovingWheel =
 	leLeader.nextthink = time + 0.5;
 };
 
-void() startSpin =
+void() doWheelDamage =
+{	
+//SELF STATUS: Fire Task
+	local float lfLength;
+	local entity leVictim;
+	
+	leVictim = findradius(self.origin, self.fUtilB);
+	
+	while (leVictim)
+	{
+		if (leVictim.classname == "player" ) // || leVictim.flags & FL_MONSTER)
+		{
+			lfLength = vlen(self.origin - leVictim.origin); // distance from epicenter to monster/player
+			if (((leVictim.origin_z + leVictim.absmin_z) < self.origin_z) && ((leVictim.origin_z + leVictim.absmax_z) > self.origin_z)) //height check
+			{
+				if (fabs(self.fUtilB - lfLength) < 9) // width check
+					T_Damage(leVictim, self, self.owner, WHEEL_DAMAGE);
+			}
+		}    
+		leVictim = leVictim.chain;
+	}
+	if (self.fUtilH < time)
+	{
+		self.think = SUB_Remove;
+		self.nextthink = time + 0.1;
+	}
+	else
+	{
+		self.think = doWheelDamage;
+		self.nextthink = time + 0.05;	
+	}
+};
+
+void() loopSpin =
 {
 //SELF STATUS: Satelite	
 	local vector lvOffset;
@@ -665,8 +698,8 @@ void() startSpin =
 	{
 		setmodel ( self, "progs/e2/hell_rocket.mdl" );
 		setsize  ( self, '0 0 0', '0 0 0' );	//set after model, so we don't have this cringe box size
-		self.solid = SOLID_BBOX;
-		self.touch = simpleTouch;
+		//self.solid = SOLID_BBOX;
+		//self.touch = simpleTouchh;
 		self.fUtilC = 1;
 	}
 	
@@ -685,7 +718,7 @@ void() startSpin =
 	if (self.fUtilI > 15)
 		self.fUtilI = 0;
 	
-	self.think = startSpin;
+	self.think = loopSpin;
 	self.nextthink = time + 0.1; // 1/speed
 };
 
@@ -696,33 +729,29 @@ void() deploySatelites =
 	local entity leSatelite;
 	local float i;
 	
-		for ( i = 0; i < 16; i++ ) 
-		{
-			lvOffset_x = self.origin_x + c16x[i] * 100;
-			lvOffset_y = self.origin_y + c16y[i] * 100;
-			lvOffset_z = self.origin_z;
+	for ( i = 0; i < 16; i++ ) 
+	{
+		lvOffset_x = self.origin_x + c16x[i] * 100;
+		lvOffset_y = self.origin_y + c16y[i] * 100;
+		lvOffset_z = self.origin_z;
 
-			leSatelite = returnProjectile(self.origin, lvOffset);
-			
-		// keep it being invisible and nonsolid until it start to spin
-			//setmodel ( leSatelite, "progs/e2/hell_rocket.mdl" );
-			//setsize  ( leSatelite, '0 0 0', '0 0 0' ); //set after model, so we don't have this cringe box size
-			//leSatelite.solid = SOLID_BBOX;
-			//leSatelite.touch = simpleTouch;
-			leSatelite.owner = self;
-			leSatelite.movetype = MOVETYPE_FLYMISSILE;
-			leSatelite.angles = vectoangles(leSatelite.velocity);
-			leSatelite.velocity += self.velocity;
-			leSatelite.fUtilI = i + 1;
-			leSatelite.fUtilH = self.fUtilH;
-			
-			if (leSatelite.fUtilI > 15)
-				leSatelite.fUtilI = 0;
-			leSatelite.think = startSpin;
-			leSatelite.nextthink = time + self.fUtilA;
-		}
-	self.think = SUB_Remove;
-	self.nextthink = self.fUtilH + 1;
+		leSatelite = returnProjectile(self.origin, lvOffset);
+		leSatelite.owner = self;
+		leSatelite.movetype = MOVETYPE_NOCLIP; //MOVETYPE_FLY;
+		leSatelite.angles = vectoangles(leSatelite.velocity);
+		leSatelite.velocity += self.velocity;
+		leSatelite.fUtilI = i + 1;
+		leSatelite.fUtilH = self.fUtilH - 1; // die faster than owner
+		
+		if (leSatelite.fUtilI > 15)
+			leSatelite.fUtilI = 0;
+		leSatelite.think = loopSpin;
+		leSatelite.nextthink = time + self.fUtilA;
+	}
+	self.eChildA = leSatelite;	
+	self.fUtilB = self.fUtilA * 100;
+	self.think = doWheelDamage;
+	self.nextthink = time + self.fUtilA;
 };
 
 
@@ -756,7 +785,7 @@ void(float pfMinRadius, float pfMaxRadius, float pfIdleAtMin, float pfIdleAtMax,
 	leTask.type = "pulse";
 	setorigin( leTask, [self.origin_x, self.origin_y, self.origin_z + PULSE_HEIGHT] );
 	leTask.think = doPulseDamage;
-	leTask.nextthink = time + pfDelay + 0.3; //do not do damage while fading in time
+	leTask.nextthink = time + pfDelay + 0.3; //do not do damage while fade-in time
 	
 	for ( i = 0; i < 24; i++ ) 
 	{
@@ -804,7 +833,7 @@ void() doPulseDamage =
 	
 	while (leVictim)
 	{
-		if (leVictim.classname == "player" || leVictim.flags & FL_MONSTER)
+		if (leVictim.classname == "player" ) // || leVictim.flags & FL_MONSTER)
 		{
 			lfLength2 = vlen(self.origin - leVictim.origin); // distance from epicenter to monster/player
 			if (((leVictim.origin_z + leVictim.absmin_z) < self.origin_z) && ((leVictim.origin_z + leVictim.absmax_z) > self.origin_z)) //height check
@@ -816,7 +845,7 @@ void() doPulseDamage =
 		leVictim = leVictim.chain;
 	}
 	self.think = doPulseDamage;
-	self.nextthink = time + 0.01;
+	self.nextthink = time + 0.05;
 };
 
 void() fadePulseIn =
@@ -926,11 +955,16 @@ void(vector pvSource, vector pvDirection, float pfFadeTime ) setupProjectile =
 		leBullet.dmg = BULLET_DAMAGE;
 	
 	leBullet.velocity = lvDirection * leBullet.speed;	
+
 	leBullet.angles = vectoangles(leBullet.velocity);
-	leBullet.touch = simpleTouch;
+	leBullet.touch = piercingTouch;
 	leBullet.think = fadeProjectile;
 	leBullet.nextthink = time + pfFadeTime;
 	leBullet.cnt = 3; // steps to fade
+	// monsters penetration
+	leBullet.oldvelocity = leBullet.velocity;
+	leBullet.think1 = fadeProjectile; 
+	leBullet.pain_finished = leBullet.nextthink;
 
 	setmodel ( leBullet, "progs/e2/hell_bullet.mdl" );
 	setsize  ( leBullet, '0 0 0', '0 0 0' );	
@@ -962,6 +996,10 @@ entity(vector pvSource, vector pvDirection) returnProjectile =
 	leBullet.velocity_z = 0;
 	leBullet.angles = vectoangles(leBullet.velocity);
 	leBullet.cnt = 3; //fade steps
+// monsters penetration
+	leBullet.think1 = fadeProjectile; 
+	leBullet.pain_finished = leBullet.nextthink;
+	leBullet.oldvelocity = leBullet.velocity; 
 
 	setsize  ( leBullet, '0 0 0', '0 0 0' );	
 	setorigin( leBullet, pvSource );
@@ -971,13 +1009,28 @@ entity(vector pvSource, vector pvDirection) returnProjectile =
 
 void() simpleTouch = 
 {
-	//if (CheckProjectilePassthru()) return;
-	//if (other == self.owner)
-	//	return;		// don't explode on owner
-
 	if (other.takedamage == DAMAGE_AIM)
 		T_Damage (other, self, self.trueowner, self.dmg);
 	remove(self);
+};
+
+
+void() piercingTouch = 
+{
+	if (other.classname == "player")
+	{
+		T_Damage ( other, self, self.trueowner, self.dmg );
+		remove(self);
+	}
+	else if  (other.flags & FL_MONSTER || other.notrace )
+	{
+		self.owner = other;
+		self.think = projectile_passthru_think;
+		self.nextthink = time;
+	}
+	else 
+		remove(self);
+
 };
 
 
@@ -990,7 +1043,7 @@ void() fadeProjectile =
 		self.alpha = self.cnt * 0.3;
 	else
 	{
-		self.alpha = 0.01;
+		self.alpha = -1;
 		self.think = SUB_Remove;
 	}
 	
@@ -1004,7 +1057,7 @@ void() fadeSatelite =
 		self.alpha = self.cnt * 0.3;
 	else
 	{
-		self.alpha = 0.01;
+		self.alpha = -1;
 		self.fUtilF = 1;
 	}
 	
@@ -1014,14 +1067,14 @@ void() fadeSatelite =
 
 //============================================================================
 
-float BULLET_STYLE_RANDOM = 0;
-float BULLET_STYLE_ONELINE = 1;
-float BULLET_STYLE_TWOLINES = 2;
-float BULLET_STYLE_CIRCLE = 3;
-float BULLET_STYLE_SPIRAL = 4;
-float BULLET_STYLE_WHEEL = 5;
-float BULLET_STYLE_BARRAGE = 6;
-float BULLET_STYLE_PULSE = 7;
+const float BULLET_STYLE_RANDOM = 0;
+const float BULLET_STYLE_ONELINE = 1;
+const float BULLET_STYLE_TWOLINES = 2;
+const float BULLET_STYLE_CIRCLE = 3;
+const float BULLET_STYLE_SPIRAL = 4;
+const float BULLET_STYLE_WHEEL = 5;
+const float BULLET_STYLE_BARRAGE = 6;
+const float BULLET_STYLE_PULSE = 7;
 
 // derived from chooseRandomTask()
 // selects a firing pattern according to the .style field, or at random if the field is unset/0

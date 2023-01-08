@@ -57,8 +57,12 @@ When it dies completely, .target4 gets fired.
 
 const float D2BOSS_BALL_VEL 	= 750;
 const float D2BOSS_LOOKDOWN 	= -90;
+const float D2BOSS_SHIELDALPHA 	= 0.5;
+const float D2BOSS_BHROTATIONMULTIPLIER = -0.5;
 const vector D2BOSS_GIBOFFSET = '0 0 -128';
 const float D2BOSS_TRANSITION_SPEED = 2; // 0.1-1 or 1+, multiplier for lerp timer
+const vector D2BOSS_SWARMOFFSET[7] = {'-1 0 0','1 0 0','0.5 -0.87 0','0.5 0.87 0','-0.5 -0.87 0','-0.5 0.87 0','0 0 0'};
+const float D2BOSS_SWARMRADIUS	= 192;
 
 const float	D2BOSS_SLEEPING		 = 0;
 const float	D2BOSS_PHASECHANGE	 = 1;
@@ -76,11 +80,11 @@ void() d2bossMissileExplode =
 	local float skill_damage;
 	
 	if ( skill > 1 || coop )
-		skill_damage = 55;
+		skill_damage = 80;
 	else if ( skill == 1)
-		skill_damage = 35;
+		skill_damage = 60;
 	else 
-		skill_damage = 25;
+		skill_damage = 20;
 	
 	T_RadiusDamage (self, self.trueowner, skill_damage, world);
 	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
@@ -95,7 +99,10 @@ void() d2bossMissileTouch =
 		return;
 	
 	if ( other == self.owner || other.owner == self.owner)
-		return;		// don't explode on owner
+	{
+		SUB_Remove();
+		return;		// don't explode on owner*/
+	}
 
 	if ( other.type == "zombie" )
 		T_Damage (other, self, self.trueowner, other.health + 25);
@@ -177,7 +184,7 @@ void() d2bossMissile =
 	playerorg_z = 0;
 	distcheck = vlen(bossorg - playerorg);
 
-	missile = launch_projectile( self.origin + (v_forward * 128), dir * D2BOSS_BALL_VEL, "voreball" );
+	missile = launch_projectile( self.origin + (v_forward * 160), dir * D2BOSS_BALL_VEL, "voreball" );
 	//missile = launch_projectile( self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * D2BOSS_BALL_VEL, "voreball" );
 	
 	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
@@ -190,6 +197,124 @@ void() d2bossMissile =
 	missile.lifetime_finished = time + 5;	 // blow up after a while
 	missile.track_finished = time + 1.25; // 1.25
 	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NORM);
+};
+
+
+void() d2bossSwarmFlyUpdate =
+{
+// self is a swarm rocket
+	local vector A,B,C,D,E,F,G,H,I,J;
+	local float state, newspeed, deviation;
+	local vector dir;
+	local vector deviated_velocity;
+
+	A = self.vUtilA; B = self.vUtilB; C = self.vUtilC; D = self.vUtilD;
+	
+	state = ( time - self.fUtilA ) * 0.25;
+	if (state < 1)
+	{		
+		if ( state < 0.5 )
+			deviation = lerp ( 0, 1, state * 2 );
+		else 
+			deviation = lerp ( 1, 0, (state - 0.5) * 2 );
+		
+		newspeed = lerp( 400, 800, state );
+		
+		E = lerpVector( A, B, state );
+		F = lerpVector( B, C, state );
+		G = lerpVector( C, D, state );
+		H = lerpVector( E, F, state );
+		I = lerpVector( F, G, state );
+		J = lerpVector( H, I, state );
+		dir = normalize( J - self.origin );
+		
+		deviated_velocity_x = self.velocity_x + crandom()*800;
+		deviated_velocity_y = self.velocity_y + crandom()*800;
+		deviated_velocity_z = self.velocity_z + crandom()*800;
+		deviated_velocity = normalize(deviated_velocity);
+		
+		self.velocity = lerpVector( dir * newspeed, deviated_velocity * newspeed, deviation );	
+		self.angles = vectoangles(self.velocity);
+		
+		self.nextthink = time + 0.025;
+		self.think = d2bossSwarmFlyUpdate;
+	}
+	else 
+	{
+		self.think = SUB_Remove;
+		self.nextthink = time + 5;
+	}
+};
+
+
+void() launchSwarm_Loop =
+{
+// self is a swarm director
+	local entity missile;
+	
+	if (self.fUtilI < 7)
+	{
+		missile = spawn ();
+		missile.vUtilA = self.owner.origin + '0 0 160';
+		setmodel (missile, "progs/missile.mdl");
+		setsize (missile, '0 0 0', '0 0 0');
+		setorigin (missile, missile.vUtilA );		
+		missile.owner = self.owner;
+		missile.movetype = MOVETYPE_FLY;
+		missile.solid = SOLID_BBOX;
+		missile.classname = "missile";
+		missile.touch = d2bossMissileTouch;
+		missile.enemy = self.enemy;
+		missile.fUtilA = time;
+		missile.vUtilB = missile.vUtilA + '0 0 320';
+		missile.vUtilC = self.vUtilC;
+		missile.vUtilD = self.vUtilD + D2BOSS_SWARMOFFSET[self.fUtilI] * D2BOSS_SWARMRADIUS + '0 0 -64';
+		missile.velocity = '0 0 400';
+		missile.angles = vectoangles(missile.velocity);
+		missile.think = d2bossSwarmFlyUpdate;
+		missile.nextthink = time + 0.1;
+		
+		self.fUtilI++;
+		self.think = launchSwarm_Loop;
+		self.nextthink = time + 0.05;
+	}
+	else
+		SUB_Remove();
+};
+
+
+void() d2bossSwarmAttack =
+{
+// self is the boss
+	local entity director;
+	local float rnd;
+	local entity marker;
+	local float i;
+	
+	director = spawn();
+	director.eUtilA = find(world, targetname, self.target2); // temp
+// center of the arena offset
+	if (director.eUtilA)
+		director.vUtilC = director.eUtilA.origin + '0 0 1024';
+// random position around center of the arena
+	rnd = rint(random() * 15); // array of 0-15
+	director.vUtilD = director.eUtilA.origin + Vector(c16x[rnd], c16y[rnd], 0) * 320 + '0 0 -160';
+	
+	for ( i = 0; i < 7; i++ ) // array of 0-6
+	{
+		marker = spawn();
+		setmodel (marker, "progs/e2/marker.mdl");
+		setsize (marker, '0 0 0', '0 0 0');
+		setorigin (marker, director.vUtilD + D2BOSS_SWARMOFFSET[i] * D2BOSS_SWARMRADIUS + '0 0 -116');
+		marker.cnt = 3; // required for bh fade
+		marker.think = fadeProjectile;
+		marker.nextthink = time + 4.5;
+	}
+// rockets counter
+	director.fUtilI = 0;
+	director.owner = self;
+	director.think = launchSwarm_Loop;
+	director.nextthink = time + 0.05;
 };
 
 
@@ -242,19 +367,14 @@ void() d2boss_teleport_in06 =[ 14, d2boss_teleport_in07 ] { };
 void() d2boss_teleport_in07 =[ 15, d2boss_idle ] 
 {
 	if ( self.classname == "monster_d2boss" ) 
-	{
-		if ( self.fUtilF )
-			d2boss_die(); // time to die
-		else
-			d2boss_idle_start();
-	}
+		d2boss_idle_start();
 };
 
-void() d2boss_shield   =[ 16, d2boss_shield02 ] { };
-void() d2boss_shield02 =[ 17, d2boss_shield03 ] { };
-void() d2boss_shield03 =[ 18, d2boss_shield04 ] { };
-void() d2boss_shield04 =[ 19, d2boss_shield05 ] { };
-void() d2boss_shield05 =[ 20, d2boss_shield06 ] { };
+void() d2boss_shield   =[ 16, d2boss_shield02 ] { self.alpha = D2BOSS_SHIELDALPHA - 0.4; };
+void() d2boss_shield02 =[ 17, d2boss_shield03 ] { self.alpha = D2BOSS_SHIELDALPHA - 0.3; };
+void() d2boss_shield03 =[ 18, d2boss_shield04 ] { self.alpha = D2BOSS_SHIELDALPHA - 0.2; };
+void() d2boss_shield04 =[ 19, d2boss_shield05 ] { self.alpha = D2BOSS_SHIELDALPHA - 0.1; };
+void() d2boss_shield05 =[ 20, d2boss_shield06 ] { self.alpha = D2BOSS_SHIELDALPHA;};
 void() d2boss_shield06 =[ 21, d2boss_idle ] 
 {
 		self.owner.state = D2BOSS_TELEPORTING;
@@ -263,87 +383,116 @@ void() d2boss_shield06 =[ 21, d2boss_idle ]
 		self = self.eChildB; //huh? do we really need to set self back to shield?
 };
 
-void() d2boss_deathcrystals =
-{
-//self should be death spikes entity
-	if (self.frame < 80)
-	{
-		self.frame++;
-		self.think = d2boss_deathcrystals;
-		self.nextthink = time + 0.1;
-	}
-	else remove(self);
+
+void() d2boss_death   =[ 16, d2boss_death02 ] { d2boss_update_crystals(); };
+void() d2boss_death02 =[ 17, d2boss_death03 ] { d2boss_update_crystals(); };
+void() d2boss_death03 =[ 18, d2boss_death04 ] { d2boss_update_crystals(); };
+void() d2boss_death04 =[ 19, d2boss_death05 ] { d2boss_update_crystals(); };
+void() d2boss_death05 =[ 20, d2boss_death06 ] { d2boss_update_crystals(); };
+void() d2boss_death06 =[ 21, d2boss_death07 ] { d2boss_update_crystals(); };
+void() d2boss_death07 =[ 22, d2boss_death08 ] { d2boss_update_crystals(); };
+void() d2boss_death08 =[ 23, d2boss_death09 ] { d2boss_update_crystals(); };
+void() d2boss_death09 =[ 24, d2boss_death10 ] { d2boss_update_crystals(); };
+void() d2boss_death10 =[ 25, d2boss_death11 ] { d2boss_update_crystals(); };
+void() d2boss_death11 =[ 26, d2boss_death12 ] { d2boss_update_crystals(); };
+void() d2boss_death12 =[ 27, d2boss_death13 ] { d2boss_update_crystals(); };
+void() d2boss_death13 =[ 28, d2boss_death14 ] { d2boss_update_crystals(); };
+void() d2boss_death14 =[ 29, d2boss_death15 ] { d2boss_update_crystals(); };
+void() d2boss_death15 =[ 30, d2boss_death16 ] { d2boss_update_crystals(); };
+void() d2boss_death16 =[ 31, d2boss_death17 ] { d2boss_update_crystals(); };
+void() d2boss_death17 =[ 32, d2boss_death18 ] { d2boss_update_crystals(); };
+void() d2boss_death18 =[ 33, d2boss_death19 ] { d2boss_update_crystals(); };
+void() d2boss_death19 =[ 34, d2boss_death20 ] { d2boss_update_crystals(); };
+void() d2boss_death20 =[ 35, d2boss_death21 ] { d2boss_update_crystals(); };
+void() d2boss_death21 =[ 36, d2boss_death22 ] { d2boss_update_crystals(); };
+void() d2boss_death22 =[ 37, d2boss_death23 ] { d2boss_update_crystals(); };
+void() d2boss_death23 =[ 38, d2boss_death24 ] { d2boss_update_crystals(); };
+void() d2boss_death24 =[ 39, d2boss_death25 ] { d2boss_update_crystals(); };
+void() d2boss_death25 =[ 40, d2boss_death26 ] { d2boss_update_crystals(); };
+void() d2boss_death26 =[ 41, d2boss_death27 ] { d2boss_update_crystals(); };
+void() d2boss_death27 =[ 42, d2boss_death28 ] { d2boss_update_crystals(); };
+void() d2boss_death28 =[ 43, d2boss_death29 ] { d2boss_update_crystals(); };
+void() d2boss_death29 =[ 44, d2boss_death30 ] { d2boss_update_crystals(); };
+void() d2boss_death30 =[ 45, d2boss_death31 ] { d2boss_update_crystals(); };
+void() d2boss_death31 =[ 46, d2boss_death32 ] { d2boss_update_crystals(); };
+void() d2boss_death32 =[ 47, d2boss_death33 ] { d2boss_update_crystals(); };
+void() d2boss_death33 =[ 48, d2boss_death34 ] { d2boss_update_crystals(); };
+void() d2boss_death34 =[ 49, d2boss_death35 ] { d2boss_update_crystals(); };
+void() d2boss_death35 =[ 50, d2boss_death36 ] { d2boss_update_crystals(); };
+void() d2boss_death36 =[ 51, d2boss_death37 ] { d2boss_update_crystals(); };
+void() d2boss_death37 =[ 52, d2boss_death38 ] { d2boss_update_crystals(); };
+void() d2boss_death38 =[ 53, d2boss_death39 ] { d2boss_update_crystals(); };
+void() d2boss_death39 =[ 54, d2boss_death40 ] { d2boss_update_crystals(); };
+void() d2boss_death40 =[ 55, d2boss_death41 ] { d2boss_update_crystals(); };
+void() d2boss_death41 =[ 56, d2boss_death42 ] { d2boss_update_crystals(); };
+void() d2boss_death42 =[ 57, d2boss_death43 ] { d2boss_update_crystals(); };
+void() d2boss_death43 =[ 58, d2boss_death44 ] { d2boss_update_crystals(); };
+void() d2boss_death44 =[ 59, d2boss_death45 ] { d2boss_update_crystals(); };
+void() d2boss_death45 =[ 60, d2boss_death46 ] { d2boss_update_crystals(); };
+void() d2boss_death46 =[ 61, d2boss_death47 ] { d2boss_update_crystals(); 
+for (self.fUtilH = 0; self.fUtilH < 4; self.fUtilH++) ThrowGibBoss ("progs/gib1.mdl", 125, '0 0 0', crandom() * 300); };
+void() d2boss_death47 =[ 62, d2boss_death48 ] { d2boss_update_crystals(); 
+for (self.fUtilH = 0; self.fUtilH < 4; self.fUtilH++) ThrowGibBoss ("progs/gib2.mdl", 165, '0 0 0', crandom() * 300); };
+void() d2boss_death48 =[ 63, d2boss_death49 ] { d2boss_update_crystals(); 
+for (self.fUtilH = 0; self.fUtilH < 4; self.fUtilH++) ThrowGibBoss ("progs/gib3.mdl", 75, '0 0 0', crandom() * 300); };
+void() d2boss_death49 =[ 64, d2boss_death50 ] { d2boss_update_crystals(); };
+void() d2boss_death50 =[ 65, d2boss_death51 ] { d2boss_update_crystals(); };
+void() d2boss_death51 =[ 66, d2boss_death52 ] { d2boss_update_crystals(); };
+void() d2boss_death52 =[ 67, d2boss_death53 ] {	d2boss_update_crystals(); };
+void() d2boss_death53 =[ 68, d2boss_death54 ] {	d2boss_update_crystals(); };
+void() d2boss_death54 =[ 69, d2boss_death55 ] {	d2boss_update_crystals(); };
+void() d2boss_death55 =[ 70, d2boss_death56 ] {	d2boss_update_crystals(); };
+void() d2boss_death56 =[ 71, d2boss_death57 ] {	d2boss_update_crystals(); };
+void() d2boss_death57 =[ 72, d2boss_death58 ] {	d2boss_update_crystals(); };
+void() d2boss_death58 =[ 73, d2boss_death59 ] {	d2boss_update_crystals(); };
+void() d2boss_death59 =[ 74, d2boss_death60 ] {	d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death60 =[ 75, d2boss_death61 ] {	d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death61 =[ 76, d2boss_death62 ] { d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death62 =[ 77, d2boss_death63 ] { d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death63 =[ 78, d2boss_death64 ] { d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death64 =[ 79, d2boss_death65 ] { d2boss_update_crystals(); d2boss_randomexplosion(); };
+void() d2boss_death65 =[ 80, d2boss_death_final ] 
+{ 
+// final gibbage
+	for (self.fUtilH = 0; self.fUtilH < 6; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bosscrystala.mdl", 225, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 6; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bosscrystalb.mdl", 225, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 6; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bosscrystalc.mdl", 225, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 5; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bossstonea.mdl",   175, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 5; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bossstoneb.mdl",   175, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 5; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bossstonec.mdl",   175, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 5; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bossstoned.mdl",   175, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 5; self.fUtilH++) ThrowGibBoss ( "progs/gib_d2bossstonee.mdl",   175, [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 8; self.fUtilH++) ThrowGibBoss ( "progs/gib1.mdl", 				 75,  [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 8; self.fUtilH++) ThrowGibBoss ( "progs/gib2.mdl", 				 75,  [0,0, crandom() * 128], crandom() * 200 );
+	for (self.fUtilH = 0; self.fUtilH < 8; self.fUtilH++) ThrowGibBoss ( "progs/gib3.mdl", 				 75,  [0,0, crandom() * 128], crandom() * 200 );
+// explosion effect (sound + particles)
+	d2boss_randomexplosion();
 };
 
-void() d2boss_death   =[ 16, d2boss_death02 ] { };
-void() d2boss_death02 =[ 17, d2boss_death03 ] { };
-void() d2boss_death03 =[ 18, d2boss_death04 ] { };
-void() d2boss_death04 =[ 19, d2boss_death05 ] { };
-void() d2boss_death05 =[ 20, d2boss_death06 ] { };
-void() d2boss_death06 =[ 21, d2boss_death07 ] { };
-void() d2boss_death07 =[ 22, d2boss_death08 ] { };
-void() d2boss_death08 =[ 23, d2boss_death09 ] { };
-void() d2boss_death09 =[ 24, d2boss_death10 ] { };
-void() d2boss_death10 =[ 25, d2boss_death11 ] { };
-void() d2boss_death11 =[ 26, d2boss_death12 ] { };
-void() d2boss_death12 =[ 27, d2boss_death13 ] { };
-void() d2boss_death13 =[ 28, d2boss_death14 ] { };
-void() d2boss_death14 =[ 29, d2boss_death15 ] { };
-void() d2boss_death15 =[ 30, d2boss_death16 ] { };
-void() d2boss_death16 =[ 31, d2boss_death17 ] { };
-void() d2boss_death17 =[ 32, d2boss_death18 ] { };
-void() d2boss_death18 =[ 33, d2boss_death19 ] { };
-void() d2boss_death19 =[ 34, d2boss_death20 ] { };
-void() d2boss_death20 =[ 35, d2boss_death21 ] { };
-void() d2boss_death21 =[ 36, d2boss_death22 ] { };
-void() d2boss_death22 =[ 37, d2boss_death23 ] { };
-void() d2boss_death23 =[ 38, d2boss_death24 ] { };
-void() d2boss_death24 =[ 39, d2boss_death25 ] { };
-void() d2boss_death25 =[ 40, d2boss_death26 ] { };
-void() d2boss_death26 =[ 41, d2boss_death27 ] { };
-void() d2boss_death27 =[ 42, d2boss_death28 ] { };
-void() d2boss_death28 =[ 43, d2boss_death29 ] { };
-void() d2boss_death29 =[ 44, d2boss_death30 ] { };
-void() d2boss_death30 =[ 45, d2boss_death31 ] { };
-void() d2boss_death31 =[ 46, d2boss_death32 ] { };
-void() d2boss_death32 =[ 47, d2boss_death33 ] { };
-void() d2boss_death33 =[ 48, d2boss_death34 ] { };
-void() d2boss_death34 =[ 49, d2boss_death35 ] { };
-void() d2boss_death35 =[ 50, d2boss_death36 ] { };
-void() d2boss_death36 =[ 51, d2boss_death37 ] { };
-void() d2boss_death37 =[ 52, d2boss_death38 ] { };
-void() d2boss_death38 =[ 53, d2boss_death39 ] { };
-void() d2boss_death39 =[ 54, d2boss_death40 ] { };
-void() d2boss_death40 =[ 55, d2boss_death41 ] { };
-void() d2boss_death41 =[ 56, d2boss_death42 ] { };
-void() d2boss_death42 =[ 57, d2boss_death43 ] { };
-void() d2boss_death43 =[ 58, d2boss_death44 ] { };
-void() d2boss_death44 =[ 59, d2boss_death45 ] { };
-void() d2boss_death45 =[ 60, d2boss_death46 ] { };
-void() d2boss_death46 =[ 61, d2boss_death47 ] { };
-void() d2boss_death47 =[ 62, d2boss_death48 ] { };
-void() d2boss_death48 =[ 63, d2boss_death49 ] { };
-void() d2boss_death49 =[ 64, d2boss_death50 ] { };
-void() d2boss_death50 =[ 65, d2boss_death51 ] { };
-void() d2boss_death51 =[ 66, d2boss_death52 ] { };
-void() d2boss_death52 =[ 67, d2boss_death53 ] {	ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death53 =[ 68, d2boss_death54 ] {	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death54 =[ 69, d2boss_death55 ] {	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death55 =[ 70, d2boss_death56 ] {	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death56 =[ 71, d2boss_death57 ] {	ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death57 =[ 72, d2boss_death58 ] {	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death58 =[ 73, d2boss_death59 ] {	ThrowGibBoss ("progs/gib1.mdl", -300, D2BOSS_GIBOFFSET); };
-void() d2boss_death59 =[ 74, d2boss_death60 ] {	ThrowGibBoss ("progs/gib1.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death60 =[ 75, d2boss_death61 ] {	ThrowGibBoss ("progs/gib3.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); ThrowGibBoss ("progs/gib2.mdl", 100 + random() * 50, D2BOSS_GIBOFFSET); };
-void() d2boss_death61 =[ 76, d2boss_death62 ] { };
-void() d2boss_death62 =[ 77, d2boss_death63 ] { };
-void() d2boss_death63 =[ 78, d2boss_death64 ] { };
-void() d2boss_death64 =[ 79, d2boss_death65 ] { };
-void() d2boss_death65 =[ 80, d2boss_death ] 
+
+void() d2boss_randomexplosion =
+{
+	local entity sprite;
+	local vector offset;
+	sprite = spawn();
+	offset = self.origin;
+	offset_x += crandom() * 128;
+	offset_y += crandom() * 128;
+	offset_z += crandom() * 128;
+	setorigin(sprite, offset);
+	sprite.think = s_explode1;
+	sprite.nextthink = time + 0.1;
+	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
+	WriteCoord (MSG_BROADCAST, offset_x);
+	WriteCoord (MSG_BROADCAST, offset_y);
+	WriteCoord (MSG_BROADCAST, offset_z);
+};
+
+
+void() d2boss_death_final =
 { 	
 	d2boss_cleanup();
-	activator = self.enemy;
-	SUB_UseTargetsByField(target4);
 	remove(self);
 };
 
@@ -375,6 +524,42 @@ void() d2boss_cleanup =
 //remove pain_controller
 	if (self.eChildD) 
 		remove(self.eChildD);
+//remove crystals
+	if (self.eUtilA)
+		remove(self.eUtilA);
+	killed_monster();
+	activator = self.enemy;
+	SUB_UseTargetsByField(target4);
+};
+
+
+void() d2boss_update_crystals =
+{
+	self.eUtilA.frame = self.frame;
+	self.eUtilA.angles = self.angles;
+	setorigin ( self.eUtilA, self.origin ); 
+};
+
+
+void() d2boss_predeath_loop =
+{
+	if ( self.frame < 39 )
+	{
+	// look at player
+		self.avelocity_z = lerp( self.yaw_speed, 0, ( time - self.fUtilB ) * 0.5 ); 
+	// stop movement
+		self.velocity = lerpVector( self.oldvelocity, '0 0 0', ( time - self.fUtilB ) * 4 ); 
+		
+		self.frame++;
+		d2boss_update_crystals();
+		self.think = d2boss_predeath_loop;
+		self.nextthink = time + 0.1;
+	}
+	else
+	{
+		self.think = d2boss_death25;
+		self.nextthink = time + 0.1;
+	}
 };
 
 
@@ -382,16 +567,19 @@ void() d2boss_die =
 {
 	local entity crystals;
 	
-	self.state = D2BOSS_DEATH;
+	crystals = d2boss_spawn_childs( self, 0 );
+	self.eUtilA = crystals;
 	
-// spawn death crystals, we call it after cleanup, so ChildA should be free to take
-	crystals = d2boss_spawn_childs( self, 0 ); 
-// i was asking Bal to make crystal spikes model with same ammount of frames as boss,
-// so i could use one animation sequence for both. But instead i used dedicated loop. 
-// If you want to make a model without first 16 frames blank, then change numbers here and in d2boss_deathcrystals()
-	crystals.frame = 16; 
-	SUB_CallAsSelf( d2boss_deathcrystals, crystals);
-	d2boss_death();
+	self.frame = 16; //first death frame
+	self.state = D2BOSS_DEATH;
+// set lerp timer
+	self.fUtilB = time;
+// become invulnerable
+	d2boss_bbox_setfield(takedamage, DAMAGE_NO); 
+	self.oldvelocity = self.velocity;
+	//self.velocity = 0;
+	self.think = d2boss_predeath_loop;
+	self.nextthink = time + 0.1;	
 };
 
 
@@ -560,7 +748,12 @@ void(entity tgt, entity attacker, float dmg) d2boss_damage =
 		tgt.enemy = attacker;
 
 	if (tgt.health <= 0) 
-		SUB_CallAsSelf( d2boss_reset, self.owner );
+	{
+		if (tgt.fUtilF)
+			SUB_CallAsSelf( d2boss_die, tgt );
+		else
+			SUB_CallAsSelf( d2boss_reset, tgt );
+	}
 };
 
 
@@ -589,6 +782,7 @@ void() d2boss_paincontroller_think =
 void() d2boss_reset =
 {
 // fire targets immediately
+	activator = self.enemy;
 	SUB_UseTargetsByField( target );
 // become invulnerable
 	d2boss_bbox_setfield(takedamage, DAMAGE_NO); 
@@ -607,9 +801,6 @@ void() d2boss_reset =
 	self.fUtilA = time;	
 // initiat phase change	
 	self.state = D2BOSS_PHASECHANGE;
-// take care of shield if it was visible during death trigger
-	if (self.fUtilF)
-		self.eChildB.alpha = 0.01;
 };
 
 // move along path corners
@@ -626,12 +817,31 @@ void() d2boss_reachpath =
 // delay after being triggered
 void() d2boss_intro =
 {
-	// blow open it's eye, mod this to different model and don't forget to precache them first in boss spawn
-	ThrowGibBoss ( "progs/gib1.mdl", -100, D2BOSS_GIBOFFSET );
-	ThrowGibBoss ( "progs/gib2.mdl", -100, D2BOSS_GIBOFFSET );
-	ThrowGibBoss ( "progs/gib3.mdl", -100, D2BOSS_GIBOFFSET );
+	// blow open it's eye
+	local entity gib;
+	local vector offset;
+
 	setmodel(self, "progs/mon_d2bossb.mdl");
 	setsize ( self, '0 0 0', '0 0 0' );
+	
+	gib = ThrowGibBoss ( "progs/gib_d2bosscrystala.mdl", 0, D2BOSS_GIBOFFSET, -50 );
+	gib.avelocity *= 0.1;
+	gib = ThrowGibBoss ( "progs/gib_d2bosscrystalb.mdl", 0, D2BOSS_GIBOFFSET, -65 );
+	gib.avelocity *= 0.1;
+	gib = ThrowGibBoss ( "progs/gib_d2bosscrystalc.mdl", 0, D2BOSS_GIBOFFSET, -55 );
+	gib.avelocity *= 0.1;
+	gib = ThrowGibBoss ( "progs/gib_d2bossstonec.mdl",   0, D2BOSS_GIBOFFSET, -25 );
+	gib.avelocity *= 0.1;
+	gib = ThrowGibBoss ( "progs/gib_d2bossstoned.mdl",   0, D2BOSS_GIBOFFSET, -25 );
+	gib.avelocity *= 0.1;
+	
+// explosion effect (sound + particles)
+	offset = self.origin + D2BOSS_GIBOFFSET;
+	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
+	WriteCoord (MSG_BROADCAST, offset_x);
+	WriteCoord (MSG_BROADCAST, offset_y);
+	WriteCoord (MSG_BROADCAST, offset_z);
 	
 	self.nextthink = time + 2;
 	self.think = d2boss_wake;
@@ -649,12 +859,13 @@ void() d2boss_wake =
 
 void() d2boss_idle_start =
 {
+	self.frame = 0;
 	self.state = D2BOSS_IDLE;
 	self.think = d2boss_flying_start;
 	self.nextthink = time + self.wait;
 // start spinning
-	self.eChildB.avelocity_z = self.yaw_speed * 0.5; //slowdown a bit
-	self.avelocity_z = self.yaw_speed * 0.5; //slowdown a bit
+	self.eChildB.avelocity_z = self.yaw_speed * D2BOSS_BHROTATIONMULTIPLIER; //slowdown a bit
+	self.avelocity_z = self.yaw_speed * D2BOSS_BHROTATIONMULTIPLIER; //slowdown a bit
 };
 
 
@@ -680,12 +891,9 @@ void() d2boss_flying_start =
 void() d2boss_teleport_out_start =
 {
 	d2boss_teleport_out();
-// shield, don't do if boss is dying
-	if ( !self.fUtilF )
-	{
-		self.eChildB.think = d2boss_teleport_out; 
-		self.eChildB.nextthink = time;
-	}
+// shield
+	self.eChildB.think = d2boss_teleport_out; 
+	self.eChildB.nextthink = time;
 };
 
 
@@ -702,20 +910,9 @@ void() d2boss_teleport_in_start =
 	}
 // start of animation sequence
 	d2boss_teleport_in();
-// shield, don't do if boss is dying
-	if ( !self.fUtilF )
-	{
-		self.eChildB.think = d2boss_teleport_in; 
-		self.eChildB.nextthink = time;
-	}
-};
-
-void() d2boss_death_preparation =
-{
-	self.avelocity = 0;
-	self.velocity = 0;
-	
-	d2boss_teleport_out_start();
+// shield
+	self.eChildB.think = d2boss_teleport_in; 
+	self.eChildB.nextthink = time;
 };
 
 
@@ -726,11 +923,10 @@ void() d2boss_shield_up =
 	self.avelocity = 0;
 	
 	setorigin(self.eChildB, self.origin);
+	//self.frame = 16; // first frame of shield up sequence
+	self.eChildB.alpha = 0;
 	self.eChildB.angles = self.angles;
-	self.eChildB.alpha = 0.5;
 	self.state = D2BOSS_WAITFORSHIELD;
-// should be already set
-//	d2boss_bbox_setfield(takedamage, DAMAGE_NO); 
 	self.eChildB.think = d2boss_shield;
 	self.eChildB.nextthink = time;
 	//sound?
@@ -739,8 +935,9 @@ void() d2boss_shield_up =
 
 void() d2boss_shield_down =
 {
-	self.eChildB.alpha = 0.01;
+	self.eChildB.alpha = -1;
 	self.eChildB.avelocity_z = 0;
+	self.eChildB.frame = 16;
 	//sound?
 };
 
@@ -785,7 +982,8 @@ void() d2boss_thinker_loop =
 	// fire rocket
 		if ( self.attack_finished < time )
 		{
-			d2bossMissile();
+			//d2bossMissile();
+			d2bossSwarmAttack();
 			self.attack_finished = time + 2 + ( 2 * random()); // how often
 		}
 	}
@@ -801,14 +999,7 @@ void() d2boss_thinker_loop =
 			boss.v_angle = 0;
 			boss.vUtilA = 0;
 			
-		// continue to shielding up after we reset boss angles
-			if ( boss.fUtilF ) 
-			{
-			// death, jump straight to the teleport sequence
-				boss.state = D2BOSS_TELEPORTING;
-				d2boss_teleport_out_start(); //self should be boss
-			}
-			else if ( boss.state == D2BOSS_PHASECHANGE ) 
+			if ( boss.state == D2BOSS_PHASECHANGE ) 
 				d2boss_shield_up();
 		}
 	}
@@ -843,14 +1034,15 @@ entity(entity peWho, float isShield) d2boss_spawn_childs =
 	{
 		setmodel ( e, "progs/mon_d2bossf.mdl" );
 		e.classname = "d2boss_shield";
+		e.alpha = D2BOSS_SHIELDALPHA;
 		e.angles = peWho.angles;
 		e.angles_x = D2BOSS_LOOKDOWN;
-		e.alpha = 0.5;
 	}
 	else 
 	{
 		setmodel ( e, "progs/mon_d2bossc.mdl" );
 		e.classname = "d2boss_crystals";
+		e.angles = peWho.angles;
 	}
 	setsize ( e, '0 0 0', '0 0 0' );
 	setorigin ( e, peWho.origin );
@@ -865,6 +1057,7 @@ entity(entity peWho, float isShield) d2boss_spawn_childs =
 // child B - shield model
 // child C - think entity
 // child D - pain control entity
+// eUtil A - death crystals
 // fUtilA - lerp timer for transition between staring at player and looking directly down
 void() monster_d2boss =
 {
@@ -884,6 +1077,15 @@ void() monster_d2boss =
 	precache_model ("progs/mon_d2bossb.mdl"); // broken model (eye)
 	precache_model ("progs/mon_d2bossc.mdl"); // death crystals
 	precache_model ("progs/mon_d2bossf.mdl"); // forcefield
+	precache_model ("progs/gib_d2bosscrystala.mdl");
+	precache_model ("progs/gib_d2bosscrystalb.mdl");
+	precache_model ("progs/gib_d2bosscrystalc.mdl");
+	precache_model ("progs/gib_d2bossstonea.mdl");
+	precache_model ("progs/gib_d2bossstoneb.mdl");
+	precache_model ("progs/gib_d2bossstonec.mdl");
+	precache_model ("progs/gib_d2bossstoned.mdl"); // :)
+	precache_model ("progs/gib_d2bossstonee.mdl");
+	precache_model ("progs/e2/marker.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
 	precache_sound ("d1boss/dash.wav");
@@ -918,7 +1120,7 @@ void() monster_d2boss =
 	self.movetype = MOVETYPE_FLY;
 	setmodel ( self, "progs/mon_d2boss.mdl" );
 	setsize ( self, '0 0 0', '0 0 0' );
-	self.angles_x = -90;
+	self.angles_x = D2BOSS_LOOKDOWN;
 	self.frame = 0; //idle
 	self.state = D2BOSS_SLEEPING;
 	self.type = "boss";
@@ -963,8 +1165,7 @@ void() d2boss_trigger_death =
 	if (boss)
 	{
 		boss.fUtilF = 1;
-		boss.think = d2boss_reset;
-		boss.nextthink = time + 1;
+		boss.health = 666;
 	}
 };
 
@@ -986,3 +1187,10 @@ Keys:
 [
 ]
 */
+	//
+	//	E = lerpVector( A, B, state );
+	//	F = lerpVector( B, C, state );
+	//	G = lerpVector( C, D, state );
+	//	H = lerpVector( E, F, state );
+	//	I = lerpVector( F, G, state );
+	//	J = lerpVector( H, I, state );
