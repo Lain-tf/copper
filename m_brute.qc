@@ -37,6 +37,8 @@ $frame death1 death2 death3 death4 death5 death6 death7 death8 death9 death10 de
 
 $frame pain1 pain2 pain3 pain4 pain5 pain6 pain7 pain8 pain9
 
+$frame deathb1 deathb2 deathb3 deathb4 deathb5 deathb6 deathb7 deathb8 deathb9 deathb10 deathb11 deathb12 deathb13 deathb14
+
 //=============================================================================
 
 void() BruteGrenadeExplode =
@@ -377,6 +379,21 @@ void()	brute_die11	=[	$death11,	brute_die12	] {}
 void()	brute_die12	=[	$death12,	brute_die13	] {}
 void()	brute_die13	=[	$death13,	brute_die13	] {PostDeathLogic();}
 
+/* Dieb */
+void()	brute_dieb1	=[	$deathb1,	brute_dieb2	] {self.solid = SOLID_NOT; brute_dropammo();}
+void()	brute_dieb2	=[	$deathb2,	brute_dieb3	] {}
+void()	brute_dieb3	=[	$deathb3,	brute_dieb4	] {}
+void()	brute_dieb4	=[	$deathb4,	brute_dieb5	] {}
+void()	brute_dieb5	=[	$deathb5,	brute_dieb6	] {}
+void()	brute_dieb6	=[	$deathb6,	brute_dieb7	] {}
+void()	brute_dieb7	=[	$deathb7,	brute_dieb8	] {}
+void()	brute_dieb8	=[	$deathb8,	brute_dieb9	] {}
+void()	brute_dieb9	=[	$deathb9,	brute_dieb10	] {}
+void()	brute_dieb10	=[	$deathb10,	brute_dieb11	] {}
+void()	brute_dieb11	=[	$deathb11,	brute_dieb12	] {}
+void()	brute_dieb12	=[	$deathb12,	brute_dieb13	] {}
+void()	brute_dieb13	=[	$deathb13,	brute_dieb13	] {PostDeathLogic();}
+
 /* Melee */
 void() brute_meleea1	=[	$melee_a1, brute_meleea2 	] {ai_charge(8);}
 void() brute_meleea2	=[	$melee_a2, brute_meleea3 	] {ai_charge(12);}
@@ -619,7 +636,11 @@ void() brute_die =
 		return;
 	}
 	
-	brute_die1();
+	if (random() <0.5)	{
+		brute_die1();
+	} else {
+	brute_dieb1();
+	}
 }
 
 void() brute_melee =

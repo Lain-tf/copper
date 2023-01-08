@@ -68,6 +68,32 @@ $frame painb1 painb2 painb3 painb4 painb5 painb6
  void() excavator_run18 = [ $fly18, excavator_run19 ] {ai_run(16);}
  void() excavator_run19 = [ $fly19, excavator_run20 ] {ai_run(16);}
  void() excavator_run20 = [ $fly20, excavator_run1 ] {ai_run(16);}
+ 
+ /*
+ *==================
+ * Excavator "walk"
+ *==================
+ */
+ void() excavator_walk1  = [ $fly1, excavator_walk2 ] {ai_walk(8);}
+ void() excavator_walk2  = [ $fly2, excavator_walk3 ] {ai_walk(8);}
+ void() excavator_walk3  = [ $fly3, excavator_walk4 ] {ai_walk(8);}
+ void() excavator_walk4  = [ $fly4, excavator_walk5 ] {ai_walk(8);}
+ void() excavator_walk5  = [ $fly5, excavator_walk6 ] {ai_walk(8);}
+ void() excavator_walk6  = [ $fly6, excavator_walk7 ] {ai_walk(8);}
+ void() excavator_walk7  = [ $fly7, excavator_walk8 ] {ai_walk(8);}
+ void() excavator_walk8  = [ $fly8, excavator_walk9 ] {ai_walk(8);}
+ void() excavator_walk9  = [ $fly9, excavator_walk10 ] {ai_walk(8);}
+ void() excavator_walk10 = [ $fly10, excavator_walk11 ] {ai_walk(8);}
+ void() excavator_walk11 = [ $fly11, excavator_walk12 ] {ai_walk(8);}
+ void() excavator_walk12 = [ $fly12, excavator_walk13 ] {ai_walk(8);}
+ void() excavator_walk13 = [ $fly13, excavator_walk14 ] {ai_walk(8);}
+ void() excavator_walk14 = [ $fly14, excavator_walk15 ] {ai_walk(8);}
+ void() excavator_walk15 = [ $fly15, excavator_walk16 ] {ai_walk(8);}
+ void() excavator_walk16 = [ $fly16, excavator_walk17 ] {ai_walk(8);}
+ void() excavator_walk17 = [ $fly17, excavator_walk18 ] {ai_walk(8);}
+ void() excavator_walk18 = [ $fly18, excavator_walk19 ] {ai_walk(8);}
+ void() excavator_walk19 = [ $fly19, excavator_walk20 ] {ai_walk(8);}
+ void() excavator_walk20 = [ $fly20, excavator_walk1 ] {ai_walk(8);}
 
 /*
  *============================
@@ -401,7 +427,7 @@ void() monster_excavator_spawn =
 	self.health = 600;
 
 	self.th_stand = exca_stand1;
-	self.th_walk = wiz_walk1;
+	self.th_walk = excavator_walk1;
 	self.th_run = excavator_run1;
 	self.th_missile = excavator_fire1;
 	self.th_pain = excavator_pain;
