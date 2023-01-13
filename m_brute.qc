@@ -305,43 +305,29 @@ void() brute_stand {
 }
 
 /* Walk */
-void() brute_walk1	=[	$walk1,		brute_walk2		] { ai_walk(6); }
-void() brute_walk2	=[	$walk2,		brute_walk3		] { ai_walk(6); }
-void() brute_walk3	=[	$walk3,		brute_walk4		] { ai_walk(6); }
-void() brute_walk4	=[	$walk4,		brute_walk5		] { ai_walk(6); }
-void() brute_walk5	=[	$walk5,		brute_walk6		] { ai_walk(6); }
-void() brute_walk6	=[	$walk6,		brute_walk7		] { ai_walk(6); }
-void() brute_walk7	=[	$walk7,		brute_walk8		] {
-	if (random() < 0.5) {
-		sound (self, CHAN_VOICE, "brute/walk1.wav", 1, ATTN_IDLE);
-	} else {
-		sound (self, CHAN_VOICE, "brute/walk2.wav", 1, ATTN_IDLE);
-	}
-	ai_walk(6); 
-}
-void() brute_walk8	=[	$walk8,		brute_walk9		] { ai_walk(5); }
-void() brute_walk9	=[	$walk9,		brute_walk10 	] { ai_walk(5); }
-void() brute_walk10	=[	$walk10,	brute_walk11	] { ai_walk(5); }
-void() brute_walk11	=[	$walk11,	brute_walk12	] { ai_walk(5); }
-void() brute_walk12	=[	$walk12,	brute_walk13	] { ai_walk(5); }
-void() brute_walk13	=[	$walk13,	brute_walk14	] { ai_walk(5); }
-void() brute_walk14	=[	$walk14,	brute_walk15	] { ai_walk(5); }
-void() brute_walk15	=[	$walk15,	brute_walk16	] { ai_walk(5); }
-void() brute_walk16	=[	$walk16,	brute_walk17	] { ai_walk(5); }
-void() brute_walk17	=[	$walk17,	brute_walk18	] { ai_walk(5); }
-void() brute_walk18	=[	$walk18,	brute_walk19	] {
-	if (random() < 0.5) {
-		sound (self, CHAN_VOICE, "brute/walk1.wav", 1, ATTN_IDLE);
-	} else {
-		sound (self, CHAN_VOICE, "brute/walk2.wav", 1, ATTN_IDLE);
-	}
-	ai_walk(5);
-}
-void() brute_walk19	=[	$walk19,	brute_walk20	] { ai_walk(6); }
-void() brute_walk20	=[	$walk20,	brute_walk21	] { ai_walk(6); }
-void() brute_walk21	=[	$walk21,	brute_walk22	] { ai_walk(6); }
-void() brute_walk22	=[	$walk22,	brute_walk23	] { ai_walk(6); }
-void() brute_walk23	=[	$walk23,	brute_walk1		] { ai_walk(6); }
+void() brute_walk1	=[	$walk1,		brute_walk2		] { ai_walk(2); }
+void() brute_walk2	=[	$walk2,		brute_walk3		] { ai_walk(3); }
+void() brute_walk3	=[	$walk3,		brute_walk4		] { ai_walk(1); }
+void() brute_walk4	=[	$walk4,		brute_walk5		] { ai_walk(2); }
+void() brute_walk5	=[	$walk5,		brute_walk6		] { ai_walk(2); }
+void() brute_walk6	=[	$walk6,		brute_walk7		] { ai_walk(2); }
+void() brute_walk7	=[	$walk7,		brute_walk8		] { ai_walk(2); }
+void() brute_walk8	=[	$walk8,		brute_walk9		] { ai_walk(4); }
+void() brute_walk9	=[	$walk9,		brute_walk10 		] { ai_walk(4); }
+void() brute_walk10	=[	$walk10,	brute_walk11		] { ai_walk(4); }
+void() brute_walk11	=[	$walk11,	brute_walk12		] { ai_walk(3); }
+void() brute_walk12	=[	$walk12,	brute_walk13		] { ai_walk(2); }
+void() brute_walk13	=[	$walk13,	brute_walk14		] { ai_walk(2); }
+void() brute_walk14	=[	$walk14,	brute_walk15		] { ai_walk(1); }
+void() brute_walk15	=[	$walk15,	brute_walk16		] { ai_walk(1); }
+void() brute_walk16	=[	$walk16,	brute_walk17		] { ai_walk(4); }
+void() brute_walk17	=[	$walk17,	brute_walk18		] { ai_walk(3); }
+void() brute_walk18	=[	$walk18,	brute_walk19		] { ai_walk(2); }
+void() brute_walk19	=[	$walk19,	brute_walk20		] { ai_walk(2); }
+void() brute_walk20	=[	$walk20,	brute_walk21		] { ai_walk(4); }
+void() brute_walk21	=[	$walk21,	brute_walk22		] { ai_walk(4); }
+void() brute_walk22	=[	$walk22,	brute_walk23		] { ai_walk(4); }
+void() brute_walk23	=[	$walk23,	brute_walk1		] { ai_walk(4); }
 
 /* Run */
 void() brute_run1	=[	$run1,		brute_run2	] {ai_run(8);}
