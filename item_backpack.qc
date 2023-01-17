@@ -81,10 +81,10 @@ void() BackpackTouch =
 	}
 	else if (lvItems_x == 2)
 	{
-		if (lvItems_y && (other.items2 & lvItems_y) == 0)
+		if (lvItems_y && (other.items_dwell & lvItems_y) == 0)
 		{
 			acount = TRUE;
-			other.items2 |= lvItems_y;
+			other.items_dwell |= lvItems_y;
 			sprint (other, "the ");
 			sprint (other, self.netname);
 		

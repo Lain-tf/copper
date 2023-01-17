@@ -37,7 +37,7 @@ void() weapon_touch_coop =
 void(entity to) weapon_give =
 {
 	to.items |= self.items;
-	to.items2 |= self.items2;
+	to.items_dwell |= self.items_dwell;
 	to.ammo_shells += self.ammo_shells;
 	to.ammo_nails += self.ammo_nails;
 	to.ammo_rockets += self.ammo_rockets;
@@ -70,9 +70,9 @@ void() weapon_touch =
 	else
 		leave = 0;
 
-	if (self.items2) {
-		weap_items = self.items2;
-		player_items = other.items2;
+	if (self.items_dwell) {
+		weap_items = self.items_dwell;
+		player_items = other.items_dwell;
 	} else {
 		weap_items = self.items;
 		player_items = other.items;
@@ -190,7 +190,7 @@ void() weapon_rifle =
 	if (!SUB_ShouldSpawn()) return;
 	precache_model ("progs/g_rifle.mdl");
 	setmodel (self, "progs/g_rifle.mdl");
-	self.items2 = IT_RIFLE;
+	self.items_dwell = IT_RIFLE;
 	self.weapon = W_RIFLE;
 	self.ammo_shells = 5;
 	self.netname = "Rifle";
@@ -240,7 +240,7 @@ void() weapon_quad_shotgun =
 	if (!SUB_ShouldSpawn()) return;
 	precache_model ("progs/g_shot3.mdl");
 	setmodel (self, "progs/g_shot3.mdl");
-	self.items2 = IT_QUAD_SHOTGUN;
+	self.items_dwell = IT_QUAD_SHOTGUN;
 	self.weapon = W_QUAD_SHOTGUN;
 	self.ammo_shells = 10;
 	self.netname = "Rotary Shotgun";
@@ -264,7 +264,7 @@ void() weapon_railgun =
 	if (!SUB_ShouldSpawn()) return;
 	precache_model ("progs/g_rail.mdl");
 	setmodel (self, "progs/g_rail.mdl");
-	self.items2 = IT_RAILGUN;
+	self.items_dwell = IT_RAILGUN;
 	self.weapon = W_RAILGUN;
 	self.ammo_cells = 18;
 	self.netname = "Railgun Staff";

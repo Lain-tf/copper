@@ -44,7 +44,7 @@ void() Cheat_Items =
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
-	self.items2 = self.items2 | IT_QUAD_SHOTGUN | IT_RAILGUN; // IT_RIFLE excluded
+	self.items_dwell = self.items_dwell | IT_QUAD_SHOTGUN | IT_RAILGUN; // IT_RIFLE excluded
 
 	self.weapon = W_ROCKET_LAUNCHER;
 
@@ -58,7 +58,7 @@ void() Cheat_Rifle =
 		return;
 
 	self.ammo_shells = MAX_AMMO_SHELLS;
-	self.items2 = self.items2 | IT_RIFLE ;
+	self.items_dwell = self.items_dwell | IT_RIFLE ;
 	self.weapon = W_RIFLE;
 
 	stuffcmd(self,"bf\n");
@@ -177,7 +177,7 @@ void() Cheat_Haste =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_HASTE;
+	self.items_dwell = self.items_dwell | IT_HASTE;
 	powerup_haste(self, 20);
 	self.changevcshift = 1; // apply tint on cheat command (vf)
 }
@@ -190,7 +190,7 @@ void() Cheat_Berserk =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_BERSERK;
+	self.items_dwell = self.items_dwell | IT_BERSERK;
 	powerup_berserk(self, 30);
 	self.changevcshift = 1; // apply tint on cheat command (vf)
 }
@@ -214,7 +214,7 @@ void() Cheat_Wetsuit =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_WETSUIT;
+	self.items_dwell = self.items_dwell | IT_WETSUIT;
 	powerup_wetsuit(self, 60);
 }
 

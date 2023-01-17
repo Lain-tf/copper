@@ -312,15 +312,15 @@ float() W_BestWeapon =
 		return W_SUPER_NAILGUN;
 	if(self.ammo_shells >= 2 && (it & IT_SUPER_SHOTGUN) )
 		return W_SUPER_SHOTGUN;
-	if(self.ammo_shells >= 4 && (self.items2 & IT_QUAD_SHOTGUN))
+	if(self.ammo_shells >= 4 && (self.items_dwell & IT_QUAD_SHOTGUN))
 		return W_QUAD_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
-	if (self.ammo_cells >= 6 && (self.items2 & IT_RAILGUN) )
+	if (self.ammo_cells >= 6 && (self.items_dwell & IT_RAILGUN) )
 		return W_RAILGUN;
 	if(self.ammo_nails >= 1 && (it & IT_NAILGUN) )
 		return W_NAILGUN;
-	if(self.ammo_shells >= 1 && (self.items2 & IT_RIFLE) )
+	if(self.ammo_shells >= 1 && (self.items_dwell & IT_RIFLE) )
 		return W_RIFLE;
 	if(self.ammo_shells >= 1 && (it & IT_SHOTGUN) )
 		return W_SHOTGUN;
@@ -475,11 +475,11 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 2)
 	{
-		if (self.items2 & IT_RIFLE && self.weapon != W_RIFLE)
+		if (self.items_dwell & IT_RIFLE && self.weapon != W_RIFLE)
 		{
 			fl = IT_RIFLE;
 			weap = W_RIFLE;
-			it = self.items2;
+			it = self.items_dwell;
 		}
 		else
 		{
@@ -492,13 +492,13 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 3)
 	{
-		if (self.items2 & IT_QUAD_SHOTGUN &&
+		if (self.items_dwell & IT_QUAD_SHOTGUN &&
 			self.weapon != W_QUAD_SHOTGUN &&
 			self.ammo_shells >= 4) {
 			// We can select the quad shotgun.
 			fl = IT_QUAD_SHOTGUN;
 			weap = W_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 		} else {
 			// We either don't have the quad shotgun,
 			// don't have enough ammo for it, or already have it
@@ -545,12 +545,12 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 8)
 	{
-		if (self.items2 & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 6) 
+		if (self.items_dwell & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 6) 
 		{
 			// We can select the railgun.
 			fl = IT_RAILGUN;
 			weap = W_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 		} 
 		else 
 		{
@@ -578,7 +578,7 @@ void() W_ChangeWeapon =
 		// individual impulse, do not modify
 		fl = IT_RIFLE;
 		weap = W_RIFLE;
-		it = self.items2;
+		it = self.items_dwell;
 		if (self.ammo_shells < 1)
 			no_ammo = TRUE;
 	}
@@ -596,7 +596,7 @@ void() W_ChangeWeapon =
 		// individual impulse, do not modify
 		fl = IT_QUAD_SHOTGUN;
 		weap = W_QUAD_SHOTGUN;
-		it = self.items2;
+		it = self.items_dwell;
 		if (self.ammo_shells < 4)
 			no_ammo = TRUE;
 	}
@@ -614,7 +614,7 @@ void() W_ChangeWeapon =
 		// individual impulse, do not modify
 		fl = IT_RAILGUN;
 		weap = W_RAILGUN;
-		it = self.items2;
+		it = self.items_dwell;
 		if (self.ammo_cells < 6)
 		no_ammo = TRUE;
 	}
@@ -679,7 +679,7 @@ void() CycleWeaponCommand =
 		{
 			self.weapon = W_RIFLE;
 			fl = IT_RIFLE;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 1)
 				am = 1;
 		}
@@ -695,7 +695,7 @@ void() CycleWeaponCommand =
 		{
 			self.weapon = W_QUAD_SHOTGUN;
 			fl = IT_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 4)
 				am = 1;
 		}
@@ -735,7 +735,7 @@ void() CycleWeaponCommand =
 		{
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_cells < 6)
 				am = 1;
 		}
@@ -814,7 +814,7 @@ void() CycleWeaponReverseCommand =
 		{
 			self.weapon = W_QUAD_SHOTGUN;
 			fl = IT_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 4)
 				am = 1;
 		}
@@ -831,7 +831,7 @@ void() CycleWeaponReverseCommand =
 		{
 			self.weapon = W_RIFLE;
 			fl = IT_RIFLE;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 1)
 				am = 1;
 		}
@@ -861,7 +861,7 @@ void() CycleWeaponReverseCommand =
 		{
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_cells < 6) 
 				am = 1;
 		}

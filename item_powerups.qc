@@ -68,7 +68,7 @@ powerup_haste
 void(entity h, float t) powerup_haste =
 {
 	sprint(h, "You begin to channel unbelievable speed ...\n\b+60% attack speed\b\n");
-	h.items2 |= IT_HASTE;
+	h.items_dwell |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
 	h.changevcshift = 1; // apply tint on pickup (vf)
@@ -87,7 +87,7 @@ void(entity h, float t) powerup_berserk =
 		return;
 		
 	sprint(h, "You begin frothing with a berserkers rage ...\n\b10x melee damage\b\n");
-	h.items2 |= IT_BERSERK;
+	h.items_dwell |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
 	h.changevcshift = 1; // apply tint on pickup (vf)
@@ -111,7 +111,7 @@ powerup_wetsuit
 void(entity h, float t) powerup_wetsuit =
 {
 	sprint(h, "You equip the Diving Gear\n\b+30% Swim Speed & Water Breathing\b\n");
-	h.items2 |= IT_WETSUIT;
+	h.items_dwell |= IT_WETSUIT;
 	h.wetsuit_finished = time + t;
 	h.wetsuit_time = 1;
 }
@@ -372,7 +372,7 @@ void() item_artifact_haste =
 	setmodel (self, "progs/e2/item_haste.mdl");
 	self.netname = "Haste";
 	self.noise = "items/haste1.wav";
-	self.items2 = IT_HASTE;
+	self.items_dwell = IT_HASTE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;
@@ -419,7 +419,7 @@ void() item_artifact_berserk =
 	setmodel (self, "progs/item_berserk.mdl");
 	self.netname = "Berserk";
 	self.noise = "items/axe_powerup.wav";
-	self.items2 = IT_BERSERK;
+	self.items_dwell = IT_BERSERK;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;
@@ -468,7 +468,7 @@ void() item_artifact_wetsuit =
 	setmodel (self, "progs/item_diving.mdl");
 	self.netname = "Wetsuit";
 	self.noise = "items/wetsuit.wav";
-	self.items2 = IT_WETSUIT;
+	self.items_dwell = IT_WETSUIT;
 	setsize (self, '-16 -16 -8', '16 16 48');
 	if (deathmatch)
 		self.wait = 60;

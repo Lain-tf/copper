@@ -399,7 +399,7 @@ string	keyType;
 .entity		trueowner;		// now this is getting dumb
 
 // Second set of items, we overflowed the first
-.float 		items2;
+.float 		items_dwell;
 
 // Weapon upgrades
 .float 		upgrades;

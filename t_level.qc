@@ -221,15 +221,15 @@ void(entity who) RestoreItemEffects =
 	}
 	if (who.haste_finished > 0) {
 		who.haste_finished += time;
-		who.items2 += IT_HASTE;
+		who.items_dwell += IT_HASTE;
 	}
 	if (who.berserk_finished > 0) {
 		who.berserk_finished += time;
-		who.items2 += IT_BERSERK;
+		who.items_dwell += IT_BERSERK;
 	}	
 	if (who.wetsuit_finished > 0) {
 		who.wetsuit_finished += time;
-		who.items2 += IT_WETSUIT;
+		who.items_dwell += IT_WETSUIT;
 	}
 }
 

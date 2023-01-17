@@ -38,7 +38,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
-	self.items2 = self.items2 - (self.items2 & (IT_HASTE | IT_WETSUIT | IT_BERSERK));
+	self.items_dwell = self.items_dwell - (self.items_dwell & (IT_HASTE | IT_WETSUIT | IT_BERSERK));
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -76,7 +76,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype;
-	parm10 = self.items2;
+	parm10 = self.items_dwell;
 
 }
 
@@ -138,7 +138,7 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9;
-	self.items2 = parm10;
+	self.items_dwell = parm10;
 	
 	armor_set_type(self);
 }
@@ -1452,7 +1452,7 @@ void() CheckPowerups =
 
 		if (self.haste_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_HASTE;
+			self.items_dwell = self.items_dwell - IT_HASTE;
 			self.haste_finished = 0;
 			self.haste_time = 0;
 			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
@@ -1484,7 +1484,7 @@ void() CheckPowerups =
 
 		if (self.berserk_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_BERSERK;
+			self.items_dwell = self.items_dwell - IT_BERSERK;
 			self.berserk_finished = 0;
 			self.berserk_time = 0;
 			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
@@ -1521,7 +1521,7 @@ void() CheckPowerups =
 
 		if (self.wetsuit_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_WETSUIT;
+			self.items_dwell = self.items_dwell - IT_WETSUIT;
 			self.wetsuit_finished = 0;
 			self.wetsuit_time = 0;
 		}
