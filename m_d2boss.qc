@@ -569,6 +569,7 @@ void() d2boss_die =
 	
 	crystals = d2boss_spawn_childs( self, 0 );
 	self.eUtilA = crystals;
+	sound (self, CHAN_AUTO, "d2boss/death.wav", 1, ATTN_NORM);
 	
 	self.frame = 16; //first death frame
 	self.state = D2BOSS_DEATH;
@@ -590,9 +591,9 @@ void(entity attacker, float damage) d2boss_Pain =
 		return;	
 
 	if ( random() > 0.5 )
-		sound (self, CHAN_AUTO, "d1boss/pain1.wav", 1, ATTN_NORM);
+		sound (self, CHAN_AUTO, "d2boss/pain1.wav", 1, ATTN_NORM);
 	else if ( random() > 0.75 )
-		sound (self, CHAN_AUTO, "d1boss/pain2.wav", 1, ATTN_NORM);		
+		sound (self, CHAN_AUTO, "d2boss/pain2.wav", 1, ATTN_NORM);		
 };
 
 
@@ -929,7 +930,7 @@ void() d2boss_shield_up =
 	self.state = D2BOSS_WAITFORSHIELD;
 	self.eChildB.think = d2boss_shield;
 	self.eChildB.nextthink = time;
-	//sound?
+	sound (self, CHAN_AUTO, "d2boss/shield_up.wav", 1, ATTN_NONE);	
 };
 
 
@@ -938,7 +939,7 @@ void() d2boss_shield_down =
 	self.eChildB.alpha = -1;
 	self.eChildB.avelocity_z = 0;
 	self.eChildB.frame = 16;
-	//sound?
+	sound (self, CHAN_AUTO, "d2boss/shield_down.wav", 1, ATTN_NONE);
 };
 
 
@@ -1088,6 +1089,12 @@ void() monster_d2boss =
 	precache_model ("progs/e2/marker.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
+	precache_sound ("d2boss/shield_down.wav");
+	precache_sound ("d2boss/shield_up.wav");
+	precache_sound ("d2boss/death.wav");
+	precache_sound ("d2boss/pain1.wav");
+	precache_sound ("d2boss/pain2.wav");
+	//todo: delete
 	precache_sound ("d1boss/dash.wav");
 	precache_sound ("d1boss/atk.wav");
 	precache_sound ("d1boss/death.wav");
