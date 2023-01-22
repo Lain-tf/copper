@@ -87,7 +87,7 @@ void() d2bossMissileExplode =
 		skill_damage = 20;
 	
 	T_RadiusDamage (self, self.trueowner, skill_damage, world);
-	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
+	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NONE);
 
 	BecomeExplosion();
 };
@@ -196,7 +196,7 @@ void() d2bossMissile =
 	missile.touch = d2bossMissileTouch;
 	missile.lifetime_finished = time + 5;	 // blow up after a while
 	missile.track_finished = time + 1.25; // 1.25
-	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NORM);
+	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NONE);
 };
 
 
@@ -256,7 +256,7 @@ void() launchSwarm_Loop =
 	{
 		missile = spawn ();
 		missile.vUtilA = self.owner.origin + '0 0 160';
-		setmodel (missile, "progs/missile.mdl");
+		setmodel (missile, "progs/e2/hell_rocket.mdl");
 		setsize (missile, '0 0 0', '0 0 0');
 		setorigin (missile, missile.vUtilA );		
 		missile.owner = self.owner;
@@ -315,27 +315,6 @@ void() d2bossSwarmAttack =
 	director.owner = self;
 	director.think = launchSwarm_Loop;
 	director.nextthink = time + 0.05;
-};
-
-
-void() d2boss_idlesound =
-{
-	local float wr;
-	
-	if (self.show_hostile > time) 
-		return;
-	
-	wr = random() * 5;
-
-	if ( self.wait < time )
-	{
-	 	self.wait = time + 2;
-		
-	 	if ( wr > 4.5 ) 
-	 		sound (self, CHAN_VOICE, "d1boss/idle.wav", 1,  ATTN_IDLE);
-	}
-	
-	return;
 };
 
 //void() d2boss_idle =[ 0, d2boss_idle ] { };
@@ -569,7 +548,7 @@ void() d2boss_die =
 	
 	crystals = d2boss_spawn_childs( self, 0 );
 	self.eUtilA = crystals;
-	sound (self, CHAN_AUTO, "d2boss/death.wav", 1, ATTN_NORM);
+	sound (self, CHAN_AUTO, "d2boss/death.wav", 1, ATTN_NONE);
 	
 	self.frame = 16; //first death frame
 	self.state = D2BOSS_DEATH;
@@ -591,9 +570,9 @@ void(entity attacker, float damage) d2boss_Pain =
 		return;	
 
 	if ( random() > 0.5 )
-		sound (self, CHAN_AUTO, "d2boss/pain1.wav", 1, ATTN_NORM);
+		sound (self, CHAN_AUTO, "d2boss/pain1.wav", 1, ATTN_NONE);
 	else if ( random() > 0.75 )
-		sound (self, CHAN_AUTO, "d2boss/pain2.wav", 1, ATTN_NORM);		
+		sound (self, CHAN_AUTO, "d2boss/pain2.wav", 1, ATTN_NONE);		
 };
 
 
@@ -1094,18 +1073,6 @@ void() monster_d2boss =
 	precache_sound ("d2boss/death.wav");
 	precache_sound ("d2boss/pain1.wav");
 	precache_sound ("d2boss/pain2.wav");
-	//todo: delete
-	precache_sound ("d1boss/dash.wav");
-	precache_sound ("d1boss/atk.wav");
-	precache_sound ("d1boss/death.wav");
-	precache_sound ("d1boss/bigattack.wav");
-	precache_sound ("d1boss/pain1.wav");
-	precache_sound ("d1boss/pain2.wav");
-	precache_sound ("d1boss/phasechange.wav");
-	precache_sound ("d1boss/aggro.wav");
-	precache_sound ("d1boss/return.wav");
-	precache_sound ("d1boss/idle.wav");
-	precache_sound ("d1boss/proj.wav");
 
 	if (self.strength > 0)
 		self.health = self.strength;

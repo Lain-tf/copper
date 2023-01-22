@@ -696,7 +696,7 @@ void() loopSpin =
 	
 	if (!(self.fUtilC)) //do all this shit only once
 	{
-		setmodel ( self, "progs/e2/hell_rocket.mdl" );
+		setmodel ( self, "progs/e2/hell_bullet.mdl" );
 		setsize  ( self, '0 0 0', '0 0 0' );	//set after model, so we don't have this cringe box size
 		//self.solid = SOLID_BBOX;
 		//self.touch = simpleTouchh;
