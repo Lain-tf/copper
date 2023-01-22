@@ -217,7 +217,7 @@ void() d2bossSwarmFlyUpdate =
 			deviation = lerp ( 0, 1, state * 2 );
 		else 
 			deviation = lerp ( 1, 0, (state - 0.5) * 2 );
-		
+		deviation = min( 0.7, deviation );
 		newspeed = lerp( 400, 800, state );
 		
 		E = lerpVector( A, B, state );
