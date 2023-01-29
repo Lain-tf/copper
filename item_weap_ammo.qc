@@ -267,7 +267,7 @@ void() weapon_railgun =
 	self.items_dwell = IT_RAILGUN;
 	self.weapon = W_RAILGUN;
 	self.ammo_cells = 18;
-	self.netname = "Railgun Staff";
+	self.netname = "Crystal Lance";
 	StartWeapon();
 }
 
