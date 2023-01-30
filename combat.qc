@@ -26,7 +26,7 @@ void(entity targ, entity inflictor, entity attacker) Killed =
 	oself = self;
 	self = targ;
 
-	if (self.health < -99)
+	if (self.health < -99 && self.classname == "player") // let monsters have bigger gib threshold
 		self.health = -99;		// don't let sbar look bad
 
 	if (self.movetype == MOVETYPE_PUSH || // doors, triggers, etc
