@@ -495,7 +495,7 @@ void() item_sigil =
 	{
 		precache_model2_safe ("progs/end2.mdl");
 		setmodel (self, "progs/end2.mdl");
-		msg = "You got the rune\n of Black Magic!";
+		msg = "You got the\n Trident of Might!";
 		self.svflags = 2;
 	}
 	else if (self.spawnflags & 1)
