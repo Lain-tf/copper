@@ -111,95 +111,6 @@ void() d2bossMissileTouch =
 };
 
 
-void() d2bossMissileHome =
-{
-	local float rate, dot;
-	
-	if ( self.lifetime_finished < time )
-	{
-		d2bossMissileExplode();
-		return;
-	}
-	
-	if ( !enemy_alive() )
-	{
-		remove(self);
-		return;
-	}
-	
-	if ( self.track_finished < time )
-		return;
-		
-	self.nextthink = time + SHAL_BALL_THINK_RATE;
-	rate = SHAL_BALL_TURN_RATE;
-	dot = normalize( self.velocity ) * normalize( self.enemy.origin - self.origin );
-	self.owner = self.trueowner;
-
-	if ( dot > 0 )
-		rate *= max(1, 1.3 * (1 - dot));
-	
-	self.velocity = D2BOSS_BALL_VEL * ShalTurnToward( self.enemy, rate * 0.7 ); // 0.7
-	self.think = d2bossMissileHome;
-	self.oldvelocity = self.velocity;
-};
-
-
-vector(vector source, entity tgt, float misvel, float degree) d2boss_leadtarget =
-{
-	local vector vel, lead_offset, evel;
-	
-	vel = tgt.origin - source;
-	// don't lead if you can't see the target
-	if (has_invis(tgt))
-		return vel;
-	
-	evel = tgt.velocity;
-	if( !(tgt.flags & FL_ONGROUND) && fabs(evel_z) < 275 )
-		evel_z = 0;	// ignore if the player is jumping around
-	
-	lead_offset = (vlen(vel) / misvel) * evel * degree;
-	
-	return vel + lead_offset;
-};
-
-
-void() d2bossMissile =
-{
-	local entity missile;
-	local vector dir;
-	local vector bossorg,playerorg;
-	local float distcheck;
-	local entity tgt;
-	
-	tgt = checkclient();
-	//self.effects = self.effects | EF_MUZZLEFLASH;
-	makevectors([-self.angles_x, self.angles_y, self.angles_z]);
-	
-	dir = d2boss_leadtarget( self.origin, tgt, D2BOSS_BALL_VEL, random() );
-	dir = normalize( dir );
-	 
-	bossorg = self.origin;
-	bossorg_z = 0;
-	playerorg = self.enemy.origin;
-	playerorg_z = 0;
-	distcheck = vlen(bossorg - playerorg);
-
-	missile = launch_projectile( self.origin + (v_forward * 160), dir * D2BOSS_BALL_VEL, "voreball" );
-	//missile = launch_projectile( self.origin + v_forward * 16 + v_up * crandom()*10 + v_right * crandom()*8 + '0 0 72', dir * D2BOSS_BALL_VEL, "voreball" );
-	
-	SUB_ChangeModel (missile, "progs/proj_d1boss.mdl");
-
-	missile.avelocity = '300 300 300';
-	missile.nextthink = time + distcheck;//0.35; // 0.2
-	missile.think = d2bossMissileHome;
-	missile.enemy = tgt;
-	missile.touch = d2bossMissileTouch;
-	missile.lifetime_finished = time + 5;	 // blow up after a while
-	missile.track_finished = time + 1.25; // 1.25
-	sound (self, CHAN_WEAPON, "d1boss/proj.wav", 1, ATTN_NONE);
-};
-
-
 void() d2bossSwarmFlyUpdate =
 {
 // self is a swarm rocket
@@ -283,6 +194,22 @@ void() launchSwarm_Loop =
 };
 
 
+void() animateMarker =
+{
+	if (self.lifetime_finished < time)
+	{
+		self.think = fadeProjectile;
+		self.nextthink = time + 0.1;
+	}
+	else
+	{
+		self.frame++;
+		self.think = animateMarker;
+		self.nextthink = time + 0.1;
+	}
+};
+
+
 void() d2bossSwarmAttack =
 {
 // self is the boss
@@ -307,8 +234,9 @@ void() d2bossSwarmAttack =
 		setsize (marker, '0 0 0', '0 0 0');
 		setorigin (marker, director.vUtilD + D2BOSS_SWARMOFFSET[i] * D2BOSS_SWARMRADIUS + '0 0 -116');
 		marker.cnt = 3; // required for bh fade
-		marker.think = fadeProjectile;
-		marker.nextthink = time + 4.5;
+		marker.lifetime_finished = time + 4.5;
+		marker.think = animateMarker;
+		marker.nextthink = time + 1;
 	}
 // rockets counter
 	director.fUtilI = 0;
@@ -962,7 +890,6 @@ void() d2boss_thinker_loop =
 	// fire rocket
 		if ( self.attack_finished < time )
 		{
-			//d2bossMissile();
 			d2bossSwarmAttack();
 			self.attack_finished = time + 2 + ( 2 * random()); // how often
 		}
