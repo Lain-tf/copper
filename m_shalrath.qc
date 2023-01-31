@@ -88,7 +88,7 @@ void() shal_death3      =[      $death3,        shal_death4     ] {}
 void() shal_death4      =[      $death4,        shal_death5     ] {}
 void() shal_death5      =[      $death5,        shal_death6     ] {}
 void() shal_death6      =[      $death6,        shal_death7     ] {}
-void() shal_death7      =[      $death7,        shal_death7    ] {PostDeathLogic();}
+void() shal_death7      =[      $death7,        SUB_Null    ] {PostDeathLogic();}
 
 
 void( entity attacker, float damage ) shalrath_pain =
@@ -126,7 +126,7 @@ void() ShalMissileExplode =
 	T_RadiusDamage (self, self.trueowner, 40, world);
 	sound (self, CHAN_WEAPON, "weapons/r_exp3.wav", 1, ATTN_NORM);
 
-	BecomeExplosion();
+	T_ExplosiveTouch();
 }
 
 void() ShalMissileTouch =
@@ -193,13 +193,17 @@ void() ShalHome =
 	
 	// 'poor' homing (half turn rate):
 	if ( self.owner.health <= 0		// if our mama dies
+		|| self.owner.customflags & CFL_PLUNGE	// or falls in a hole
+		
 		//|| !visible(self.enemy)		// if we lost LOS
 		// took ^^ this one out, because it made voreballs even more effective at going
 		// around corners, which meant that high skill players had a nice new dodge move
 		// but average players who tried to fight the vore the old cautious way were punished
+		
 		// || has_invis(self.enemy)			// if target is invis
 		// 1.1: took ^^ this one out too, because projectiles auto-miss the player when
 		// invisible now so they might as well always move the same
+		
 		|| pointcontents(self.origin) < CONTENT_SOLID ) // if voreball is underwater
 	{
 		// voreballs headed straight at the player when he's hidden should maintain course, to
@@ -222,6 +226,8 @@ void() ShalHome =
 		self.velocity = SHAL_BALL_VEL * ShalTurnToward(self.enemy, rate);
 	}
 	
+	self.velocity += Vector(crandom(),crandom(),crandom()) * 16;
+	
 	// go faster at long distance to close the gap, so snipey vores have a better presence
 	dist = vlen(self.enemy.origin - self.origin);
 	dist = saturate( (dist-120) / 512 );
@@ -231,34 +237,6 @@ void() ShalHome =
 	self.oldvelocity = self.velocity;
 }
 
-
-/*
-void() ShalHome =
-{
-	local vector	dir, vtemp;
-	
-	if (self.attack_finished < time)
-	{
-		ShalMissileExplode();
-		return;
-	}		
-	
-	vtemp = self.enemy.origin + '0 0 10';
-	
-	if (self.enemy.health < 1)
-	{
-		remove(self);
-		return;
-	}
-	dir = normalize(vtemp - self.origin);
-	if (skill >= 3)
-		self.velocity = dir * 350;
-	else
-		self.velocity = dir * 250;
-	self.nextthink = time + 0.2;
-	self.think = ShalHome;	
-}
-*/
 
 void() ShalMissile =
 {

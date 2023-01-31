@@ -40,7 +40,9 @@ void() BackpackTouch =
 	float   acount;
 	float   b_switch;
 	float   old, new;
-
+	vector	lvItems;
+	entity	oself;
+	
 
 	if (!CheckValidTouch()) return;
 	
@@ -55,10 +57,14 @@ void() BackpackTouch =
 
 	
 	// coop 1: players can only pick up their own backpacks
-	if (coop == 1 && self.buddy && self.buddy != other) return;
+	//if (coop == 1 && self.buddy && self.buddy != other) return;
+	// reverted:
+	// with no good way to indicate whose backpack is whose (because .colormap
+	// only works on players outside the original software renderer) this led to 
+	// a lot of ignored mystery backpacks players kept obsessively touching.
+	// going out of your way for your own ammo is also a waste of time unless
+	// the level is extremely linear, which good quake levels never are
 
-	float acount;
-	
 	other.ammo_shells = other.ammo_shells + self.ammo_shells;
 	other.ammo_nails = other.ammo_nails + self.ammo_nails;
 	other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
@@ -103,20 +109,40 @@ void() BackpackTouch =
 		self = other;
 		return;
 	}
-
-	if (self.items && (other.items & self.items) == 0)
+	
+	lvItems = solveItems(self); //defenition in weapons.qc returns vector with [items type, bitmask, 0]
+	if (lvItems_x == 1)
 	{
-		entity oself;
-		acount = TRUE;
-		other.items |= self.items;
-		sprint (other, PRINT_LOW, "the ");
-		sprint (other, PRINT_LOW, self.netname);
+		if (lvItems_y && (other.items & lvItems_y) == 0)
+		{
 
-		oself = self;
-		self = other;
-		// change to the weapon
-		W_BetterWeapon(oself.items);
-		self = oself;
+			acount = TRUE;
+			other.items |= lvItems_y;
+			sprint (other, PRINT_LOW, "the ");
+			sprint (other, PRINT_LOW, self.netname);
+		
+			oself = self;
+			self = other;
+			// change to the weapon
+			W_BetterWeapon(oself.items);
+			self = oself;
+		}
+	}
+	else if (lvItems_x == 2)
+	{
+		if (lvItems_y && (other.items_dwell & lvItems_y) == 0)
+		{
+			acount = TRUE;
+			other.items_dwell |= lvItems_y;
+			sprint (other, PRINT_LOW, "the ");
+			sprint (other, PRINT_LOW, self.netname);
+		
+			oself = self;
+			self = other;
+			// change to the weapon
+			W_BetterWeapon(oself.items);
+			self = oself;
+		}
 	}
 	
 //	TODO: QW - I have no clue where to put it...
@@ -230,6 +256,23 @@ void() BackpackAutoTouch =
 	
 	self.armorvalue = floor(self.armorvalue / 2);
 	BackpackTouch();
+	
+	if (self.wait > 0)
+	{
+		// reset all the values we may have just vandalized
+		self.ammo_shells = floor(3 * random() + 6);
+		self.ammo_nails = floor(5 * random() + 12);
+		if (self.spawnflags & 1)
+		{
+			self.ammo_shells *= 2;
+			self.ammo_nails *= 2;
+			
+			self.ammo_rockets = 2;
+			self.ammo_cells = 3;
+			self.skin = 2;
+		}
+		self.armorvalue = 0;
+	}
 }
 
 /*QUAKED item_backpack (0 .5 .5) (-16 -16 0) (16 16 40) BIG ? SUSPENDED -
@@ -251,20 +294,17 @@ Keys:
 "A forgotten explorer's backpack. Grants a paltry sum of shells and nails (about half a small pack of each). Grants armor instead of any ammo the player already has maxed."
 [
 	spawnflags(flags) =	[
-		1 : "Big (2x, red, rockets/cells)" : 0
+		1 : "Big (2x, red, +2 rockets/4 cells)" : 0
 	]
 ]
 */
 void() item_backpack =
 {
 	if (!SUB_ShouldSpawn()) return;
-	precache_model("progs/backpack.mdl");
+	precache_model_safe("progs/backpack.mdl");
 	precache_sound3("items/pack.wav");	// backpacks can play either of these
 	precache_sound3("items/patch.wav");
 
-	self.flags = FL_ITEM;
-	self.solid = SOLID_TRIGGER;
-	self.movetype = MOVETYPE_TOSS;
 	setmodel (self, "progs/backpack.mdl");
 	setsize (self, '-16 -16 0', '16 16 56');
 	self.skin = 1;
@@ -305,26 +345,31 @@ void() DropBackpack =
 	
 	if (coop != 1)
 	{
-		item.items = self.weapon;
-		if (item.items == IT_AXE)
+		item.weapon = self.weapon;
+		if (item.weapon == W_AXE)
 			item.netname = string_null;
-		else if (item.items == IT_SHOTGUN)
+		else if (item.weapon == W_SHOTGUN)
 			item.netname = "Shotgun";
-		else if (item.items == IT_SUPER_SHOTGUN)
+		else if (item.weapon == W_SUPER_SHOTGUN)
 			item.netname = "Double-Barrelled Shotgun";
-		else if (item.items == IT_NAILGUN)
+		else if (item.weapon == W_NAILGUN)
 			item.netname = "Nailgun";
-		else if (item.items == IT_SUPER_NAILGUN)
+		else if (item.weapon == W_SUPER_NAILGUN)
 			item.netname = "Perforator";
-		else if (item.items == IT_GRENADE_LAUNCHER)
+		else if (item.weapon == W_GRENADE_LAUNCHER)
 			item.netname = "Grenade Launcher";
-		else if (item.items == IT_ROCKET_LAUNCHER)
+		else if (item.weapon == W_ROCKET_LAUNCHER)
 			item.netname = "Rocket Launcher";
-		else if (item.items == IT_LIGHTNING)
+		else if (item.weapon == W_LIGHTNING)
 			item.netname = "Thunderbolt";
+		else if (item.weapon == W_QUAD_SHOTGUN)
+			item.netname = "Rotary Shotgun";
+		else if (item.weapon == W_RAILGUN)
+			item.netname = "Railstaff";
+		else if (item.weapon == W_RIFLE)
+			item.netname = "Bolt-action Rifle";
 		else
 			item.netname = string_null;
-		
 	}
 	
 	if (coop == 1)

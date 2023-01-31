@@ -70,8 +70,9 @@ self.origin traveling at speed
 */
 void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 {
-local vector	vdestdelta;
-local float		len, traveltime;
+	vector	vdestdelta;
+	float	len, traveltime;
+	float	localtime = getLocalTime();
 
 	if (!tspeed)
 		objerror( "No speed is defined!" );
@@ -83,7 +84,7 @@ local float		len, traveltime;
 	if (tdest == self.origin)
 	{
 		self.velocity = '0 0 0';
-		self.nextthink = self.ltime + 0.1;
+		self.nextthink = localtime + 0.1;
 		return;
 	}
 		
@@ -102,7 +103,7 @@ local float		len, traveltime;
 	}
 	
 // set nextthink to trigger a think when dest is reached
-	self.nextthink = self.ltime + traveltime;
+	self.nextthink = localtime + traveltime;
 
 // scale the destdelta vector by the time spent traveling to get velocity
 	self.velocity = vdestdelta * (1/traveltime);	// qcc won't take vec/float
@@ -159,7 +160,7 @@ local float		len, traveltime;
 
 	if (!tspeed)
 		objerror( "No speed is defined!");
-		
+
 // set destdelta to the vector needed to move
 	destdelta = destangle - self.angles;
 	
@@ -170,7 +171,7 @@ local float		len, traveltime;
 	traveltime = len / tspeed;
 
 // set nextthink to trigger a think when dest is reached
-	self.nextthink = self.ltime + traveltime;
+	self.nextthink = getLocalTime() + traveltime;
 
 // scale the destdelta vector by the time spent traveling to get velocity
 	self.avelocity = destdelta * (1 / traveltime);

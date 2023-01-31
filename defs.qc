@@ -240,6 +240,10 @@ nosave float	clientsAlive;
 
 float	skill;
 float	coop_time;
+entity	storyCam;
+float	storyCamTime;
+float	storytime_running;
+float	playerscount;
 
 // for balancing: total monster HP/ammo -HP/zombies/grenades in the level
 float	monster_health;	
@@ -269,6 +273,8 @@ float	modelindex_eyes, modelindex_player;
 float	icantsee;
 float	isKex;	// running the quake rerelease
 
+string	keyType;
+
 //
 // cvars checked each frame
 //
@@ -287,6 +293,9 @@ float			coop;
 .string		wad;
 .string 	map;
 .float		worldtype;	// 0=medieval 1=metal 2=base 3=egypt
+// custom tracks for intermission and episode end (vf)
+.float		track_intermission; 
+.float		track_end;
 
 .string		killtarget;
 .string		target2;
@@ -296,6 +305,7 @@ float			coop;
 //.string		posttarget;		// to be fired after them
 
 .float		alpha;
+.float 		alpha1, alpha2;
 
 // lights
 .float		style;
@@ -309,6 +319,7 @@ float			coop;
 .void()		th_missile;
 .void()		th_melee;
 .void(entity attacker, float damage) th_pain;
+.void(entity inflictor, entity attacker, float damage) th_pain_ext;
 .void()		th_die;
 .float()	th_checkattack;
 .float()	th_checkdeath;
@@ -368,6 +379,7 @@ float			coop;
 .float		length, width, height;
 .float t_length = length;	// preserve old func_door_secret maphacks
 .float t_width = width;
+.float		waitmin, waitmax;
 
 
 .float		touch_time;
@@ -399,6 +411,7 @@ float			coop;
 .string		type;			// to make find()ing easier, and for tons of useful misc. classification
 .entity		buddy;			// a common entity reference without the specific implications of 'owner' or 'enemy'
 .float		strength;
+.entity		hitbox;			// used for d2boss, pointer to the first element of hitboxes array
 
 .float		lifetime_finished;
 .float		notrace;		// entity will be invisible to traceline2()
@@ -406,7 +419,7 @@ float			coop;
 .entity		trueowner;		// now this is getting dumb
 
 // Second set of items, we overflowed the first
-.float 		items2;
+.float 		items_dwell;
 
 // Weapon upgrades
 .float 		upgrades;
@@ -418,6 +431,8 @@ float			coop;
 // For handling weapon switch away from the quad shotgun and railgun.
 .float		qsg_firing;
 .float		rail_nextshot;
+.float		rifle_nextshot;
+.float		speedometer;
 
 // OVERLOADS:
 .float rand = healamount;	// for trigger_timer
@@ -428,7 +443,40 @@ float			coop;
 .float light_lev = bubble_count;	// shuts up a stupid stupid warning
 .vector rmovedir = finaldest;
 .float version = worldtype;
+.float fog_sky = length;
+.float fog_sky2 = width;
 
+// dynamic liquids
+.string		liquidbrush;
+.float		liquidtype;
+.vector		liquidcolor;
+.float		liquiddensity;
+
+// universal util parameters
+.float	fUtilA;
+.float	fUtilB;
+.float	fUtilC;
+.float	fUtilD;
+.float	fUtilE;
+.float	fUtilF;
+.float	fUtilG;
+.float	fUtilH;
+.float	fUtilI;
+.float	fUtilFlags;
+
+.vector	vUtilA;
+.vector	vUtilB;
+.vector	vUtilC;
+.vector	vUtilD;
+.vector	vUtilE;
+
+.entity eUtilA;
+.entity eUtilB;
+
+.entity eChildA;
+.entity eChildB;
+.entity eChildC;
+.entity eChildD;
 
 //===========================================================================
 // builtin functions
@@ -557,7 +605,10 @@ float(string s) checkextension		= #99;		// check cvar("pr_checkextension") befor
 //================================================
 
 /*FGD
-@baseclass = Angle [ angle(integer) : "Direction" ]
+@baseclass = Angle [ 
+	angle(integer) : "Direction (0-360 yaw, or -1 for up/-2 for down)"
+	angles(string) : "Direction, specifically (pitch yaw roll)"
+]
 @baseclass = Appearflags [
 	spawnflags(Flags) =
 	[
@@ -572,19 +623,21 @@ float(string s) checkextension		= #99;		// check cvar("pr_checkextension") befor
 
 @baseclass = Targetname [ targetname(target_source) : "Name" ]
 @baseclass = Target [ 
-	target(target_destination) : "Target" 
-	target2(target_destination) : "Target" 
-	target3(target_destination) : "Target" 
-	target4(target_destination) : "Target" 
-	killtarget(target_destination) : "Killtarget"
-	delay(string) : "Delay before firing targets" : "0"
+	target(target_destination) : "Target: activate anything with a matching targetname" 
+	target2(target_destination) : "Target 2: activate anything with a matching targetname" 
+	target3(target_destination) : "Target 3: activate anything with a matching targetname" 
+	target4(target_destination) : "Target 4: activate anything with a matching targetname" 
+	killtarget(target_destination) : "Killtarget: REMOVE anything with a matching targetname"
+	delay(string) : "Delay before activating targets" : "0"
 ]
 
-@baseclass = Deathtype [ deathtype(string) : "Obituary message" ]
-@baseclass = Bounds [ mangle(string) : "Bounds size, centered (x y z)" ]
+@baseclass = Deathtype [ deathtype(string) : "Obituary message. Printed after dead player's name, so format accordingly (ie 'was burnt to a crisp')" ]
+@baseclass size(16 16 16) = Bounds [ size(string) : "Bounds size, centered (x y z)" ]
 
 @baseclass = Phong [
 	_phong(integer) : "Use phong smoothing" : 0
 	_phong_angle(integer) : "Phong angle" : 88
 ]
+
+@baseclass base(Phong) color(0 120 180) = Func []
 */

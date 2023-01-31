@@ -14,10 +14,8 @@ void() Cheat_Keys =
 	if(deathmatch || coop)
 		return;
 
-	self.items = self.items |
-		IT_KEY1 | IT_KEY2;
-	self.worldtype += 17;	// grant one of each key per use
-
+	key_give_silver(self);
+	key_give_gold(self);
 	stuffcmd(self,"bf\n");
 }
 
@@ -46,7 +44,7 @@ void() Cheat_Items =
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
-	self.items2 = self.items2 | IT_QUAD_SHOTGUN| IT_RAILGUN;
+	self.items_dwell = self.items_dwell | IT_QUAD_SHOTGUN | IT_RAILGUN; // IT_RIFLE excluded
 
 	self.weapon = W_ROCKET_LAUNCHER;
 
@@ -54,6 +52,18 @@ void() Cheat_Items =
 	W_ResetWeaponState();
 }
 
+void() Cheat_Rifle =
+{
+	if(deathmatch || coop)
+		return;
+
+	self.ammo_shells = MAX_AMMO_SHELLS;
+	self.items_dwell = self.items_dwell | IT_RIFLE ;
+	self.weapon = W_RIFLE;
+
+	stuffcmd(self,"bf\n");
+	W_ResetWeaponState();
+}
 // --------------------------------
 // Cheat_Genocide
 // --------------------------------
@@ -82,7 +92,13 @@ void() Cheat_Genocide =
 	while(t != world)
 	{
 		if(t.flags & FL_MONSTER)
-			T_Damage(t, self, self, t.health);		// waurgh
+		{
+			// don't forget monsters on the verge of spawning
+			if (t.think == mon_spawner_tryspawn || t.modelindex == 0 || t.classname == string_null )
+				remove(t);
+			else
+				T_Damage(t, self, self, t.health);		// waurgh
+		}
 		t = nextent(t);
 	}
 }
@@ -161,7 +177,7 @@ void() Cheat_Haste =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_HASTE;
+	self.items_dwell = self.items_dwell | IT_HASTE;
 	powerup_haste(self, 20);
 	self.changevcshift = 1; // apply tint on cheat command (vf)
 }
@@ -174,9 +190,20 @@ void() Cheat_Berserk =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_BERSERK;
+	self.items_dwell = self.items_dwell | IT_BERSERK;
 	powerup_berserk(self, 30);
 	self.changevcshift = 1; // apply tint on cheat command (vf)
+}
+
+// --------------------------------
+// Speedometer
+// --------------------------------
+void() Cheat_Speed =
+{
+	if (self.speedometer == 1)
+		self.speedometer = 0;
+	else if (self.speedometer == 0)
+		self.speedometer = 1;
 }
 
 // --------------------------------
@@ -187,7 +214,7 @@ void() Cheat_Wetsuit =
 	if(deathmatch || coop)
 		return;
 	stuffcmd(self, "bf\n");
-	self.items2 = self.items2 | IT_WETSUIT;
+	self.items_dwell = self.items_dwell | IT_WETSUIT;
 	powerup_wetsuit(self, 60);
 }
 
@@ -200,14 +227,35 @@ void() ImpulseCommands =
 	{
 	case 0:
 		return;
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
+	case 1: 	// axe bucket
+	case 2: 	// rifle - sg
+	case 3: 	// qsg - ssg
+	case 4: 	// ng bucket
+	case 5: 	// sng bucket
+	case 6: 	// gl bucket
+	case 7: 	// rl bucket
+	case 8: 	// rail - lg
+	//case 21:	//axe
+	case 22:	//sg
+	case 23:	//ssg
+	//case 24:	//ng
+	//case 25:	//sng
+	//case 26:	//gl
+	//case 27:	//rl
+	case 28:	//lg
+	//case 29:	//reserved
+	//case 30:	//reserved
+	//case 31:	//reserved for slot 1
+	case 32:	//rifle
+	case 33:	//qsg
+	//case 34:	//reserved for slot 4
+	//case 35:	//reserved for slot 5
+	//case 36:	//reserved for slot 6
+	//case 37:	//reserved for slot 7
+	case 38:	// railgun
+	//case 39:	//reserved
+	//case 40:	//reserved 
+	//41-50 reserved for the third weapon in a slot if we want them later
 		if (!W_CanSwitchWeapon()) {
 			// Return here so we don't clear the impulse, and the weapon will switch as soon
 			// as possible to the last weapon that was selected.
@@ -216,13 +264,18 @@ void() ImpulseCommands =
 
 		W_ChangeWeapon();
 		break;
+	case 52:
+		Cheat_Rifle();
+		break;
 	case 10:
 		CycleWeaponCommand();
 		break;
 	case 12:
 		CycleWeaponReverseCommand();
 		break;
-		
+	/*
+	Impulses from 20 to 50 are reserved for individual weapon selection, for now (vf)
+	*/	
 /*
 	// ai_nav
 	case 80:
@@ -308,7 +361,7 @@ void() ImpulseCommands =
 	// how about, execute order six?
 	// nah. makes it sound like there aren't that many orders
 	case 66:
-		
+	
 	case 205:
 		if(!deathmatch && !coop)
 			Cheat_Genocide();
@@ -336,8 +389,10 @@ void() ImpulseCommands =
 		break;
 	case 254:
 		Cheat_Berserk();	
-		break;		
-		
+		break;
+	case 236:
+		Cheat_Speed();		
+		break;
 	default:
 		return;
 	}

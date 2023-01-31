@@ -213,7 +213,7 @@ void() W_FireSuperShotgun =
 
 /*
 ================
-W_FireQuadhotgun
+W_FireQuadShotgun
 ================
 */
 void() W_FireQuadShotgun =
@@ -227,7 +227,7 @@ void() W_FireQuadShotgun =
 	dir = aim(self, AUTOAIM_DIST);
 
 	ClearMultiDamage();
-	FireBulletsEx(18, dir, '0.15 0.02 0', 2);
+	FireBulletsEx(20, dir, '0.10 0.02 0', 2);
 	ApplyMultiDamage();
 }
 
@@ -236,17 +236,13 @@ void() W_FireQuadShotgun =
 RAILGUN
 ================
 */
-/*void() W_FireRail =
-{
-	local vector dir;
-	dir = aim(self, AUTOAIM_DIST);
-	
-};*/
 
-void() rail_fade = {
-	
+void() rail_fade = 
+{
 	self.think = rail_fade;
 	self.nextthink = time + 0.1;
+	if (self.skin < 6)
+		self.skin++;
 
 	if (self.cnt == 6)
 		self.alpha = 0.7;
@@ -258,11 +254,11 @@ void() rail_fade = {
 		self.alpha = 0.15;
 	else if (self.cnt == 2)
 		self.alpha = 0.10;
-	else if (self.cnt == 1) {
+	else if (self.cnt == 1) 
+	{
 		self.alpha = 0.05;
 		self.think = SUB_Remove;
 		self.nextthink = time + 0.05;
-		
 	}	
 	self.cnt = self.cnt - 1;
 };
@@ -270,10 +266,13 @@ void() rail_fade = {
 void() W_FireRail =
 {
 	local float timetoend;
-	local vector	vel, org, dir, vec, src, loopsrc,  destination, dir2, dir3;
+	local vector vel, org, dir, vec, src, loopsrc, destination, dir2, dir3;
+	local vector drawsrc;
 	local entity thedude;
-	local float traillen, segments;
-	entity prj;
+	local float traillen, segments, timetofade;
+	local entity prj;
+	local float haste_factor;
+	local float e2bosshit;
 	
 	if (self.ammo_cells < 6)
 	{
@@ -283,21 +282,21 @@ void() W_FireRail =
 	
 	self.weaponframe = 0;
 	
-	if (random() < 0.5)
-		{
-			self.weaponframe = 31;
-			self.punchangle_z = -3;
-		}
-	else if (random() < 0.5)
-		{
-			self.weaponframe = 0;
-			self.punchangle_z = -3;
-		}
+	if (random() < 0.3)
+	{
+		self.weaponframe = 31;
+		self.punchangle_z = -3;
+	}
+	else if (random() < 0.3)
+	{
+		self.weaponframe = 1;
+		self.punchangle_z = -3;
+	}
 	else 
-		{
-			self.weaponframe = 15;
-			self.punchangle_z = 3;
-		}
+	{
+		self.weaponframe = 16;
+		self.punchangle_z = 3;
+	}
 	
 	player_rail1();
 	makevectors(self.v_angle);
@@ -309,12 +308,16 @@ void() W_FireRail =
 	org = self.origin + '0 0 16';
 
 	dir = aim(self, AUTOAIM_DIST);
-	src = self.origin + v_forward * 10;
-	src_z = self.absmin_z + self.size_z * 0.7;
+	src = self.origin + v_forward * 4;
+	drawsrc = src;
+	src_z = self.absmin_z + self.size_z * 0.84; // ~eye level
+	drawsrc_z = self.absmin_z + self.size_z * 0.6; // ~ gun level
 	destination = src + (dir * 8192);
 	
 	loopsrc = src;
 	thedude = self;
+//voidforce: should be zero anyway, but who knows what could happen, right?
+	e2bosshit = 0;
 	
 	while ( !timetoend )
 	{
@@ -333,38 +336,42 @@ void() W_FireRail =
 				SpawnBlood (org, vel*0.2, 400);
 				if (trace_ent != self) 
 				{
-					if (deathmatch != 0){
-						T_Damage (trace_ent, self, self, 150);
-						}
-						else
+					trace_ent.effects = trace_ent.effects | EF_MUZZLEFLASH;
+				//special case for episode 2 boss
+					if (trace_ent.classname == "d2boss_bbox")
+					{
+						if (!e2bosshit)
 						{
+							T_Damage (trace_ent, self, self, 270);
+							e2bosshit = 1;
+						}
+					}
+					else if (deathmatch != 0)
+						T_Damage (trace_ent, self, self, 150);
+					else
 						T_Damage (trace_ent, self, self, 270);
-							}
-
 					
 					// if we have the right amount of health add some velocity if we're not gibbing
-					
 					if (trace_ent.health <= 0)
 					{
-						trace_ent.velocity = '0 0 0';					
-						trace_ent.velocity_z = 175;
+						trace_ent.velocity = '0 0 175';					
 						// zero out the velocity and give it some z velocity so its off ground
 						trace_ent.flags = trace_ent.flags - (trace_ent.flags & FL_ONGROUND);
 						// also set the flag
 						
 						// we don't want z velocity, so we're going to zero that out too.
-						dir3 = BoundsCenter(self);
+						dir3 = BoundsCenter(self); // player
 						dir3_z = 0;
-						dir2 = trace_ent.origin;
+						dir2 = trace_ent.origin; // monster
 						dir2_z = 0;
-						dir2 = dir2 - dir3;
+						dir2 = dir2 - dir3; // direction from player to monster
 						dir2 = normalize(dir2);
-						trace_ent.velocity = trace_ent.velocity + dir2*400;						
-											
+						trace_ent.velocity = trace_ent.velocity + (dir2 * 400);										
 					}
 				}
-									
-				loopsrc = trace_endpos;
+
+				// Trace from inside of the hitted monster (vf)
+				loopsrc = trace_endpos + (dir * 4);
 			}
 			else
 			{
@@ -381,40 +388,78 @@ void() W_FireRail =
 	}
 	
 	//--- ALKALINE RAIL CODE
-
-	traceline2(src, destination, self, TRACE_NOMONSTERS);
-	traillen = vlen(trace_endpos - src);
+	// now using drawsrc instead of src now, so we trace damage from eye position and trail from gun position
+	traceline2(drawsrc, destination, self, TRACE_NOMONSTERS);
+	traillen = vlen(trace_endpos - drawsrc);
 	segments = floor(traillen / 64);
+	timetoend = segments;
 	
 	while (segments)
 	{
-		vec = normalize(trace_endpos - src);
+		vec = normalize(trace_endpos - drawsrc);
 		prj = spawn ();
 		prj.owner = self;
 		prj.movetype = MOVETYPE_NONE;
 		prj.solid = SOLID_NOT;
-		prj.angles = vectoangles(dir);
+		prj.angles = self.v_angle;
+		prj.angles_x = prj.angles_x * (-1);
 		prj.touch = SUB_Null;
 		prj.classname = "railtrail";
-		setmodel (prj, "progs/rail.mdl");
+		setmodel (prj, "progs/e2/proj_rail.mdl");
 		setsize (prj, VEC_ORIGIN, VEC_ORIGIN);		
-		//setorigin (prj, self.origin + '0 0 16');
-		setorigin (prj, src + vec * 64 * segments);
+		setorigin (prj, drawsrc + vec * 64 * segments);
 		prj.velocity = '0 0 0';	
 		prj.frame = 4;	
 		prj.think = rail_fade;
-		prj.nextthink = time + 0.5;
+		timetofade = segments * 0.05;
+		
+		if ( timetofade > 0.8 )
+			timetofade = 0.8;
+		
+		prj.nextthink = time + timetofade; // delay fade time using segment number for neat effect (vf)
+		
+		if (segments == 1) 
+			prj.effects = prj.effects | EF_MUZZLEFLASH;
+		
 		segments = segments - 1;
-		prj.cnt = 5;	
+		prj.cnt = 6;
 	}	
 	
-	local float haste_factor;
-	
-	if (has_haste(self)) {
+	if ( has_haste(self) )
 		haste_factor = HASTE_FACTOR;
-	} else {
+	 else 
 		haste_factor = 1;
-	}
-	self.rail_nextshot = time + 1.4 * haste_factor;
+	
+	self.rail_nextshot = time + ( 1.4 * haste_factor );
 	self.attack_finished = time + 1;
+};
+
+/*
+================
+W_FireRifle
+================
+*/
+void() W_FireRifle =
+{
+	local vector dir;
+	float haste_factor;
+	
+	sound (self, CHAN_WEAPON, "weapons/rifle.wav", 1, ATTN_NORM);	
+
+	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	
+	makevectors(self.v_angle);
+	dir = aim (self, AUTOAIM_DIST);
+
+	ClearMultiDamage ();
+	//FireBullets (1, dir, '0.001 0.001 0'); // no control over damage, anyway it's just a wrapper
+	FireBulletsEx(1, dir, '0.001 0.001 0', 50);
+	ApplyMultiDamage ();
+	
+	self.punchangle_x = -4;
+	if (has_haste(self)) 
+		haste_factor = HASTE_FACTOR;
+	else haste_factor = 1;
+	self.rifle_nextshot = time + 1.4 * haste_factor;
+	self.attack_finished = time + 0.8;
 };

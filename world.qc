@@ -167,6 +167,8 @@ Keys:
 	3 = Episode 1 - Egypt
 	4 = Episode 2 - Sunken
 	5 = Episode 2 - Crystal
+"track_intermission" custom intermission track
+"track_end" custom episode end track
 "gravity" how fast your dreams come crashing down
 
 "_sunlight" "#"
@@ -179,18 +181,20 @@ Keys:
 "_dirtgain" Exponent used in dirt calculation, default 1 (lower is darker)
 */
 /*FGD
-@SolidClass = worldspawn : "World entity"
+@SolidClass color(240 240 240) = worldspawn : "World entity"
 [
 	message(string) : "Map name"
 	worldtype(choices) : "Key Style" : 0 =
 	[
 		0 : "Medieval"
-		1 : "Metal (runic)"
+		1 : "Runemetal"
 		2 : "Base"
 		3 : "Episode 1 - Egypt"
 		4 : "Episode 2 - Sunken"
 		5 : "Episode 2 - Crystal"
 	]
+	track_intermission(integer) : "Custom intermission track" : 0
+	track_end(integer) : "Custom episode end track" : 0
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
 	gravity(integer) : "Gravity"
@@ -231,6 +235,8 @@ void() worldspawn =
 	cvar_set("sv_gravity", ftos(self.gravity));
 	self.light_lev = 0;	// shut up FTEQCC warning
 	
+	keyType = "Key";	// default if there are no keys placed in the map
+
 	if (cvar("pr_checkextension"))
 	{
 		if (checkextension("QUAKE_EX"))
@@ -346,11 +352,14 @@ void() worldspawn =
 	precache_model ("progs/lavaball.mdl");	// for testing
 	
 	precache_model ("progs/missile.mdl");
-	precache_model ("progs/grenade.mdl");
+	precache_model ("progs/proj_grenade.mdl");
 	precache_model ("progs/spike.mdl");
-	precache_model ("progs/rail.mdl");
+	precache_model ("progs/e2/proj_rail.mdl");
 	precache_sound ("weapons/spindn_click.wav");
-	//precache_model ("progs/s_spike.mdl");
+	
+	//d2 boss bullet hell models and sounds
+	precache_model ("progs/e2/hell_bullet.mdl");
+	precache_model ("progs/e2/hell_rocket.mdl");
 
 	precache_model ("progs/backpack.mdl");
 
@@ -373,7 +382,7 @@ void() StartFrame =
 	{
 		if (framecount != 3)
 			cleanUpClientShit += 2;
-		
+		//startupWaterBrushes();
 		gamestarted = TRUE;
 	}
 		

@@ -141,7 +141,7 @@ void()	demon1_die5		=[	$death5,		demon1_die6	] {}
 void()	demon1_die6		=[	$death6,		demon1_die7	] {}
 void()	demon1_die7		=[	$death7,		demon1_die8	] {}
 void()	demon1_die8		=[	$death8,		demon1_die9	] {}
-void()	demon1_die9		=[	$death9,		demon1_die9 ] {PostDeathLogic();}
+void()	demon1_die9		=[	$death9,		SUB_Null ] {PostDeathLogic();}
 
 void() demon_die =
 {
@@ -161,12 +161,12 @@ void()	demon1_jumpabort =[ 	$leap10,	demon1_jump11	] {}
 void()	demon1_jump1	=[	$leap1,		demon1_jump2	]
 {
 	ai_face();
-	ai_attack_finished(1);	// from now until the airthink loop
 	if (!self.height) {
 		// something's effed in the jump decisionmaking
 		demon1_run1();
 		return;
 	}
+	ai_attack_finished(0.5);
 	sound (self, CHAN_VOICE, "demon/djump.wav", 1, ATTN_NORM);
 	//bprint("  djump\n");
 }

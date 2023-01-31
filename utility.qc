@@ -195,9 +195,9 @@ float(entity who) has_invis = { return !!(who.items & IT_INVISIBILITY || who.inv
 float(entity who) has_quad = { return !!(who.items & IT_QUAD || who.super_damage_finished > time); }
 float(entity who) has_invuln = { return !!(who.items & IT_INVULNERABILITY || who.invincible_finished > time); }
 float(entity who) has_biosuit = { return !!(who.items & IT_SUIT || who.radsuit_finished > time); }
-float(entity who) has_haste = { return !!(who.items2 & IT_HASTE || who.haste_finished > time); }
-float(entity who) has_berserk = { return !!(who.items2 & IT_BERSERK || who.berserk_finished > time); }
-float(entity who) has_wetsuit = { return !!(who.items2 & IT_WETSUIT || who.wetsuit_finished > time); }
+float(entity who) has_haste = { return !!(who.items_dwell & IT_HASTE || who.haste_finished > time); }
+float(entity who) has_berserk = { return !!(who.items_dwell & IT_BERSERK || who.berserk_finished > time); }
+float(entity who) has_wetsuit = { return !!(who.items_dwell & IT_WETSUIT || who.wetsuit_finished > time); }
 
 //============================================================================
 
@@ -385,12 +385,13 @@ entity(entity start) findunlockedtarget =
 // 'trigger_multiple', causing this to be called in mid-level
 string(string s) precache_sound_safe =
 {
-	if (s == string_null) return string_null;
-	if (framecount)
-		dprint3("in an even darker timeline precaching ", s, " now would be an error\n");
-	else 
-		return precache_sound(s);
-	return string_null;
+	if (framecount || s == string_null) return string_null;
+	return precache_sound(s);
+}
+string(string s) precache_sound2_safe =
+{
+	if (framecount || s == string_null) return string_null;
+	return precache_sound2(s);
 }
 
 /*
@@ -405,9 +406,14 @@ is world, like in W_Precache)
 */
 void(string s) precache_model_safe	=
 {
-	if (framecount)
-		dprint3("in an even darker timeline precaching ", s, " now would be an error\n");
-	else if (s != string_null && !self.modelindex)
+	if (framecount) return;
+	if (s != string_null && !self.modelindex)
+		precache_model(s);
+}
+void(string s) precache_model2_safe	=
+{
+	if (framecount) return;
+	if (s != string_null && !self.modelindex)
 		precache_model2(s);
 }
 
@@ -417,13 +423,28 @@ precaches through these wrappers so they can be easily turned off, in the event 
 to send small test builds to engine programmers to show them bugs without having to 
 build and package your entire mod.
 */
-void(string s) precache_model3	= { precache_model2(s); }
-void(string s) precache_sound3	= { precache_sound2(s); }
+void(string s) precache_model3	= { precache_model2_safe(s); }
+void(string s) precache_sound3	= { precache_sound2_safe(s); }
 /*
 void(string s) precache_model3	= { return; }
 void(string s) precache_sound3	= { return; }
 */
 
+/*
+Gets the correct time value depending on entity movetype. MOVETYPE_PUSH ents needs to use
+'self.ltime' instead of simply 'time' for setting thinks
+*/
+float() getLocalTime =
+{
+	if (self.movetype == MOVETYPE_PUSH) return self.ltime;
+	else return time;
+}
+
+float(entity e) getEntityTime =
+{
+	if (e.movetype == MOVETYPE_PUSH) return e.ltime;
+	else return time;
+}
 
 // shorthand for turning -1 to 0 for keyvalues for which 0 is a valid non-default selection
 float(float in) zeroconvert =
@@ -437,6 +458,13 @@ float(float in, float def) zeroconvertdefault =
 	if (in == 0) return def;
 	return in;
 }
+float(float in, float def) convertdefault =
+{
+	if (in == 0) return def;
+	return in;
+}
+
+
 
 //count -4 = numclients in coop
 void(.float fld) playercount_convert =

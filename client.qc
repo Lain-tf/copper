@@ -5,9 +5,22 @@ CLIENT
 
 ==============================================================================
 */
-
 string nextmap;
 
+void() DrawSpeed =
+{
+	if (self.speedometer == 1)
+	{
+        	local float hudspeed;
+        	local vector metervel;
+        	
+        	metervel = self.velocity;
+        	metervel_z = 0;
+        	hudspeed = vlen(metervel);
+        	hudspeed = ceil(hudspeed);
+        	centerprint (self, ftos(hudspeed));
+	}
+}
 
 void() SetChangeParms =
 {
@@ -28,7 +41,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
-	self.items2 = self.items2 - (self.items2 & (IT_HASTE | IT_WETSUIT | IT_BERSERK));
+	self.items_dwell = self.items_dwell - (self.items_dwell & (IT_HASTE | IT_WETSUIT | IT_BERSERK));
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -66,7 +79,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype;
-	parm10 = self.items2;
+	parm10 = self.items_dwell;
 
 }
 
@@ -128,7 +141,7 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9;
-	self.items2 = parm10;
+	self.items_dwell = parm10;
 	
 	armor_set_type(self);
 }
@@ -169,15 +182,32 @@ PLAYER GAME EDGE FUNCTIONS
 =============================================================================
 */
 
+entity() get_closest_client =
+{
+	if (coop == 0 || clients == 1)
+		return nextent(world);
+		
+	entity next, best;
+	float close, dist;
+	close = A_SHITLOAD;
+	next = nextent(world);
+	while (next.flags & FL_CLIENT)
+	{
+		dist = vlen(self.origin - next.origin);
+		if (dist < close)
+		{
+			best = next;
+			close = dist;
+		}
+		next = nextent(next);
+	}
+	return best;
+}
+
 entity(entity start) get_next_client =
 {
-	entity next;
-	/*
-	next = find(start, classname, "player");
-	if (next == world)
-		next = find(world, classname, "player");
-	*/
 	// nice trick from necros: clients are always the first entities after world
+	entity next;
 	next = nextent(start);
 	if (next.flags & FL_CLIENT == 0)
 		next = nextent(world);
@@ -582,7 +612,10 @@ void() PutClientInServer =
 // paustime is set by teleporters to keep the player from moving a while
 	self.pausetime = 0;
 	
-//	spot = SelectSpawnPoint ();
+	self.dmg_take = 0;
+	self.dmg_save = 0;
+	self.dmg_inflictor = world;
+	self.velocity = VEC_ORIGIN;
 
 	self.origin = spot.origin + '0 0 1';
 	self.v_angle = self.angles = spot.angles;
@@ -1023,7 +1056,7 @@ void() PlayerJump =
 	{
 		if (!(self.flags & FL_ONGROUND)) return;
 		if ( !(self.flags & FL_JUMPRELEASED) ) return;		// don't pogo stick
-		sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);	// h00rt
+		sound (self, CHAN_VOICE, "player/plyrjmp8.wav", 1, ATTN_NORM);	// h00rt
 	}
 	
 //	self.flags = self.flags - (self.flags & FL_JUMPRELEASED);
@@ -1163,7 +1196,7 @@ void() WaterMove =
 			{
 				if (self.jump_flag < -300)
 				{
-					sound (self, CHAN_ITEM2, "misc/w_under2.wav", 1, ATTN_NORM);
+					sound (self, CHAN_OTHER, "misc/w_under2.wav", 1, ATTN_NORM);
 					local float i = 0;
 					local vector b;
 					while(i > self.jump_flag)
@@ -1176,7 +1209,7 @@ void() WaterMove =
 				}
 				else
 				{
-					sound (self, CHAN_ITEM2, "misc/w_under.wav", 1, ATTN_STATIC);
+					sound (self, CHAN_OTHER, "misc/w_under.wav", 1, ATTN_STATIC);
 				}
 			}
 		}
@@ -1247,9 +1280,12 @@ void() WaterMove =
 			sound (self, CHAN_BODY, "player/inlava.wav", 1, ATTN_NORM);
 		else if (self.watertype == CONTENT_WATER)
 		{
-			if (has_wetsuit(self))
-				sound (self, CHAN_BODY, "items/wetsuit3.wav", 1, ATTN_NORM);
-			else if (self.jump_flag < -300)
+			//if (has_wetsuit(self))
+				//if (self.enemy.waterlevel <= WL_FEET){
+					//sound (self, CHAN_BODY, "items/wetsuit3.wav", 1, ATTN_NORM);
+				//}
+			//else
+			if (self.jump_flag < -300)
 				sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
 			else
 				sound (self, CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
@@ -1328,21 +1364,14 @@ void() CheckPowerups =
 // invisibility
 	if (self.invisible_finished)
 	{
-// sound and screen flash when items starts to run out
-		if (self.invisible_sound < time)
-		{
-			sound (self, CHAN_AUTO, "items/inv3.wav", 0.5, ATTN_IDLE);
-			self.invisible_sound = time + ((random() * 3) + 1);
-		}
-
-
+		// sound and screen flash when items starts to run out
 		if (self.invisible_finished < time + 3)
 		{
 			if (self.invisible_time == 1)
 			{
 				sprint (self, PRINT_HIGH, "Ring of Shadows' magic is fading ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/inv2.wav", 1, ATTN_NORM);
 				self.invisible_time = time + 1;
 			}
 			
@@ -1352,10 +1381,17 @@ void() CheckPowerups =
 				stuffcmd (self, "bf\n");
 			}
 		}
+		// ambient whispering
+		else if (self.invisible_sound < time)
+		{
+			sound (self, CHAN_POWERUP, "items/inv3.wav", 0.5, ATTN_IDLE);
+			self.invisible_sound = time + ((random() * 3) + 1);
+		}
+
 
 		if (self.invisible_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_INVISIBILITY;
+			self.items = not(self.items, IT_INVISIBILITY);
 			//self.notrace = 0;
 			self.invisible_finished = 0;
 			self.invisible_time = 0;
@@ -1378,7 +1414,7 @@ void() CheckPowerups =
 			{
 				sprint (self, PRINT_HIGH, "Protection is almost burned out ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/protect2.wav", 1, ATTN_NORM);
 				self.invincible_time = time + 1;
 			}
 			
@@ -1391,7 +1427,7 @@ void() CheckPowerups =
 		
 		if (self.invincible_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_INVULNERABILITY;
+			self.items = not(self.items, IT_INVULNERABILITY);
 			self.invincible_time = 0;
 			self.invincible_finished = 0;
 		}
@@ -1422,7 +1458,7 @@ void() CheckPowerups =
 				else
 					sprint (self, PRINT_HIGH, "Quad Damage is wearing off\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/damage2.wav", 1, ATTN_NORM);
 				self.super_time = time + 1;
 			}	  
 			
@@ -1435,7 +1471,7 @@ void() CheckPowerups =
 
 		if (self.super_damage_finished < time)
 		{	// just stopped
-			self.items = self.items - IT_QUAD;
+			self.items = not(self.items, IT_QUAD);
 			if (deathmatch == 4)
 			{
 				self.ammo_cells = 255;
@@ -1470,7 +1506,7 @@ void() CheckPowerups =
 			{
 				sprint (self, PRINT_HIGH, "Air supply in Biosuit expiring ...\n");
 				stuffcmd (self, "bf\n");
-				sound (self, CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
+				sound (self, CHAN_POWERUP, "items/suit2.wav", 1, ATTN_NORM);
 				self.rad_time = time + 1;
 			}
 			
@@ -1507,7 +1543,7 @@ void() CheckPowerups =
 
 		if (self.haste_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_HASTE;
+			self.items_dwell = self.items_dwell - IT_HASTE;
 			self.haste_finished = 0;
 			self.haste_time = 0;
 			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
@@ -1539,11 +1575,11 @@ void() CheckPowerups =
 
 		if (self.berserk_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_BERSERK;
+			self.items_dwell = self.items_dwell - IT_BERSERK;
 			self.berserk_finished = 0;
 			self.berserk_time = 0;
 			self.changevcshift = 1; // be sure to turn off tint when it's over (vf)
-			if (self.weapon == IT_AXE)
+			if (self.weapon == W_AXE)
 				self.weaponmodel = "progs/v_axe2.mdl";
 			
 		}
@@ -1555,14 +1591,12 @@ void() CheckPowerups =
 		}
 	}	
 	
-	
-
 	if (self.wetsuit_finished) {
 		self.air_finished = time + 12;		// don't drown
 
 		if (self.wetsuit_finished < time + 3) {
 			if (self.wetsuit_time == 1) {
-				sprint(self, PRINT_MEDIUM, "Your wetsuit rips (and tears) ...\n");
+				sprint(self, PRINT_MEDIUM, "Your Diving Gear's Oxygen fades...\n");
 				stuffcmd(self, "bf\n");
 				sound (self, CHAN_AUTO, "items/wetsuit2.wav", 1, ATTN_NORM);
 				self.wetsuit_time = time + 1;
@@ -1576,7 +1610,7 @@ void() CheckPowerups =
 
 		if (self.wetsuit_finished < time) {
 			// Just stopped
-			self.items2 = self.items2 - IT_WETSUIT;
+			self.items_dwell = self.items_dwell - IT_WETSUIT;
 			self.wetsuit_finished = 0;
 			self.wetsuit_time = 0;
 		}
@@ -1619,9 +1653,11 @@ void() PlayerPreThink =
 	if (cleanUpClientShit)
 	{
 		fog_setFromEnt( self, self );
-		if ( !( self.customflags & (CFL_PLUNGE|CFL_LIMBO) ) )
+		if ( !storytime_running && !( self.customflags & (CFL_PLUNGE|CFL_LIMBO) ) )
 		{
+			//RestoreCrosshair();
 			stuffcmd(self,"\nv_cshift\n");
+			stuffcmd(self,"-strafe\n");
 		}
 		else if ( self.customflags & CFL_LIMBO )
 		{
@@ -1629,12 +1665,20 @@ void() PlayerPreThink =
 		}
 		self.changevcshift = 1; // be sure to restore powerup tint on save/load (vf)
 	}
+	
+	DrawSpeed();
 
 	if (intermission_running || self.deadflag == DEAD_SPECTATING )
 	{
 		IntermissionThink ();	// otherwise a button could be missed between
 		return;					// the think tics
 	}
+	else if (storytime_running)
+	{
+		PlayerCameraPreThink ();
+		return;
+	}
+
 	makevectors (self.v_angle);		// is this still used
 									// lunaran: "yes"
 	
@@ -1660,40 +1704,16 @@ void() PlayerPreThink =
 	if (self.waterlevel == WL_WAIST)
 		CheckWaterJump ();
 */
-
-	if (self.wetsuit_finished > time)
-	{
 		
-		if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3)
-		{
-			{
-			if (self.waterlevel==2)
-				{
-				self.velocity = self.velocity * 1.1;
-				}
-			if (self.waterlevel==3)
-				{
-				self.velocity = self.velocity * 1.3;
-				}
-			}
-		}
-	}
-
+// WETSUIT
+// We increase player's speed when they legs and torso is submerged into water [part 1](check post think for [part 2]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-			
-		if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3)
-		{
-			if (self.waterlevel==2)
-			{
-				self.velocity = self.velocity * 1.1;
-			}
-			if (self.waterlevel==3)
-			{
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
 				self.velocity = self.velocity * 1.3;
-			}
-		}
 	}
+// WETSUIT END
 
 //dprint(ftos(vlen(self.velocity)));
 //				dprint("\n");
@@ -1724,6 +1744,7 @@ void() PlayerPreThink =
 		self.flags = self.flags | FL_FLY;
 	}
 	
+	//checkSelfInWaterBrush();
 	// ai_nav
 	//nav_editorThink();
 }
@@ -1738,42 +1759,25 @@ Called every frame after physics are run
 */
 void() PlayerPostThink =
 {
-	if ( intermission_running ) return;
+	if (storytime_running || intermission_running ) return;
 	
 	if (self.view_ofs == '0 0 0')
 		return;		// intermission or finale
 	if (self.deadflag)
 		return;
-		
+
+	//checkSelfInWaterBrush();	
 	//JIM
-	//WETSUIT
+// WETSUIT
+// We increase player's speed when they legs and torso is submerged into water [part 2](check pre think for [part 1]) (vf)
 	if (self.wetsuit_finished > time)
 	{
-		if ((pointcontents (self.origin - '0 0 -23')) ^ (pointcontents (self.origin - '0 0 31')) == -3)
-		{
-			if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 0.9;
-			}
-			if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 0.769230;
-			}
-		}
-
-		if ((pointcontents (self.origin - '0 0 -23')) && (pointcontents (self.origin - '0 0 31')) == -3)
-		{
-			if (self.waterlevel==2)
-			{
-			self.velocity = self.velocity * 0.9;
-			}
-			if (self.waterlevel==3)
-			{
-			self.velocity = self.velocity * 0.769230;
-			}
-		}
+		if (pointcontents (self.origin + '0 0 -23') == CONTENT_WATER &&
+			pointcontents (self.origin) == CONTENT_WATER)
+				self.velocity = self.velocity * 0.769230;
 	}
-	
+// WETSUIT END
+
 	//view tint for haste and berserk (vf)
 	if (self.changevcshift == 1)
 	{
@@ -1783,7 +1787,19 @@ void() PlayerPostThink =
 			stuffcmd(self,"\nv_cshift 255 0 0 20\n");  // berserk red
 		else if (self.haste_finished > time) 
 			stuffcmd(self,"\nv_cshift 255 255 0 10\n"); // haste yellow
-		else stuffcmd(self,"\nv_cshift 0 0 0 0\n");
+		else if (self.liquiddensity) {
+			stuffcmd(self, "\nv_cshift ");
+			stuffcmd(self, ftos(self.liquidcolor_x));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquidcolor_y));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquidcolor_z));
+			stuffcmd(self, " ");
+			stuffcmd(self, ftos(self.liquiddensity));
+			stuffcmd(self, "\n");
+		}
+		else
+			stuffcmd(self,"\nv_cshift 0 0 0 0\n");
 		
 		self.changevcshift = 0;
 	}
@@ -2050,7 +2066,9 @@ void(entity targ, entity attacker) ClientObituary =
 					bprint (PRINT_MEDIUM," tries to put the pin back in\n");
 				else if (targ.deathtype == "rocket")
 					bprint (PRINT_MEDIUM," becomes bored with life\n");
-				else if (targ.weapon == 64 && targ.waterlevel > 1)
+				else if (targ.weapon == W_GRENADE_LAUNCHER)
+					bprint (PRINT_MEDIUM," tries to put the pin back in\n");
+				else if (targ.weapon == W_ROCKET_LAUNCHER)
 				{
 					if (targ.watertype == CONTENT_SLIME)
 						bprint (PRINT_MEDIUM," discharges into the slime\n");
@@ -2069,7 +2087,7 @@ void(entity targ, entity attacker) ClientObituary =
 				if (rnum < 0.25)
 					deathstring = " mows down a teammate\n";
 				else if (rnum < 0.50)
-					deathstring = " checks his glasses\n";
+				deathstring = " checks their glasses\n";
 				else if (rnum < 0.75)
 					deathstring = " gets a frag for the other team\n";
 				else
@@ -2089,6 +2107,10 @@ void(entity targ, entity attacker) ClientObituary =
 				rnum = attacker.weapon;
 				if (targ.deathtype == "nail")
 				{
+				if (random() < 0.5)
+					deathstring = " was axe-murdered by ";
+				else
+					deathstring = " got the chop from ";
 					deathstring = " was nailed by ";
 					deathstring2 = "\n";
 				}
@@ -2257,7 +2279,7 @@ void(entity targ, entity attacker) ClientObituary =
 The normal starting point for a level. Only one is allowed. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
@@ -2273,7 +2295,7 @@ void() info_player_start =
 Only used on start map for the return point from an episode. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
@@ -2289,7 +2311,7 @@ void() info_player_start2 =
 Debug starting point for a level.  Overrides info_player_start if present and 'USE' is checked, does nothing if 'USE' is not checked. Will fire its targets when a player is spawned, here with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_start_test : "Developer-only spawn point" [
@@ -2313,7 +2335,7 @@ void() testplayerstart = {info_player_start_test();}	// back compat with old edi
 potential spawning position for deathmatch games
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
 @PointClass base(PlayerClass) = info_player_deathmatch : "Deathmatch start" []
@@ -2332,7 +2354,7 @@ void() coop_enable =
 Potential spawning position(s) for coop games. Will fire its targets when a player is spawned here, with player as activator.
 
 "angle" viewing angle when spawning
-"fog_color"/"fog_density" set the fog when spawning at this spot
+"fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 
 TRIGGER_FIRST - this start won't be used to spawn coop players until triggered, so respawning players don't have to walk all the way back to the action
 */

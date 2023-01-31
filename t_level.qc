@@ -29,6 +29,9 @@ void() GotoNextMap =
 
 void() ExitIntermission =
 {
+	// custom intermission track number (vf)
+	local float intertrack, endtrack;
+	
 	// skip any text in deathmatch
 	if (deathmatch)
 	{
@@ -40,6 +43,24 @@ void() ExitIntermission =
 	
 	intermission_exittime = time + 1;
 	intermission_running = intermission_running + 1;
+	
+	// custom tracks for intermission and episode end (vf)
+	intertrack = 3; 
+	endtrack = 2;
+
+	if (world.track_intermission)	
+		intertrack = world.track_intermission;
+		
+	if (world.track_end)
+		endtrack = world.track_end;
+	else if (world.worldtype == 4 || world.worldtype == 5)
+	{
+		endtrack = 5;
+	}
+	else
+	{
+		endtrack = 2;
+	}
 
 	// end of episode drivel
 	if (intermission_running == 2)
@@ -61,9 +82,12 @@ void() ExitIntermission =
 			}
 		}
 		
+		//WriteByte (MSG_ALL, SVC_CDTRACK); (vf)
+		//WriteByte (MSG_ALL, 2);
+		//WriteByte (MSG_ALL, 3);
 		WriteByte (MSG_ALL, SVC_CDTRACK);
-		WriteByte (MSG_ALL, 2);
-		WriteByte (MSG_ALL, 3);
+		WriteByte (MSG_ALL, endtrack);
+		WriteByte (MSG_ALL, intertrack);
 		
 		if (inter_text != string_null)
 		{
@@ -207,15 +231,15 @@ void(entity who) RestoreItemEffects =
 	}
 	if (who.haste_finished > 0) {
 		who.haste_finished += time;
-		who.items2 += IT_HASTE;
+		who.items_dwell += IT_HASTE;
 	}
 	if (who.berserk_finished > 0) {
 		who.berserk_finished += time;
-		who.items2 += IT_BERSERK;
+		who.items_dwell += IT_BERSERK;
 	}	
 	if (who.wetsuit_finished > 0) {
 		who.wetsuit_finished += time;
-		who.items2 += IT_WETSUIT;
+		who.items_dwell += IT_WETSUIT;
 	}
 }
 
@@ -382,6 +406,22 @@ Take the players to the intermission spot
 */
 void() execute_changelevel =
 {
+// custom intermission track number (vf)
+	local float intertrack;
+	
+	intertrack = 3;
+	if (world.track_intermission)
+		intertrack = world.track_intermission;
+	// intermission track #s = worldtype (gotta set dXm1's though :c)
+	else if (world.worldtype == 4 || world.worldtype == 5)
+	{
+		intertrack = 3;
+	}
+	else
+	{
+		intertrack = 4;
+	}
+		
 	intermission_running = 1;
 	
 // enforce a wait time before allowing changelevel
@@ -391,8 +431,8 @@ void() execute_changelevel =
 		intermission_exittime = time + 2;
 
 	WriteByte (MSG_ALL, SVC_CDTRACK);
-	WriteByte (MSG_ALL, 3);
-	WriteByte (MSG_ALL, 3);
+	WriteByte (MSG_ALL, intertrack);
+	WriteByte (MSG_ALL, intertrack);
 	
 	move_players_to_intermission();		//	TODO: QW - This line might be redundant
 }
@@ -481,13 +521,15 @@ void() changelevel_touch =
 	}
 	
 	activator = other;
-	SUB_UseTargets ();
+	SUB_UseTargetsSilent();	
+		// silent so that a 'message' key on the changelevel, which is meant for intermission text,
+		// doesn't also get insta-centerprinted
 	
 	changelevel_do();
 }
 
 /*QUAKED trigger_changelevel (.5 0 .5) ? no_intermission ? TRIGGER_FIRST
-When the player touches this, he gets sent to the map listed in the "map" variable. The view will go to the info_intermission spot and display stats.
+When the player touches this, he gets sent to the map listed in the 'map' variable. The view will go to the info_intermission spot and display stats.
 
 Flags:
 "no_intermission" bypasses intermission screen
@@ -495,16 +537,20 @@ Flags:
    
 Keys:
 "map" set to name of next map (e.g. e1m1) if no map is set, the current map will restart
+"message" ONE page of intermission text to display
 */
 /*FGD
-@SolidClass base(Trigger) = trigger_changelevel : "Trigger: Change level"
-[
+@baseclass = ChangeLevel [
 	map(string) : "Next map"
+	message(string) : "Intermission text (limit one page)"
 	spawnflags(flags) =
 	[
 		1: "No intermission" : 0
 	]
 ]
+@SolidClass base(Trigger, ChangeLevel) = trigger_changelevel : "Trigger: Change level.
+When the player touches this, he gets sent to the map listed in the 'map' variable. The view will go to the info_intermission spot and display stats."
+[]
 */
 void() trigger_changelevel =
 {
@@ -516,20 +562,18 @@ void() trigger_changelevel =
 	self.touch = changelevel_touch;
 }
 
-/*QUAKED target_changelevel (1 1 0.5) (-16 -16 -16) (16 16 16) NO_INTERMISSION
+/*QUAKED target_changelevel (0.65 0 0.65) (-16 -16 -16) (16 16 16) NO_INTERMISSION
 When the player triggers this by any means, he gets sent to the map listed in the "map" variable.  
 Spawnflags:
 NO_INTERMISSION: the view will not go to the info_intermission spot and display stats
+Keys:
+"map" set to name of next map (e.g. e1m1) if no map is set, the current map will restart
+"message" ONE page of intermission text to display
 */
 /*FGD
-@PointClass base(Appearflags, Targetname) = target_changelevel : "Target: Change level"
-[
-	map(string) : "Next map"
-	spawnflags(flags) =
-	[
-		1: "No intermission" : 0
-	]
-]
+@PointClass base(Appearflags, Targetname, ChangeLevel) color(160 0 160) size(32 32 32) = target_changelevel : "Target: Change level.
+When this is triggered, the player is sent to the map listed in the 'map' variable. The view will go to the info_intermission spot and display stats."
+[]
 */
 void() target_changelevel =
 {
@@ -542,25 +586,27 @@ void() target_changelevel =
 
 
 /*QUAKED info_intermission (.75 .25 .25) (-8 -8 -8) (8 8 8)
-This is the camera point for the intermission. Use "mangle" instead of angle, so you can set pitch or roll as well as yaw.
+This is the camera point for the intermission. Use 'angles' instead of angle, so you can set pitch or roll as well as yaw.
 Quake does a random pick if more than one exists.
 If no info_intermission entity is set, Quake uses the player start.
 
 Keys:
-"mangle" set pitch yaw roll, positive pitch is down
+"angles" or "mangle" set pitch yaw roll, positive pitch is down
 "fog_color"/"fog_density" set the fog for the view from this camera
 
 */
 /*FGD
-@PointClass base(Fog, Appearflags) = info_intermission : "Intermission camera" 
+@PointClass size(16 16 16) color(192 64 64) base(Fog, Appearflags) = info_intermission : "Intermission camera" 
 [
+	angles(string) : "Camera angle (Pitch Yaw Roll, positive pitch down)"
 	mangle(string) : "Camera angle (Pitch Yaw Roll, positive pitch down)"
 ]
 */
 void() info_intermission =
 {
 	if (!SUB_ShouldSpawn()) return;
-	self.angles = self.mangle;      // so C can get at it
+	if (self.mangle == VEC_ORIGIN)
+		self.angles = self.mangle;      // so C can get at it
 }
 
 

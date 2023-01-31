@@ -30,6 +30,7 @@ void() W_Precache =
 	precache_sound ("weapons/lhit.wav");		//lightning
 	precache_sound ("weapons/lstart.wav");		//lightning start
 	precache_sound ("weapons/rail.wav");
+	precache_sound ("weapons/rifle.wav");
 //	precache_sound ("items/damage3.wav");
 
 // ax sounds	
@@ -40,7 +41,6 @@ void() W_Precache =
 	precache_sound ("player/axhit2.wav");		// ax hit world
 	
 	precache_sound ("zombie/z_hit.wav");
-	
 	
 	precache_model ("progs/v_axeb.mdl");
 	precache_model ("progs/v_axe2.mdl");
@@ -54,9 +54,77 @@ void() W_Precache =
 	precache_model ("progs/v_rock2.mdl");
 	precache_model ("progs/v_light.mdl");
 	precache_model ("progs/v_rail.mdl");
-
+	precache_model ("progs/v_rifle.mdl");
 }
 
+
+vector (entity peWho) solveItems =
+{
+	local float lfItems, lfBitmask;
+	
+	if (peWho.weapon == W_AXE)
+	{
+		lfItems = 1;
+		lfBitmask = IT_AXE;
+	}
+	else if (peWho.weapon == W_SHOTGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SHOTGUN;
+	}
+	else if (peWho.weapon == W_SUPER_SHOTGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SUPER_SHOTGUN;
+	}
+	else if (peWho.weapon == W_NAILGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_NAILGUN;
+	}
+	else if (peWho.weapon == W_SUPER_NAILGUN)
+	{
+		lfItems = 1;
+		lfBitmask = IT_SUPER_NAILGUN;
+	}
+	else if (peWho.weapon == W_GRENADE_LAUNCHER)
+	{
+		lfItems = 1;
+		lfBitmask = IT_GRENADE_LAUNCHER;
+	}
+	else if (peWho.weapon == W_ROCKET_LAUNCHER)
+	{
+		lfItems = 1;
+		lfBitmask = IT_ROCKET_LAUNCHER;
+	}
+	else if (peWho.weapon == W_LIGHTNING)
+	{
+		lfItems = 1;
+		lfBitmask = IT_LIGHTNING;
+	}
+	else if (peWho.weapon == W_QUAD_SHOTGUN)
+	{
+		lfItems = 2;
+		lfBitmask = IT_QUAD_SHOTGUN;
+	}
+	else if (peWho.weapon == W_RAILGUN)
+	{
+		lfItems = 2;
+		lfBitmask = IT_RAILGUN;
+	}
+	else if (peWho.weapon == W_RIFLE)
+	{
+		lfItems = 2;
+		lfBitmask = IT_RIFLE;
+	}
+	else 
+	{
+		lfItems = 0;
+		lfBitmask = 0;
+	}
+	
+	return ([lfItems, lfBitmask, 0]);
+};
 
 
 /*
@@ -67,10 +135,11 @@ SuperDamageSound
 void() SuperDamageSound =
 {
 	if (!has_quad(self)) return;
+	if (self.super_damage_finished < time + 3) return;
 	if (self.super_sound < time)
 	{
-		self.super_sound = time + 1;
-		sound (self, CHAN_BODY, "items/damage3.wav", 1, ATTN_NORM);
+		self.super_sound = time + 0.9;
+		sound (self, CHAN_POWERUP, "items/damage3.wav", 1, ATTN_NORM);
 	}
 }
 
@@ -85,7 +154,7 @@ void() BerserkSound =
 	if (self.berserk_sound < time)
 	{
 		self.berserk_sound = time + 1;
-		sound (self, CHAN_AUTO, "items/axe_powerup3.wav", 1, ATTN_NORM);
+		sound (self, CHAN_POWERUP, "items/axe_powerup3.wav", 1, ATTN_NORM);
 	}
 }
 
@@ -110,7 +179,7 @@ void() W_SetCurrentAmmo =
 {
 	self.items = self.items - ( self.items & (IT_SHELLS | IT_NAILS | IT_ROCKETS | IT_CELLS) );
 	
-	if (self.weapon == W_SHOTGUN || self.weapon == W_SUPER_SHOTGUN || self.weapon == W_QUAD_SHOTGUN)
+	if (self.weapon == W_SHOTGUN || self.weapon == W_SUPER_SHOTGUN || self.weapon == W_QUAD_SHOTGUN || self.weapon == W_RIFLE)
 	{
 		self.currentammo = self.ammo_shells;
 		self.items = self.items | IT_SHELLS;
@@ -151,6 +220,8 @@ void() W_ResetWeaponState =
 		else
 			self.weaponmodel = "progs/v_axe2.mdl";
 		}
+	else if (self.weapon == W_RIFLE)
+		{self.weaponmodel = "progs/v_rifle.mdl";}
 	else if (self.weapon == W_SHOTGUN)
 		{self.weaponmodel = "progs/v_shot.mdl";}
 	else if (self.weapon == W_SUPER_SHOTGUN)
@@ -195,7 +266,9 @@ float(float w) W_RankForWeapon =
 		return 7;
 	if (w == W_NAILGUN)
 		return 8;
-	return 9;
+	if (w == W_RIFLE)
+		return 9;
+	return 10;
 }
 
 
@@ -281,14 +354,16 @@ float() W_BestWeapon =
 		return W_SUPER_NAILGUN;
 	if(self.ammo_shells >= 2 && (it & IT_SUPER_SHOTGUN) )
 		return W_SUPER_SHOTGUN;
-	if(self.ammo_shells >= 4 && (self.items2 & IT_QUAD_SHOTGUN))
+	if(self.ammo_shells >= 4 && (self.items_dwell & IT_QUAD_SHOTGUN))
 		return W_QUAD_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
-	if (self.ammo_cells >= 6 && (self.items2 & IT_RAILGUN) )
+	if (self.ammo_cells >= 6 && (self.items_dwell & IT_RAILGUN) )
 		return W_RAILGUN;
 	if(self.ammo_nails >= 1 && (it & IT_NAILGUN) )
 		return W_NAILGUN;
+	if(self.ammo_shells >= 1 && (self.items_dwell & IT_RIFLE) )
+		return W_RIFLE;
 	if(self.ammo_shells >= 1 && (it & IT_SHOTGUN) )
 		return W_SHOTGUN;
 	return W_AXE;
@@ -309,7 +384,7 @@ float() W_CheckNoAmmo =
 	if (self.currentammo > 0)
 		return TRUE;
 
-	if (self.weapon == IT_AXE)
+	if (self.weapon == W_AXE)
 		return TRUE;
 	
 	W_SelectBestWeapon ();
@@ -350,6 +425,13 @@ void() W_Attack =
 	{
 		player_shot1 ();
 		W_FireShotgun ();
+	}
+	else if (self.weapon == W_RIFLE)
+	{
+		if (self.rifle_nextshot > time ) 
+			return;
+		player_shot1 ();
+		W_FireRifle ();
 	}
 	else if (self.weapon == W_SUPER_SHOTGUN)
 	{
@@ -402,7 +484,8 @@ void() W_Attack =
 	}
 	else if (self.weapon == W_RAILGUN)
 	{
-		if (self.rail_nextshot > time ) return;
+		if (self.rail_nextshot > time ) 
+			return;
 		W_FireRail();
 	}
 }
@@ -434,21 +517,30 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 2)
 	{
-		fl = IT_SHOTGUN;
-		weap = W_SHOTGUN;
-		it = self.items;
+		if (self.items_dwell & IT_RIFLE && self.weapon != W_RIFLE)
+		{
+			fl = IT_RIFLE;
+			weap = W_RIFLE;
+			it = self.items_dwell;
+		}
+		else
+		{
+			fl = IT_SHOTGUN;
+			weap = W_SHOTGUN;
+			it = self.items;
+		}
 		if (self.ammo_shells < 1)
 			no_ammo = TRUE;
 	}
 	else if (self.impulse == 3)
 	{
-		if (self.items2 & IT_QUAD_SHOTGUN &&
+		if (self.items_dwell & IT_QUAD_SHOTGUN &&
 			self.weapon != W_QUAD_SHOTGUN &&
 			self.ammo_shells >= 4) {
 			// We can select the quad shotgun.
 			fl = IT_QUAD_SHOTGUN;
 			weap = W_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 		} else {
 			// We either don't have the quad shotgun,
 			// don't have enough ammo for it, or already have it
@@ -495,12 +587,12 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 8)
 	{
-		if (self.items2 & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 6) 
+		if (self.items_dwell & IT_RAILGUN &&	self.weapon != W_RAILGUN && self.ammo_cells >= 6) 
 		{
 			// We can select the railgun.
 			fl = IT_RAILGUN;
 			weap = W_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 		} 
 		else 
 		{
@@ -513,6 +605,60 @@ void() W_ChangeWeapon =
 			if (self.ammo_cells < 1)
 			no_ammo = TRUE;
 		}
+	}
+	else if (self.impulse == 22)
+	{
+		// individual impulse, do not modify
+		fl = IT_SHOTGUN;
+		weap = W_SHOTGUN;
+		it = self.items;
+		if (self.ammo_shells < 1)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 32)
+	{
+		// individual impulse, do not modify
+		fl = IT_RIFLE;
+		weap = W_RIFLE;
+		it = self.items_dwell;
+		if (self.ammo_shells < 1)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 23)
+	{
+		// individual impulse, do not modify
+		fl = IT_SUPER_SHOTGUN;
+		weap = W_SUPER_SHOTGUN;
+		it = self.items;
+		if (self.ammo_shells < 2)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 33)
+	{
+		// individual impulse, do not modify
+		fl = IT_QUAD_SHOTGUN;
+		weap = W_QUAD_SHOTGUN;
+		it = self.items_dwell;
+		if (self.ammo_shells < 4)
+			no_ammo = TRUE;
+	}
+	else if (self.impulse == 28)
+	{
+		// individual impulse, do not modify
+		fl = IT_LIGHTNING;
+		weap = W_LIGHTNING;
+		it = self.items;
+		if (self.ammo_cells < 1)
+		no_ammo = TRUE;
+	}
+	else if (self.impulse == 38)
+	{
+		// individual impulse, do not modify
+		fl = IT_RAILGUN;
+		weap = W_RAILGUN;
+		it = self.items_dwell;
+		if (self.ammo_cells < 6)
+		no_ammo = TRUE;
 	}
 
 	self.impulse = 0;
@@ -573,6 +719,14 @@ void() CycleWeaponCommand =
 		}
 		else if (self.weapon == W_SHOTGUN)
 		{
+			self.weapon = W_RIFLE;
+			fl = IT_RIFLE;
+			it = self.items_dwell;
+			if (self.ammo_shells < 1)
+				am = 1;
+		}
+		else if (self.weapon == W_RIFLE)
+		{
 			self.weapon = W_SUPER_SHOTGUN;
 			fl = IT_SUPER_SHOTGUN;
 			it = self.items;
@@ -583,7 +737,7 @@ void() CycleWeaponCommand =
 		{
 			self.weapon = W_QUAD_SHOTGUN;
 			fl = IT_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 4)
 				am = 1;
 		}
@@ -623,7 +777,7 @@ void() CycleWeaponCommand =
 		{
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_cells < 6)
 				am = 1;
 		}
@@ -702,7 +856,7 @@ void() CycleWeaponReverseCommand =
 		{
 			self.weapon = W_QUAD_SHOTGUN;
 			fl = IT_QUAD_SHOTGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_shells < 4)
 				am = 1;
 		}
@@ -716,6 +870,14 @@ void() CycleWeaponReverseCommand =
 			
 		}
 		else if (self.weapon == W_SUPER_SHOTGUN)
+		{
+			self.weapon = W_RIFLE;
+			fl = IT_RIFLE;
+			it = self.items_dwell;
+			if (self.ammo_shells < 1)
+				am = 1;
+		}
+		else if (self.weapon == W_RIFLE)
 		{
 			self.weapon = W_SHOTGUN;
 			fl = IT_SHOTGUN;
@@ -741,7 +903,7 @@ void() CycleWeaponReverseCommand =
 		{
 			self.weapon = W_RAILGUN;
 			fl = IT_RAILGUN;
-			it = self.items2;
+			it = self.items_dwell;
 			if (self.ammo_cells < 6) 
 				am = 1;
 		}

@@ -44,6 +44,7 @@ void(entity h, float t) powerup_invisibility =
 	//h.notrace = 1;
 	h.invisible_time = 1;
 	h.invisible_finished = time + t;
+	h.invisible_sound = time + 1.5;
 }
 
 /*
@@ -74,8 +75,8 @@ powerup_haste
 */
 void(entity h, float t) powerup_haste =
 {
-	sprint(h, PRINT_LOW, "You begin to channel unbelievable speed ...\n");
-	h.items2 |= IT_HASTE;
+	sprint(h, PRINT_LOW, "You begin to channel unbelievable speed ...\n\b+60% attack speed\b\n");
+	h.items_dwell |= IT_HASTE;
 	h.haste_finished = time + t;
 	h.haste_time = 1;
 	h.changevcshift = 1; // apply tint on pickup (vf)
@@ -93,8 +94,8 @@ void(entity h, float t) powerup_berserk =
 	if (h.classname != "player")
 		return;
 		
-	sprint(h, PRINT_LOW, "You begin frothing with a berserkers rage ...\n");
-	h.items2 |= IT_BERSERK;
+	sprint(h, PRINT_LOW, "You begin frothing with a berserkers rage ...\n\b10x melee damage\b\n");
+	h.items_dwell |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;
 	h.changevcshift = 1; // apply tint on pickup (vf)
@@ -117,8 +118,8 @@ powerup_wetsuit
 */
 void(entity h, float t) powerup_wetsuit =
 {
-	sprint(h, PRINT_LOW, "Don't pee in your wetsuit ...\n");
-	h.items2 |= IT_WETSUIT;
+	sprint(h, PRINT_LOW, "You equip the Diving Gear\n\b+30% Swim Speed & Water Breathing\b\n");
+	h.items_dwell |= IT_WETSUIT;
 	h.wetsuit_finished = time + t;
 	h.wetsuit_time = 1;
 }
@@ -132,7 +133,7 @@ void() powerup_touch =
 {
 	if ( !CheckValidTouch() ) return;
 
-	sound (other, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	sound (other, CHAN_POWERUP, self.noise, 1, ATTN_NORM);
 	stuffcmd (other, "bf\n");
 	other.items = other.items | self.items;
 
@@ -173,13 +174,13 @@ PENTAGRAM
 */
 void() precache_invulnerability =
 {
-	precache_model ("progs/invul.mdl");
+	precache_model_safe ("progs/invul.mdl");
 	precache_sound_safe ("items/protect.wav");
 	precache_sound_safe ("items/protect2.wav");
 	precache_sound_safe ("items/protect3.wav");
 }
 /*QUAKED item_artifact_invulnerability (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
-Player is invulnerable for 30 seconds.
+Pentagram of Protection. Player is invulnerable for 30 seconds (both health and armor).
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -188,8 +189,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/invulner.mdl" }) =
-	item_artifact_invulnerability : "Pentagram of Protection" []
+@PointClass size(-16 -16 -24, 16 16 32) color(255 0 0) base(Item) model({ "path": ":progs/invul.mdl" }) =
+	item_artifact_invulnerability : "Pentagram of Protection. Player is invulnerable for 30 seconds (both health and armor)." []
 */
 void() item_artifact_invulnerability =
 {
@@ -218,12 +219,12 @@ BIOSUIT
 */
 void() precache_envirosuit =
 {
-	precache_model ("progs/suit.mdl");
+	precache_model_safe ("progs/suit.mdl");
 	precache_sound_safe ("items/suit.wav");
 	precache_sound_safe ("items/suit2.wav");
 }
 /*QUAKED item_artifact_envirosuit (0 .5 .5) (-16 -16 -8) (16 16 48) ? ? SUSPENDED
-Player takes no damage from water or slime for 30 seconds.
+Envirosuit. Player takes no damage from water or slime for 30 seconds. Lava damage is reduced by one height step, enabling wading in foot-deep lava.
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -232,8 +233,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/suit.mdl" }) =
-	item_artifact_envirosuit : "Environmental protection suit" []
+@PointClass size(-16 -16 -24, 16 16 32) color(255 0 0) base(Item) model({ "path": ":progs/suit.mdl" }) =
+	item_artifact_envirosuit : "Envirosuit. Player takes no damage from water or slime for 30 seconds. Lava damage is reduced by one height step, enabling wading in foot-deep lava." []
 */
 void() item_artifact_envirosuit =
 {
@@ -261,14 +262,14 @@ RING OF SHADOWS
 */
 void() precache_invisibility =
 {
-	precache_model ("progs/invis.mdl");
+	precache_model_safe ("progs/invis.mdl");
 	precache_sound_safe ("items/inv1.wav");
 	precache_sound_safe ("items/inv2.wav");
 	precache_sound_safe ("items/inv3.wav");
 }
 
 /*QUAKED item_artifact_invisibility (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
-Player is invisible for 30 seconds. Monsters will not awaken on sight, but they will on hearing sound (like gunfire). Awakened monsters will try to attack an invisible player and do an inaccurate job, possibly starting infights. 
+Ring of Shadows. Player is invisible for 30 seconds. Monsters will not awaken on sight, but they will on hearing sound (like gunfire). Awakened monsters will try to attack an invisible player and do an inaccurate job, possibly starting infights. 
 monster_dog can still smell an invisible player, but monster_tarbaby can't find the player at all.
 
 Keys:
@@ -278,8 +279,9 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/invisibl.mdl" }) = 
-	item_artifact_invisibility : "Ring of Shadows" []
+@PointClass size(-16 -16 -24, 16 16 32) color(255 0 0) base(Item) model({ "path": ":progs/invis.mdl" }) = 
+	item_artifact_invisibility : "Ring of Shadows. Player is invisible for 30 seconds. Monsters will not awaken on sight, but they will on hearing sound (like gunfire). Awakened monsters will try to attack an invisible player and do an inaccurate job, possibly starting infights. 
+monster_dog can still smell an invisible player, but monster_tarbaby can't find the player at all." []
 */
 void() item_artifact_invisibility =
 {
@@ -306,14 +308,14 @@ QUAD
 */
 void() precache_super_damage =
 {
-	precache_model ("progs/quaddama.mdl");
+	precache_model_safe ("progs/quaddama.mdl");
 	precache_sound_safe ("items/damage.wav");
 	precache_sound_safe ("items/damage2.wav");
 	precache_sound_safe ("items/damage3.wav");
 }
 
 /*QUAKED item_artifact_super_damage (0 .5 .5) (-16 -16 -24) (16 16 32) ? ? SUSPENDED
-Quad Damage. Player's attacks do 4x damage and he stops paying attention to anything else.
+Quad Damage. Player's attacks do 4x damage and they stop paying attention to anything else.
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -322,8 +324,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/quaddama.mdl" }) =
-	item_artifact_super_damage : "Quad damage" []
+@PointClass size(-16 -16 -24, 16 16 32) color(255 0 0) base(Item) model({ "path": ":progs/quaddama.mdl" }) = item_artifact_super_damage : 
+	"Quad Damage. Player's attacks do 4x damage and they stop paying attention to anything else." []
 */
 void() item_artifact_super_damage =
 {
@@ -355,7 +357,7 @@ HASTE
 // TODO(JP): Set actual media
 void() precache_haste =
 {
-	precache_model ("progs/haste.mdl");
+	precache_model ("progs/e2/item_haste.mdl");
 	precache_sound_safe ("items/haste1.wav");
 	precache_sound_safe ("items/haste2.wav");
 	//precache_sound_safe ("items/haste3.wav");
@@ -371,7 +373,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/haste.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/e2/item_haste.mdl" }) =
 	item_artifact_haste : "Haste" []
 */
 void() item_artifact_haste =
@@ -380,10 +382,10 @@ void() item_artifact_haste =
 	self.touch = powerup_touch;
 
 	precache_haste();
-	setmodel (self, "progs/haste.mdl");
+	setmodel (self, "progs/e2/item_haste.mdl");
 	self.netname = "Haste";
 	self.noise = "items/haste1.wav";
-	self.items2 = IT_HASTE;
+	self.items_dwell = IT_HASTE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;
@@ -402,7 +404,7 @@ BERSKER
 // TODO(JP): Set actual media
 void() precache_berserk =
 {
-	precache_model ("progs/berserk.mdl");
+	precache_model ("progs/item_berserk.mdl");
 	precache_sound_safe ("items/axe_powerup.wav");
 	precache_sound_safe ("items/axe_powerup2.wav");
 	precache_sound_safe ("items/axe_powerup3.wav");	
@@ -418,7 +420,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/berserk.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_berserk.mdl" }) =
 	item_artifact_berserk : "Berserk" []
 */
 void() item_artifact_berserk =
@@ -427,10 +429,10 @@ void() item_artifact_berserk =
 	self.touch = powerup_touch;
 
 	precache_berserk();
-	setmodel (self, "progs/berserk.mdl");
+	setmodel (self, "progs/item_berserk.mdl");
 	self.netname = "Berserk";
 	self.noise = "items/axe_powerup.wav";
-	self.items2 = IT_BERSERK;
+	self.items_dwell = IT_BERSERK;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (deathmatch)
 		self.wait = 60;
@@ -449,7 +451,7 @@ WETSUIT
 */
 void() precache_wetsuit =
 {
-	precache_model ("progs/artifact_wetsuit.mdl");
+	precache_model ("progs/item_diving.mdl");
 	precache_sound_safe ("items/wetsuit.wav");
 	precache_sound_safe ("items/wetsuit2.wav");
 	precache_sound_safe ("items/wetsuit3.wav");
@@ -467,7 +469,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/artifact_wetsuit.mdl" }) =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item) model({ "path": ":progs/item_diving.mdl" }) =
 	item_artifact_wetsuit : "Wetsuit" []
 */
 void() item_artifact_wetsuit =
@@ -476,10 +478,10 @@ void() item_artifact_wetsuit =
 	self.touch = powerup_touch;
 
 	precache_wetsuit();
-	setmodel (self, "progs/artifact_wetsuit.mdl");
+	setmodel (self, "progs/item_diving.mdl");
 	self.netname = "Wetsuit";
 	self.noise = "items/wetsuit.wav";
-	self.items2 = IT_WETSUIT;
+	self.items_dwell = IT_WETSUIT;
 	setsize (self, '-16 -16 -8', '16 16 48');
 	if (deathmatch)
 		self.wait = 60;

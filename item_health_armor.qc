@@ -41,7 +41,7 @@ void() health_touch =
 		}
 	}
 
-	sound(other, CHAN_ITEM2, self.noise, 1, ATTN_NORM);
+	sound(other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 
 	ItemTouched();
 }	
@@ -78,15 +78,25 @@ void() item_health_go
 	}
 	setsize (self, '0 0 0', '32 32 56');
 	
-	if (deathmatch == 1)
-		self.wait = 20;
+	if (deathmatch == 1 || deathmatch == 3)
+	{
+		if (self.spawnflags & ITEM_HEALTH_MEGA)
+			// 20 seconds after health <= 100, minimum 25 seconds
+			// Copper doesn't handle megahealth the same way, so we can't do that.
+			// This is a longer time, picked somewhat arbitrarily.
+			// This will be slower than vanilla id1 if you're taking a lot of damage,
+			// but faster if you're being relatively safe.
+			self.wait = 40;
+		else
+			self.wait = 20;
+	}
 		
 	StartItem ();
 }
 
 // ===============================================================================
 
-/*QUAKED item_health (0 .5 .5) (0 0 0) (32 32 32) SMALL MEGA SUSPENDED 
+/*QUAKED item_health (0 .5 .5) (0 0 0) (32 32 24) SMALL MEGA SUSPENDED 
 Health box. Normally gives 25 points.
 
 Flags:
@@ -100,7 +110,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(0 0 0, 32 32 56) base(Item) 
+@PointClass size(0 0 0, 32 32 24) color(0 128 128) base(Item) 
 	model(
         {{
             spawnflags & 2 ->   ":maps/b_bh100.bsp",
@@ -108,12 +118,12 @@ Keys:
                                 ":maps/b_bh25.bsp"
         }}
     ) =
-    item_health : "Health pack" 
+    item_health : "Health pack, +25" 
 [
 	spawnflags(flags) = 
 	[
-		1 : "Rotten" : 0
-		2 : "Megahealth" : 0
+		1 : "Small, +15" : 0
+		2 : "Megahealth, +100" : 0
 	]
 ]
 */
@@ -201,6 +211,7 @@ float(entity e, float amt, float absorb, float replace) armor_give =
 	{
 		if (absorb < e.armortype)
 		{
+			// strength downgrade, quantity upgrade
 			// quake's original armor comparison test weighted both amounts by their protection
 			// strength with a straight multiply (a.type * a.amt > e.type * e.amt) to determine 
 			// which was "worth" more. with the current values, those breakeven points fall on
@@ -213,10 +224,25 @@ float(entity e, float amt, float absorb, float replace) armor_give =
 			if (absorb == ARMORTYPE_YELLOW && e.armortype == ARMORTYPE_RED && e.armorvalue > 100)
 				return FALSE;
 		}
-		else
-		{
+		else if (absorb == e.armortype)
+		{	// strength match or strict downgrade
 			if (amt <= e.armorvalue)
 				return FALSE;
+		}
+		else
+		{	// strength upgrade
+			if (amt < e.armorvalue)
+			{	// weird edge case: strength upgrade, quantity downgrade
+				// we can accumulate enough of a weak armor (by picking up backpacks or
+				// through target_items horseplay) that we can be shut out of picking up
+				// a stronger one, so let the player keep a portion of their saved-up 
+				// extra armor at the new strength
+				
+				if (absorb == ARMORTYPE_RED && e.armortype == ARMORTYPE_GREEN)
+					amt = floor((amt * 3 + e.armorvalue) / 4);	// keep 1/4 of the excess
+				else
+					amt = floor((amt + e.armorvalue) / 2);		// keep 1/2 if it
+			}
 		}
 		e.armorvalue = amt;
 		e.armortype = absorb;
@@ -278,10 +304,10 @@ void(float skn, float amt) StartArmor =
 
 	self.touch = armor_touch;
 	self.type = "armor";
-	precache_model ("progs/armor.mdl");
+	precache_model_safe ("progs/armor.mdl");
 	setmodel (self, "progs/armor.mdl");
 	
-	if (deathmatch == 1)
+	if (deathmatch == 1 || deathmatch == 3)
 		self.wait = 20;
 
 	setsize (self, '-16 -16 0', '16 16 56');
@@ -299,8 +325,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 0, 16 16 56) base(Item) model({ "path": ":progs/armor.mdl" }) =
-	item_armor1 : "Green armor (100%)" []
+@PointClass size(-16 -16 0, 16 16 56) color(0 180 180) base(Item) model({ "path": ":progs/armor.mdl" }) =
+	item_armor1 : "Green armor (100pts, 30%)" []
 */
 void() item_armor1 = { StartArmor(0,100); }
 
@@ -314,8 +340,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 0, 16 16 56) base(Item) model({ "path": ":progs/armor.mdl", "skin": 1 }) =
-	item_armor2 : "Yellow armor (150%)" []
+@PointClass size(-16 -16 0, 16 16 56) color(180 0 180) base(Item) model({ "path": ":progs/armor.mdl", "skin": 1 }) =
+	item_armor2 : "Yellow armor (150pts, 50%)" []
 */
 void() item_armor2 = { StartArmor(1,150); }
 
@@ -329,8 +355,8 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass size(-16 -16 0, 16 16 56) base(Item) model({ "path": ":progs/armor.mdl", "skin": 2 }) =
-	item_armorInv : "Red armor (200%)" []
+@PointClass size(-16 -16 0, 16 16 56) color(180 0 0) base(Item) model({ "path": ":progs/armor.mdl", "skin": 2 }) =
+	item_armorInv : "Red armor (200pts, 70%)" []
 */
 void() item_armorInv = { StartArmor(2,200); }
 

@@ -14,12 +14,17 @@ than fall through grates (also they look too big)
 
 vector(float dm) GibVelocityForHealth =
 {
-	local vector v;
-	local float	voom;
-
+	vector v;
+	float voom;
+	
 	v_x = 150 * crandom();
 	v_y = 150 * crandom();
 	v_z = 150 + 150 * random();
+
+	if (dm < -99)
+		{
+		dm = -99; //Protection against crazy gibs
+		}
 
 	voom = max(1, min(10, dm * dm / 5000));
 	
@@ -62,7 +67,7 @@ void(string gibname, float dm) ThrowHead =
 	self.view_ofs = '0 0 8';
 	setsize (self, '-16 -16 0', '16 16 56');
 	self.velocity += GibVelocityForHealth(dm);
-	self.origin_z = self.absmax_z - 24;
+	self.origin_z = self.origin_z - 24;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.type = "head";
 	self.avelocity = crandom() * '0 600 0';

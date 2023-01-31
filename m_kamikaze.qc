@@ -286,7 +286,7 @@ void(float dist)kami_run =
 	}
 	else
 	{
-		Killed(self,self.enemy);
+		Killed(self,self.enemy, self.enemy);
 	}
 };
 
@@ -298,7 +298,7 @@ void() monster_kamikaze_spawn =
 		
 	self.solid = SOLID_SLIDEBOX;
 
-	setmodel (self, "progs/kamikaze.mdl");
+	setmodel (self, "progs/e1/mon_kami.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 24');
 	self.health = 40;
@@ -340,7 +340,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/kamikaze.mdl" }) = monster_kamikaze : "Kamikaze" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/e1/mon_kami.mdl" }) = monster_kamikaze : "Kamikaze" []
 */
 void() monster_kamikaze =
 {
@@ -351,7 +351,7 @@ void() monster_kamikaze =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/kamikaze.mdl");
+	precache_model ("progs/e1/mon_kami.mdl");
 
 	precache_sound ("kamikaze/kami_idle.wav");
 	precache_sound ("kamikaze/kami_scream.wav");

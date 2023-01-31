@@ -17,7 +17,7 @@ void() killed_monster =
 Killed
 ============
 */
-void(entity targ, entity attacker) Killed =
+void(entity targ, entity inflictor, entity attacker) Killed =
 {
 	local entity oself;
 
@@ -26,14 +26,13 @@ void(entity targ, entity attacker) Killed =
 	oself = self;
 	self = targ;
 
-	//bprint4(self.classname, " died with ", ftos(self.health), " hp\n");
-	
-	if (self.health < -99)
-		self.health = -99;		// don't let sbar look bad (or throw gibs with crazy speed)
+	if (self.health < -99 && self.classname == "player") // let monsters have bigger gib threshold
+		self.health = -99;		// don't let sbar look bad
 
 	if (self.movetype == MOVETYPE_PUSH || // doors, triggers, etc
-		(self.movetype == MOVETYPE_NONE && self.classname != "player")) 
+		(self.movetype == MOVETYPE_NONE && self.classname != "player" && !(self.flags & FL_MONSTER))) 
 		// players are movetype none while hanging out in a void pit waiting to die
+		// and monsters may be movetype_none (shootable chthons)
 	{
 		//self.enemy = attacker;	// why did you do this lunaran
 		self.th_die ();
@@ -69,7 +68,12 @@ void(entity targ, entity attacker) Killed =
 	}
 
 	if (self.classname != "player" && self.customflags & CFL_PLUNGE)
-		remove(self);
+	{
+		setmodel(self, string_null);
+		self.health = 0;
+		self.think = SUB_Remove;
+		self.nextthink = time + 1;
+	}
 	else
 		self.th_die ();
 	
@@ -343,6 +347,11 @@ void( entity attacker ) T_ReactToDamage =
 	
 	//	Egyptian boss fights only with players
 	if(attacker.classname != "player" && self.classname == "monster_boss_egypt") return;
+	if(attacker.classname != "player" && self.classname == "monster_d1boss") return;	
+	
+	//	Excavator cannot infight while suicide bombing
+	if( self.movetype == MOVETYPE_FLYMISSILE && self.classname == "monster_excavator") return;
+	
 	
 	// get mad unless of the same class (except for soldiers)
 	// classname check replaced with new "type" check
@@ -503,7 +512,7 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 			self = oldself;
 			if (dontdie) return;
 		}
-		Killed (targ, attacker);
+		Killed (targ, inflictor, attacker);
 		return;
 	}
 
@@ -514,11 +523,14 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 		T_ReactToDamage( attacker );
 	
 	// if (self.th_pain && time >= self.pain_finished)	// can't do this here, breaks zombie pain handling
-	if (self.th_pain)
+	if (self.th_pain || self.th_pain_ext)
 	{
 		// nightmare scaling of .pain_finished moved to PainFinished(), called from .th_pain
 		// on appropriate monsters only
-		self.th_pain (attacker, take);
+		if (self.th_pain_ext)
+			self.th_pain_ext (inflictor, attacker, take);
+		else
+			self.th_pain (attacker, take);
 
 		// in coop, monsters will switch to the most convenient player to attack at will,
 		// but triggering a pain animation will draw dedicated attention for a few seconds
@@ -567,6 +579,10 @@ void(entity inflictor, entity attacker, entity tgt, float points, float multi) T
 		}
 	}
 	
+	// D2 boss - marks the attack as radius damage
+	if (tgt.classname == "d2boss_bbox")
+		tgt.state = 1;
+
 	if (multi && tgt.movetype != MOVETYPE_WALK )
 		AddMultiDamage( tgt, pnts );
 	else T_Damage (tgt, inflictor, attacker, pnts);

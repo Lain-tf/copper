@@ -256,7 +256,7 @@ void()	army_die6	=[	$death6,	army_die7	] {}
 void()	army_die7	=[	$death7,	army_die8	] {}
 void()	army_die8	=[	$death8,	army_die9	] {}
 void()	army_die9	=[	$death9,	army_die10	] {}
-void()	army_die10	=[	$death10,	army_die10	] {PostDeathLogic();}
+void()	army_die10	=[	$death10,	SUB_Null	] {PostDeathLogic();}
 
 void()	army_cdie1	=[	$deathc1,	army_cdie2	] {}
 void()	army_cdie2	=[	$deathc2,	army_cdie3	] {ai_back(5);}
@@ -269,7 +269,7 @@ void()	army_cdie7	=[	$deathc7,	army_cdie8	] {}
 void()	army_cdie8	=[	$deathc8,	army_cdie9	] {}
 void()	army_cdie9	=[	$deathc9,	army_cdie10	] {}
 void()	army_cdie10	=[	$deathc10,	army_cdie11	] {}
-void()	army_cdie11	=[	$deathc11,	army_cdie11	] {PostDeathLogic();}
+void()	army_cdie11	=[	$deathc11,	SUB_Null	] {PostDeathLogic();}
 
 
 void() army_die =
@@ -300,7 +300,7 @@ void() monster_army_spawn =
 	
 	self.customflags |= CFL_EPSKINS;
 
-	setmodel (self, "progs/soldier.mdl");
+	setmodel (self, "progs/mon_grunt.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 35;
@@ -338,7 +338,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_grunt.mdl" }) = monster_army : "Grunt" []
 */
 void() monster_army =
 {	
@@ -349,7 +349,7 @@ void() monster_army =
 		remove(self);
 		return;
 	}
-	precache_model ("progs/soldier.mdl");
+	precache_model ("progs/mon_grunt.mdl");
 	precache_model ("progs/h_guard.mdl");
 	precache_model ("progs/gib1.mdl");
 	precache_model ("progs/gib2.mdl");

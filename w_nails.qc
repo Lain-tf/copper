@@ -39,25 +39,25 @@ vector(vector fwd, float spread) W_SpikeDir =
 void() W_FireNailgun =
 {
 	float haste_factor;
-	vector m, v, org, dir;
+	vector offset, v, org, dir;
+
 	// remember sv_aim
-	v = vectoangles( aim( self, AUTOAIM_DIST ) );
+	dir = aim( self, AUTOAIM_DIST );
+	v = vectoangles( dir );
 	v_x *= -1;	// pitch comes back inverted from vectoangles :|
 	makevectors( v );
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	self.currentammo = self.ammo_nails = self.ammo_nails - 1;
-	m = VEC_ORIGIN;
-	if ( mod( self.cnt, 2 ) ) m_x = -2.5;
-	else m_x = 2.5;	
+	offset = VEC_ORIGIN;
+	if ( mod( self.cnt, 2 ) ) offset_x = -2.5;
+	else offset_x = 2.5;	
 
-	org = W_SpikeOrigin(m);
-	dir = W_SpikeDir(v_forward, 0);
+	org = W_SpikeOrigin(offset);
 
 	// default sv_maxvelocity is 2000, any higher leads to weird 
 	// angular offsets caused by clamping the velocity
 	launch_nail(org, dir * 1996);
-
 	if (has_haste(self)) {
 		haste_factor = HASTE_FACTOR;
 	} else {
@@ -70,21 +70,21 @@ void() spike_unfatten = { self.movetype = MOVETYPE_FLY; }
 
 void() W_FirePerforator =
 {
-
 	float haste_factor;
-	vector m;
+	vector offset;
+
 	sound (self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 	self.currentammo = self.ammo_nails = self.ammo_nails - 2;
 	
-	if (mod(self.cnt, 4) == 0) m = '0 0 1.25';
-	else if (mod(self.cnt, 4) == 1) m = '1 0 1';
-	else if (mod(self.cnt, 4) == 2) m = '1.25 0 0';
-	else if (mod(self.cnt, 4) == 3) m = '1 0 -1';
+	if (mod(self.cnt, 4) == 0) offset = '0 0 1.25';
+	else if (mod(self.cnt, 4) == 1) offset = '1 0 1';
+	else if (mod(self.cnt, 4) == 2) offset = '1.25 0 0';
+	else if (mod(self.cnt, 4) == 3) offset = '1 0 -1';
 	
 	entity spike1, spike2;
 	makevectors(self.v_angle);
-	spike1 = launch_nail(W_SpikeOrigin(m), W_SpikeDir(v_forward, 2) * (940 + random()*30));
-	spike2 = launch_nail(W_SpikeOrigin(-m), W_SpikeDir(v_forward, 2) * (1020 + random()*30));
+	spike1 = launch_nail(W_SpikeOrigin(offset), W_SpikeDir(v_forward, 2) * (940 + random()*30));
+	spike2 = launch_nail(W_SpikeOrigin(-offset), W_SpikeDir(v_forward, 2) * (1020 + random()*30));
 
 	// weaken the SNG at long distance while keeping the spread under control
 	spike1.think = spike_unfatten;
@@ -92,10 +92,12 @@ void() W_FirePerforator =
 	spike1.nextthink = time + 0.25;
 	spike2.nextthink = time + 0.3;
 	
-	if (has_haste(self)) {
+	if ( has_haste(self) ) 
 		haste_factor = HASTE_FACTOR;
-	} else {
+	else 
+	{
 		haste_factor = 1;
+		self.punchangle_x = -2;
 	}
 
 	self.attack_finished = time + 0.1 * haste_factor;
@@ -124,7 +126,7 @@ void() W_FireSpikes =
 		W_SelectBestWeapon();
 		return;
 	}
-	if (self.ammo_nails >= 2 && self.weapon == IT_SUPER_NAILGUN)
+	if (self.ammo_nails >= 2 && self.weapon == W_SUPER_NAILGUN)
 	{
 		player_super_nail();
 	}

@@ -33,10 +33,10 @@ string light_off = "a";
 
 
 /*FGD
-@baseclass base() color(255 255 40) size(-8 -8 -8, 8 8 8) = Light [
+@baseclass base() color(255 255 80) size(-8 -8 -8, 8 8 8) = Light [
 	light(integer) : "Brightness" : 300
 	_color(string) : "Color" : "1 1 1"
-	wait(string) : "Fade distance multiplier" : 1
+	wait(string) : "Fade distance multiplier" : "1"
 	mangle(string) : "Spotlight aim (yaw pitch roll, neg. pitch is down)"
 	angle(integer) : "Spotlight cone angle"
 	_softangle(integer) : "Spotlight inner cone angle"
@@ -405,7 +405,7 @@ void() light_fluorospark =
 	ambientsound (self.origin, "ambience/buzz1.wav", 0.5, ATTN_STATIC);
 }
 
-/*QUAKED light_globe (1 1 0) (-8 -8 -8) (8 8 8)
+/*QUAKED light_globe (1 1 0) (-12 -12 -12) (12 12 12)
 Sphere globe light.  Can't be triggered.
 
 Keys:
@@ -439,7 +439,7 @@ Keys:
 "message"	override the style string directly for the assigned style (clashes will overwrite each other)
 */
 /*FGD
-@PointClass base(Light) = light_globe : "Globe light" []
+@PointClass base(Light) size(24 24 24) = light_globe : "Globe light" []
 */
 void() light_globe =
 {
@@ -669,15 +669,15 @@ void() light_candle_group =
 	
 	entity c, clast;
 	string oh = self.targetname;
-	c = self;	
+	clast = c = self;	
 	do {
-		clast = c;
 		c = find(c, targetname, oh);
-		if (clast.classname == "light_candle")
+		if (c.classname == "light_candle")
 		{
 			clast.buddy = c;
-			clast.targetname = string_null;
-			clast.nextthink = 0;
+			c.targetname = string_null;
+			c.nextthink = 0;
+			clast = c;
 		}
 	} while (c != world);
 	
@@ -695,7 +695,9 @@ See 'light' keyvalues/spawnflags for more.
 */
 /*FGD
 @PointClass base(LightTriggerable) size(-4 -4 0, 4 4 16) model({ "path": ":progs/candle2.mdl" }) = 
-	light_candle : "Candle" 
+	light_candle : "Animated candle. Trigger to turn on or off.
+If triggered to turn on and off, all candles with a matching targetname will ignite or go out as well.
+Choose size with 'width' and 'height' (leave either at 0 for random selection)."
 [
 	width(choices) : "Width" : 0 =
 	[

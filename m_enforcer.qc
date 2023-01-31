@@ -57,7 +57,7 @@ float() enforcer_clear_attack =
 
 	traceline2(spot1, spot2, self, TRACE_WATER);
 
-	if (trace_inopen && trace_inwater) return FALSE;	// sight line crossed contents
+	//if (trace_inopen && trace_inwater) return FALSE;	// sight line crossed contents
 	if (trace_ent != self.enemy) return FALSE;			// don't have a clear shot
 	return TRUE;
 }
@@ -286,7 +286,7 @@ void()	enf_die10	=[	$death10,	enf_die11	] {ai_forward(5);}
 void()	enf_die11	=[	$death11,	enf_die12	] {ai_forward(5);}
 void()	enf_die12	=[	$death12,	enf_die13	] {ai_forward(5);}
 void()	enf_die13	=[	$death13,	enf_die14	] {}
-void()	enf_die14	=[	$death14,	enf_die14	] {PostDeathLogic();}
+void()	enf_die14	=[	$death14,	SUB_Null	] {PostDeathLogic();}
 
 void()	enf_fdie1	=[	$fdeath1,	enf_fdie2	] {}
 void()	enf_fdie2	=[	$fdeath2,	enf_fdie3	] {}
@@ -302,7 +302,7 @@ void()	enf_fdie7	=[	$fdeath7,	enf_fdie8	] {}
 void()	enf_fdie8	=[	$fdeath8,	enf_fdie9	] {}
 void()	enf_fdie9	=[	$fdeath9,	enf_fdie10	] {}
 void()	enf_fdie10	=[	$fdeath10,	enf_fdie11	] {}
-void()	enf_fdie11	=[	$fdeath11,	enf_fdie11	] {PostDeathLogic();}
+void()	enf_fdie11	=[	$fdeath11,	SUB_Null	] {PostDeathLogic();}
 
 
 void() enf_die =
@@ -330,7 +330,7 @@ void() monster_enforcer_spawn =
 	self.solid = SOLID_SLIDEBOX;
 	//self.movetype = MOVETYPE_STEP;
 
-	setmodel (self, "progs/enforcer.mdl");
+	setmodel (self, "progs/mon_enforcer.mdl");
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 80;
@@ -370,7 +370,7 @@ Keys:
 "movedir" set to a velocity to make the monster jump on awakening
 */
 /*FGD
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/enforcer.mdl" }) = monster_enforcer : "Enforcer" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/mon_enforcer.mdl" }) = monster_enforcer : "Enforcer" []
 */
 void() monster_enforcer =
 {
@@ -381,7 +381,7 @@ void() monster_enforcer =
 		remove(self);
 		return;
 	}
-	precache_model2 ("progs/enforcer.mdl");
+	precache_model2 ("progs/mon_enforcer.mdl");
 	precache_model2 ("progs/h_mega.mdl");
 	precache_model2 ("progs/laser.mdl");
 
