@@ -495,12 +495,7 @@ void(entity attacker, float damage) d2boss_Pain =
 {
 //dprint("Pain!\n");
 	if ( self.health <= 0 ) 
-		return;	
-
-	if ( random() > 0.5 )
-		sound (self, CHAN_AUTO, "d2boss/pain1.wav", 1, ATTN_NONE);
-	else if ( random() > 0.75 )
-		sound (self, CHAN_AUTO, "d2boss/pain2.wav", 1, ATTN_NONE);		
+		return;		
 };
 
 
@@ -837,7 +832,6 @@ void() d2boss_shield_up =
 	self.state = D2BOSS_WAITFORSHIELD;
 	self.eChildB.think = d2boss_shield;
 	self.eChildB.nextthink = time;
-	sound (self, CHAN_AUTO, "d2boss/shield_up.wav", 1, ATTN_NONE);	
 };
 
 
@@ -846,7 +840,6 @@ void() d2boss_shield_down =
 	self.eChildB.alpha = -1;
 	self.eChildB.avelocity_z = 0;
 	self.eChildB.frame = 16;
-	sound (self, CHAN_AUTO, "d2boss/shield_down.wav", 1, ATTN_NONE);
 };
 
 
@@ -995,11 +988,7 @@ void() monster_d2boss =
 	precache_model ("progs/e2/marker.mdl");
 	precache_model ("progs/h_shams.mdl");
 	precache_model ("progs/proj_d1boss.mdl");
-	precache_sound ("d2boss/shield_down.wav");
-	precache_sound ("d2boss/shield_up.wav");
 	precache_sound ("d2boss/death.wav");
-	precache_sound ("d2boss/pain1.wav");
-	precache_sound ("d2boss/pain2.wav");
 
 	if (self.strength > 0)
 		self.health = self.strength;
