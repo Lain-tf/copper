@@ -218,6 +218,25 @@ void() Cheat_Wetsuit =
 	powerup_wetsuit(self, 60);
 }
 
+void() toggle_shotgunstart =
+{
+	serverflags ^= SVFL_SHOTGUNSTART;
+	
+	if (serverflags & SVFL_SHOTGUNSTART)
+		dprint("Shotgun start is ON \n");
+	else
+		dprint("Shotgun start is OFF \n");
+};
+
+void() toggle_coopents =
+{
+	serverflags ^= SVFL_COOPENTSINSP;
+	
+	if (serverflags & SVFL_COOPENTSINSP)
+		dprint("Coop entities in Singleplayer is ON \n");
+	else
+		dprint("Coop entities in Singleplayer is OFF \n");
+};
 // --------------------------------
 // ImpulseCommands
 // --------------------------------
@@ -329,6 +348,12 @@ void() ImpulseCommands =
 		break;
 	case 108:
 		dev_tracetest();
+		break;
+	case 110:
+		toggle_shotgunstart();
+		break;
+	case 111:
+		toggle_coopents();
 		break;
 	case 127:
 	case 129:

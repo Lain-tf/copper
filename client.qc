@@ -585,6 +585,12 @@ void() PutClientInServer =
 
 	DecodeLevelParms();
 	SetChangeParms();
+	if ((serverflags & SVFL_SHOTGUNSTART) && !coop )
+	{
+		SetNewParms ();	
+		DecodeLevelParms();
+		SetChangeParms();
+	}
 	W_ResetWeaponState();
 
 	// we respawned with keys not taken away, make sure .items reflects this

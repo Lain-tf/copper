@@ -120,7 +120,7 @@ float() SUB_ShouldSpawn =
 	// checks skill/dm flags
 	if (self.spawnflags & SPAWN_COOPONLY && self.spawnflags & SPAWN_NOTCOOP)
 		objerror("cooponly and notincoop flags both set on the same entity");
-	if ( ((self.spawnflags & SPAWN_NOTCOOP) && coop) || ((self.spawnflags & SPAWN_COOPONLY) && !(coop)) )
+	if ( ( (self.spawnflags & SPAWN_NOTCOOP) && ( coop || (serverflags & SVFL_COOPENTSINSP) ) ) || ((self.spawnflags & SPAWN_COOPONLY) && !(coop) && !(serverflags & SVFL_COOPENTSINSP)) )
 	{
 		remove(self);
 		return FALSE;

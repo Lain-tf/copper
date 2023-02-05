@@ -44,6 +44,8 @@ const float	SVFL_EPISODE2		= 2;
 const float	SVFL_EPISODE3		= 4;
 const float	SVFL_EPISODE4		= 8;
 const float	SVFL_ALLEPISODES	= 15;
+const float SVFL_SHOTGUNSTART	= 16;
+const float SVFL_COOPENTSINSP	= 32;
 const float	SVFL_RESPAWNING		= 2097152;	// to notify target_autosave that we just restarted after dying
 
 
