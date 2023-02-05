@@ -86,7 +86,7 @@ void(entity h, float t) powerup_berserk =
 	if (h.classname != "player")
 		return;
 		
-	sprint(h, "You begin frothing with a berserkers rage ...\n\b10x melee damage\b\n");
+	sprint(h, "You begin frothing with a berserkers rage ...\n\b10x melee damage AND 50% damage reduction\b\n");
 	h.items_dwell |= IT_BERSERK;
 	h.berserk_finished = time + t;
 	h.berserk_time = 1;

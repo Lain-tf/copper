@@ -434,6 +434,12 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_DamageApply
 		dir = normalize(dir);
 		targ.velocity = targ.velocity + dir*damage*8;
 	}
+	
+	// if player has berserk, reduce damage taken by 50%
+	if (targ.berserk_finished > time)
+	{
+		damage = ceil(damage * 0.5);
+	}
 
 	if (targ.flags & FL_GODMODE)
 		return;
