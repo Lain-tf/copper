@@ -425,10 +425,7 @@ void() brute_meleeb13	=[	$melee_b13, brute_run1		] {
 }
 
 /* Grenades */
-void() brute_grena1 	=[	$attack_a1,		brute_grena2	] {ai_face();}
-void() brute_grena2	=[	$attack_a2,		brute_grena3	] {ai_face();}
-void() brute_grena3	=[	$attack_a3,		brute_grena4	] {ai_face();}
-void() brute_grena4	=[	$attack_a4,		brute_grena5	] {ai_face();}
+void() brute_grena1	=[	$attack_a4,		brute_grena5	] {ai_face();} //fix this later lol (fw)
 void() brute_grena5	=[	$attack_a5,		brute_grena6	] {ai_face();}
 void() brute_grena6	=[	$attack_a6,		brute_grena7	] {ai_face();}
 void() brute_grena7	=[	$attack_a7,		brute_grena8	] {ai_face();}
@@ -479,11 +476,7 @@ void() brute_grena32	=[	$attack_a32,	brute_run1		] {
 	ai_attack_finished(1 + 2*random());
 }
 
-void() brute_grenb1 	=[	$attack_b1,		brute_grenb2	] {ai_face();}
-void() brute_grenb2		=[	$attack_b2,		brute_grenb3	] {ai_face();}
-void() brute_grenb3		=[	$attack_b3,		brute_grenb4	] {ai_face();}
-void() brute_grenb4		=[	$attack_b4,		brute_grenb5	] {ai_face();}
-void() brute_grenb5		=[	$attack_b5,		brute_grenb6	] {ai_face();}
+void() brute_grenb1		=[	$attack_b5,		brute_grenb6	] {ai_face();}
 void() brute_grenb6		=[	$attack_b6,		brute_grenb7	] {ai_face();}
 void() brute_grenb7		=[	$attack_b7,		brute_grenb8	] {ai_face();}
 void() brute_grenb8		=[	$attack_b8,		brute_grenb9	] {ai_face();}
@@ -594,7 +587,7 @@ void(entity attacker, float damage)	brute_pain =
 		return;
 	}
 
-	if (random() * 400 > damage) {
+	if (random() * 700 > damage) {
 		// didn't flinch
 		return;
 	}	
