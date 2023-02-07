@@ -223,9 +223,9 @@ void() toggle_shotgunstart =
 	serverflags ^= SVFL_SHOTGUNSTART;
 	
 	if (serverflags & SVFL_SHOTGUNSTART)
-		sprint(self, "Shotgun start DISABLED\n");
+		sprint(self, "Shotgun start \bENABLED\b\n");
 	else
-		sprint(self, "Shotgun start ENABLED\n");
+		sprint(self, "Shotgun start \bDISABLED\b\n");
 };
 
 void() toggle_coopents =
@@ -233,9 +233,9 @@ void() toggle_coopents =
 	serverflags ^= SVFL_COOPENTSINSP;
 	
 	if (serverflags & SVFL_COOPENTSINSP)
-		sprint(self, "Coop entities in Singleplayer ENABLED\n");
+		sprint(self, "Coop Entities in Singleplayer \bENABLED\b\n");
 	else
-		sprint(self, "Coop entities in Singleplayer DISABLED\n");
+		sprint(self, "Coop Entities in Singleplayer \bDISABLED\b\n");
 };
 // --------------------------------
 // ImpulseCommands
