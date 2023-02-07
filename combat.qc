@@ -348,7 +348,7 @@ void( entity attacker ) T_ReactToDamage =
 	if(attacker.classname != "player" && self.classname == "monster_d1boss") return;	
 	
 	//	Excavator cannot infight while suicide bombing
-	if( self.movetype == MOVETYPE_FLYMISSILE && self.classname == "monster_excavator") return;
+	if(self.suicidebomb == 1 && self.classname == "monster_excavator") return;
 	
 	
 	// get mad unless of the same class (except for soldiers)

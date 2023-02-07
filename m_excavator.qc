@@ -36,6 +36,8 @@ $frame pain1 pain2 pain3 pain4 pain5 pain6
 
 $frame painb1 painb2 painb3 painb4 painb5 painb6
 
+.float suicidebomb;
+
 /*
  *==================
  * Excavator idle
@@ -163,8 +165,8 @@ void() excavator_correct_angles =
 	self.angles = vectoangles(self.velocity);
 };
 
-void() excavator_kamikaze1  = [ $kamiinit1, excavator_kamikaze2  ] { ai_face(); }
-void() excavator_kamikaze2  = [ $kamiinit2, excavator_kamikaze3  ] { ai_face(); }
+void() excavator_kamikaze1  = [ $kamiinit1, excavator_kamikaze2  ] { ai_face(); self.suicidebomb = 1;} //excavator shouldn't infight after kami, causes bugs
+void() excavator_kamikaze2  = [ $kamiinit2, excavator_kamikaze3  ] { ai_face();}
 void() excavator_kamikaze3  = [ $kamiinit3, excavator_kamikaze4  ] { ai_face(); }
 void() excavator_kamikaze4  = [ $kamiinit4, excavator_kamikaze5  ] { ai_face(); }
 void() excavator_kamikaze5  = [ $kamiinit5, excavator_kamikaze6  ] { ai_face(); }
