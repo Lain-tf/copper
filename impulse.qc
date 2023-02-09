@@ -183,6 +183,15 @@ void() Cheat_Haste =
 }
 
 // --------------------------------
+// ServerflagsCommand
+// --------------------------------
+void() ServerflagsCommand =
+{
+	serverflags = serverflags * 2 + 1;
+	dev_serverflags();
+}
+
+// --------------------------------
 // Cheat_Berserk
 // --------------------------------
 void() Cheat_Berserk =
@@ -291,6 +300,9 @@ void() ImpulseCommands =
 		break;
 	case 12:
 		CycleWeaponReverseCommand();
+		break;
+	case 11:
+		ServerflagsCommand();
 		break;
 	/*
 	Impulses from 20 to 50 are reserved for individual weapon selection, for now (vf)
