@@ -588,6 +588,31 @@ void() info_teleport_destination =
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);
 }
 
+/*QUAKED info_voidaxe_destination (.8 0 .9) (-32 -32 -64) (32 32 64)
+This is the destination marker for the voidaxe.
+
+Keys:
+"fog_color"/"fog_density" set the fog for anyone teleporting here
+*/
+/*FGD
+@PointClass size(-32 -32 -64, 32 32 64) color(240 0 255) base(Appearflags, Fog) model({ "path": ":progs/e3/voidball.mdl" }) = info_voidaxe_destination : "Voidaxe destination
+This is a non-solid entity that acts as a marker and teleport destination. 
+When players swing the new melee weapon at this, from any distance, they will be teleported to it's location.
+
+Upon being teleported, the player will be pushed forward roughly 64 units in the direction they were facing upon swinging the melee, so they will need a landing of 64 in all directions to stop them from falling." []
+*/
+void() info_voidaxe_destination =
+{
+	if (!SUB_ShouldSpawn()) return;
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	precache_model ("progs/e3/voidball.mdl");
+	setmodel (self, "progs/e3/voidball.mdl");
+	self.mangle = self.angles;
+	self.angles = '0 0 0';
+}
+
+
 // --------------------------------
 // info_teleport_target
 //

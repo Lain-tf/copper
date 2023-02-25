@@ -885,9 +885,11 @@ void() W_WeaponFrame =
 	if (self.impulse)
 		ImpulseCommands();
 
+	W_VoidAxe_Find();
+
 	if (time < self.attack_finished)
 		return;
-
+	
 	// check for attack
 	if (self.button0)
 	{

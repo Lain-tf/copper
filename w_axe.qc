@@ -72,6 +72,52 @@ void() W_AxeSwing =
 	W_AxeThink();
 }
 
+/*
+================
+W_VoidAxe_Find
+================
+*/
+void() W_VoidAxe_Find =
+{
+	makevectors(self.v_angle);
+	entity axe_find = world;
+	entity best_find = world;
+	float best_dist = 16384;
+	while (1)
+	{
+		axe_find = find(axe_find, classname, "info_voidaxe_destination");
+		if (!axe_find) break;
+		vector destdir = axe_find.origin - (self.origin + self.view_ofs);
+		float vdist = destdir * v_forward;
+		if (vdist < best_dist)
+        {
+		vector vorg = v_forward * vdist;
+		float rdist = vlen(vorg - destdir);
+		if (rdist < 64)
+		{
+		best_find = axe_find;
+		best_dist = vdist;
+		}
+	}
+}
+	self.buddy = best_find;
+	if (best_find)
+	{
+		local vector org;
+		org = self.origin + self.view_ofs;
+		traceline2(org, best_find.origin, self, 0);
+		if (trace_fraction == 1)
+		{
+			self.buddy.state = 1;
+		}
+		else
+		{
+			self.buddy.state = 0;
+		}
+			particle(best_find.origin + '0 0 32', VEC_ORIGIN, 238, 2);
+	}
+}
+
 
 /*
 ================
@@ -80,13 +126,26 @@ W_FireAxe
 */
 void() W_FireAxe =
 {
+
+
 	vector	source, org;
 	local vector toss;
 	if (self.health <= 0)
 		return;
 	
 	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;//'0 0 16';
+			
+		if (self.buddy != world && self.buddy.state == 1)
+	{
+		vector saveview = self.v_angle;
+		teleport(self, self.buddy, 3, 1);
+		makevectors (self.v_angle);
+		self.angles = saveview;
+		self.velocity = v_forward * 200;
+		return;
+	}
+		
+		source = self.origin + self.view_ofs;//'0 0 16';
 	
 		if (self.berserk_finished > time)		
 			traceline2(source, source + v_forward * (96), self, 0);
