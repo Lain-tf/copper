@@ -89,3 +89,7 @@ m_excavator.qc
 m_d2boss_hell.qc
 m_d1boss.qc
 m_d2boss.qc
+
+// Dwell - Ep 3
+m_seeker.qc
+m_boeleth.qc

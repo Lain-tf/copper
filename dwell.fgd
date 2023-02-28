@@ -6,7 +6,7 @@
 // for the very latest version before anything else
 
 // Based heavily on quake.fgd by autolycus/czg/et al
-// Generated from Copper QuakeC source comments on 02.24.2023
+// Generated from Copper QuakeC source comments on 02.28.2023
 
 //
 // defs.qc
@@ -1124,7 +1124,7 @@ Explodes when triggered or shot. Fires targets when it explodes."
 [
 	dmg(integer) : "Explosion damage (-1 will force 0)" : 150
 ]
-@PointClass base(Appearflags, Target, Targetname) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox3 : "Small exploding container, 100 damage. 
+@PointClass base(Appearflags, Target, Targetname) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox2 : "Small exploding container, 100 damage. 
 Explodes when triggered or shot. Fires targets when it explodes.
 will do enough damage to set off other barrels at up to ~128u distance (center to center)." 
 [
@@ -1807,4 +1807,10 @@ Select the pattern type with the 'style' key, or leave it empty for a random pat
 @PointClass base(Target, Targetname) color(220 0 0) size(8 8 8) = trigger_killboss : "The Sculptor's killer"
 [
 ]
+
+
+//
+// m_seeker.qc
+//
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/e3/mon_seeker.mdl" }) = monster_seeker : "seeker" []
 
