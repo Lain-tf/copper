@@ -351,7 +351,7 @@ void() brute_pain6	=[	$pain6,		brute_pain7	] {}
 void() brute_pain7	=[	$pain7,		brute_run1	] {}
 
 /* Die */
-void()	brute_die1	=[	$death1,	brute_die2	] {self.solid = SOLID_NOT; brute_dropammo();}
+void()	brute_die1	=[	$death1,	brute_die2	] {self.solid = SOLID_NOT;}
 void()	brute_die2	=[	$death2,	brute_die3	] {}
 void()	brute_die3	=[	$death3,	brute_die4	] {}
 void()	brute_die4	=[	$death4,	brute_die5	] {}
@@ -602,6 +602,7 @@ void(entity attacker, float damage)	brute_pain =
 
 void() brute_die =
 {
+	brute_dropammo();
 
 	if (random() < 0.5)	{
 		sound(self, CHAN_VOICE, "brute/death1.wav", 1, ATTN_NORM);
