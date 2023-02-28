@@ -86,18 +86,18 @@ void() seek_die =
 
 //============================================================================
 
-void() seek_ranged1      =[	$shoot1,	seek_ranged2	] {ai_charge(10);}
-void() seek_ranged2      =[	$shoot1,	seek_ranged3	] {ai_charge(9);}
+void() seek_ranged1      =[	$shoot1,	seek_ranged2	] {seek_checkranged(); ai_charge(10);}
+void() seek_ranged2      =[	$shoot1,	seek_ranged3	] {seek_checkranged(); ai_charge(9);}
 void() seek_ranged3      =[	$shoot1,	seek_ranged4	] {ai_charge(10);}
 void() seek_ranged4      =[	$shoot1,	seek_ranged5	] {ai_charge(9);}
-void() seek_ranged5      =[	$shoot2,	seek_ranged6	] {ai_charge (9); seek_fire();}
-void() seek_ranged6      =[	$shoot2,	seek_ranged7	] {ai_charge (5), seek_fire();}
-void() seek_ranged7      =[	$shoot2,	seek_ranged8	] {ai_charge (6), seek_fire();}
-void() seek_ranged8      =[	$shoot2,	seek_ranged9	] {ai_charge(12), seek_fire();}
-void() seek_ranged9      =[	$shoot2,	seek_ranged10	] {ai_charge (8), seek_fire();}
-void() seek_ranged10      =[	$shoot2,	seek_ranged11	] {ai_charge (3), seek_fire();}
-void() seek_ranged11      =[	$shoot2,	seek_ranged12	] {ai_charge(13), seek_fire();}
-void() seek_ranged12     =[	$shoot2,	seek_run1	] {ai_charge(9), seek_fire();
+void() seek_ranged5      =[	$shoot2,	seek_ranged6	] {ai_charge (9); seek_fire(TRUE);}
+void() seek_ranged6      =[	$shoot2,	seek_ranged7	] {ai_charge (5), seek_fire(FALSE);}
+void() seek_ranged7      =[	$shoot2,	seek_ranged8	] {ai_charge (6), seek_fire(FALSE);}
+void() seek_ranged8      =[	$shoot2,	seek_ranged9	] {ai_charge(12), seek_fire(TRUE);}
+void() seek_ranged9      =[	$shoot2,	seek_ranged10	] {ai_charge (8), seek_fire(FALSE);}
+void() seek_ranged10      =[	$shoot2,	seek_ranged11	] {ai_charge (3), seek_fire(FALSE);}
+void() seek_ranged11      =[	$shoot2,	seek_ranged12	] {ai_charge(13), seek_fire(TRUE);}
+void() seek_ranged12     =[	$shoot2,	seek_run1	] {ai_charge(9), seek_fire(FALSE);
 	
 	if (!enemy_alive() || self.enemy.customflags & CFL_LIMBO )
 		return;
@@ -110,7 +110,7 @@ void() seek_ranged12     =[	$shoot2,	seek_run1	] {ai_charge(9), seek_fire();
 		ai_attack_finished(0.25 + random()); // randomly break volley if player is being sneaky
 		return;
 	}
-	if (!enforcer_clear_attack())
+	if (!seek_clearranged())
 	{
 		ai_attack_finished(1 + random());	// force a little maneuvering if LOS is broken
 		return;
@@ -145,11 +145,12 @@ float() seek_clearranged =
 
 float() seek_checkranged =
 {
-	dprint("yeah");
 	float chance;
 	if (time < self.attack_finished) return FALSE;
 	if (enemy_range >= RANGE_FAR) return FALSE;
 	if (!seek_clearranged()) return FALSE;
+	
+	dprint("\byeah\b\n");
 
 	if (enemy_range == RANGE_MELEE)
 	{
@@ -173,9 +174,10 @@ float() seek_checkranged =
 	return FALSE;
 }
 
-void() seek_fire =
+void(float vol_light) seek_fire =
 {
 	vector org, vec, rand;
+	entity laser;
 
 	sound (self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 
@@ -192,9 +194,15 @@ void() seek_fire =
 	}
 	
 	vec = normalize(vec + v_right*crandom()*.2);
+	laser = launch_laser(org, vec * 700);
+	if (!vol_light) //too many dlights, so we make only every 4th laser have one
+	laser.effects = 0;
+	laser.dmg = 6;
 	
-	launch_laser(org, vec * 700);
-	launch_laser(org, vec * 700);
+	vec = normalize(vec + v_right*crandom()*.2);
+	laser = launch_laser(org, vec * 700);
+	laser.effects = 0;
+	laser.dmg = 6;
 }
 
 //============================================================================
