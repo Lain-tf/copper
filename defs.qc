@@ -336,6 +336,7 @@ string	keyType;
 .string		deathtype;		// keeps track of how the player died
 .float		changevcshift; 	// used for berserk and haste screen tints (vf)
 .vector		voidaxe_trace_ent;
+.float		vaxe_timeout; // used for voidaxe destination handling
 // fog
 .vector		fog_color, fog_color2;
 .float		fog_density, fog_density2;

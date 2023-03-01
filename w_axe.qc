@@ -83,7 +83,7 @@ void() W_VoidAxe_Find =
 	entity axe_find = world;
 	entity best_find = world;
 	float best_dist = 16384;
-	while (1)
+	while (1) //find which voidaxe destination the player is currently looking at, regardless of walls or other entities
 	{
 		axe_find = find(axe_find, classname, "info_voidaxe_destination");
 		if (!axe_find) break;
@@ -101,20 +101,20 @@ void() W_VoidAxe_Find =
 	}
 }
 	self.buddy = best_find;
-	if (best_find)
+	if (best_find) //check if the player *can* actually see their destination
 	{
 		local vector org;
 		org = self.origin + self.view_ofs;
 		traceline2(org, best_find.origin, self, 0);
-		if (trace_fraction == 1)
-		{
-			self.buddy.state = 1;
-		}
-		else
-		{
-			self.buddy.state = 0;
-		}
-			particle(best_find.origin + '0 0 32', VEC_ORIGIN, 238, 2);
+			if (trace_fraction == 1 && (self.buddy.vaxe_timeout < time) || (self.buddy.vaxe_timeout == 0))
+			{
+				self.buddy.state = 1;
+				particle(best_find.origin + '0 0 32', VEC_ORIGIN, 238, 2);
+			}
+			else
+			{
+				self.buddy.state = 0;
+			}
 	}
 }
 
@@ -139,6 +139,7 @@ void() W_FireAxe =
 	{
 		vector saveview = self.v_angle;
 		teleport(self, self.buddy, 3, 1);
+		self.buddy.vaxe_timeout = time + 5; //set a cooldown on the individual voidaxe teleport destination
 		makevectors (self.v_angle);
 		self.angles = saveview;
 		self.velocity = v_forward * 200;

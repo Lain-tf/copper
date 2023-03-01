@@ -610,8 +610,23 @@ void() info_voidaxe_destination =
 	setmodel (self, "progs/e3/voidball.mdl");
 	self.mangle = self.angles;
 	self.angles = '0 0 0';
+	self.think = VoidDest_Visuals;
+	self.nextthink = 0.1;
 }
 
+void() VoidDest_Visuals =
+{
+	if (time > self.vaxe_timeout)
+	{
+		self.alpha = 1;
+	}
+	else
+	{
+	self.alpha = (0.2);
+	}
+	
+	self.nextthink = time + 0.1;
+}
 
 // --------------------------------
 // info_teleport_target
