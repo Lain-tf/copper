@@ -2,8 +2,8 @@
 // constants
 //================================================
 
-const string version_s = "Dwell 1.20 - 8th February 2023\n";
-const float version_f = 1.20;
+const string version_s = "Dwell 1.3 - 2nd March 2023\n- \bThe Lain Spaghetti Code Era\b -\n";
+const float version_f = 1.3;
 
 const float	FALSE					= 0;
 const float TRUE					= 1;
