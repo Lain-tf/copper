@@ -2,8 +2,8 @@
 ==============================================================================
 
 HUNTER / SEEKER
-almost entirely just adapted Enforcer code by lun
-otherwise by fw
+almost entirely just adapted Enforcer/Fiend code by lun
+otherwise by fw w/ help from snaut, khreathor and lun
 
 ==============================================================================
 */
@@ -52,18 +52,18 @@ void() seek_walk10	=[	$walk10,	seek_walk11] {ai_walk(9);}
 void() seek_walk11	=[	$walk11,	seek_walk12] {ai_walk(7);}
 void() seek_walk12	=[	$walk12,	seek_walk1 ] {ai_walk(7);}
 
-void() seek_run1	=[	$walk1,		seek_run2 ] {ai_run(10);}
-void() seek_run2	=[	$walk2,		seek_run3 ] {ai_run(9);}
-void() seek_run3	=[	$walk3,		seek_run4 ] {ai_run(9);}
-void() seek_run4	=[	$walk4,		seek_run5 ] {ai_run(5);}
-void() seek_run5	=[	$walk5,		seek_run6 ] {ai_run(6);}
-void() seek_run6	=[	$walk6,		seek_run7 ] {ai_run(12);}
-void() seek_run7	=[	$walk7,		seek_run8 ] {ai_run(8);}
-void() seek_run8	=[	$walk8,		seek_run9 ] {ai_run(3);}
-void() seek_run9	=[	$walk9,		seek_run10] {ai_run(13);}
-void() seek_run10	=[	$walk10,	seek_run11] {ai_run(9);}
-void() seek_run11	=[	$walk11,	seek_run12] {ai_run(7);}
-void() seek_run12	=[	$walk12,	seek_run1 ] {ai_run(7);}
+void() seek_run1	=[	$walk1,		seek_run2 ] {ai_run(15);}
+void() seek_run2	=[	$walk2,		seek_run3 ] {ai_run(15);}
+void() seek_run3	=[	$walk3,		seek_run4 ] {ai_run(15);}
+void() seek_run4	=[	$walk4,		seek_run5 ] {ai_run(15);}
+void() seek_run5	=[	$walk5,		seek_run6 ] {ai_run(15);}
+void() seek_run6	=[	$walk6,		seek_run7 ] {ai_run(15);}
+void() seek_run7	=[	$walk7,		seek_run8 ] {ai_run(15);}
+void() seek_run8	=[	$walk8,		seek_run9 ] {ai_run(15);}
+void() seek_run9	=[	$walk9,		seek_run10] {ai_run(15);}
+void() seek_run10	=[	$walk10,	seek_run11] {ai_run(15);}
+void() seek_run11	=[	$walk11,	seek_run12] {ai_run(15);}
+void() seek_run12	=[	$walk12,	seek_run1 ] {ai_run(15);}
 
 //============================================================================
 
@@ -77,7 +77,7 @@ void() seek_death7      =[      $none1,       seek_death8     ] {}
 void() seek_death8      =[      $none1,       seek_death9     ] {}
 void() seek_death9      =[      $none1,       seek_death10    ] {}
 void() seek_death10     =[      $none1,      seek_death11    ] {}
-void() seek_death11     =[      $none1,      SUB_Null    ] {PostDeathLogic();}
+void() seek_death11     =[      $none1,      SUB_Null    ] 	{PostDeathLogic();}
 
 void() seek_die =
 {
@@ -87,17 +87,17 @@ void() seek_die =
 //============================================================================
 
 void() seek_ranged1      =[	$shoot1,	seek_ranged2	] {seek_checkranged(); ai_charge(10);}
-void() seek_ranged2      =[	$shoot1,	seek_ranged3	] {seek_checkranged(); ai_charge(9);}
+void() seek_ranged2      =[	$shoot1,	seek_ranged3	] {seek_checkranged(); ai_charge(10);}
 void() seek_ranged3      =[	$shoot1,	seek_ranged4	] {ai_charge(10);}
-void() seek_ranged4      =[	$shoot1,	seek_ranged5	] {ai_charge(9);}
-void() seek_ranged5      =[	$shoot2,	seek_ranged6	] {ai_charge (9); seek_fire(TRUE);}
-void() seek_ranged6      =[	$shoot2,	seek_ranged7	] {ai_charge (5), seek_fire(FALSE);}
-void() seek_ranged7      =[	$shoot2,	seek_ranged8	] {ai_charge (6), seek_fire(FALSE);}
-void() seek_ranged8      =[	$shoot2,	seek_ranged9	] {ai_charge(12), seek_fire(TRUE);}
-void() seek_ranged9      =[	$shoot2,	seek_ranged10	] {ai_charge (8), seek_fire(FALSE);}
-void() seek_ranged10      =[	$shoot2,	seek_ranged11	] {ai_charge (3), seek_fire(FALSE);}
-void() seek_ranged11      =[	$shoot2,	seek_ranged12	] {ai_charge(13), seek_fire(TRUE);}
-void() seek_ranged12     =[	$shoot2,	seek_run1	] {ai_charge(9), seek_fire(FALSE);
+void() seek_ranged4      =[	$shoot1,	seek_ranged5	] {ai_charge(10);}
+void() seek_ranged5      =[	$shoot2,	seek_ranged6	] {ai_charge(10); seek_fire(TRUE);}
+void() seek_ranged6      =[	$shoot2,	seek_ranged7	] {ai_charge(10), seek_fire(FALSE);}
+void() seek_ranged7      =[	$shoot2,	seek_ranged8	] {ai_charge(10), seek_fire(FALSE);}
+void() seek_ranged8      =[	$shoot2,	seek_ranged9	] {ai_charge(10), seek_fire(TRUE);}
+void() seek_ranged9      =[	$shoot2,	seek_ranged10	] {ai_charge(10), seek_fire(FALSE);}
+void() seek_ranged10	 =[	$shoot2,	seek_ranged11	] {ai_charge(10), seek_fire(FALSE);}
+void() seek_ranged11     =[	$shoot2,	seek_ranged12	] {ai_charge(10), seek_fire(TRUE);}
+void() seek_ranged12     =[	$shoot2,	seek_run1	] {ai_charge(10), seek_fire(FALSE);
 	
 	if (!enemy_alive() || self.enemy.customflags & CFL_LIMBO )
 		return;
@@ -149,8 +149,6 @@ float() seek_checkranged =
 	if (time < self.attack_finished) return FALSE;
 	if (enemy_range >= RANGE_FAR) return FALSE;
 	if (!seek_clearranged()) return FALSE;
-	
-	dprint("\byeah\b\n");
 
 	if (enemy_range == RANGE_MELEE)
 	{
@@ -193,16 +191,16 @@ void(float vol_light) seek_fire =
 		vec = normalize(vec);
 	}
 	
-	vec = normalize(vec + v_right*crandom()*.2);
-	laser = launch_laser(org, vec * 700);
+	vec = normalize(vec + v_right*crandom()*.02); 
+	laser = launch_laser(org, vec * 1000); // different speed / spread for flavour
 	if (!vol_light) //too many dlights, so we make only every 4th laser have one
 	laser.effects = 0;
-	laser.dmg = 6;
+	laser.dmg = 10;
 	
-	vec = normalize(vec + v_right*crandom()*.2);
-	laser = launch_laser(org, vec * 700);
+	vec = normalize(vec + v_right*crandom()*.1);
+	laser = launch_laser(org, vec * 800);
 	laser.effects = 0;
-	laser.dmg = 6;
+	laser.dmg = 10;
 }
 
 //============================================================================
