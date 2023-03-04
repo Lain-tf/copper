@@ -623,10 +623,23 @@ void() VoidDest_Visuals =
 	}
 	else
 	{
-	self.alpha = (0.2);
-	self.state = 0;
+		self.alpha = (0.2);
+		self.state = 0;
 	}
 	
+	if ((self.oldstyle != 0) && (self.skin != 1)) //change skin when playing is moused over (oldstyle)
+	{
+		{
+			self.skin = 1;
+		}
+	}
+	if ((self.oldstyle != 1) && (self.skin != 0))
+	{
+		self.skin = 0;
+	}
+
+	self.oldstyle = 0;
+
 	if ((self.attack_finished) && (time > self.attack_finished))
 	{
 		teleport_flash();

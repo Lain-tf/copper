@@ -236,7 +236,7 @@ void() W_VoidFlail_Find =
 	entity flail_find = world;
 	entity best_find = world;
 	float best_dist = 16384;
-	while (1) //find which voidflail destination the player is currently looking at, regardless of walls or other entities
+	while (1) //find which  destination the player is currently looking at, regardless of walls or other entities
 	{
 		flail_find = find(flail_find, classname, "info_voidflail_destination");
 		if (!flail_find) break;
@@ -263,10 +263,12 @@ void() W_VoidFlail_Find =
 			{
 				self.buddy.style = 1;
 				particle(best_find.origin + '0 0 32', VEC_ORIGIN, 238, 2);
+				self.buddy.oldstyle = 1;
 			}
 			else
 			{
 				self.buddy.style = 0;
+				self.buddy.oldstyle = 0;
 			}
 	}
 }
