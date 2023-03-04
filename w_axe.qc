@@ -114,30 +114,6 @@ void() W_FireAxe =
 			else			
 				T_Damage (trace_ent, self, self, 24);
 			
-			
-			if (has_berserk(self))
-			{
-				if (trace_ent.classname == "player" && (trace_ent.health < 1))
-				{
-					toss = v_forward;
-					toss_z = 0;
-					if (has_berserk(self))
-						toss = normalize(toss) * 800;
-					else if (has_quad(self))
-						toss = normalize(toss) * 400;
-					else	
-					// how would this even happen ^	
-						toss = normalize(toss) * 200;
-					toss_z = 100;
-					//bprint(vtos(toss));
-					//bprint("\n");
-					//toss *=  - vlen(head.maxs - head.mins)
-					trace_ent.origin_z = trace_ent.origin_z + 1;
-					trace_ent.velocity = toss;
-					trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
-				}
-			}
-			
 			if (trace_ent.flags & FL_MONSTER)
 			{
 				if (trace_ent.type == "zombie")
@@ -149,23 +125,18 @@ void() W_FireAxe =
 				sound (self, CHAN_WEAPON, "zombie/z_hit.wav", 1, ATTN_IDLE);
 			}
 			
-			// beserk doubled the knockback with the axe but removed the quad knockback
-			// do knockback with berserk
-			if (has_berserk(self))
-			{
+			
 				if ((trace_ent.movetype == MOVETYPE_STEP || trace_ent.movetype == MOVETYPE_WALK) && 
-					// don't swat bosses or other non-standard-sized enemies around
-					trace_ent.type != "boss")
+					trace_ent.type != "boss" || // don't swat bosses or other non-standard-sized enemies around
+					(trace_ent.classname == "player" && (trace_ent.health < 1))) // not sure what this does, but it was adapted from above (fw)
 				{
 					toss = v_forward;
 					toss_z = 0;
 					if (has_berserk(self))
-						toss = normalize(toss) * 800;
+						toss = normalize(toss) * 800; // beserk doubled the knockback with the axe but removed the quad knockback
 					else if (has_quad(self))
-						toss = normalize(toss) * 400;
-					else	
-						toss = normalize(toss) * 200;
-					// how would this even happen ^	
+						{toss = normalize(toss) * 400;}
+
 					toss_z = 100;
 					//bprint(vtos(toss));
 					//bprint("\n");
@@ -174,7 +145,6 @@ void() W_FireAxe =
 					trace_ent.velocity = toss;
 					trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
 				}
-			}
 		}
 		else
 		{	// hit wall
@@ -352,32 +322,9 @@ void() W_FireFlail =
 			SpawnBlood (org, '0 0 0', 20);
 			
 			if (self.berserk_finished > time)
-				T_Damage (trace_ent, self, self, 264);			
-			else			
-				T_Damage (trace_ent, self, self, 24);
-			
-			if (has_berserk(self))
-			{
-				if (trace_ent.classname == "player" && (trace_ent.health < 1))
-				{
-					toss = v_forward;
-					toss_z = 0;
-					if (has_berserk(self))
-						toss = normalize(toss) * 800;
-					else if (has_quad(self))
-						toss = normalize(toss) * 400;
-					else	
-					// how would this even happen ^	
-						toss = normalize(toss) * 200;
-					toss_z = 100;
-					//bprint(vtos(toss));
-					//bprint("\n");
-					//toss *=  - vlen(head.maxs - head.mins)
-					trace_ent.origin_z = trace_ent.origin_z + 1;
-					trace_ent.velocity = toss;
-					trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
-				}
-			}
+				T_Damage (trace_ent, self, self, 480);			
+			else		
+				T_Damage (trace_ent, self, self, 48);
 			
 			if (trace_ent.flags & FL_MONSTER)
 			{
@@ -390,31 +337,25 @@ void() W_FireFlail =
 				sound (self, CHAN_WEAPON, "zombie/z_hit.wav", 1, ATTN_IDLE);
 			}
 			
-			// beserk doubled the knockback with the flail but removed the quad knockback
-			// do knockback with berserk
-			if (has_berserk(self))
-			{
 				if ((trace_ent.movetype == MOVETYPE_STEP || trace_ent.movetype == MOVETYPE_WALK) && 
-					// don't swat bosses or other non-standard-sized enemies around
-					trace_ent.type != "boss")
-				{
-					toss = v_forward;
-					toss_z = 0;
-					if (has_berserk(self))
-						toss = normalize(toss) * 800;
-					else if (has_quad(self))
-						toss = normalize(toss) * 400;
-					else	
-						toss = normalize(toss) * 200;
-					// how would this even happen ^	
-					toss_z = 100;
-					//bprint(vtos(toss));
-					//bprint("\n");
-					//toss *=  - vlen(head.maxs - head.mins)
-					trace_ent.origin_z = trace_ent.origin_z + 1;
-					trace_ent.velocity = toss;
-					trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
-				}
+					trace_ent.type != "boss" || // don't swat bosses or other non-standard-sized enemies around
+					(trace_ent.classname == "player" && (trace_ent.health < 1))) // not sure what this does, but it was adapted from above (fw)
+			{
+				toss = v_forward;
+				toss_z = 0;
+				if (has_berserk(self))
+					toss = normalize(toss) * 800; // beserk doubled the knockback with the axe but removed the quad knockback
+				else if (has_quad(self))
+					toss = normalize(toss) * 400;
+				else
+					toss = normalize(toss) * 200; // flail has baseline knockback
+				toss_z = 100;
+				//bprint(vtos(toss));
+				//bprint("\n");
+				//toss *=  - vlen(head.maxs - head.mins)
+				trace_ent.origin_z = trace_ent.origin_z + 1;
+				trace_ent.velocity = toss;
+				trace_ent.flags = not(trace_ent.flags, FL_ONGROUND);
 			}
 		}
 		else
