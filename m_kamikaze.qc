@@ -118,7 +118,7 @@ void() Kami_Forget =
 	{
 		// we just woke up, don't forget right away, because if we were awoken
 		// by another monster waking we'll just stay here.
-		self.rad_time = time + 60;
+		self.rad_time = time + 30;
 	}
 	
 	if (time < self.rad_time)
