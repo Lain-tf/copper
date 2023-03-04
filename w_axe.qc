@@ -300,12 +300,8 @@ void() W_FireFlail =
 		return;
 	}
 		
-		source = self.origin + self.view_ofs;//'0 0 16';
-	
-		if (self.berserk_finished > time)		
-			traceline2(source, source + v_forward * (96), self, 0);
-		else
-			traceline2(source, source + v_forward * (64), self, 0);		
+		source = self.origin + self.view_ofs;//'0 0 16';	
+			traceline2(source, source + v_forward * (96), self, 0);	// flail has increased range by default
 			
 		if (trace_fraction == 1.0) 
 			return;
