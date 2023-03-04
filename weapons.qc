@@ -353,7 +353,7 @@ float() W_CheckNoAmmo =
 	if (self.currentammo > 0)
 		return TRUE;
 
-	if ((self.weapon == W_AXE) || (self.weapon == W_FLAIL))
+	if ((self.weapon == W_AXE) || (self.weapon == W_FLAIL)) //I FOUND IT, FUCK YOU FUCK YOU FUCK YOU
 	{
 		return TRUE;
 	}
@@ -391,10 +391,11 @@ void() W_Attack =
 	if (self.weapon == W_FLAIL)
 	{
 		BerserkSound();
+		player_axe();
 		W_FlailSwing();
-		return;
 	}
-
+	
+	
 	// moved after axe so that silent swings don't wake monsters
 	self.show_hostile = time + 1;
 	

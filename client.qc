@@ -1497,8 +1497,7 @@ void() CheckPowerups =
 			if (self.weapon == W_AXE)
 				self.weaponmodel = "progs/v_axe2.mdl";
 			if (self.weapon == W_FLAIL)
-				self.weaponmodel = "progs/e3/v_flail.mdl";
-			
+				self.weaponmodel = "progs/e3/v_flail.mdl";	
 		}
 
 		if (self.berserk_finished > time) {
@@ -1645,8 +1644,14 @@ void() PlayerPreThink =
 	if (time < self.pausetime)
 		self.velocity = '0 0 0';
 
-	if(time > self.attack_finished && self.currentammo == 0 && self.weapon != IT_AXE && self.weapon != IT_FLAIL)
-		W_SelectBestWeapon();
+	if(time > self.attack_finished && self.currentammo == 0 && self.weapon != W_AXE)
+	{
+		if(time > self.attack_finished && self.currentammo == 0 && self.weapon != W_FLAIL)
+			{
+				W_SelectBestWeapon();
+			}
+	}
+				//THIS IS THE W_SELECTBESTWEAPON CALL THAT IS MAKING TROUBLE
 
 	if (self.movetype == MOVETYPE_NOCLIP)
 		self.flags = self.flags | FL_FLY;

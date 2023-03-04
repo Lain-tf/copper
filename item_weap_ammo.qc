@@ -162,7 +162,6 @@ void() weapon_flail =
 	setmodel (self, "progs/e3/g_flail.mdl");
 	self.items_dwell = IT_FLAIL;
 	self.weapon = W_FLAIL;
-	self.ammo_shells = 5;
 	self.netname = "Astral Flail";
 	StartWeapon();
 }
