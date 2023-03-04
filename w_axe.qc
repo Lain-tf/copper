@@ -268,7 +268,7 @@ void() W_VoidFlail_Find =
 	float best_dist = 16384;
 	while (1) //find which voidflail destination the player is currently looking at, regardless of walls or other entities
 	{
-		flail_find = find(flail_find, classname, "info_flail_destination");
+		flail_find = find(flail_find, classname, "info_voidflail_destination");
 		if (!flail_find) break;
 		vector destdir = flail_find.origin - (self.origin + self.view_ofs);
 		float vdist = destdir * v_forward;
@@ -318,7 +318,7 @@ void() W_FireFlail =
 	
 	makevectors (self.v_angle);
 			
-		if (self.buddy != world && self.buddy.style == 1)
+		if (self.buddy != world && self.buddy.style == 1 && self.weapon == W_FLAIL)
 	{
 		vector saveview = self.v_angle;
 		teleport(self, self.buddy, 3, 1);
