@@ -588,20 +588,20 @@ void() info_teleport_destination =
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);
 }
 
-/*QUAKED info_voidaxe_destination (.8 0 .9) (-32 -32 -64) (32 32 64)
+/*QUAKED info_voidflail_destination (.8 0 .9) (-32 -32 -64) (32 32 64)
 This is the destination marker for the voidaxe.
 
 Keys:
 "fog_color"/"fog_density" set the fog for anyone teleporting here
 */
 /*FGD
-@PointClass size(-32 -32 -64, 32 32 64) color(240 0 255) base(Appearflags, Fog) model({ "path": ":progs/e3/voidball.mdl" }) = info_voidaxe_destination : "Voidaxe destination
-This is a non-solid entity that acts as a marker and teleport destination. 
-When players swing the new melee weapon at this, from any distance, they will be teleported to it's location.
+@PointClass size(-32 -32 -64, 32 32 64) color(240 0 255) base(Appearflags, Fog) model({ "path": ":progs/e3/voidball.mdl" }) = info_voidflail_destination : "Voidaxe destination
+This is a non-solid entity that acts as a marker and teleport destination.
 
+When players swing the new melee weapon at this, from any distance, they will be teleported to it's location.
 Upon being teleported, the player will be pushed forward roughly 64 units in the direction they were facing upon swinging the melee, so they will need a landing of 64 in all directions to stop them from falling." []
 */
-void() info_voidaxe_destination =
+void() info_voidflail_destination =
 {
 	if (!SUB_ShouldSpawn()) return;
 	self.solid = SOLID_NOT;
@@ -616,15 +616,23 @@ void() info_voidaxe_destination =
 
 void() VoidDest_Visuals =
 {
-	if (time > self.vaxe_timeout)
+	if (time > self.wait)
 	{
+		self.state = 1;
 		self.alpha = 1;
 	}
 	else
 	{
 	self.alpha = (0.2);
+	self.state = 0;
 	}
 	
+	if ((self.attack_finished) && (time > self.attack_finished))
+	{
+		teleport_flash();
+		self.attack_finished = 0;
+	}
+
 	self.nextthink = time + 0.1;
 }
 

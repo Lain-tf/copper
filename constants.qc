@@ -158,6 +158,7 @@ const float IT_QUAD_SHOTGUN = 4;
 const float IT_RAILGUN = 8;
 const float IT_BERSERK = 16;
 const float IT_RIFLE = 32;
+const float IT_FLAIL = 64;
 
 // Weapons (combination of weapon slot + upgrade)
 // These are deliberately the same values as the corresponding IT_ flags,
@@ -169,10 +170,11 @@ const float	W_SUPER_NAILGUN		= 8;
 const float	W_GRENADE_LAUNCHER	= 16;
 const float	W_ROCKET_LAUNCHER	= 32;
 const float	W_LIGHTNING			= 64;
-const float   W_QUAD_SHOTGUN      = 128;
-const float   W_RAILGUN  			= 256;
+const float W_QUAD_SHOTGUN      = 128;
+const float W_RAILGUN  			= 256;
 const float	W_RIFLE				= 512;
 const float	W_AXE				= 4096;
+const float W_FLAIL             = 8192;
 
 
 // point content values

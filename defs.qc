@@ -335,8 +335,7 @@ string	keyType;
 .float		healthtime;
 .string		deathtype;		// keeps track of how the player died
 .float		changevcshift; 	// used for berserk and haste screen tints (vf)
-.vector		voidaxe_trace_ent;
-.float		vaxe_timeout; // used for voidaxe destination handling
+.vector		voidflail_trace_ent;
 // fog
 .vector		fog_color, fog_color2;
 .float		fog_density, fog_density2;
@@ -362,7 +361,6 @@ string	keyType;
 .float t_length = length;	// preserve old func_door_secret maphacks
 .float t_width = width;
 .float		waitmin, waitmax;
-
 
 .float		touch_time;
 .float		lip;			

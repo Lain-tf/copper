@@ -709,7 +709,7 @@ Quoth2-style edict-saving bounding box trigger: define bounds size with 'size' -
 // t_tele.qc
 //
 @PointClass size(-16 -16 0, 16 16 48) color(240 0 255) base(Appearflags, Angle, Targetname, Fog) model({ "path": ":progs/player.mdl" }) = info_teleport_destination : "Teleporter destination" []
-@PointClass size(-32 -32 -64, 32 32 64) color(240 0 255) base(Appearflags, Fog) model({ "path": ":progs/e3/voidball.mdl" }) = info_voidaxe_destination : "Voidaxe destination
+@PointClass size(-32 -32 -64, 32 32 64) color(240 0 255) base(Appearflags, Fog) model({ "path": ":progs/e3/voidball.mdl" }) = info_voidflail_destination : "Voidaxe destination
 This is a non-solid entity that acts as a marker and teleport destination. 
 When players swing the new melee weapon at this, from any distance, they will be teleported to it's location.
 
