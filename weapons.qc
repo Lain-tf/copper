@@ -44,6 +44,7 @@ void() W_Precache =
 	
 	precache_model ("progs/v_axeb.mdl");
 	precache_model ("progs/v_axe2.mdl");
+	precache_model ("progs/e3/v_flail.mdl");
 	precache_model ("progs/v_shot.mdl");
 	precache_model ("progs/v_nail.mdl");
 	precache_model ("progs/v_rock.mdl");
@@ -116,6 +117,11 @@ vector (entity peWho) solveItems =
 	{
 		lfItems = 2;
 		lfBitmask = IT_RIFLE;
+	}
+	else if (peWho.weapon == W_FLAIL)
+	{
+		lfItems = 2;
+		lfBitmask = IT_FLAIL;
 	}
 	else 
 	{
@@ -220,6 +226,8 @@ void() W_ResetWeaponState =
 		else
 			self.weaponmodel = "progs/v_axe2.mdl";
 		}
+	else if (self.weapon == W_FLAIL)
+		{self.weaponmodel = "progs/e3/v_flail.mdl";}
 	else if (self.weapon == W_RIFLE)
 		{self.weaponmodel = "progs/v_rifle.mdl";}
 	else if (self.weapon == W_SHOTGUN)
@@ -307,7 +315,7 @@ float() W_BestWeapon =
 	self.lip = 0;	// reset nailgun barrel cycle
 	
 	it = self.items;
-	
+
 	if(self.ammo_nails >= 2 && (it & IT_SUPER_NAILGUN) )
 		return W_SUPER_NAILGUN;
 	if(self.ammo_shells >= 2 && (it & IT_SUPER_SHOTGUN) )
@@ -324,6 +332,9 @@ float() W_BestWeapon =
 		return W_RIFLE;
 	if(self.ammo_shells >= 1 && (it & IT_SHOTGUN) )
 		return W_SHOTGUN;
+	if(self.items_dwell & IT_FLAIL)
+		return W_FLAIL;
+	else
 	return W_AXE;
 }
 
@@ -342,9 +353,11 @@ float() W_CheckNoAmmo =
 	if (self.currentammo > 0)
 		return TRUE;
 
-	if (self.weapon == W_AXE)
+	if ((self.weapon == W_AXE) || (self.weapon == W_FLAIL))
+	{
 		return TRUE;
-	
+	}
+
 	W_SelectBestWeapon ();
 	return FALSE;
 }
@@ -374,8 +387,14 @@ void() W_Attack =
 		W_AxeSwing();
 		return;
 	}
-	
-	
+
+	if (self.weapon == W_FLAIL)
+	{
+		BerserkSound();
+		W_FlailSwing();
+		return;
+	}
+
 	// moved after axe so that silent swings don't wake monsters
 	self.show_hostile = time + 1;
 	
@@ -467,12 +486,24 @@ void() W_ChangeWeapon =
 	fl = 0;
 	no_ammo = FALSE;
 	
-	if (self.impulse == 1)
+	 if (self.impulse == 1)
 	{
-		fl = IT_AXE;
-		weap = W_AXE;
-		it = self.items;
+		if (self.items_dwell & IT_FLAIL && self.weapon != W_FLAIL)
+		{
+			// We can select the flail.
+			fl = IT_FLAIL;
+			weap = W_FLAIL;
+			it = self.items_dwell;
+		} else {
+			// We either don't have the flail
+			// or already have it
+			// selected - use the axe instead.
+			fl = IT_AXE;
+			weap = W_AXE;
+			it = self.items;
+		}
 	}
+
 	else if (self.impulse == 2)
 	{
 		if (self.items_dwell & IT_RIFLE && self.weapon != W_RIFLE)
@@ -492,9 +523,8 @@ void() W_ChangeWeapon =
 	}
 	else if (self.impulse == 3)
 	{
-		if (self.items_dwell & IT_QUAD_SHOTGUN &&
-			self.weapon != W_QUAD_SHOTGUN &&
-			self.ammo_shells >= 4) {
+		if (self.items_dwell & IT_QUAD_SHOTGUN && self.weapon != W_QUAD_SHOTGUN && self.ammo_shells >= 4) 
+		{
 			// We can select the quad shotgun.
 			fl = IT_QUAD_SHOTGUN;
 			weap = W_QUAD_SHOTGUN;
@@ -668,6 +698,12 @@ void() CycleWeaponCommand =
 			it = self.items;
 		}
 		else if (self.weapon == W_AXE)
+		{
+			self.weapon = W_FLAIL;
+			fl = IT_FLAIL;
+			it = self.items_dwell;
+		}
+		else if (self.weapon == W_FLAIL)
 		{
 			self.weapon = W_SHOTGUN;
 			fl = IT_SHOTGUN;
@@ -845,6 +881,12 @@ void() CycleWeaponReverseCommand =
 		}
 		else if (self.weapon == W_SHOTGUN)
 		{
+			self.weapon = W_FLAIL;
+			fl = IT_FLAIL;
+			it = self.items_dwell;
+		}
+		else if (self.weapon == W_FLAIL)
+		{
 			self.weapon = W_AXE;
 			fl = IT_AXE;
 			it = self.items;
@@ -885,7 +927,7 @@ void() W_WeaponFrame =
 	if (self.impulse)
 		ImpulseCommands();
 
-	W_VoidAxe_Find();
+	W_VoidFlail_Find();
 
 	if (time < self.attack_finished)
 		return;

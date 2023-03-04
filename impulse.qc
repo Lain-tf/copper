@@ -44,7 +44,7 @@ void() Cheat_Items =
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
-	self.items_dwell = self.items_dwell | IT_QUAD_SHOTGUN | IT_RAILGUN; // IT_RIFLE excluded
+	self.items_dwell = self.items_dwell | IT_QUAD_SHOTGUN | IT_RAILGUN | IT_FLAIL; // IT_RIFLE excluded
 
 	self.weapon = W_ROCKET_LAUNCHER;
 

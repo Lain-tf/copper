@@ -92,7 +92,15 @@ void(entity h, float t) powerup_berserk =
 	h.berserk_time = 1;
 	h.changevcshift = 1; // apply tint on pickup (vf)
 	
-	h.weapon = W_AXE;
+	if (self.items_dwell == (self.items_dwell && IT_FLAIL))
+	{
+		h.weapon = W_FLAIL;
+	}
+	else
+	{
+		h.weapon = W_AXE;
+	}
+
 	SUB_CallAsSelf(W_ResetWeaponState, h);
 
 //	h.impulse = 1;

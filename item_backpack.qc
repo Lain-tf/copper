@@ -287,6 +287,8 @@ void() DropBackpack =
 		item.weapon = self.weapon;
 		if (item.weapon == W_AXE)
 			item.netname = string_null;
+		else if (item.weapon == W_FLAIL)
+			item.netname = "Astral Flail";
 		else if (item.weapon == W_SHOTGUN)
 			item.netname = "Shotgun";
 		else if (item.weapon == W_SUPER_SHOTGUN)

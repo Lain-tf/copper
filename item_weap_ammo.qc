@@ -142,6 +142,31 @@ void() StartWeapon =
 
 // ===============================================================================
 
+
+/*QUAKED weapon_flail (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
+Astral Flail.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass base(Weapon) model({ "path": ":progs/e3/g_flail.mdl" }) = weapon_flail : "flail" []
+*/
+void() weapon_flail =
+{
+	if (!SUB_ShouldSpawn()) return;
+	precache_model ("progs/e3/g_flail.mdl");
+	setmodel (self, "progs/e3/g_flail.mdl");
+	self.items_dwell = IT_FLAIL;
+	self.weapon = W_FLAIL;
+	self.ammo_shells = 5;
+	self.netname = "Astral Flail";
+	StartWeapon();
+}
+
 /*FGD
 @baseclass size(-16 -16 0, 16 16 56) color(0 0 200) base(Item) = Weapon []
 */
@@ -196,7 +221,6 @@ void() weapon_rifle =
 	self.netname = "Rifle";
 	StartWeapon();
 }
-
 
 /*QUAKED weapon_supershotgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Double-barreled shotgun.
