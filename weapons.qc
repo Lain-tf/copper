@@ -393,6 +393,7 @@ void() W_Attack =
 		BerserkSound();
 		player_axe();
 		W_FlailSwing();
+		return;
 	}
 	
 	
