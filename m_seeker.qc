@@ -99,7 +99,7 @@ void() seek_preranged4      =[	$walkshot9,		seek_preranged5	] {ai_charge(10); }
 void() seek_preranged5      =[	$walkshot10,		seek_preranged6	] {ai_charge(10); }
 void() seek_preranged6      =[	$walkshot11,		seek_ranged1	] {ai_charge(10); }
 
-void() seek_ranged1      =[	$walkshot1,			seek_ranged2	] {ai_charge(10); seek_fire(FALSE); particle(seeker_gunpos(), '0 0 0', 8, 16);}
+void() seek_ranged1      =[	$walkshot1,			seek_ranged2	] {ai_charge(10); seek_fire(FALSE);}
 void() seek_ranged2      =[	$walkshot2,			seek_ranged3	] {ai_charge(10); seek_fire(TRUE); }
 void() seek_ranged3      =[	$walkshot3,			seek_ranged4	] {ai_charge(10); seek_fire(FALSE);}
 void() seek_ranged4      =[	$walkshot4,			seek_ranged5	] {ai_charge(10); seek_fire(TRUE);}
@@ -114,12 +114,18 @@ void() seek_ranged11     =[	$walkshot11,		seek_run1		] {ai_charge(10); seeker_en
 void() seek_shotdwn1     =[	$shotdwn,		seek_shotdwn2	] {ai_face(); seek_fire(FALSE);}
 void() seek_shotdwn2     =[	$shotdwn,		seek_shotdwn3	] {ai_face(); seek_fire(TRUE); }
 void() seek_shotdwn3     =[	$shotdwn,		seek_shotdwn4	] {ai_face(); seek_fire(TRUE); }
-void() seek_shotdwn4     =[	$shotdwn,		seek_run1		] {ai_face(); seek_fire(FALSE); seeker_endcheck();}
+void() seek_shotdwn4     =[	$shotdwn,		seek_shotdwn5	] {ai_face(); seek_fire(FALSE);}
+void() seek_shotdwn5     =[	$shotdwn,		seek_shotdwn6	] {ai_face(); seek_fire(TRUE); }
+void() seek_shotdwn6     =[	$shotdwn,		seek_shotdwn7	] {ai_face(); seek_fire(TRUE); }
+void() seek_shotdwn7     =[	$shotdwn,		seek_run1		] {ai_face(); seek_fire(FALSE); seeker_endcheck();}
 
 void() seek_shotup1      =[	$shotup,		seek_shotup2	] {ai_face(); seek_fire(FALSE);}
 void() seek_shotup2      =[	$shotup,		seek_shotup3	] {ai_face(); seek_fire(TRUE);}
 void() seek_shotup3      =[	$shotup,		seek_shotup4	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotup4      =[	$shotup,		seek_run1		] {ai_face(); seek_fire(TRUE); seeker_endcheck();}
+void() seek_shotup4      =[	$shotup,		seek_shotup5	] {ai_face(); seek_fire(FALSE);}
+void() seek_shotup5      =[	$shotup,		seek_shotup6	] {ai_face(); seek_fire(TRUE);}
+void() seek_shotup6      =[	$shotup,		seek_shotup7	] {ai_face(); seek_fire(FALSE);}
+void() seek_shotup7      =[	$shotup,		seek_run1		] {ai_face(); seek_fire(TRUE); seeker_endcheck();}
 
 void() seeker_endcheck =
 {
@@ -155,6 +161,12 @@ void() seeker_endcheck =
 		return;
 	}
 
+	if (random() < .4)
+	{
+		ai_attack_finished(1 + random()); // break los anyways sometimes
+		return;
+	}
+
 	self.think = seek_ranged1;
 }
 
@@ -163,9 +175,7 @@ vector() seeker_gunpos =
 	vector vec, left;
 	vec = normalize(enemy_vispos() - self.origin);
 	left = CrossProduct(vec, '0 0 -1');
-	dprint(vtos(vec * 24 + left * -47 + '0 0 32'));
-	dprint("\n");
-	return (self.origin + vec * 24 + left * -47 + '0 0 32');
+	return (self.origin + vec * 24 + left * -26 + '0 0 32');
 }
 
 float() seek_clearranged =
@@ -184,23 +194,31 @@ float() seek_clearranged =
 	return TRUE;	
 }
 
-float() seek_checkranged =
+float() seek_checkatk =
 {
 	float chance;
 	if (time < self.attack_finished) return FALSE;
 	if (enemy_range >= RANGE_FAR) return FALSE;
 	if (!seek_clearranged()) return FALSE;
 
-	if (enemy_range == RANGE_MELEE)
+	if (enemy_range == RANGE_MELEE && z_overlap(self.enemy))
 	{
-		chance = 0.9;
-		self.attack_finished = 0;
+		if (CanDamage (self.enemy, self.origin))
+		{
+			self.attack_state = AS_MELEE;
+			return TRUE;
+		}
 	}
-	else if (enemy_range == RANGE_NEAR)
-		chance = 0.4;
+
+	if (enemy_range == RANGE_NEAR)
+		chance = 0.5;
 	else if (enemy_range == RANGE_MID)
+		chance = 0.3;
+	else if (enemy_range == RANGE_FAR)
 		chance = 0.2;
-	else
+	else if (enemy_range == RANGE_TOOFAR)
+		chance = 0;
+	else if (enemy_range == RANGE_MELEE)
 		chance = 0;
 
 	if (random() < chance)
@@ -233,15 +251,15 @@ void(float vol_light) seek_fire =
 	}
 	
 	vec = normalize(vec + v_right*crandom()*.02); 
-	laser = launch_laser(org, vec * 1000); // different speed / spread for flavour
+	laser = launch_laser(org, vec * 700); // different speed / spread for flavour
 	if (!vol_light) //too many dlights, so we make only every 4th laser have one
 	laser.effects = 0;
-	laser.dmg = 10;
+	laser.dmg = 4;
 	
 	vec = normalize(vec + v_right*crandom()*.1);
 	laser = launch_laser(org, vec * 800);
 	laser.effects = 0;
-	laser.dmg = 10;
+	laser.dmg = 4;
 }
 
 //============================================================================
@@ -249,7 +267,10 @@ void(float vol_light) seek_fire =
 void() seek_pain1	=[	$shotdwn,		seek_pain2	] {}
 void() seek_pain2	=[	$shotup,		seek_pain3	] {}
 void() seek_pain3	=[	$shotdwn,		seek_pain4	] {}
-void() seek_pain4	=[	$shotup,		seek_run1	] {}
+void() seek_pain4	=[	$shotdwn,		seek_pain5	] {}
+void() seek_pain5	=[	$shotdwn,		seek_pain6	] {}
+void() seek_pain6	=[	$shotdwn,		seek_pain7	] {}
+void() seek_pain7	=[	$shotup,		seek_run1	] {}
 
 	void(entity attacker, float damage) seek_pain =
 	{
@@ -262,6 +283,46 @@ void() seek_pain4	=[	$shotup,		seek_run1	] {}
 		
 		PainFinished(4);
 	}
+
+//============================================================================
+
+void() seek_melee1	=[	$dash1, seek_melee2 	] {ai_charge(8);}
+void() seek_melee2	=[	$dash1, seek_melee3 	] {ai_charge(12);}
+void() seek_melee3	=[	$dash3, seek_melee4 	] {ai_charge(12); } //sound (self, CHAN_VOICE, "brute/meleeswing.wav", 1, ATTN_NORM);
+void() seek_melee4	=[	$dash3, seek_melee5 	] {ai_charge(15); seek_punch();}
+void() seek_melee5	=[	$dash3, seek_melee6 	] {ai_charge(8);}
+void() seek_melee6	=[	$dash1, seek_melee7 	] {ai_charge(8);}
+void() seek_melee7	=[	$dash1, seek_run1 		] {ai_charge(4); ai_attack_finished(1 + 1*random());}
+
+void() seek_punch =
+{
+	local vector	delta;
+	local float 	ldmg;
+
+	if (!self.enemy)
+		return;
+
+	delta = self.enemy.origin - self.origin;
+
+	if (vlen(delta) > 100)
+		return;
+	if (!CanDamage (self.enemy, self.origin))
+		return;
+		
+	//get the player off the ground so it launches them :D -fw
+	if (self.enemy.flags & FL_ONGROUND){
+		self.enemy.flags = self.enemy.flags - FL_ONGROUND;
+		self.enemy.origin_z = self.enemy.origin_z + 10;
+		self.enemy.velocity_z = self.enemy.velocity_z + 270;
+	}
+	
+	ldmg = 60;
+	T_DamageMelee(self.enemy, self, ldmg);
+	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
+
+	SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);
+	SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);
+}
 
 //============================================================================
 
@@ -279,13 +340,13 @@ void() monster_seeker_spawn =
 	self.th_walk = seek_walk1;
 	self.th_run = seek_run1;
 	self.th_die = seek_die;
-//	self.th_melee = ;
+	self.th_melee = seek_melee1;
 	self.th_missile = seek_preranged1;
 	self.th_pain = seek_pain;
-	self.th_checkattack = seek_checkranged;
+	self.th_checkattack = seek_checkatk;
 
 	if (self.deathtype == string_null)
-		self.deathtype = "was smashed by a seeker";
+		self.deathtype = "was hammered/squished by a hunter/seeker";
 
 	walkmonster_start();	
 }
