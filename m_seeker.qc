@@ -92,62 +92,48 @@ void() seek_die =
 
 //============================================================================
 
-void() seek_preranged1      =[	$walkshot6,		seek_preranged2	] {ai_charge(10); }
-void() seek_preranged2      =[	$walkshot7,		seek_preranged3	] {ai_charge(10); }
-void() seek_preranged3      =[	$walkshot8,		seek_preranged4	] {ai_charge(10); }
-void() seek_preranged4      =[	$walkshot9,		seek_preranged5	] {ai_charge(10); }
-void() seek_preranged5      =[	$walkshot10,		seek_preranged6	] {ai_charge(10); }
-void() seek_preranged6      =[	$walkshot11,		seek_ranged1	] {ai_charge(10); }
+void() seek_preranged1   =[	$walkshot6,		seek_preranged2	] {ai_charge(10); self.width = 0;}
+void() seek_preranged2   =[	$walkshot7,		seek_preranged3	] {ai_charge(10); }
+void() seek_preranged3   =[	$walkshot8,		seek_preranged4	] {ai_charge(10); }
+void() seek_preranged4   =[	$walkshot9,		seek_preranged5	] {ai_charge(10); }
+void() seek_preranged5   =[	$walkshot10,	seek_preranged6	] {ai_charge(10); }
+void() seek_preranged6   =[	$walkshot11,	seek_run1		] {ai_charge(10); seek_checkatk(); seeker_endfiringcheck();}
 
-void() seek_ranged1      =[	$walkshot1,			seek_ranged2	] {ai_charge(10); seek_fire(FALSE);}
-void() seek_ranged2      =[	$walkshot2,			seek_ranged3	] {ai_charge(10); seek_fire(TRUE); }
-void() seek_ranged3      =[	$walkshot3,			seek_ranged4	] {ai_charge(10); seek_fire(FALSE);}
-void() seek_ranged4      =[	$walkshot4,			seek_ranged5	] {ai_charge(10); seek_fire(TRUE);}
-void() seek_ranged5      =[	$walkshot5,			seek_ranged6	] {ai_charge(10); seek_fire(FALSE);}
-void() seek_ranged6      =[	$walkshot6,			seek_ranged7	] {ai_charge(10), seek_fire(TRUE);}
-void() seek_ranged7      =[	$walkshot7,			seek_ranged8	] {ai_charge(10); seek_fire(FALSE);}
-void() seek_ranged8      =[	$walkshot8,			seek_ranged9	] {ai_charge(10), seek_fire(TRUE); }
-void() seek_ranged9      =[	$walkshot9,			seek_ranged10	] {ai_charge(10); seek_fire(FALSE);}
-void() seek_ranged10	 =[	$walkshot10,		seek_ranged11	] {ai_charge(10), seek_fire(TRUE);}
-void() seek_ranged11     =[	$walkshot11,		seek_run1		] {ai_charge(10); seeker_endcheck();}
+void() seek_ranged1      =[	$walkshot1,		seek_ranged2	] {ai_charge(10); seek_fire(FALSE); self.width = 0; seeker_midchk();}
+void() seek_ranged2      =[	$walkshot2,		seek_ranged3	] {ai_charge(10); seek_fire(TRUE); seeker_midchk();}
+void() seek_ranged3      =[	$walkshot3,		seek_ranged4	] {ai_charge(10); seek_fire(FALSE);seeker_midchk();}
+void() seek_ranged4      =[	$walkshot4,		seek_ranged5	] {ai_charge(10); seek_fire(TRUE); seeker_midchk();}
+void() seek_ranged5      =[	$walkshot5,		seek_ranged6	] {ai_charge(10); seek_fire(FALSE);seeker_midchk();}
+void() seek_ranged6      =[	$walkshot6,		seek_ranged7	] {ai_charge(10), seek_fire(TRUE); seeker_midchk();}
+void() seek_ranged7      =[	$walkshot7,		seek_ranged8	] {ai_charge(10); seek_fire(FALSE);seeker_midchk();}
+void() seek_ranged8      =[	$walkshot8,		seek_ranged9	] {ai_charge(10), seek_fire(TRUE); seeker_midchk();}
+void() seek_ranged9      =[	$walkshot9,		seek_ranged10	] {ai_charge(10); seek_fire(FALSE);seeker_midchk();}
+void() seek_ranged10	 =[	$walkshot10,	seek_ranged11	] {ai_charge(10), seek_fire(TRUE); seeker_midchk();}
+void() seek_ranged11     =[	$walkshot11,	seek_run1		] {ai_charge(10); seek_fire(FALSE); seek_checkatk(); seeker_endfiringcheck();}
 
-void() seek_shotdwn1     =[	$shotdwn,		seek_shotdwn2	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotdwn2     =[	$shotdwn,		seek_shotdwn3	] {ai_face(); seek_fire(TRUE); }
-void() seek_shotdwn3     =[	$shotdwn,		seek_shotdwn4	] {ai_face(); seek_fire(TRUE); }
-void() seek_shotdwn4     =[	$shotdwn,		seek_shotdwn5	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotdwn5     =[	$shotdwn,		seek_shotdwn6	] {ai_face(); seek_fire(TRUE); }
-void() seek_shotdwn6     =[	$shotdwn,		seek_shotdwn7	] {ai_face(); seek_fire(TRUE); }
-void() seek_shotdwn7     =[	$shotdwn,		seek_run1		] {ai_face(); seek_fire(FALSE); seeker_endcheck();}
+void() seek_shotdwn1     =[	$shotdwn,		seek_shotdwn2	] {ai_face(); seek_fire(FALSE); self.width = 1;}
+void() seek_shotdwn2     =[	$shotdwn,		seek_shotdwn3	] {ai_face(); seek_fire(TRUE); seeker_midchk();}
+void() seek_shotdwn3     =[	$shotdwn,		seek_shotdwn4	] {ai_face(); seek_fire(FALSE);seeker_midchk();}
+void() seek_shotdwn4     =[	$shotdwn,		seek_shotdwn5	] {ai_face(); seek_fire(TRUE);seeker_midchk();}
+void() seek_shotdwn5     =[	$shotdwn,		seek_shotdwn6	] {ai_face(); seek_fire(FALSE);seeker_midchk();}
+void() seek_shotdwn6     =[	$shotdwn,		seek_shotdwn7	] {ai_face(); seek_fire(TRUE); seeker_midchk();}
+void() seek_shotdwn7     =[	$shotdwn,		seek_run1		] {ai_face(); seek_fire(FALSE); seek_checkatk(); seeker_endfiringcheck();}
 
-void() seek_shotup1      =[	$shotup,		seek_shotup2	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotup2      =[	$shotup,		seek_shotup3	] {ai_face(); seek_fire(TRUE);}
-void() seek_shotup3      =[	$shotup,		seek_shotup4	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotup4      =[	$shotup,		seek_shotup5	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotup5      =[	$shotup,		seek_shotup6	] {ai_face(); seek_fire(TRUE);}
-void() seek_shotup6      =[	$shotup,		seek_shotup7	] {ai_face(); seek_fire(FALSE);}
-void() seek_shotup7      =[	$shotup,		seek_run1		] {ai_face(); seek_fire(TRUE); seeker_endcheck();}
+void() seek_shotup1      =[	$shotup,		seek_shotup2	] {ai_face(); seek_fire(FALSE); self.width = 2;seeker_midchk();}
+void() seek_shotup2      =[	$shotup,		seek_shotup3	] {ai_face(); seek_fire(TRUE); seeker_midchk();}
+void() seek_shotup3      =[	$shotup,		seek_shotup4	] {ai_face(); seek_fire(FALSE);seeker_midchk();}
+void() seek_shotup4      =[	$shotup,		seek_shotup5	] {ai_face(); seek_fire(TRUE); seeker_midchk();}
+void() seek_shotup5      =[	$shotup,		seek_shotup6	] {ai_face(); seek_fire(FALSE);seeker_midchk();}
+void() seek_shotup6      =[	$shotup,		seek_shotup7	] {ai_face(); seek_fire(TRUE); seeker_midchk();seeker_midchk();}
+void() seek_shotup7      =[	$shotup,		seek_run1		] {ai_face(); seek_fire(FALSE); seek_checkatk(); seeker_endfiringcheck();}
 
-void() seeker_endcheck =
+void() seeker_endfiringcheck =
 {
 	if (!enemy_alive() || self.enemy.customflags & CFL_LIMBO )
 		return;
 
 	if (angledif(self.ideal_yaw, self.angles_y) > 40)	// player got behind us
 		return;
-
-	if ((self.enemy.origin_z - (self.origin_z + 16)) > 128)	 // player got above us
-	{	
-		seek_shotup1();
-		dprint("\babove\b\n");
-		return;
-	}
-
-	if ((self.enemy.origin_z - (self.origin_z + 16)) < -128)	// player got below us
-	{	
-		seek_shotdwn1();
-		dprint("\bbelow\b\n");
-		return;
-	}
 
 	if (has_invis(self.enemy) && random() > 0.80)
 	{
@@ -161,21 +147,48 @@ void() seeker_endcheck =
 		return;
 	}
 
-	if (random() < .4)
-	{
-		ai_attack_finished(1 + random()); // break los anyways sometimes
-		return;
-	}
+	dprint(ftos(self.width));
+	dprint("\n");
 
-	self.think = seek_ranged1;
+	if (self.height == 2)
+		seek_shotup1();
+	else if (self.height == 1)
+		seek_shotdwn1();
+	else if (self.height == 0)
+		seek_ranged1();
+}
+
+void() seeker_midchk =
+{
+	if ((self.enemy.origin_z - (self.origin_z + 16)) > 128)	 // player is above us	
+		self.height = 2;
+	else if ((self.enemy.origin_z - (self.origin_z + 16)) < -128)	// player is below us	
+		self.height = 1;
+	else
+		self.height =0;
+
+	if ((self.height == 2) && (self.width != 2)) 
+		seek_shotup1();
+	else if ((self.height == 1) && (self.width != 1)) 
+		seek_shotdwn1();
+	else if ((self.height == 0) && (self.width != 0))
+		seek_ranged1();
+
+	self.height = self.height;
 }
 
 vector() seeker_gunpos =
 {
-	vector vec, left;
-	vec = normalize(enemy_vispos() - self.origin);
-	left = CrossProduct(vec, '0 0 -1');
-	return (self.origin + vec * 24 + left * -26 + '0 0 32');
+	vector ang = vectoangles(enemy_vispos() - self.origin);
+	ang_x = 0; //keeping this aligned to the floor
+	makevectors(ang);
+
+	if (self.height == 2)
+		return self.origin + v_forward*42 - v_right*-18 + v_up*59; //up
+	else if (self.height == 1)
+		return self.origin + v_forward*44 - v_right*-21 + v_up*11; //down
+	else
+		return self.origin + v_forward*48 - v_right*-22 + v_up*33; //forward
 }
 
 float() seek_clearranged =
@@ -210,26 +223,33 @@ float() seek_checkatk =
 		}
 	}
 
-	if (enemy_range == RANGE_NEAR)
-		chance = 0.5;
-	else if (enemy_range == RANGE_MID)
-		chance = 0.3;
-	else if (enemy_range == RANGE_FAR)
-		chance = 0.2;
-	else if (enemy_range == RANGE_TOOFAR)
-		chance = 0;
-	else if (enemy_range == RANGE_MELEE)
-		chance = 0;
+	if ((self.enemy.origin_z - (self.origin_z + 16)) > 128)	 // player is above us	
+		self.height = 2;
+	else if ((self.enemy.origin_z - (self.origin_z + 16)) < -128)	// player is below us	
+		self.height = 1;
+	else
+		self.height =0;
 
-	if (random() < chance)
-	{
-		self.th_missile ();
-		ai_attack_finished (2*random());
-		return TRUE;
+		if (enemy_range == RANGE_NEAR)
+			chance = 0.5;
+		else if (enemy_range == RANGE_MID)
+			chance = 0.3;
+		else if (enemy_range == RANGE_FAR)
+			chance = 0.2;
+		else if (enemy_range == RANGE_TOOFAR)
+			chance = 0;
+		else if (enemy_range == RANGE_MELEE)
+			chance = 0;
+
+		if (random() < chance)
+		{
+			self.th_missile ();
+			ai_attack_finished (2*random());
+			return TRUE;
+		}
+
+		return FALSE;
 	}
-
-	return FALSE;
-}
 
 void(float vol_light) seek_fire =
 {
@@ -278,7 +298,7 @@ void() seek_pain7	=[	$shotup,		seek_run1	] {}
 		if (self.pain_finished > time) return;
 		if (random() < .9) return;
 	
-		//sound (self, CHAN_VOICE, "shalrath/pain.wav", 1, ATTN_NORM);
+		//sound (self, CHAN_VOICE, "shalrath/pain.wav", ATTN_NORM);
 		seek_pain1();
 		
 		PainFinished(4);
@@ -288,7 +308,7 @@ void() seek_pain7	=[	$shotup,		seek_run1	] {}
 
 void() seek_melee1	=[	$dash1, seek_melee2 	] {ai_charge(8);}
 void() seek_melee2	=[	$dash1, seek_melee3 	] {ai_charge(12);}
-void() seek_melee3	=[	$dash3, seek_melee4 	] {ai_charge(12); } //sound (self, CHAN_VOICE, "brute/meleeswing.wav", 1, ATTN_NORM);
+void() seek_melee3	=[	$dash3, seek_melee4 	] {ai_charge(12); } //sound (self, CHAN_VOICE, "brute/meleeswing.wav", ATTN_NORM);
 void() seek_melee4	=[	$dash3, seek_melee5 	] {ai_charge(15); seek_punch();}
 void() seek_melee5	=[	$dash3, seek_melee6 	] {ai_charge(8);}
 void() seek_melee6	=[	$dash1, seek_melee7 	] {ai_charge(8);}
@@ -348,7 +368,7 @@ void() monster_seeker_spawn =
 	if (self.deathtype == string_null)
 		self.deathtype = "was hammered/squished by a hunter/seeker";
 
-	walkmonster_start();	
+	walkmonster_start();
 }
 
 void() monster_seeker_spawner = {mon_spawner_use(monster_seeker_spawn);}
@@ -382,7 +402,7 @@ void() monster_seeker =
 		return;
 	}
 	precache_model ("progs/e3/mon_seeker.mdl");
-	precache_model ("progs/laser.mdl");
+	precache_model ("progs/e3/seeklaser.mdl");
 	//precache_model ("progs/h_seeks.mdl");
 	//precache_model ("progs/bolt.mdl");
 	
