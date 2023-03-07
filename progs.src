@@ -92,4 +92,5 @@ m_d2boss.qc
 
 // Dwell - Ep 3
 m_seeker.qc
-m_boeleth.qc
+m_skitter.qc
+m_fixer.qc
