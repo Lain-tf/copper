@@ -109,6 +109,71 @@ void()	player_shot4 =	[$shotatt4, player_shot5	] {self.weaponframe=4;}
 void()	player_shot5 =	[$shotatt5, player_shot6	] {self.weaponframe=5;}
 void()	player_shot6 =	[$shotatt6, player_run	] {self.weaponframe=6;}
 
+void()	player_impale1 =	[$shotatt1, player_shot2	] {self.weaponframe=1;
+	self.effects = self.effects | EF_MUZZLEFLASH;}
+	void()	player_impale2 =	[$shotatt2, player_shot3	] {self.weaponframe=2;}
+	void()	player_impale3 =	[$shotatt3, player_shot4	] {self.weaponframe=3;}
+	void()	player_impale4 =	[$shotatt4, player_shot5	] {self.weaponframe=4;}
+	void()	player_impale5 =	[$shotatt5, player_shot6	] {self.weaponframe=5;}
+	void()	player_impale6 =	[$shotatt6, player_run	] {self.weaponframe=6;}
+
+
+/*
+=============
+Quad shotgun
+=============
+*/
+void() player_quad_shotgun = 
+{
+	
+	self.qsg_firing = TRUE;
+	self.attack_finished = time + 1.3;
+	
+	self.weaponframe = 0;
+	player_quad_shotgun_loop();
+};
+
+void() player_quad_shotgun_loop = 
+{
+	//shotatt1 shotatt2 shotatt3 shotatt4 shotatt5 shotatt6
+	self.weaponframe += 1;
+	
+	if ( self.weaponframe < 33 ) 
+	{
+		// We're in the initial firing phase
+		if ( mod( self.weaponframe, 8 ) == 1 ) 
+		{
+			self.frame = $shotatt1;
+			self.effects = self.effects | EF_MUZZLEFLASH;
+			W_FireQuadShotgun();
+		} 
+		else 
+		{
+			if ( self.frame < $shotatt6 )
+				self.frame++;
+			else 
+				self.frame--;
+		}
+	} 
+	else 
+	{
+		// Now in the cooldown phase
+		self.qsg_firing = FALSE;
+		
+		self.frame = $shotatt6; // idle player at last frame during spindown animation
+
+		if ( self.weaponframe == 72 ) 
+		{
+			self.weaponframe = 0;
+			player_run();
+			return;
+		}
+	}
+	
+	self.think = player_quad_shotgun_loop;
+	self.nextthink = time + 0.025;
+};
+
 
 
 /*

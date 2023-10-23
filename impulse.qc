@@ -39,11 +39,12 @@ void() Cheat_Items =
 		IT_SHOTGUN |
 		IT_SUPER_SHOTGUN |
 		IT_NAILGUN |
-		IT_SUPER_NAILGUN |
+		IT_IMPALER |
 		IT_GRENADE_LAUNCHER |
 		IT_ROCKET_LAUNCHER;
 
 	self.items = self.items | IT_LIGHTNING;
+	self.items_snack = self.items_snack | IT_QUAD_SHOTGUN;
 
 	self.weapon = IT_ROCKET_LAUNCHER;
 

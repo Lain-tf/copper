@@ -250,6 +250,7 @@ float	trace_debug;
 
 // moved from ai.qc or maybe combat.qc - used for target finding
 float	enemy_vis, enemy_range;//, enemy_infront;
+float	enemy_yaw();
 
 // when a monster becomes angry at a player, that monster will be used
 // as the sight target the next frame so that monsters near that one

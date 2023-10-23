@@ -71,4 +71,6 @@ m_shalrath.qc	// registered
 m_enforcer.qc	// registered
 m_oldone.qc		// registered
 
+m_gaunt.qc      // quoth port
+
 test.qc

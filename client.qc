@@ -26,6 +26,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
+	self.items_snack = self.items_snack - (self.items_snack);
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -65,6 +66,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype;
+	parm10 = self.items_snack;
 
 }
 
@@ -79,7 +81,7 @@ void() SetNewParms =
 	parm6 = 0;
 	parm7 = 0;
 	parm9 = 0;
-//	parm10 = 0;
+	parm10 = 0;
 }
 
 
@@ -1841,7 +1843,12 @@ void(float dmgtype) ClientObituary =
 				deathstring = " was nailed by ";
 				deathstring2 = "\n";
 			}
-			if (rnum == IT_SUPER_NAILGUN)
+			if (rnum == IT_IMPALER)
+			{
+				deathstring = " was penetrated by ";
+				deathstring2 = "\n";
+			}
+			if (rnum == IT_IMPALER)
 			{
 				deathstring = " was punctured by ";
 				deathstring2 = "\n";

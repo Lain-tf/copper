@@ -125,16 +125,30 @@ const float	SPAWN_NOTCOOP		= 8192;
 
 const float	SPAWN_ALT_TARG		= 16384;	// fire the four target keys at different times
 
+// Extra equippables
+const float IT_QUAD_SHOTGUN = 128;
+
 // items
 const float	IT_AXE					= 4096;
 const float	IT_SHOTGUN				= 1;
 const float	IT_SUPER_SHOTGUN		= 2;
 const float	IT_NAILGUN				= 4;
-const float	IT_SUPER_NAILGUN		= 8;
+const float	IT_IMPALER	        	= 8;
 const float	IT_GRENADE_LAUNCHER		= 16;
 const float	IT_ROCKET_LAUNCHER		= 32;
 const float	IT_LIGHTNING			= 64;
 const float	IT_WEAPONS				= 127 + 4096;
+
+// Weapons
+const float	W_SHOTGUN			= 1;
+const float	W_SUPER_SHOTGUN		= 2;
+const float	W_NAILGUN			= 4;
+const float	W_IMPALER		= 8;
+const float	W_GRENADE_LAUNCHER	= 16;
+const float	W_ROCKET_LAUNCHER	= 32;
+const float	W_LIGHTNING			= 64;
+const float W_QUAD_SHOTGUN      = 128;
+const float	W_AXE				= 4096;
 
 const float	IT_SHELLS				= 256;
 const float	IT_NAILS				= 512;
