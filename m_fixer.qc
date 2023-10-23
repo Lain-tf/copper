@@ -2,7 +2,7 @@
 ==============================================================================
 
 Fixer Bot
-ironically does the exact opposite of that
+	ironically does the exact opposite of that
 
 OG code from lun/bmFbr, adapted by fw
 
@@ -14,18 +14,45 @@ $origin 0 0 24
 $base wizbase	
 $skin wizbase
 
-$frame hover1 hover2 hover3 hover4 hover5 hover6 hover7 hover8
-$frame hover9 hover10 hover11 hover12 hover13 hover14 hover15
+// (001-010) Stand by mode (spinning bottom part)
+$frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8
+$frame stand9 stand10
 
-$frame fly1 fly2 fly3 fly4 fly5 fly6 fly7 fly8 fly9 fly10
-$frame fly11 fly12 fly13 fly14
+// (011-020) Opening up top spikes
+$frame wakeup1 wakeup2 wakeup3 wakeup4 wakeup5 wakeup6 wakeup7 wakeup8
+$frame wakeup9 wakeup10
 
-$frame magatt1 magatt2 magatt3 magatt4 magatt5 magatt6 magatt7
-$frame magatt8 magatt9 magatt10 magatt11 magatt12 magatt13
+// (021-030) Walking animation + top spikes
+$frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8
+$frame walk9 walk10
 
-$frame pain1 pain2 pain3 pain4
+// (031-040) Open the middle part
+$frame open1 open2 open3 open4 open5 open6 open7 open8
+$frame open9 open10
 
-$frame death1 death2 death3 death4 death5 death6 death7 death8
+// (041-050) Run animation
+$frame run1 run2 run3 run4 run5 run6 run7 run8
+$frame run9 run10
+
+// (051-060) Spin Attack
+$frame spin1 spin2 spin3 spin4 spin5 spin6 spin7 spin8
+$frame spin9 spin10
+
+// (061-070) Mine Attack
+$frame mine1 mine2 mine3 mine4 mine5 mine6 mine7 mine8
+$frame mine9 mine10
+
+// (071-080) Idle 1 - spin + dance top spikes
+$frame idleA1 idleA2 idleA3 idleA4 idleA5 idleA6 idleA7 idleA8
+$frame idleA9 idleA10
+
+// (081-090) Idle 2 - spin + tilt around body
+$frame idleB1 idleB2 idleB3 idleB4 idleB5 idleB6 idleB7 idleB8
+$frame idleB9 idleB10
+
+// (091-100) Laser Attack
+$frame laser1 laser2 laser3 laser4 laser5 laser6 laser7 laser8
+$frame laser9 laser10
 
 float()	fixerCheckAttack =
 {
@@ -159,45 +186,49 @@ void()	fxr_walk6	=[	$hover6,		fxr_walk7	] {ai_walk(8);}
 void()	fxr_walk7	=[	$hover7,		fxr_walk8	] {ai_walk(8);}
 void()	fxr_walk8	=[	$hover8,		fxr_walk1	] {ai_walk(8);}
 
-void()	fxr_side1	=[	$hover1,		fxr_side2	] {ai_run(8);
+void()	fxr_side1	=[	$hover1,		fxr_side2	] {ai_run(16);
 fxr_idlesound();}
-void()	fxr_side2	=[	$hover2,		fxr_side3	] {ai_run(8);}
-void()	fxr_side3	=[	$hover3,		fxr_side4	] {ai_run(8);}
-void()	fxr_side4	=[	$hover4,		fxr_side5	] {ai_run(8);}
-void()	fxr_side5	=[	$hover5,		fxr_side6	] {ai_run(8);}
-void()	fxr_side6	=[	$hover6,		fxr_side7	] {ai_run(8);}
-void()	fxr_side7	=[	$hover7,		fxr_side8	] {ai_run(8);}
-void()	fxr_side8	=[	$hover8,		fxr_side1	] {ai_run(8);}
+void()	fxr_side2	=[	$hover2,		fxr_side3	] {ai_run(16);}
+void()	fxr_side3	=[	$hover3,		fxr_side4	] {ai_run(16);}
+void()	fxr_side4	=[	$hover4,		fxr_side5	] {ai_run(16);}
+void()	fxr_side5	=[	$hover5,		fxr_side6	] {ai_run(16);}
+void()	fxr_side6	=[	$hover6,		fxr_side7	] {ai_run(16);}
+void()	fxr_side7	=[	$hover7,		fxr_side8	] {ai_run(16);}
+void()	fxr_side8	=[	$hover8,		fxr_side1	] {ai_run(16);}
 
-void()	fxr_run1	=[	$fly1,		fxr_run2	] {ai_run(16);
+void()	fxr_run1	=[	$fly1,		fxr_run2	] {ai_run(32);
 fxr_idlesound();
 }
-void()	fxr_run2	=[	$fly2,		fxr_run3	] {ai_run(16);}
-void()	fxr_run3	=[	$fly3,		fxr_run4	] {ai_run(16);}
-void()	fxr_run4	=[	$fly4,		fxr_run5	] {ai_run(16);}
-void()	fxr_run5	=[	$fly5,		fxr_run6	] {ai_run(16);}
-void()	fxr_run6	=[	$fly6,		fxr_run7	] {ai_run(16);}
-void()	fxr_run7	=[	$fly7,		fxr_run8	] {ai_run(16);}
-void()	fxr_run8	=[	$fly8,		fxr_run9	] {ai_run(16);}
-void()	fxr_run9	=[	$fly9,		fxr_run10	] {ai_run(16);}
-void()	fxr_run10	=[	$fly10,		fxr_run11	] {ai_run(16);}
-void()	fxr_run11	=[	$fly11,		fxr_run12	] {ai_run(16);}
-void()	fxr_run12	=[	$fly12,		fxr_run13	] {ai_run(16);}
-void()	fxr_run13	=[	$fly13,		fxr_run14	] {ai_run(16);}
-void()	fxr_run14	=[	$fly14,		fxr_run1	] {ai_run(16);}
+void()	fxr_run2	=[	$fly2,		fxr_run3	] {ai_run(32);}
+void()	fxr_run3	=[	$fly3,		fxr_run4	] {ai_run(32);}
+void()	fxr_run4	=[	$fly4,		fxr_run5	] {ai_run(32);}
+void()	fxr_run5	=[	$fly5,		fxr_run6	] {ai_run(32);}
+void()	fxr_run6	=[	$fly6,		fxr_run7	] {ai_run(32);}
+void()	fxr_run7	=[	$fly7,		fxr_run8	] {ai_run(32);}
+void()	fxr_run8	=[	$fly8,		fxr_run9	] {ai_run(32);}
+void()	fxr_run9	=[	$fly9,		fxr_run10	] {ai_run(32);}
+void()	fxr_run10	=[	$fly10,		fxr_run11	] {ai_run(32);}
+void()	fxr_run11	=[	$fly11,		fxr_run12	] {ai_run(32);}
+void()	fxr_run12	=[	$fly12,		fxr_run13	] {ai_run(32);}
+void()	fxr_run13	=[	$fly13,		fxr_run14	] {ai_run(32);}
+void()	fxr_run14	=[	$fly14,		fxr_run1	] {ai_run(32);}
 
-void()	fxr_fast1	=[	$magatt1,		fxr_fast2	] {ai_face();}
-void()	fxr_fast2	=[	$magatt2,		fxr_fast3	] {ai_face();}
-void()	fxr_fast3	=[	$magatt3,		fxr_fast4	] {ai_face();}
-void()	fxr_fast4	=[	$magatt4,		fxr_fast5	] {ai_face();}
-void()	fxr_fast5	=[	$magatt5,		fxr_fast6	] {ai_face();}
-void()	fxr_fast6	=[	$magatt6,		fxr_fast7	] {ai_face();}
-void()	fxr_fast7	=[	$magatt5,		fxr_fast8	] {ai_face();}
-void()	fxr_fast8	=[	$magatt4,		fxr_fast9	] {ai_face();}
-void()	fxr_fast9	=[	$magatt6,		fxr_fast10	] {ai_face();}
-void()	fxr_fast10	=[	$magatt5,		fxr_fast11	] {ai_face(); fxr_aim();}
-void()	fxr_fast11	=[	$magatt3,		fxr_fast12	] {ai_face(); fxr_rail_shoot(); self.effects = EF_MUZZLEFLASH;}
-void()	fxr_fast12	=[	$magatt2,		fxr_run1	] {ai_face(); ai_attack_finished(2); fixerAttackFinished();}
+void()	fxr_fast1	=[	$spin1,		fxr_fast2	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast2	=[	$spin2,		fxr_fast3	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast3	=[	$spin3,		fxr_fast4	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast4	=[	$spin4,		fxr_fast5	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast5	=[	$spin5,		fxr_fast6	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast6	=[	$spin6,		fxr_fast7	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast7	=[	$spin7,		fxr_fast8	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast8	=[	$spin8,		fxr_fast9	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast9	=[	$spin9,		fxr_fast10	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
+void()	fxr_fast10	=[	$spin10,		fxr_fast11	] {ai_face();}
+void()	fxr_fast11	=[	$mine5,		fxr_fast12	] {ai_face();}
+void()	fxr_fast12	=[	$mine6,		fxr_fast13	] {ai_face();}
+void()	fxr_fast13	=[	$mine7,		fxr_fast14	] {ai_face(); fxr_aim(1.5);}
+void()	fxr_fast14	=[	$mine8,		fxr_fast15	] {ai_face();}
+void()	fxr_fast15	=[	$mine9,		fxr_fast16	] {ai_face(); fxr_rail_shoot(); self.effects = EF_MUZZLEFLASH;}
+void()	fxr_fast16	=[	$mine10,		fxr_run1	] {ai_face(); ai_attack_finished(2); fixerAttackFinished();}
 
 void()	fxr_pain1	=[	$pain1,		fxr_pain2	] {ai_nop();PainFinished(0.2);}
 void()	fxr_pain2	=[	$pain2,		fxr_pain3	] {ai_nop();}
@@ -241,18 +272,19 @@ void() fxr_die =
 void(entity attacker, float damage) fxr_Pain =
 {
 	sound (self, CHAN_VOICE, "fixer/wpain.wav", 1, ATTN_NORM);
-	if (random()*45 > damage)
-		return;		// didn't flinch
+	if (random()*40 < damage)
+		return; // didn't flinch
 
+	dprint("bruh");
 	fxr_pain1 ();
 }
 
-void() fxr_aim = {
+void(float aheadframes) fxr_aim = {
 	vector vel;
 
 	vel = self.enemy.velocity;
 	vel_z = 0;
-	self.dest1 = self.enemy.origin;
+	self.dest1 = self.enemy.origin + vel*(aheadframes/10);
 };
 
 void() fxr_rail_shoot =
@@ -352,7 +384,7 @@ void() monster_fixer_spawn =
 	setmodel (self, "progs/e3/mon_fixer.mdl");
 
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
-	self.health = 80;
+	self.health = 160;
 
 	self.th_stand = fxr_stand1;
 	self.th_walk = fxr_walk1;
@@ -410,7 +442,7 @@ void() monster_fixer =
 	precache_sound ("fixer/wpain.wav");
 	precache_sound ("fixer/wsight.wav");
 
-	self.health = 80;
+	self.health = 160;
 	//setsize (self, '-16 -16 -24', '16 16 40');
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
 	if ( monster_spawnsetup( monster_fixer_spawner ) ) return;
@@ -418,55 +450,3 @@ void() monster_fixer =
 	addmonster(1);
 	monster_fixer_spawn();
 }
-
-
-
-
-
-
-
-/*
-=============
-LaunchMissile
-
-Sets the given entities velocity and angles so that it will hit self.enemy
-if self.enemy maintains it's current velocity
-0.1 is moderately accurate, 0.0 is totally accurate
-=============
-*/
-/*
-void(entity missile, float mspeed, float accuracy) LaunchMissile =
-{
-	local	vector	vec, move;
-	local	float	fly;
-
-	makevectors (self.angles);
-		
-// set missile speed
-	vec = self.enemy.origin + self.enemy.mins + self.enemy.size * 0.7 - missile.origin;
-
-// calc aproximate time for missile to reach vec
-	fly = vlen (vec) / mspeed;
-	
-// get the entities xy velocity
-	move = self.enemy.velocity;
-	move_z = 0;
-
-// project the target forward in time
-	vec = vec + move * fly;
-	
-	vec = normalize(vec);
-	vec = vec + accuracy*v_up*(random()- 0.5) + accuracy*v_right*(random()- 0.5);
-	
-	missile.velocity = vec * mspeed;
-
-	missile.angles = '0 0 0';
-	missile.angles_y = vectoyaw(missile.velocity);
-
-// set missile duration
-	missile.nextthink = time + 5;
-	missile.think = SUB_Remove;	
-}
-
-*/
-
