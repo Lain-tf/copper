@@ -392,6 +392,14 @@ float *cdtrack;	// fteqcc supports pointers. madness. see void() worldspawn
 .entity		trueowner;		// now this is getting dumb
 .void(float unlock) lock;	// so entities can define their own target_lock cleanup
 
+// Second set of items, we overflowed the first
+.float 		items_snack;
+
+// Weapon upgrades
+.float 		upgrades;
+.float      upgrade_selected;
+.float		qsg_firing;
+
 // OVERLOADS:
 .float rand = healamount;	// for trigger_timer
 .float svflags = jump_flag;	// for target_give and item_sigil
