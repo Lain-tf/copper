@@ -96,6 +96,14 @@ void(string headmdl, float dm) Gib =
 	GibSpray(headmdl, dm);
 }
 
+//penetrator
+void(float dm) GibSprayHeadless =
+{
+	ThrowGib ("progs/zom_gib.mdl", dm);
+	ThrowGib ("progs/zom_gib.mdl", dm);
+}
+
+
 
 /*
 ================

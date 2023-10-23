@@ -59,6 +59,11 @@ Used by shotgun, super shotgun, and enemy soldier firing
 */
 void(float shotcount, vector dir, vector spread) FireBullets =
 {
+	FireBulletsEx(shotcount, dir, spread, 4);
+}
+
+void(float shotcount, vector dir, vector spread, float damage) FireBulletsEx =
+{
 	vector src, direction;
 	entity ig;
 	float s, lim;
@@ -118,12 +123,13 @@ void(float shotcount, vector dir, vector spread) FireBullets =
 		
 		if (trace_fraction != 1.0)
 		{
-			BulletImpact (4, direction);
+			BulletImpact (damage, direction);
 		}
 		
 		if (trace_debug) dprint("bullet is over\n\n");
 	}
 }
+
 
 /*
 ================
@@ -194,4 +200,24 @@ void() W_FireSuperShotgun =
 	
 	ApplyMultiDamage ();
 
+}
+
+/*
+================
+W_FireQuadShotgun
+================
+*/
+void() W_FireQuadShotgun =
+{
+	local vector dir;
+
+	sound(self ,CHAN_WEAPON, "weapons/shotgn3.wav", 1, ATTN_NORM);
+	self.punchangle_x = -2;
+	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	makevectors(self.v_angle);
+	dir = aim(self, AUTOAIM_DIST);
+
+	ClearMultiDamage();
+	FireBulletsEx(20, dir, '0.10 0.02 0', 2);
+	ApplyMultiDamage();
 }

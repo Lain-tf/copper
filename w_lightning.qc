@@ -135,6 +135,11 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 		WriteByte (MSG_BROADCAST, TE_LIGHTNING1);
 	}
+	else if (self.classname == "monster_gaunt")
+	{
+		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
+	}
 	else
 	{
 		sound (targ, CHAN_BODY, "weapons/lhit.wav", 1, ATTN_NORM);

@@ -108,7 +108,7 @@ void() W_FireSpikes =
 		W_SelectBestWeapon();
 		return;
 	}
-	if (self.ammo_nails >= 2 && self.weapon == IT_SUPER_NAILGUN)
+	if (self.ammo_nails >= 10 && self.weapon == IT_IMPALER)
 	{
 		W_FirePerforator();
 	}
@@ -180,4 +180,99 @@ void() spike_touch =
 	remove(self);
 }
 
+/*
+================
+W_FireImpaler
+================
+*/
+void() W_FireImpaler =
+{
+	entity m;
+	float base;
+	vector mvel;
 
+	if (self.ammo_nails < 10)
+	{
+		W_SelectBestWeapon();
+		return;
+	}
+	
+	self.currentammo = self.ammo_nails = self.ammo_nails - 10;
+	sound (self, CHAN_WEAPON, "weapons/penfire.wav", 1, ATTN_NORM);
+	self.punchangle_x = -2;
+
+	makevectors (self.v_angle);
+	base = 1400;
+	
+	mvel = (v_forward * base) + (v_up * 150) + (v_right * 10) + (v_up * 10);
+
+	m = launch_impaler(self.origin, mvel);
+	m.gravity = .75;
+	m.think = ImpalerThink;
+	m.touch = ImpalerTouch;
+	m.th_die = SUB_Remove;
+	m.buddy = self;
+	self.attack_finished = time + 1;
+}
+
+void() ImpalerInwallThink =
+{
+	self.touch = SUB_Null;
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_NOT;
+	self.think = SUB_Remove;
+	self.nextthink = time + 15;
+}
+
+void() ImpalerThink =
+{
+	self.angles = vectoangles(self.velocity);
+	self.flags = not(self.flags, FL_ONGROUND);
+	self.oldvelocity = self.velocity;
+	self.nextthink = time + 0.05;
+}
+
+
+
+void() ImpalerTouch =
+{
+	if (other == self.owner ) return;		// don't touch owner
+	if (CheckProjectilePassthru()) return;
+	if ((other.takedamage == DAMAGE_AIM) || (other.takedamage == DAMAGE_YES))
+	{
+			if (other.classname == "monster_zombie")
+				T_Damage(other,self.buddy,self.buddy,59);
+			else
+				T_Damage(other,self.buddy,self.buddy,100);
+
+			GibSprayHeadless(20);
+			particle (self.origin, self.velocity*0.1, 73, 40);
+
+			float chance = random();
+
+			if (chance < 0.33)
+			sound (self, CHAN_WEAPON, "weapons/pierce1.wav", 1, ATTN_NORM);
+			else if (chance < 0.5)
+			sound (self, CHAN_WEAPON, "weapons/pierce2.wav", 1, ATTN_NORM);
+			else
+			sound (self, CHAN_WEAPON, "weapons/pierce3.wav", 1, ATTN_NORM);
+
+			projectile_passthru();
+
+			return;
+	}
+
+	if (!other.takedamage)
+	{
+		sound (self, CHAN_WEAPON, "weapons/stick1.wav", 0.5, ATTN_NORM);
+		gunshot(self.origin);
+
+		//stick in the wall if we hit worldspawn as we know that won't move
+		if (other == world)
+		{
+		ImpalerInwallThink();
+		}
+		else
+		remove(self);
+	}
+}

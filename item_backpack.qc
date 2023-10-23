@@ -271,12 +271,14 @@ void() DropBackpack =
 			item.netname = "Double-Barrelled Shotgun";
 		else if (item.items == IT_NAILGUN)
 			item.netname = "Nailgun";
-		else if (item.items == IT_SUPER_NAILGUN)
-			item.netname = "Perforator";
+		else if (item.items == IT_IMPALER)
+			item.netname = "Penetrator";
 		else if (item.items == IT_GRENADE_LAUNCHER)
 			item.netname = "Grenade Launcher";
 		else if (item.items == IT_ROCKET_LAUNCHER)
 			item.netname = "Rocket Launcher";
+		else if (item.weapon == W_QUAD_SHOTGUN)
+			item.netname = "Rotary Shotgun";
 		else if (item.items == IT_LIGHTNING)
 			item.netname = "Thunderbolt";
 		else

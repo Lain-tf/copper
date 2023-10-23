@@ -553,6 +553,8 @@ void() SightSound =
 		sound (self, CHAN_VOICE, "knight/ksight.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_shambler")
 		sound (self, CHAN_VOICE, "shambler/ssight.wav", 1, ATTN_NORM);
+	else if (self.classname == "monster_gaunt")
+		sound (self, CHAN_VOICE, "gaunt/sight.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_demon1")
 		sound (self, CHAN_VOICE, "demon/sight2.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_wizard")

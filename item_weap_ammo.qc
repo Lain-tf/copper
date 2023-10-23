@@ -182,6 +182,30 @@ void() weapon_supershotgun =
 	StartWeapon();
 }
 
+/*QUAKED weapon_quad_shotgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
+Rotary Shotgun.
+
+Keys:
+"target/2/3/4/k" - entity to trigger when picked up
+"targetname" - will not spawn until triggered
+"wait" - will respawn after 'wait' seconds. fires targets every time.
+"count" - limit number of times to respawn
+*/
+/*FGD
+@PointClass base(Weapon) model({ "path": ":progs/g_shot3.mdl" }) = weapon_quad_shotgun : "Rotary shotgun" []
+*/
+void() weapon_quad_shotgun =
+{
+	if (!SUB_ShouldSpawn()) return;
+	precache_model ("progs/g_shot3.mdl");
+	setmodel (self, "progs/g_shot3.mdl");
+	self.items_snack = IT_QUAD_SHOTGUN;
+	self.weapon = W_QUAD_SHOTGUN;
+	self.ammo_shells = 10;
+	self.netname = "Rotary Shotgun";
+	StartWeapon();
+}
+
 /*QUAKED weapon_nailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
 Nailgun.
 
@@ -224,7 +248,7 @@ void() weapon_supernailgun =
 	if (!SUB_ShouldSpawn()) return;
 	precache_model_safe ("progs/g_nail2.mdl");
 	setmodel (self, "progs/g_nail2.mdl");
-	self.items = IT_SUPER_NAILGUN;
+	self.items = IT_IMPALER;
 	self.ammo_nails = 30;
 	self.netname = "Perforator";
 	StartWeapon();
