@@ -26,7 +26,7 @@ void() SetChangeParms =
 		IT_KEY1 | IT_KEY2 | 
 		IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD
 		) );
-	self.items_snack = self.items_snack - (self.items_snack);
+	//self.items_snack = self.items_snack;
 	
 	// gung-ho players can run forward and grab weapons before other clients have
 	// finished connecting, causing them to miss out on the global distribution
@@ -102,7 +102,7 @@ void() SetCoopParms =
 	parm6 = 0;
 	parm7 = 0;
 	parm9 = 0;
-//	parm10 = 0;
+	parm10 = self.items_snack;
 }
 
 void() DecodeLevelParms =
@@ -120,6 +120,7 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9;
+	self.items_snack = parm10;
 	
 	armor_set_type(self);
 }
