@@ -183,6 +183,8 @@ void() spike_touch =
 /*
 ================
 W_FireImpaler
+
+Impaler code by Fairweather.
 ================
 */
 void() W_FireImpaler =
