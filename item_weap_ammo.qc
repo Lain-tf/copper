@@ -37,6 +37,7 @@ void() weapon_touch_coop =
 void(entity to) weapon_give =
 {
 	to.items |= self.items;
+	to.items_snack |= self.items_snack;
 	to.ammo_shells += self.ammo_shells;
 	to.ammo_nails += self.ammo_nails;
 	to.ammo_rockets += self.ammo_rockets;
@@ -60,6 +61,7 @@ weapon_touch
 void() weapon_touch =
 {
 	float	leave, nsw;
+	float weap_items, player_items;
 
 	if (!CheckValidTouch()) return;
 
@@ -67,27 +69,39 @@ void() weapon_touch =
 		leave = 1;
 	else
 		leave = 0;
+
+	if (self.items_snack) {
+		weap_items = self.items_snack;
+		player_items = other.items_snack;
+	} else {
+		weap_items = self.items;
+		player_items = other.items;
+	}
 	
 	if (leave)
 	{
-		if (other.items & self.items == self.items)	// already have it
-		{
+		if (player_items & weap_items == weap_items) {
+			// Player already has it
 			weapon_touch_coop();
+			// added for parity with copper
 			return;
 		}
 	}
 	
-	if (self.items & other.items) nsw = TRUE;
+	if (weap_items & player_items) nsw = TRUE;
 
 	weapon_give(other);
 	// change to the weapon
 	entity	stemp;
 	stemp = self;
 	self = other;
-	if (nsw)
-		W_ResetWeaponState();
-	else
-		W_BetterWeapon(stemp.items);
+	// don't switch while quad shotgun is firing
+	if (W_CanSwitchWeapon()) {
+		if (nsw)
+			W_ResetWeaponState();
+		else
+			W_BetterWeapon(stemp.weapon);
+	}
 	self = stemp;
 
 	if (coop == 1)
@@ -231,7 +245,7 @@ void() weapon_nailgun =
 }
 
 /*QUAKED weapon_supernailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
-Perforator (Super Nailgun).
+Penetrator (Stake Gun).
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -250,7 +264,7 @@ void() weapon_supernailgun =
 	setmodel (self, "progs/g_nail2.mdl");
 	self.items = IT_IMPALER;
 	self.ammo_nails = 30;
-	self.netname = "Perforator";
+	self.netname = "Penetrator";
 	StartWeapon();
 }
 
