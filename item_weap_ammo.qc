@@ -221,7 +221,7 @@ void() weapon_quad_shotgun =
 }
 
 /*QUAKED weapon_nailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
-Nailgun.
+Stakegun.
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -230,7 +230,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_nail.mdl" }) = weapon_nailgun : "Nailgun.
+@PointClass base(Weapon) model({ "path": ":progs/g_nail.mdl" }) = weapon_nailgun : "Stakegun.
 30 nails." []
 */
 void() weapon_nailgun =
@@ -240,12 +240,12 @@ void() weapon_nailgun =
 	setmodel (self, "progs/g_nail.mdl");
 	self.items = IT_NAILGUN;
 	self.ammo_nails = 30;
-	self.netname = "Nailgun";
+	self.netname = "Stakegun";
 	StartWeapon();
 }
 
 /*QUAKED weapon_supernailgun (0 0 1) (-16 -16 0) (16 16 56) ? ? SUSPENDED
-Penetrator (Stake Gun).
+Penetrator (Super Stakegun).
 
 Keys:
 "target/2/3/4/k" - entity to trigger when picked up
@@ -254,7 +254,7 @@ Keys:
 "count" - limit number of times to respawn
 */
 /*FGD
-@PointClass base(Weapon) model({ "path": ":progs/g_nail2.mdl" }) = weapon_supernailgun : "Perforator (Super Nailgun).
+@PointClass base(Weapon) model({ "path": ":progs/g_nail2.mdl" }) = weapon_supernailgun : "Penetrator (Super Stakegun).
 30 nails." []
 */
 void() weapon_supernailgun =
@@ -499,7 +499,7 @@ Keys:
             spawnflags & 1 ->   ":maps/b_nail1.bsp",
                                 ":maps/b_nail0.bsp"
         }}
-    ) = item_spikes : "Nailgun/Perforator ammo, 25/50" []
+    ) = item_spikes : "Stakegun/Penetrator ammo, 25/50" []
 */
 void() item_spikes =
 {
@@ -517,7 +517,7 @@ void() item_spikes =
 		setmodel (self, "progs/m_nails1.mdl");
 	}
 	self.weapon = 2;
-	self.netname = "nails";
+	self.netname = "stakes";
 	StartAmmo();
 }
 
