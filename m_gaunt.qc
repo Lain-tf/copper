@@ -1,5 +1,15 @@
 /*==============================================================================
  GAUNT (Originally from Quoth - Kell/Necros/Preach)
+
+ Rebuilt from the ground-up for use in Snack Pack 3 by Fairweather.
+ Utilized the frames from the AD version, thanks to SimonOC,
+ but the rest is mainly either original code, or cannibalized
+ from other places in the Copper mod.
+
+ The only difference between this monster and the one featured in Quoth
+ were fitting it within the new Nightmare mode framework (Copper 1.3 Nightmare)
+ and the cutting of the Perch ability due to time constraints.
+ Otherwise, this can be considered functionally identical.
 ==============================================================================*/
 
 // (000) Perched on a ledge (idling)
