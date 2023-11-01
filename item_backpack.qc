@@ -91,7 +91,7 @@ void() BackpackTouch =
 	{
 		if (acount) sprint(other, ", ");
 		acount = 2;
-		print_quant(self.ammo_nails, "nail", other);
+		print_quant(self.ammo_nails, "stake", other);
 	}
 	if (self.ammo_rockets)
 	{
