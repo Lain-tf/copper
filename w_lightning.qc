@@ -84,8 +84,15 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 	vector left, end;
 	entity targ;
 	// fix for wonky 'three beams' bug:
-	left = normalize(limit - start) * 12;
+	left = limit - start;
 	left = Vector(0 - left_y, left_x, 0);
+	if (left) {
+		left = normalize(left) * 12;
+	} else {
+		// if beam is straight up or down, take the orientation from the source entity
+		makevectors(from.angles);
+		left = v_right * -12;
+	}
 
 	traceline2(start, limit, from, 0);
 	end = trace_endpos;
@@ -105,8 +112,8 @@ void(vector start, vector limit, entity from, float damage) LightningBeam =
 			if (self.classname == "player")
 			{
 				// have the arc pull into the target a little
-				if (targ.maxs_x <= 32)	// not for cthon/etc, he's too big
-					end = (trace_endpos + targ.origin) * 0.5;
+				//if (targ.maxs_x <= 32)	// not for cthon/etc, he's too big
+				//	end = (trace_endpos + targ.origin) * 0.5;
 				if (targ.classname == "player")
 					targ.velocity_z = targ.velocity_z + 400;
 				
@@ -320,7 +327,7 @@ void() W_FireLightning =
 		cells = self.ammo_cells;
 		self.ammo_cells = 0;
 		W_SetCurrentAmmo ();
-		T_RadiusDamage (self, self, 35*cells, world);
+		T_RadiusDamage (self, self, 35*cells, world, DMGTYPE_EXPLOSION);
 		return;
 	}
 
@@ -342,7 +349,7 @@ void() W_FireLightning =
 
 	ClearMultiDamage();
 	LightningBeam(org, trace_endpos + v_forward * 8, self, 30 * haste_factor);
-	ApplyMultiDamage();
+	ApplyMultiDamage(DMGTYPE_LIGHTNING);
 	
 /*	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_LIGHTNING2);	// kabewm

@@ -230,7 +230,7 @@ float() multi_trigger =
 	
 	// sub_usetargets plays the sound if there's a message, doesn't if not
 	if (self.noise != string_null)
-		sound_delayed (self, self.noise, 1, ATTN_NORM, self.delay);
+		sound_delayed (self, CHAN_VOICE, self.noise, 1, ATTN_NORM, self.delay);
 
 // don't trigger again until reset
 	self.takedamage = DAMAGE_NO;
@@ -642,7 +642,7 @@ void() target_secret_check =
 	if (w)
 	{
 		if (w.type == "ammo" || w.type == "armor" || ( w.type == "health" && !(w.spawnflags & 2)) )
-			objerror("target_secret targeted by something the player might not be able to grab\n");
+			dprint("\bwarning:\b target_secret targeted by something the player might not be able to grab\n");
 	}
 }
 
@@ -754,54 +754,18 @@ void() trigger_secret_box =
 /*
 ==============================================================================
 trigger_setskill & target_setskill
-
-I have a trigger_ and a target_ for setskill and route both through one function,
-so that the skill teleporters themselves in the start map can be the 'barrier'
-that changes the skill. nightmare changes max health, and I want players to see 
-it change on the hud the instant they make their 'selection' by entering the 
-teleporter, not at the start of the next map.
 ==============================================================================
 */
 
-void(float h) skill_adjust_health =
+void(string sk) skill_set =
 {
-	entity p;
-	p = nextent(world);
-	while (p.flags & FL_CLIENT)
-	{
-		p.max_health = h;
-		if (p.health > p.max_health)
-		{
-			p.deathtype = "noarmor";	// terrible
-			T_Damage(p, world, world, p.health - p.max_health);
-			p.deathtype = "";
-		}
-		else if (p.health < p.max_health)
-		{
-			T_Heal(p, p.max_health - p.health, FALSE);
-		}
-		p = nextent(p);
-	}
-}
-
-void(entity e, string sk) skill_set =
-{
-	if (sk == "0" || sk == "1" || sk == "2" || sk == "")
-	{
-		skill_adjust_health(100);
-	}
-	else if (sk == "3")
-	{
-		skill_adjust_health(50);
-	}
-
 	cvar_set ("skill", sk);
 	skill = cvar("skill");
 }
 
 void() target_setskill_use
 {
-	skill_set(activator, self.netname);
+	skill_set(self.netname);
 }
 
 void() target_setskill_think
@@ -871,7 +835,7 @@ void() trigger_skill_touch =
 	if (!CheckValidTouch()) return;
 	if (self.customflags & CFL_LOCKED) return;
 	
-	skill_set(other, self.message);
+	skill_set(self.message);
 }
 
 /*QUAKED trigger_setskill (.5 .0 .5) ? ? ? TRIGGER_FIRST
@@ -1045,7 +1009,7 @@ void() trigger_hurt =
 		self.delay = 1;
 }
 
-/*QUAKED trigger_hurt_box (.5 .0 .5) (-8 -8 -8) (8 8 8) ? ? TRIGGER_FIRST
+/*QUAKED trigger_hurt_box (.5 .0 .5) (-8 -8 -8) (8 8 8) KILL BIOSUIT TRIGGER_FIRST NO_MONSTERS
 Any creature touching this will be damaged.
 Quoth2-style edict-saving bounding box trigger: define size with 'size', and the trigger volume will be that size centered on the trigger's origin.
 Resist the urge to put a tiny one of these on every light_flame.
@@ -1055,7 +1019,10 @@ Keys:
 "delay" frequency of damage in seconds, default 1. use -1 for maximum host_framerate pain spam.
 
 Flags:
+"kill" always do enough damage to kill instantly
+"biosuit" the biosuit protects against this trigger
 "trigger_first" won't be touchable until triggered once by something else
+"no_monsters" trigger will only hurt players
 */
 /*FGD
 @PointClass base(Hurt,Bounds) = trigger_hurt_box : "Trigger: Hurt. Any creature touching this will be damaged.
@@ -1138,6 +1105,14 @@ void() trigger_push_touch =
 		SUB_Remove();
 }
 
+void() trigger_push_find =
+{
+	entity n;
+	n = find(world, targetname, self.target);
+	if (!n) return;
+	
+	self.movedir = normalize(n.origin - BoundsCenter(self));
+}
 
 /*QUAKED trigger_push (.5 .0 .5) ? PUSH_ONCE ADD_VEL TRIGGER_FIRST TUNNEL
 Pushes the player, grenades, and gibs.
@@ -1187,6 +1162,11 @@ void() trigger_push =
 	self.touch = trigger_push_touch;
 	if (!self.speed)
 		self.speed = 1000;
+	if (self.target != string_null)
+	{
+		self.think = trigger_push_find;
+		self.nextthink = time + 0.1;
+	}
 }
 
 

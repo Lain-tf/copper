@@ -62,7 +62,7 @@ void(entity to, string tname) SUB_AddTarget =
 	else if (to.target4 == string_null)
 		to.target4 = tname;
 	else
-		dprint3("Warning: no room to add target to ", to.classname, "\n");
+		dprint3("\bwarning:\b no room to add target to ", to.classname, "\n");
 }
 
 /*
@@ -85,7 +85,7 @@ void(entity to) SUB_MergeTargets =
 	if (self.killtarget != string_null)
 	{
 		if (to.killtarget != string_null)
-			dprint3("Warning: no room to add killtarget to ", to.classname, "\n");
+			dprint3("\bwarning:\b no room to add killtarget to ", to.classname, "\n");
 		else
 			to.killtarget = self.killtarget;
 	}		
@@ -230,6 +230,37 @@ void(entity t) SUB_UseEntTargets =
 
 /*
 =============
+SUB_UseTargetsAlt
+
+for selective use by alternate targeters
+===============
+*/
+float(.string fld) SUB_UseTargetsAlt =
+{
+	if (!(self.spawnflags & SPAWN_ALT_TARG))
+		return FALSE;
+	if (self.fld == string_null)
+		return TRUE;
+	if (!self.delay)
+	{
+		SUB_UseTargetsByField(fld);
+		return TRUE;
+	}
+
+	// create a temp object to fire at a later time
+	entity t;
+	t = spawn();
+	t.classname = "DelayedUse";
+	t.nextthink = time + self.delay;
+	t.think = SUB_UseTargetsGo;
+	t.enemy = activator;
+	t.message = self.message;
+	t.target = self.fld;
+	return TRUE;
+}
+
+/*
+=============
 SUB_UseTargetsByField
 ===============
 */
@@ -260,7 +291,7 @@ void(.string fld) SUB_UseTargetsByField =
 			}
 		} while ( 1 );
 	}
-	dprint3("WARNING: circular tname reference: ", curTgt, ", skipping\n");
+	dprint3("\bwarning:\b circular tname reference: ", curTgt, ", skipping\n");
 	curTgt = string_null;
 }
 
@@ -308,7 +339,8 @@ float(float hush) SUB_UseCheck =
 	{
 		//error("activator was null. globals are bad, kids.\n");
 		//return;
-		dprint3("WARNING: Activator was null!\nuser (self): ", self.classname, "\n");
+		dprint3("  \bwarning:\b  Activator was null!\n  user (self): ", self.classname, ", using player 1\n");
+		activator = nextent(world);
 	}
 	
 	if (self.delay)
@@ -334,12 +366,12 @@ void() SUB_UseTargetsGo =
 	if (self.killtarget != string_null)
 	{
 		if (self.killtarget == self.targetname)
-			dprint5("WARNING: ", self.classname, " killtargets itself! (", self.killtarget, ")\n");
+			dprint5("\bwarning:\b ", self.classname, " killtargets itself! (", self.killtarget, ")\n");
 		if (self.killtarget == self.target ||
 			self.killtarget == self.target2 ||
 			self.killtarget == self.target3 ||
 			self.killtarget == self.target4 )
-			dprint5("WARNING: ", self.classname, " targets and killtargets the same targetname (", self.killtarget, ")\n");
+			dprint5("\bwarning:\b ", self.classname, " targets and killtargets the same targetname (", self.killtarget, ")\n");
 	}
 	
 	// makes more logical sense to do killtarget after targets, but it was 
@@ -383,13 +415,10 @@ void() SUB_UseRandomTarget =
 		SUB_UseTargetsDelay(DelayThinkRandom);
 		return;
 	}
-
+	
 	// fire targets
-	if (self.target != string_null || 
-		self.target2 != string_null ||
-		self.target3 != string_null ||
-		self.target4 != string_null	
-	) {
+	if (self.cnt)	// set by SUB_CountTargets
+	{
 		randy = ceil( random() * self.cnt );
 		act = activator;
 		t = world;
@@ -431,7 +460,7 @@ void() SUB_UseRandomTarget =
 	}
 	
 	// kill the killtargets
-	if (self.killtarget != string_null)
+	if (self.frags)	// set by SUB_CountTargets
 	{
 		randy = ceil( random() * self.frags );
 		t = world;
@@ -515,6 +544,7 @@ float(entity tg) SUB_VerifyTrigger =
 		//tg.classname == "path_corner" ||	// trains do fire targets
 		tg.classname == "trap_shooter" ||
 		tg.classname == "target_drop" ||
+		tg.classname == "target_fade" ||
 		tg.classname == "trap_spikeshooter")
 		return FALSE;
 		

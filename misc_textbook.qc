@@ -377,7 +377,7 @@ void() info_book_touch =
 {
 	local float book_yaw, book_angle1, book_angle2, play_yaw, play_angle;
 
-	if (intermission_running) return;		// intermission or finale
+	if (intermission) return;		// intermission or finale
 	if ( !(other.flags & FL_CLIENT) ) return;
 	if (other.health < 1) return;
 

@@ -32,11 +32,25 @@ void(vector start, vector end, entity ignore, float traceflags) traceline2 =
 	float	t_inopen = -1;
 	float	t_inwater = -1;
 
-	if (trace_debug) dprint5("tracing from ", vtos(src), " to ", vtos(end), "\n");
+	if (trace_debug)
+	{
+		dprint("tracing from ");
+		dprint_vector(src);
+		dprint( " to ");
+		dprint_vector(end);
+		dprint("\n");
+	}
 
 	// check for trace-through cases and repeat
 	do {
-		if (trace_debug) dprint5("  trace: ", vtos(src), " to ", vtos(end), "\n");
+		if (trace_debug)
+		{
+			dprint("  trace ");
+			dprint_vector(src);
+			dprint( " to ");
+			dprint_vector(end);
+			dprint("\n");
+		}
 		traceline (src, end, nomonsters, ig);
 		
 		// preserve the accuracy of the trace result flags
@@ -50,7 +64,7 @@ void(vector start, vector end, entity ignore, float traceflags) traceline2 =
 			if ( trace_ent.deadflag == DEAD_DYING || 	// don't let guys in death frames who aren't nonsolid yet act like solid walls to bullets
 				trace_ent == ignore || 					// always ignore the original ignore ent on future loops
 				trace_ent.movetype == MOVETYPE_NOCLIP || // don't shoot noclipping players
-				invis_miss_check(other,start,end-start) || 
+				invis_miss_check(trace_ent, start, end - start) || 
 				trace_ent.notrace)						// flag to make things game-functionally nonsolid (monsterclip/etc)
 			{
 				// if two entities that are both to be ignored are touching, the trace will
@@ -409,44 +423,6 @@ entity(vector org, vector vel) launch_nail =
 	spike.dmg = 9;
 	
 	return spike;
-}
-
-/*
-========
-launch_knightspike
-hellknight spreadfire
-========
-*/
-entity(vector org, vector vel) launch_knightspike =
-{
-	entity spike;
-	
-	spike = launch_projectile(org, vel, "knightspike");	// FLYMISSILE
-	spike.touch = spike_touch;
-	SUB_ChangeModel (spike, "progs/k_spike.mdl");
-	
-	spike.dmg = 8;
-	
-	return spike;
-}
-
-
-/*
-========
-launch_wizspike
-scrag spit, used by scrags and nouronihar
-========
-*/
-entity(vector org, vector vel) launch_wizspike =
-{
-	entity spike;
-	
-	spike = launch_projectile(org, vel, "wizspike");	// FLYMISSILE
-	spike.touch = spike_touch;
-	spike.dmg = 9;
-	SUB_ChangeModel (spike, "progs/w_spike.mdl");
-	
-	return spike;	
 }
 
 /*

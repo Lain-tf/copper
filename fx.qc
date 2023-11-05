@@ -102,7 +102,7 @@ entity(vector org, float damg, entity parent, float multi) kaboom =
 	boom.nextthink = time;
 	boom.think = BecomeExplosion;
 	
-	if (damg > 0) T_RadiusMultiDamage (boom, parent, damg, boom, multi);
+	if (damg > 0) T_RadiusDamage (boom, parent, damg, boom, DMGTYPE_EXPLOSION);
 	
 	return boom;
 }
@@ -157,7 +157,7 @@ float() particlefield_should_sleep =
 	for (float i = 0; i < clients; i++)
 	{
 		client = nextent(client);
-		if (vlen(self.origin - client.origin) < self.distance)
+		if (vlen(BoundsCenter(self.buddy) - client.origin) < self.distance)
 		{
 			return FALSE;
 		}
@@ -208,6 +208,7 @@ void(float num) particlefield_sweep =
 		if (self.spawnflags & PFIELD_BURST)
 		{
 			self.state = 0;
+			self.buddy = world;
 			return;	// done with a loop
 		}
 		frac = 0;
@@ -239,7 +240,7 @@ void(float num) particlefield_sweep =
 		}
 
 		// add self.origin and go
-		particle (porg + self.origin, particlefield_dir(porg), self.health, self.speed2);
+		particle (porg + BoundsCenter(self.buddy), particlefield_dir(porg), self.health, self.speed2);
 	}
 }
 
@@ -254,7 +255,7 @@ void(float num) particlefield_burst =
 		org = Vector(crandom(), crandom(), crandom());
 		org2 = vec_scale(org, self.size);
 		
-		particle (org2 + self.origin, particlefield_dir(org), self.health, self.speed2);
+		particle (org2 + BoundsCenter(self.buddy), particlefield_dir(org), self.health, self.speed2);
 	}
 }
 
@@ -269,13 +270,30 @@ void() particlefield_think =
 		self.nextthink = time + self.wait;
 }
 
+void() particlefield_get_spot =
+{
+	if (self.buddy) return;
+	
+	if (self.target == string_null)
+	{
+		self.buddy = self;
+	}
+	else
+	{
+		self.buddy = find(world, targetname, self.target);
+		if (!self.buddy) self.buddy = self;
+	}
+}
+
 void() particlefield_use =
 {
 	if (self.spawnflags & PFIELD_BURST)
 	{
+		particlefield_get_spot();
 		if (self.finaldest == VEC_ORIGIN)
 		{
 			particlefield_burst(self.speed);
+			self.buddy = world;
 		}
 		else
 		{
@@ -289,7 +307,15 @@ void() particlefield_use =
 	
 	self.state = !self.state;
 	if (self.state)
+	{
+		particlefield_get_spot();
+		self.think = particlefield_think;
 		self.nextthink = time + self.wait;
+	}
+	else
+	{
+		self.buddy = world;
+	}
 }
 
 
@@ -341,6 +367,7 @@ void() particlefield_use =
 	wait(string) : "Interval" : "0.1"
 	velocity(string) : "Direction of optional sweep effect (x y z)"
 	distance(integer) : "Sleep if all players are further than this distance"
+	target(target_source) : "Optional name of entity to center effect on"
 ]
 
 @Pointclass base(Targetname, Appearflags, Bounds, Particlefield) size(16 16 16) = misc_particlefield_box : 
@@ -441,9 +468,11 @@ void() misc_particlefield_box =
 		}
 	}
 
-	self.state = self.spawnflags & PFIELD_START_ON;
-	if (self.state)
+	if (self.spawnflags & PFIELD_START_ON)
+	{
+		self.think = particlefield_use;
 		self.nextthink = time + self.wait;
+	}
 	
 	// innie and outie cancel
 	if (self.spawnflags & (PFIELD_INWARD | PFIELD_OUTWARD) == (PFIELD_INWARD | PFIELD_OUTWARD))
@@ -501,8 +530,8 @@ void(entity targ, float mag) screenshake_go =
 	vector kick;
 	
 	// punchangle doesn't work when we're in an intermission camera, so do
-	// this with actual angle offsets when intermission_running > 0
-	if (intermission_running)
+	// this with actual angle offsets when intermission > 0
+	if (intermission)
 	{
 		kick = Vector(crandom(),crandom(),crandom());
 		kick *= clamp(mag,1,4);	// don't let vp wander too far, it might clip
@@ -553,7 +582,7 @@ void() screenshake_think =
 		while (t.classname == "player")
 		{
 			t.v_angle_z = 0;	// unroll
-			if (intermission_running || t.health <= 0)
+			if (intermission || t.health <= 0)
 				t.view_ofs_z = 0;
 			else
 				t.view_ofs_z = 22;
@@ -640,7 +669,7 @@ void() target_screenshake =
 	if (!self.strength)
 	{
 		if (self.volume)
-			objerror("convert target_screenshake to .strength please");
+			dprint("\bwarning:\b convert target_screenshake to .strength please");
 		
 		self.strength = 1;
 	}
@@ -672,7 +701,7 @@ void(float attack, float sustain, float release, float str) screenshake_oneshot 
 
 void() target_explosion_go =
 {
-	if (self.dmg) T_RadiusMultiDamage (self, self.enemy, self.dmg, self, 0);
+	if (self.dmg) T_RadiusDamage (self, self.enemy, self.dmg, self, DMGTYPE_EXPLOSION);
 	
 	if (self.spawnflags & 1)
 	{
@@ -694,7 +723,7 @@ void() target_explosion_use =
 	self.enemy = activator;
 	
 	playercount_convert(count);
-	if (self.count == 1 && self.delay == 0)
+	if (self.count == 1 && self.delay == 0 && self.rand == 0)
 	{
 		bewm = spawn();
 		if (self.size != VEC_ORIGIN)
@@ -776,7 +805,7 @@ void() target_telefog_use =
 	vector offset;
 	
 	playercount_convert(count);
-	if (self.count == 1 && self.delay == 0)
+	if (self.count == 1 && self.delay == 0 && self.rand == 0)
 	{
 		tfog = spawn();
 		if (self.size != VEC_ORIGIN)
@@ -933,6 +962,15 @@ entity(vector org) bubble_spawn =
 
 //============================================================================
 
+// back compat named function, mostly for sock maps
+void() make_bubbles =
+{
+	bubble_spawn(self.origin);
+	self.nextthink = time + random() + 0.5;
+	self.think = make_bubbles;
+};
+
+
 void() air_bubbles_make =
 {
 	vector org;
@@ -1023,6 +1061,10 @@ void() air_bubbles =
 	self.rand = zeroconvertdefault(self.rand, 1);
 	
 	self.think = air_bubbles_think;
+	if (self.targetname == string_null && (self.spawnflags & 1))
+	{
+		dprint3("\bwarning:\b air_bubbles at ", vtos(self.origin), " with start_off and no targetname\n");
+	}
 	if (self.targetname != string_null)
 	{
 		self.use = air_bubbles_use;
@@ -1030,7 +1072,509 @@ void() air_bubbles =
 		if (!self.state)
 			return;
 	}
+	else
+		self.state = 1;
+
 	if (self.spawnflags & 8)
 		return;
 	self.nextthink = time + self.wait;
+}
+
+
+// ==============================================================
+
+void() target_debris_use =
+{
+	float i, tries, spd;
+	entity chunk;
+	vector org, dir;
+	
+	if (self.noise != string_null)
+		sound (self, CHAN_VOICE, self.noise, self.volume, self.distance);
+
+	for (i = 0; i < self.count; i++)
+	{
+		// keep debris out of the void
+		while (tries < 32)
+		{
+			org_x = (random()-0.5) * self.size_x + self.origin_x;
+			org_y = (random()-0.5) * self.size_y + self.origin_y;
+			org_z = (random()-0.5) * self.size_z + self.origin_z;
+			
+			if (pointcontents(org) == CONTENT_SOLID)
+			{
+				tries += 1;
+				if (tries == 32) return;
+				continue;
+			}
+			break;
+		}
+
+		dir_x = crandom() + self.mangle_x * 2;
+		dir_y = crandom() + self.mangle_y * 2;
+		dir_z = crandom() + self.mangle_z * 2;
+		
+		spd = self.speed * (0.8 + 0.4 * random());
+		
+		chunk = toss_projectile(org, normalize(dir) * spd, "debris");
+		chunk.type = "debris";
+		
+		// loop through 3 models if we have 3, alternate 2 if we 
+		// have 2, or always use the only one if we have 1
+		if (self.cnt == 3 && i % self.cnt == 2)
+			setmodel(chunk, self.model3);
+		else if (self.cnt >= 2 && i % self.cnt == 1)
+			setmodel(chunk, self.model2);
+		else if (i % self.cnt == 0)
+			setmodel(chunk, self.model);
+		
+		setsize(chunk, VEC_ORIGIN, VEC_ORIGIN);
+		
+		chunk.frame = self.frame;
+		chunk.alpha = self.alpha;
+		chunk.skin = self.skin;
+		chunk.avelocity = Vector(random(),random(),random()) * 400;
+		chunk.angles = Vector(random(),random(),random()) * 120;
+
+		chunk.lifetime_finished = time + 6 + random() * 6;
+	}
+}
+
+/*QUAKED target_debris (0.5 0.5 0.5) (-8 -8 -8) (8 8 8)
+emitter of chunks of debris
+
+Keys
+"count" number of chunks to emit, default 3
+"delay" time to wait before first emit
+"speed" speed of chunks
+"mangle" override chunk direction, defaults to omni
+"size" random location of chunks within bounds of this size
+
+"model"	specify a different model for debris (use "model2" and "model3" for variety)
+"frame"	will be copied to spawned chunks
+"skin"	will be copied to spawned chunks
+"alpha"	will be copied to spawned chunks
+*/
+/*FGD
+@PointClass base(Appearflags, Targetname) size(16 16 16) color(180 180 180) = target_debris : "Emits debris chunks"
+[
+	count(integer) : "Number of chunks" : 3
+	delay(string) : "Delay before first emit" : "0"
+	size(string) : "Random location within bounds" : "0 0 0"
+	speed(integer) : "Speed of chunks" : 128
+	mangle(string) : "Specify chunk direction" : "0 0 0"
+	frame(integer) : "Set frame on all debris" : 0
+	skin(choices) : "Set skin on all debris" =
+	[
+		0 : "Wizbrick brown"
+		1 : "Plaster brown"
+		2 : "Runic grey"
+		3 : "Rusty metal"
+		4 : "Gloom red"
+		5 : "Swampy green"
+		6 : "Elder blue"
+		7 : "Hottt"
+	]
+	alpha(string) : "Set alpha on all debris" : "1"
+	model(string) : "Choose a model for debris" : ""
+	model2(string) : "Choose a second model for debris" : ""
+	model3(string) : "Choose a third model for debris" : ""
+	noise(string) : "Play a sound when triggered" : ""
+]
+*/
+void() target_debris =
+{
+	if (!SUB_ShouldSpawn()) return;
+	self.speed = zeroconvertdefault(self.speed, 128);
+	self.count = zeroconvertdefault(self.count, 3);
+	self.use = target_debris_use;
+	
+	if (!self.volume)
+		self.volume = 1;
+	if (!self.distance)
+		self.distance = 1;
+		
+	if (self.mangle != VEC_ORIGIN)
+	{
+		if (is_angular(self.mangle))
+		{
+			makevectors(self.mangle);
+			self.mangle = v_forward;
+		}
+		else
+			self.mangle = normalize(self.mangle);
+	}
+	
+	if (self.noise != string_null)
+		precache_sound(self.noise);
+
+	if (self.model != string_null)
+	{
+		precache_model(self.model);
+		self.cnt = 1;
+		if (self.model2 != string_null)
+		{
+			precache_model(self.model2);
+			self.cnt = 2;
+			if (self.model3 != string_null)
+			{
+				precache_model(self.model3);
+				self.cnt = 3;
+			}
+		}
+	}
+	else
+	{
+		self.cnt = 3;
+		self.model = "progs/debris1.mdl";
+		self.model2 = "progs/debris2.mdl";
+		self.model3 = "progs/debris3.mdl";
+		
+		precache_model("progs/debris1.mdl");
+		precache_model("progs/debris2.mdl");
+		precache_model("progs/debris3.mdl");
+	}
+}
+
+// ==============================================================
+
+/*
+- target_fade
+	- sets alpha on entities, or style on lights
+	- over time or distance from activator
+	- min/max alpha, min/max distance
+	- exclude axes
+	- alt target: fade target, 2 on start, 3 on finish, 4 on return
+*/
+
+// targetname scanning 20 times a frame is a little rude, so we check for
+// targets up front and remember them
+void(entity e) target_fade_add =
+{
+	entity fader;
+	if (self.enemy)
+	{
+		// if this fader targets more than one entity, we need to list them somehow.
+		// the quakeC way is a linked list, but multiple target_fades could affect the 
+		// same entity, and even with our own .entity field this would clash. we have
+		// to create a chain of dummy entities that just serve to keep the ref instead.
+		fader = spawn();
+		fader.classname = "fader";
+		fader.enemy = e;
+		fader.chain = self.chain;
+		self.chain = fader;
+	}
+	else
+	{
+		self.enemy = e;
+	}
+}
+
+void() target_fade_find =
+{
+	if (self.enemy) return;
+	
+	entity tf = world;
+	if (self.target != string_null) do {
+		tf = find(tf, targetname, self.target);
+		if (!tf) break;
+		target_fade_add(tf);
+	} while (1);
+
+	if (!(self.spawnflags & SPAWN_ALT_TARG))
+	{
+		if (self.target2 != string_null) do {
+			tf = find(tf, targetname, self.target2);
+			if (!tf) break;
+			target_fade_add(tf);
+		} while (1);
+		if (self.target3 != string_null) do {
+			tf = find(tf, targetname, self.target3);
+			if (!tf) break;
+			target_fade_add(tf);
+		} while (1);
+		if (self.target4 != string_null) do {
+			tf = find(tf, targetname, self.target4);
+			if (!tf) break;
+			target_fade_add(tf);
+		} while (1);
+	}
+}
+
+void() target_fade_done =
+{
+	entity t = self.chain;
+	entity ot;
+	while (t)
+	{
+		ot = t;
+		t = t.chain;
+		remove(ot);
+	}
+	self.enemy = world;
+	self.chain = world;
+}
+
+void(float f) target_fade_set =
+{
+	if (f == 0) f = -1;
+	entity t = self;
+	entity e;
+	while (t)
+	{
+		e = t.enemy;		
+		e.alpha = f;
+		if ((e.style || e.switchshadstyle))
+		{
+			if (e.alpha2)
+				bmodel_lightstyle(e, zeroconvert(e.alpha2));
+			else if (e.style)
+				lightstyle(e.style, light_str(f));
+		}	
+		t = t.chain;
+	}
+	
+	if (self.style)
+		lightstyle(self.style, light_str(f));
+}
+
+// fade over distance stuff ===========
+
+void() target_fade_dist =
+{
+	target_fade_find();
+	
+	float dist, f;
+	vector dir;
+	
+	dir = vec_scale(activator.origin - self.origin, self.dest);
+
+	if (self.movedir)
+	{
+		dist = dir * self.movedir;
+		if (self.spawnflags & 1)
+			dist = max(0,dist);
+		else
+			dist = fabs(dist);
+	}
+	else
+		dist = vlen(dir);
+	
+	// state 0: outside
+	// state 1: entered transition
+	// state 2: entered center
+	// state 3: re-entered transition (transition after center)
+	// state 0: outside again
+	f = (dist - self.lip) / self.distance;
+	if (f > 1)	// outside
+	{
+		f = 1;
+		if (self.state == 3 || self.state == 1)
+		{
+			self.state = 0;
+			if (self.noise4 != string_null) sound (self, CHAN_VOICE, self.noise4, self.volume, ATTN_NORM);
+			SUB_UseTargetsAlt(target4);
+		}
+	}
+	else if (f < 0)	// center
+	{
+		f = 0;
+		if (self.state == 1)
+		{
+			self.state = 2;
+			if (self.noise2 != string_null) sound (self, CHAN_VOICE, self.noise2, self.volume, ATTN_NORM);
+			SUB_UseTargetsAlt(target3);
+		}
+	}
+	else	// transition
+	{
+		if (self.state == 0)
+		{
+			self.state = 1;
+			if (self.noise != string_null) sound (self, CHAN_VOICE, self.noise, self.volume, ATTN_NORM);
+			SUB_UseTargetsAlt(target2);
+		}
+		else if (self.state == 2)
+		{
+			self.state = 3;
+			if (self.noise3 != string_null) sound (self, CHAN_VOICE, self.noise3, self.volume, ATTN_NORM);
+		}
+
+	}
+	f = lerp(self.alpha, self.alpha2, 1 - f);
+	
+	target_fade_set(f);
+	
+	// clean up/refresh our target list if not being used
+	self.nextthink = time + 1;
+	self.think = target_fade_done;
+}
+
+// fade over time stuff ===========
+
+void() target_fade_think =
+{
+	float f, a;
+	
+	if (time >= self.pain_finished)
+	{
+		f = 1;
+		self.use = target_fade_time;
+		if (self.state)
+			if (self.noise2 != string_null) sound (self, CHAN_VOICE, self.noise2, self.volume, ATTN_NORM);
+		else
+			if (self.noise4 != string_null) sound (self, CHAN_VOICE, self.noise4, self.volume, ATTN_NORM);
+	}
+	else
+	{
+		// don't allow retriggering before the blend is done
+		self.use = SUB_Null;
+		self.nextthink = time + 0.05;
+		if (self.state && self.speed)
+			f = 1 - (self.pain_finished - time) / self.speed;
+		else if (!self.state && self.speed2)
+			f = 1 - (self.pain_finished - time) / self.speed2;
+		else
+			f = 1;
+	}
+
+	if (self.state == 0)
+		f = 1 - f;
+	
+	if (f == 1)
+		a = self.alpha2;
+	else if (f == 0)
+		a = self.alpha;
+	else
+		// in transition, blend proportionally
+		a = lerpHermite(self.alpha, self.alpha2, f);
+	
+	target_fade_set(a);
+	if (self.use == target_fade_time)
+	{
+		target_fade_done();
+	}
+}
+
+void() target_fade_time =
+{
+	if (activator.classname != "player") return;
+	
+	if (!(self.spawnflags & 1))
+		self.state = 1 - self.state;
+	
+	if (self.state)
+	{
+		if (self.noise != string_null) sound (self, CHAN_VOICE, self.noise, self.volume, ATTN_NORM);
+		self.pain_finished = time + self.delay + self.speed;
+	}
+	else
+	{
+		if (self.noise3 != string_null) sound (self, CHAN_VOICE, self.noise3, self.volume, ATTN_NORM);
+		self.pain_finished = time + self.delay + self.speed2;
+	}
+	
+	target_fade_find();
+	
+	if (self.delay > 0)
+		self.nextthink = time + self.delay;
+	else
+		target_fade_think();
+}
+
+/*QUAKED target_fade (.5 .5 .2) (-8 -8 -8) (8 8 8) ONE_WAY REVERSE BY_DISTANCE
+Changes the alpha of its targets over time from 'alpha' to 'alpha2'. Triggering again will fade it back, unless ONE_WAY is set.
+Set REVERSE to swap the values.
+
+If this targets brushmodels with switchable shadows or lightstyles, the lighting will fade appropriately.
+
+"alpha"		starting translucency. -1 for clear
+"alpha2"	ending translucency. -1 for clear
+"delay"		pause before beginning to blend
+"speed"		time to spend blending, -1 for instant.
+"speed2"	time to spend blending back, if different than "speed". -1 for instant.
+"style"		fade this lightstyle directly
+"noise"		sound to play on begin fade
+"noise2"	sound to play on end fade
+"noise3"	sound to play on begin reverse fade
+"noise4"	sound to play on end reverse fade
+
+If BY_DISTANCE is checked, it will set alpha immediately based on how far the activator is from its origin. 
+"distance"	max distance beyond which alpha will be set to 'alpha'
+"lip"		min distance within which alpha will be set to 'alpha2'
+"angle/angles"	constrain distance measurement to this axis (like a fogblend)
+ONE_WAY in distance mode constrains motion along 'angle' to the positive direction, instead of symmetrically.
+"dest"		alternate distance constraint (scale position by these three values)
+
+Alt Target Pattern: in distance mode, target is fading object, target2 on begin fade (enter distance range), target3 on complete fade (enter lip range), target4 on exit distance range
+*/
+/*FGD
+@PointClass base(Appearflags, Targetname, Target, AltTarget) color(128 128 50) = target_fade : 
+"Target: Fade
+Changes the alpha of its targets over time from 'alpha' to 'alpha2'.
+If this targets brushmodels with switchable shadows or lightstyles, the lighting will fade appropriately.
+If 'Blend By Distance' is set, it will set alpha immediately based on how far the activator is from its origin.
+'One Way' in distance mode constrains motion along 'angle' to the positive direction, instead of symmetrically.
+
+Alt Target Pattern: in distance mode, target is fading object, target2 on begin fade (enter distance range), target3 on complete fade (enter lip range), target4 on exit distance range" 
+[
+	spawnflags(flags) = [
+		1 : "One Way" : 0
+		2 : "Reverse alpha/alpha2" : 0
+		2 : "Blend By Distance" : 0
+	]
+	delay(string) : "Pause before starting blend"
+	alpha(string) : "Start alpha" : "1.0"
+	alpha2(string) : "End alpha" : "0.0"
+	speed(string) : "Time to blend (-1 for instant)"
+	speed2(string) : "Time to blend back, if different (-1 for instant)"
+	distance(integer) : "Max distance for 'alpha'"
+	lip(integer) : "Min distance for 'alpha2'"
+	angle(integer) : "Constrain distance to this axis"
+	noise(string) : "Sound to play on begin fade"
+	noise2(string) : "Sound to play on end fade"
+	noise3(string) : "Sound to play on begin reverse fade"
+	noise4(string) : "Sound to play on end reverse fade"
+]
+*/
+void() target_fade =
+{
+	if (!SUB_ShouldSpawn()) return;
+
+	self.state = 0;
+	
+	self.alpha = zeroconvertdefault(self.alpha, 1);
+	self.alpha2 = zeroconvert(self.alpha2);
+	
+	if (!self.volume) self.volume = 1;
+	if (self.noise != string_null) precache_sound(self.noise);
+	if (self.noise2 != string_null) precache_sound(self.noise2);
+	if (self.noise3 != string_null) precache_sound(self.noise3);
+	if (self.noise4 != string_null) precache_sound(self.noise4);
+	
+	float ta;
+	if (self.spawnflags & 2)
+	{
+		ta = self.alpha;
+		self.alpha = self.alpha2;
+		self.alpha2 = ta;
+		self.spawnflags -= 2;
+	}
+
+	if ((self.spawnflags & 4) && self.distance > 0)
+	{
+		if (!self.dest) self.dest = '1 1 1';
+		self.use = target_fade_dist;
+		self.distance -= self.lip;
+		if (self.angles)
+			SetMovedir();
+	}
+	else
+	{
+		self.speed = zeroconvertdefault(self.speed, 1);
+		self.speed2 = zeroconvertdefault(self.speed2, self.speed);
+
+		self.use = target_fade_time;
+		self.think = target_fade_think;
+	}
 }

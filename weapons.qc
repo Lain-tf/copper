@@ -258,7 +258,9 @@ void() W_ResetWeaponState =
 
 float(float w) W_RankForWeapon =
 {
-	if (w == W_LIGHTNING)
+	if (!w)
+		return 666;
+	if (w == IT_LIGHTNING)
 		return 1;
 	if (w == W_RAILGUN)
 		return 2;
@@ -310,29 +312,30 @@ void(float new) W_BetterWeapon =
 
 float() W_BestWeapon =
 {
-	local	float	it;
+	local	float	it, itd;
 	
 	self.lip = 0;	// reset nailgun barrel cycle
 	
 	it = self.items;
+	itd = self.items_dwell;
 
 	if(self.ammo_nails >= 2 && (it & IT_SUPER_NAILGUN) )
 		return W_SUPER_NAILGUN;
 	if(self.ammo_shells >= 2 && (it & IT_SUPER_SHOTGUN) )
 		return W_SUPER_SHOTGUN;
-	if(self.ammo_shells >= 4 && (self.items_dwell & IT_QUAD_SHOTGUN))
+	if(self.ammo_shells >= 4 && (itd & IT_QUAD_SHOTGUN))
 		return W_QUAD_SHOTGUN;
 	if (self.waterlevel <= 1 && self.ammo_cells >= 1 && (it & IT_LIGHTNING) )
 		return W_LIGHTNING;
-	if (self.ammo_cells >= 6 && (self.items_dwell & IT_RAILGUN) )
+	if (self.ammo_cells >= 6 && (itd & IT_RAILGUN) )
 		return W_RAILGUN;
 	if(self.ammo_nails >= 1 && (it & IT_NAILGUN) )
 		return W_NAILGUN;
-	if(self.ammo_shells >= 1 && (self.items_dwell & IT_RIFLE) )
+	if(self.ammo_shells >= 1 && (itd & IT_RIFLE) )
 		return W_RIFLE;
 	if(self.ammo_shells >= 1 && (it & IT_SHOTGUN) )
 		return W_SHOTGUN;
-	if(self.items_dwell & IT_FLAIL)
+	if(itd & IT_FLAIL)
 		return W_FLAIL;
 	else
 	return W_AXE;
@@ -371,12 +374,17 @@ An attack impulse can be triggered now
 */
 void() W_Attack =
 {
-	if (!W_CheckNoAmmo ())
-		return;
+	if (self.weapon && (!W_CheckNoAmmo()))
+	{
+		W_SelectBestWeapon();
+		if (!self.weapon || self.weapon == IT_AXE)
+		{
+			sprint (self, "not enough ammo.\n");
+			return;
+		}
+	}
 	if (self.customflags & (CFL_PLUNGE|CFL_LIMBO))
 		return;
-//	if (self.movetype == MOVETYPE_NOCLIP)
-//		return;
 
 	makevectors	(self.v_angle);			// calculate forward angle for velocity
 

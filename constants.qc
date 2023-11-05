@@ -2,8 +2,8 @@
 // constants
 //================================================
 
-const string version_s = "Dwell 1.3 - 2nd March 2023\n- \bThe Lain Spaghetti Code Era\b -\n";
-const float version_f = 1.3;
+const string version_s = "Dwell 1.3";
+const float version_f = 1.20;
 
 const float	FALSE					= 0;
 const float TRUE					= 1;
@@ -25,11 +25,13 @@ const float	FL_UNDERWATER			= 8192;	// for dive/surface water sounds
 
 // edict.customflags
 const float	CFL_LEFTY			= 1;	// used by slidemovers (scrags) to alternate strafe direction
+const float	CFL_RETURNED		= 1;	// zombie has already respawned in nightmare
+const float	CFL_INVLIGHT			= 1;	// for backwards bmover light fade behavior
 const float	CFL_ZAPPED			= 2;
 const float	CFL_AXEHITME		= 4;
 const float	CFL_LOCKED			= 16;	// special state-independent deactivation
-const float	CFL_INPAIN			= 16;	// zombie behavior
-const float	CFL_KNOCKEDDOWN		= 32;	// zombie behavior
+const float	CFL_INPAIN			= 16;	// zombie should knockdown soon
+const float	CFL_KNOCKEDDOWN		= 32;	// zombie is down
 const float	CFL_PLUNGE			= 64;	// has fallen in a death pit
 const float	CFL_SPAWNER			= 128;	// is a generator of monsters
 const float	CFL_UNDYING			= 256;	// god mode minus one point (player)
@@ -37,7 +39,8 @@ const float	CFL_LIQUID_IMMUNE	= 512;	// monster spawned touching slime or lava, 
 const float	CFL_MELEEONLY		= 1024;	// has no ranged attack (monster)
 const float	CFL_LIMBO			= 2048;	// waiting in teleport limbo (coop, player)
 const float CFL_EPSKINS 		= 4096; // monster has multiple skins, flag is used in skinhandler for setting episode-related skins
-
+//TODO: Resolve Conflicts
+const float	CFL_OMNIVISION		= 4096;	// eyes in back of head
 // serverflags
 const float	SVFL_EPISODE1		= 1;
 const float	SVFL_EPISODE2		= 2;
@@ -90,6 +93,20 @@ const float	DAMAGE_NO				= 0;
 const float	DAMAGE_YES				= 1;
 const float	DAMAGE_AIM				= 2;
 
+// type parameters for damage functions
+const float DMGTYPE_EXPLOSION		= 1;	// half to shamblers
+const float DMGTYPE_ZKILL			= 2;	// death to zombies (direct EXPLOSION always kills zombies but splash doesn't)
+const float DMGTYPE_NOARMOR			= 4;	// bypass armor
+const float DMGTYPE_MELEE			= 8;	// inflictor == attacker
+const float DMGTYPE_TELEFRAG		= 16;
+const float DMGTYPE_LIGHTNING		= 32;
+const float DMGTYPE_DROWNING		= 64;
+const float DMGTYPE_FALLING			= 128;	// everyone's favorite
+const float DMGTYPE_LAVA			= 256;
+const float DMGTYPE_SLIME			= 512;
+const float DMGTYPE_CRUSH			= 1024;
+const float DMGTYPE_SCRIPT			= 2048;	// target_items, invoke, etc
+
 const float	TRACE_NOMONSTERS		= 1;
 const float	TRACE_WATER				= 2;
 //const float	TRACE_PENETRATE			= 4;
@@ -97,19 +114,12 @@ const float	TRACE_WATER				= 2;
 // monsters
 const float	SPAWN_AMBUSH		= 1;
 const float	SPAWN_CRUCIFIEDX	= 1;
-/*
-const float	SPAWN_TRIGGERED		= 2;
-const float	SPAWN_TFOG			= 4;
-const float	SPAWN_NO_TFRAG		= 8;
-const float	SPAWN_INSTAWAKE		= 16;
-const float	SPAWN_LYING			= 32;	// zombies
-*/
 const float	SPAWN_TRIGGERED		= 16;
 const float	SPAWN_NO_TFOG		= 32;
 const float	SPAWN_NO_TFRAG		= 64;
 const float	SPAWN_INSTAWAKE		= 128;
 const float	SPAWN_LYING			= 2;	// zombies
-const float	SPAWN_CRUCIFIED		= 16384;	// was 128, but random zombies in stock quake have spawnflags&128 left over from something :P
+const float	SPAWN_CRUCIFIED		= 32768;	// was 128, but random zombies in stock quake have spawnflags&128 left over from something :P
 
 // mode flags
 const float	SPAWN_NOTEASY		= 256;
@@ -118,6 +128,8 @@ const float	SPAWN_NOTHARD		= 1024;
 const float	SPAWN_NOTDM			= 2048;
 const float	SPAWN_COOPONLY		= 4096;
 const float	SPAWN_NOTCOOP		= 8192;
+
+const float	SPAWN_ALT_TARG		= 16384;	// fire the four target keys at different times
 
 // items
 const float	IT_AXE					= 4096;
@@ -233,13 +245,13 @@ const float	ATTN_NORM		= 1;
 const float	ATTN_IDLE		= 2;
 const float	ATTN_STATIC		= 3;
 
-const // entity effects
+// entity effects
 const float	EF_BRIGHTFIELD	= 1;
 const float	EF_MUZZLEFLASH 	= 2;
 const float	EF_BRIGHTLIGHT 	= 4;
 const float	EF_DIMLIGHT 	= 8;
 
-const // attack states
+// attack states
 const float	AS_STRAIGHT		= 1;
 const float	AS_SLIDING		= 2;
 const float	AS_MELEE		= 3;
@@ -277,6 +289,28 @@ const float	STAT_TOTALSECRETS	= 11;	// hmmm ...
 const float	STAT_TOTALMONSTERS	= 12;	// must send this if new monsters are spawned after the map starts
 const float	STAT_SECRETS		= 13;	// bumped on client side by svc_foundsecret
 const float	STAT_MONSTERS		= 14;	// bumped by svc_killedmonster
+const float STAT_ITEMS 			= 15;	// self.items | (self.items2<<23)
+										// In order to decode this stat properly, you need to use 
+										// getstatbits(STAT_ITEMS,0,23) to read self.items, and 
+										// getstatbits(STAT_ITEMS,23,11) to read self.items2 or 
+										// getstatbits(STAT_ITEMS,28,4) to read the visible part 
+										// of serverflags, whichever is applicable
+const float STAT_VIEWHEIGHT		= 16;	// player.view_ofs_z
+const float STAT_VIEW2			= 20;	// This stat contains the number of the entity in the server's .view2 field
+const float STAT_VIEWZOOM		= 21;	// Scales fov and sensitivity. Part of DP_VIEWZOOM
+const float STAT_IDEALPITCH		= 25;
+const float STAT_PUNCHANGLE_X	= 26;
+const float STAT_PUNCHANGLE_Y	= 27;
+const float STAT_PUNCHANGLE_Z	= 28;
+
+const float STAT_USER			= 32; // Custom user stats start here (lower values are reserved for engine use)
+const float STAT_KEYCOUNTS		= 32;
+const float STAT_CLIENTDATA		= 33;
+const float STAT_TINTAMOUNT		= 34;
+const float STAT_TINTCOLOR_R	= 35;	// you can send a vector as a stat but there's no accompanying getstatv
+const float STAT_TINTCOLOR_G	= 36;	// so we have to send the three components separately and getstatf them
+const float STAT_TINTCOLOR_B	= 37;
+
 
 // temporary entities
 const float	TE_SPIKE		= 0;

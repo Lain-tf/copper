@@ -45,34 +45,6 @@ $frame w_attack1 w_attack2 w_attack3 w_attack4 w_attack5 w_attack6 w_attack7 w_a
 $frame magicc1 magicc2 magicc3 magicc4 magicc5 magicc6 magicc7 magicc8 magicc9 magicc10 magicc11
 
 
-void(float offset) hknight_shot =
-{
-	vector	offang;
-	vector	org, vec;
-	
-	vec = enemy_vispos() - self.origin;
-	vec += enemy_aim_vertical();
-	vec_z += crandom() * 16;
-	offang = vectoangles(vec);
-	offang_y = offang_y + offset * 6;
-	offang_x *= -1;
-	
-	if (angledif(self.ideal_yaw, offang_y) > 80)	// no assbolts
-		makevectors (self.angles + '0 1 0' * offset * 6);
-	else
-		makevectors (offang + '0 1 0' * offset * 6);
-
-	org = self.origin + self.mins + self.size*0.5 + v_forward * 20;
-
-// set missile speed
-	vec = normalize (v_forward);
-	vec_z += crandom() * 0.05;
-	
-	launch_knightspike (org, vec*425);
-
-	sound (self, CHAN_WEAPON, "hknight/attack1.wav", 1, ATTN_NORM);
-}
-
 void() hkCheckCharge =
 {
 	// check for mad charge
@@ -82,7 +54,10 @@ void() hkCheckCharge =
 		return;	
 	if ( fabs(self.origin_z - self.enemy.origin_z) > 32)
 		return;		// too much height change
-	if ( vlen (self.origin - self.enemy.origin) < 80)
+		
+	float dist;
+	dist = vlen (self.origin - self.enemy.origin);
+	if ( dist < 80 || (dist > 320 && random() < 0.5))
 		return;		// use regular attack
 
 	// charge		
@@ -212,6 +187,7 @@ void() hknight_die =
 
 
 //============================================================================
+/*
 // not used
 void()	hknight_magica1 =[	$magica1,	hknight_magica2	] {ai_face();}
 void()	hknight_magica2 =[	$magica2,	hknight_magica3	] {ai_face();}
@@ -243,39 +219,130 @@ void()	hknight_magicb10 =[	$magicb10,	hknight_magicb11] {hknight_shot(1);}
 void()	hknight_magicb11 =[	$magicb11,	hknight_magicb12] {hknight_shot(2);}
 void()	hknight_magicb12 =[	$magicb12,	hknight_magicb13] {hknight_shot(3);}
 void()	hknight_magicb13 =[	$magicb13,	hknight_run1] {ai_face();}
+*/
 
 //============================================================================
 
+// RANGED FIRE
+
+void(vector dir, vector org) hknight_bolt =
+{
+	entity spike;
+	if (skill == 3)
+	{
+		spike = launch_projectile(self.origin + org + dir * 20, dir * 600, "knightspike");	// FLYMISSILE
+		SUB_ChangeModel (spike, "progs/k_spike2.mdl");
+		spike.dmg = 16 + 8 * random();
+	}
+	else
+	{
+		spike = launch_projectile(self.origin + org + dir * 20, dir * 400, "knightspike");	// FLYMISSILE
+		SUB_ChangeModel (spike, "progs/k_spike.mdl");
+		spike.dmg = 8;
+	}
+
+	spike.touch = spike_touch;
+	sound (self, CHAN_WEAPON, "hknight/attack1.wav", 1, ATTN_NORM);
+}
+
+void(float h_offset, float v_offset) hknight_shot =
+{
+	vector	offang;
+	vector	vec;
+	float	badaim;
+
+	vec = enemy_vispos() - self.origin;
+	vec += enemy_aim_vertical();
+	offang = vectoangles(vec);
+	offang_y = offang_y + h_offset * 6;
+	offang_x = -offang_x;
+	
+	// assbolt protection
+	badaim = angledif(vectoyaw(vec), offang_y) - 45;
+	badaim = max(0, badaim);
+	badaim = badaim / 135;
+	vec = lerpVector(offang, self.angles + '0 6 0' * h_offset, badaim);
+
+	makevectors(vec);
+	vec = normalize(v_forward) + '0 0 0.05' * v_offset;
+	hknight_bolt(vec, '0 0 8');
+}
+
+void(float v_offset) hknight_shot2 =
+{
+	vector	vec;
+
+	vec = enemy_vispos() - self.origin;
+	vec += enemy_aim_vertical();
+	
+	vec = normalize(vec) + '0 0 0.02' * v_offset;
+	hknight_bolt(vec, '0 0 22');
+}
+
+
+// direct fire franken-anim
+void()	hknight_magicnm1	=[	$magica1,	/* 79 */	hknight_magicnm2	] {ai_face();ai_forward(1);}
+void()	hknight_magicnm2	=[	$magica2,	/* 80 */	hknight_magicnm3	] {ai_face();ai_forward(1);}
+void()	hknight_magicnm3	=[	$magica3,	/* 81 */	hknight_magicnm4	] {ai_face();}
+void()	hknight_magicnm4	=[	$magica4,	/* 82 */	hknight_magicnm5	] {ai_face();}
+void()	hknight_magicnm5	=[	$magica6,	/* 84 */	hknight_magicnm6	] {ai_face();}
+void()	hknight_magicnm6	=[	$magica7,	/* 85 */	hknight_magicnm7	] {ai_face();}
+void()	hknight_magicnm7	=[	$magica5,	/* 83 */	hknight_magicnm8	] {ai_face();}
+void()	hknight_magicnm8	=[	$magica8,	/* 86 */	hknight_magicnm9	] {nmfast(); ai_face();}
+void()	hknight_magicnm9	=[	$magicb7,	/* *99 */	hknight_magicnm10	] {nmfast(); ai_face(); hknight_shot2(2); ai_back(1);}
+void()	hknight_magicnm10	=[	$magicb11,	/* *103 */	hknight_magicnm11	] {nmfast(); ai_face(); hknight_shot2(1);}	
+void()	hknight_magicnm11	=[	$magicb9,	/* *101 */	hknight_magicnm12	] {nmfast(); ai_face(); hknight_shot2(0);}	
+void()	hknight_magicnm12	=[	$magicb10,	/* *102 */	hknight_magicnm13	] {nmfast(); ai_face(); hknight_shot2(-1);}	
+void()	hknight_magicnm13	=[	$magicb6,	/* *98 */	hknight_magicnm14	] {nmfast(); ai_face(); hknight_shot2(-2);}	
+void()	hknight_magicnm14	=[	$magicb4,	/* 96 */	hknight_magicnm15	] {nmfast();}
+void()	hknight_magicnm15	=[	$magicb3,	/* 95 */	hknight_magicnm16	] {}
+void()	hknight_magicnm16	=[	$magicb2,	/* 94 */	hknight_magicnm17	] {ai_back(1);}
+void()	hknight_magicnm17	=[	$magicb1,	/* 93 */	hknight_run1	]	  {ai_back(1);ai_face();}
+
+
+
+// classic sweep
 void()	hknight_magicc1 =[	$magicc1,	hknight_magicc2	] {ai_face();}
 void()	hknight_magicc2 =[	$magicc2,	hknight_magicc3	] {ai_face();}
 void()	hknight_magicc3 =[	$magicc3,	hknight_magicc4	] {ai_face();}
 void()	hknight_magicc4 =[	$magicc4,	hknight_magicc5	] {ai_face();}
-void()	hknight_magicc5 =[	$magicc5,	hknight_magicc6	] {ai_face();}
-void()	hknight_magicc6 =[	$magicc6,	hknight_magicc7	] {hknight_shot(-2);}
-void()	hknight_magicc7 =[	$magicc7,	hknight_magicc8	] {hknight_shot(-1);}
-void()	hknight_magicc8 =[	$magicc8,	hknight_magicc9	] {hknight_shot(0);}
-void()	hknight_magicc9 =[	$magicc9,	hknight_magicc10] {hknight_shot(1);}
-void()	hknight_magicc10 =[	$magicc10,	hknight_magicc11] {hknight_shot(2);}
-void()	hknight_magicc11 =[	$magicc11,	hknight_run1] {hknight_shot(3);}
+void()	hknight_magicc5 =[	$magicc5,	hknight_magicc6	] {nmfast(); ai_face(); 
+	if (skill == 3)
+		self.think = hknight_magicc6nm;
+}
+void()	hknight_magicc6 =[	$magicc6,	hknight_magicc7	] {ai_face(); hknight_shot(-2, crandom());}
+void()	hknight_magicc7 =[	$magicc7,	hknight_magicc8	] {ai_face(); hknight_shot(-1, crandom());}
+void()	hknight_magicc8 =[	$magicc8,	hknight_magicc9	] {ai_face(); hknight_shot( 0, crandom());}
+void()	hknight_magicc9 =[	$magicc9,	hknight_magicc10] {ai_face(); hknight_shot( 1, crandom());}
+void()	hknight_magicc10 =[	$magicc10,	hknight_magicc11] {ai_face(); hknight_shot( 2, crandom());}
+void()	hknight_magicc11 =[	$magicc11,	hknight_run1]	  {ai_face(); hknight_shot( 3, crandom());}
+
+// nightmare: faster sweep with an extra, centered bolt
+void()	hknight_magicc6nm =[	$magicc6,	hknight_magicc7nm	] {nmfast(); ai_face(); hknight_shot(-2.6, crandom() ); hknight_shot(-1.6, crandom() );}
+void()	hknight_magicc7nm =[	$magicc7,	hknight_magicc8nm	] {nmfast(); ai_face(); hknight_shot( -0.6, crandom() ); }
+void()	hknight_magicc8nm =[	$magicc8,	hknight_magicc9nm	] {nmfast(); ai_face(); hknight_shot(0, crandom()); }
+void()	hknight_magicc9nm =[	$magicc9,	hknight_magicc10nm	] {nmfast(); ai_face(); hknight_shot( 0.6, crandom() );}
+void()	hknight_magicc10nm =[	$magicc10,	hknight_magicc11nm	] {nmfast(); ai_face(); hknight_shot( 1.6, crandom() ); hknight_shot( 2.6, crandom() );}
+void()	hknight_magicc11nm =[	$magicc11,	hknight_run1]	  	  {nmfast(); }
 
 //===========================================================================
 
-void()	hknight_char_a1	=[	$char_a1,	hknight_char_a2	] {ai_rush(20);}
-void()	hknight_char_a2	=[	$char_a2,	hknight_char_a3	] {ai_rush(25);}
-void()	hknight_char_a3	=[	$char_a3,	hknight_char_a4	] {ai_rush(18);  }
-void()	hknight_char_a4	=[	$char_a4,	hknight_char_a5	] {ai_rush(16); ai_melee(); }
-void()	hknight_char_a5	=[	$char_a5,	hknight_char_a6	] {ai_rush(14); ai_melee(); }
-void()	hknight_char_a6	=[	$char_a6,	hknight_char_a7	] {ai_rush(20); ai_melee(); }
-void()	hknight_char_a7	=[	$char_a7,	hknight_char_a8	] {ai_rush(21);  }
-void()	hknight_char_a8	=[	$char_a8,	hknight_char_a9	] {ai_rush(13); }
-void()	hknight_char_a9	=[	$char_a9,	hknight_char_a10	] {ai_rush(20);  }
-void()	hknight_char_a10=[	$char_a10,	hknight_char_a11	] {ai_rush(20); ai_melee();}
-void()	hknight_char_a11=[	$char_a11,	hknight_char_a12	] {ai_rush(18); ai_melee();}
-void()	hknight_char_a12=[	$char_a12,	hknight_char_a13	] {ai_rush(16); ai_melee();}
-void()	hknight_char_a13=[	$char_a13,	hknight_char_a14	] {ai_rush(14); ai_melee();}
-void()	hknight_char_a14=[	$char_a14,	hknight_char_a15	] {ai_rush(25);  }
-void()	hknight_char_a15=[	$char_a15,	hknight_char_a16	] {ai_rush(21);}
-void()	hknight_char_a16=[	$char_a16,	hknight_run1	] {ai_rush(13);}
+void()	hknight_char_a1	=[	$char_a1,	hknight_char_a2	] {nmfast();ai_rush(20);}
+void()	hknight_char_a2	=[	$char_a2,	hknight_char_a3	] {nmfast();ai_rush(25);}
+void()	hknight_char_a3	=[	$char_a3,	hknight_char_a4	] {nmfast();ai_rush(18);  }
+void()	hknight_char_a4	=[	$char_a4,	hknight_char_a5	] {nmfast();ai_rush(16); ai_melee(); }
+void()	hknight_char_a5	=[	$char_a5,	hknight_char_a6	] {nmfast();ai_rush(14); ai_melee(); }
+void()	hknight_char_a6	=[	$char_a6,	hknight_char_a7	] {nmfast();ai_rush(20); ai_melee(); }
+void()	hknight_char_a7	=[	$char_a7,	hknight_char_a8	] {nmfast();ai_rush(21);  }
+void()	hknight_char_a8	=[	$char_a8,	hknight_char_a9	] {nmfast();ai_rush(13); }
+void()	hknight_char_a9	=[	$char_a9,	hknight_char_a10] {nmfast();ai_rush(20);  }
+void()	hknight_char_a10=[	$char_a10,	hknight_char_a11] {nmfast();ai_rush(20); ai_melee();}
+void()	hknight_char_a11=[	$char_a11,	hknight_char_a12] {nmfast();ai_rush(18); ai_melee();}
+void()	hknight_char_a12=[	$char_a12,	hknight_char_a13] {nmfast();ai_rush(16); ai_melee();}
+void()	hknight_char_a13=[	$char_a13,	hknight_char_a14] {nmfast();ai_rush(14); ai_melee();}
+void()	hknight_char_a14=[	$char_a14,	hknight_char_a15] {nmfast();ai_rush(25);  }
+void()	hknight_char_a15=[	$char_a15,	hknight_char_a16] {nmfast();ai_rush(21);}
+void()	hknight_char_a16=[	$char_a16,	hknight_run1	] {nmfast();ai_rush(13);}
 
 //===========================================================================
 
@@ -358,7 +425,7 @@ void(entity attacker, float damage)	hknight_pain =
 	if (self.pain_finished > time)
 		return;
 
-	if (time - self.pain_finished > 5)
+	if (skill < 3 && time - self.pain_finished > 5)
 	{	// always go into pain frame if it has been a while
 		hknight_pain_go();
 		return;
@@ -388,6 +455,13 @@ void() hknight_melee =
 	}
 }
 
+void() hknight_ranged =
+{
+	if (skill == 3 && random() < 0.5)
+		hknight_magicnm1();
+	else
+		hknight_magicc1();
+}
 
 void() monster_hell_knight_spawn =
 {
@@ -406,7 +480,7 @@ void() monster_hell_knight_spawn =
 	self.th_walk = hknight_walk1;
 	self.th_run = hknight_run1;
 	self.th_melee = hknight_melee;
-	self.th_missile = hknight_magicc1;
+	self.th_missile = hknight_ranged;
 	self.th_pain = hknight_pain;
 	self.th_die = hknight_die;
 	self.th_checkattack = CheckAttack;
@@ -450,6 +524,7 @@ void() monster_hell_knight =
 	}
 	precache_model2 ("progs/mon_hknight.mdl");
 	precache_model2 ("progs/k_spike.mdl");
+	precache_model2 ("progs/k_spike2.mdl");
 	precache_model2 ("progs/h_hellkn.mdl");
 
 	

@@ -77,6 +77,8 @@ void() ItemPiff =
 	particle(org, '8 -8 0', 8, 16);
 	particle(org, '-8 8 0', 8, 16);
 	particle(org, '-8 -8 0', 8, 16);
+	
+	sound (self, CHAN_VOICE, "items/itembk2.wav", 1, ATTN_NORM);	// play respawn sound
 }
 
 /*
@@ -96,11 +98,6 @@ void() ItemSpawn =
 	if (storytime_running) return;
 	
 	ItemPiff();
-	
-	if (self.targetname != string_null && self.use != SUB_regen)
-		sound (self, CHAN_VOICE, "misc/r_tele1.wav", 1, ATTN_NORM);
-	else
-		sound (self, CHAN_VOICE, "items/itembk2.wav", 1, ATTN_NORM);	// play respawn sound
 	
 	if (self.wait)
 		self.use = ItemUse;
@@ -414,8 +411,14 @@ void() target_drop_use =
 Causes all targeted items which are SUSPENDED to drop when triggered.
 */
 /*FGD
-@PointClass base(Appearflags, Target, Targetname) size(32 32 32) color(192 64 0) = target_drop : 
-"Target Drop. Causes all targeted items which are suspended to drop when triggered." []
+@PointClass base(Appearflags, Targetname) size(32 32 32) color(192 64 0) = target_drop : 
+"Target Drop. Causes all targeted items which are suspended to drop when triggered."
+[
+	target(target_destination) : "Target: acts on all items with a matching targetname" 
+	target2(target_destination) : "Target 2: acts on all items with a matching targetname" 
+	target3(target_destination) : "Target 3: acts on all items with a matching targetname" 
+	target4(target_destination) : "Target 4: acts on all items with a matching targetname" 
+]
 */
 void() target_drop =
 {
@@ -677,9 +680,7 @@ float(entity e) target_items_takeinv =
 	
 	if (self.health > 0)
 	{
-		e.deathtype = "noarmor"; // terrible
-		T_Damage(e, self, activator, min(e.health, self.health));
-		e.deathtype = string_null;
+		T_Damage(e, self, activator, min(e.health, self.health), DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
 	}
 		
 	return TRUE;
@@ -715,12 +716,10 @@ void(entity e) target_items_setinv =
 		armor_set_type(e);
 	}
 
-
 	if (self.svflags)
 	{
 		serverflags = zeroconvert(self.svflags);		
 	}
-	
 
 	if (self.ammo_shells) e.ammo_shells = zeroconvert(self.ammo_shells);
 	if (self.ammo_nails) e.ammo_nails = zeroconvert(self.ammo_nails);
@@ -732,7 +731,7 @@ void(entity e) target_items_setinv =
 	{
 		float it = zeroconvert(self.items);
 
-		if (it & IT_WEAPONS)
+		if (it & IT_WEAPONS || self.items == -1)
 			e.items = not(e.items, IT_WEAPONS) + (it & IT_WEAPONS);
 			
 		// set artifact timers properly
@@ -785,6 +784,10 @@ void(entity e) target_items_setinv =
 		target_items_setweapon(e);
 	}
 	SUB_CallAsSelf(W_ResetWeaponState, e);
+	
+	// after resetweaponstate or else deadthink will be overwritten
+	if (self.health < 0)
+		T_Damage(e, self, activator, e.health, DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
 }
 
 
@@ -838,7 +841,7 @@ void() target_items_use =
 	activator = act;
 }
 
-/*QUAKED target_items (0.75 0.25 0) (-8 -8 -8) (8 8 8) TAKE OVERRIDE FLASH TEST MINIMUM HALFHEALTH_NM
+/*QUAKED target_items (0.75 0.25 0) (-8 -8 -8) (8 8 8) TAKE OVERRIDE FLASH TEST MINIMUM
 Gives weapons, ammo, items, health, armor, and/or runes to the activating player when triggered. 
 
 Keyvalues:
@@ -857,17 +860,15 @@ FLASH: flash the recipient's screen when triggered, defaults to being stealthy
 MINIMUM: for numeric amounts, give the player enough to have a minimum of the amount specified
 TAKE: subtract specified inventory amounts instead of adding
   - subtracting enough health WILL kill the player
-  - subtracting all weapons WILL break the game
   - will fire its targets if all items can be successfully taken
   - will print "message" and take nothing instead
   - TAKE with MINIMUM will skip the test and take whatever it can, firing no targets either way
-OVERRIDE: force the player's inventory to all specified amounts (mainly useful triggered from spawnpoints), specify -1 for any keyvalue to force a 0 (-1 does not work for items or health)
+OVERRIDE: force the player's inventory to all specified amounts (mainly useful triggered from spawnpoints), specify -1 for any keyvalue to force a 0 (-1 does not work for health)
 TEST: behaves like TAKE, but doesn't take anything 
   - fires targets if activator has the matching inventory
   - prints "message" if not
   - TEST with TAKE will reverse the test (fire if player doesn't have)
   - beware of how this interacts with triggers: it will only test the first client to touch a trigger in coop unless it has ALL_CLIENTS set
-HALFHEALTH_NM: divide the 'health' kv by 2 on skill 3 - can be necessary for testing if the player is fully healed accurately across skills
 
 Item Bitmask Reference:
 	SG	= 1		SSG	= 2
@@ -889,7 +890,6 @@ Item Bitmask Reference:
 Spawnflag Usage:
 'Take': subtract specified inventory amounts instead of adding
   - subtracting enough health WILL kill the player
-  - subtracting all weapons WILL break the game
   - will fire its targets if all items are successfully taken
   - will print 'message' if fewer than all items are successfully taken
 'Override': force the player's inventory to all specified amounts (mainly useful triggered from spawnpoints), specify -1 for any keyvalue to force a 0 (-1 does not work for items or health)
@@ -899,7 +899,6 @@ Spawnflag Usage:
   - TEST with TAKE will reverse the test (fire if player doesn't have)
   - beware of how this interacts with triggers: it will only test the first client to touch a trigger in coop!
 'Minimum': for numeric amounts, give the player enough to have a minimum of the amount specified
-'Half 'health' on NM': divide the 'health' kv by 2 on skill 3 - can be necessary for testing if the player is fully healed accurately across skills
 'Flash screen': flash the recipient's screen when triggered, defaults to being stealthy"
 [
 	length(integer) : "Override powerup duration" : 0
@@ -911,7 +910,6 @@ Spawnflag Usage:
 		4 : "Flash screen" : 0
 		8 : "Test only" : 0
 		16 : "Minimum" : 0
-		32 : "Halve 'health' on NM" : 0
 	]
 	weapon(choices) : "Force Select Weapon" = 
 	[
@@ -936,7 +934,7 @@ void() target_items =
 	if (self.length <= 0)
 		self.length = 30;
 	if (self.deathtype == string_null)
-		self.deathtype = "had his life removed";
+		self.deathtype = "had their life removed";
 	
 	if (self.items > 0)
 	{
@@ -968,8 +966,6 @@ void() target_items =
 	
 	if (self.noise != string_null)
 		precache_sound_safe(self.noise);
-	if (self.spawnflags & 32)
-		self.health = floor(self.health / 2);
 }
 void() target_give = {target_items();}
 

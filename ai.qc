@@ -43,22 +43,15 @@ float(entity targ) range =
 	d = eyeline(targ);
 	//d_z *= 2;	// don't melee guys way above or below you
 	r = vlen(d);
-	
-	if (r > 1249)
-		return RANGE_TOOFAR;
-	if (r > 899)
-		return RANGE_FAR;
-	if (r > 499)
-		return RANGE_MID;
-	if (r > 120)
-		return RANGE_NEAR;
-	if (self.classname == "monster_kamikaze")
-		if (r < 80)
-			return RANGE_HUG;
-		else 
-			return RANGE_NEAR;
-	else 
+	if (r < 120)
 		return RANGE_MELEE;
+	if (r < 500)
+		return RANGE_NEAR;
+	if (r < 900)
+		return RANGE_MID;
+	if (r < 1250)
+		return RANGE_FAR;
+	return RANGE_TOOFAR;
 }
 
 /*
@@ -78,8 +71,8 @@ float (entity targ) visible =
 	spot2 = targ.origin + targ.view_ofs;
 	traceline2(spot1, spot2, self, TRACE_NOMONSTERS|TRACE_WATER);	// see through other monsters
 	
-	//if (trace_inopen && trace_inwater)
-	//	return FALSE;			// sight line crossed contents
+	if (trace_inopen && trace_inwater)
+		return FALSE;			// sight line crossed contents
 
 	if (trace_fraction == 1)
 		return TRUE;
@@ -98,6 +91,11 @@ float(entity targ) infront =
 {
 	vector vec;
 	float dot;
+	
+	// spawns gain all-around vision after they've been awakened the first time so they
+	// don't go to sleep facing a wall or corner and become inert
+	if (self.classname == "monster_tarbaby" && (self.customflags & CFL_OMNIVISION))
+		return TRUE;
 	
 	makevectors (self.angles);
 	vec = normalize (targ.origin - self.origin);
@@ -155,19 +153,19 @@ vector() enemy_vispos =
 
 /*
 ===========
-enemy_alive
+alive
 
-Verify if enemy can still be attacked
-Returns FALSE if enemy should be permanently forgotten
+Verify if entity can still be attacked
+Returns FALSE if e should be permanently forgotten
 ============
 */
-float() enemy_alive =
+float(entity e) alive =
 {
-	if (self.enemy.health <= 0) return FALSE;
+	if (e.health <= 0) return FALSE;
 	// also consider a downed zombie to be dead, instead of waving a chainsaw over its body forever
-	if (self.enemy.customflags & (CFL_KNOCKEDDOWN)) return FALSE;
+	if (e.customflags & (CFL_KNOCKEDDOWN)) return FALSE;
 	// coop spectating is a deadflag without being out of health
-	if (self.enemy.deadflag) return FALSE;
+	if (e.deadflag) return FALSE;
 	return TRUE;
 }
 
@@ -379,8 +377,8 @@ float() CheckClearAttack =
 	spot2 = enemy_vispos() + self.enemy.view_ofs;
 	traceline2(spot1, spot2, self, TRACE_WATER);
 
-	//if (trace_inopen && trace_inwater)
-	//	return FALSE;	// sight line crossed contents
+	if (trace_inopen && trace_inwater)
+		return FALSE;	// sight line crossed contents
 
 	if (trace_ent != self.enemy)
 	{
@@ -400,11 +398,6 @@ ai_attack_finished
 lunaran: nightmare is no longer made harder by all monsters always firing. they looked 
 really stupid when they'd automatically become turrets, and it made combat much less 
 mobile and dynamic (shamblers were particularly 'cheesable')
-
-monster attack frequency is no longer used as a means to artificially inflate or
-scale difficulty. a theoretical player who begins learning Quake on Easy would gain
-skills and reflexive instincts which can be guaranteed to carry over to higher skills
-as that player improves to higher challenges.
 ============
 */
 void(float t) ai_attack_finished =
@@ -416,47 +409,54 @@ void(float t) ai_attack_finished =
 ===========
 ai_check_refire
 
-these monsters DO fire more than once on nightmare, but not infinitely over and
-over - making it random makes it uncertain and thus not cheesable
+for volley fire on nightmare from certain monsters (grunts/ogres)
 ============
 */
-void (void() th, float minf) ai_check_refire_min =
+void (void() th) ai_check_refire =
 {
-	if (!enemy_alive())
+	if (skill != 3)
 		return;
+	if (!alive(self.enemy))
+		return;
+	if (has_invis(self.enemy))
+		return;	// let the ring buy breathing room on nightmare
+		
+	// distance checks
+	enemy_range == range(self.enemy);
+	if (enemy_range == RANGE_MELEE)
+	{
+		self.attack_finished = 0;
+		return;
+	}
+	else if (enemy_range >= RANGE_FAR)
+		return;
+	
 	if (!CheckClearAttack())
 		return;
 	
-	if (self.cnt < minf)
+	float r = random() * 4;
+	if ( r > self.cnt + 0.5 )
 	{
 		self.cnt += 1;
 		self.think = th;
 		return;
 	}
-	
-	// no further refire unless nightmare
-	if (skill < 3)
-	{
-		self.cnt = 0;
-		return;
-	}
-	
-	// diminish chances of refire with each extra shot
-	self.cnt = max(1, (self.cnt-minf) * 2);
-	if ( random() * self.cnt > 0.5 )
-	{
-		self.cnt = 0;
-		return;
-	}
-	self.cnt += minf;
-	self.think = th;
+	self.cnt = 0;
 }
 
-void (void() th) ai_check_refire =
+// for speedy nightmare think rates on melee monsters
+void(float rate) nmspeed =
 {
-	ai_check_refire_min(th, 0);
+	if (skill == 3)
+		self.walkframe = rate;
+	else
+		self.walkframe = 0.1;
 }
-
+void() nmfast =
+{
+	if (self.health > 0 && self.nextthink > 0)
+		self.nextthink = time + self.walkframe;
+}
 
 /*
 ===========
@@ -478,7 +478,7 @@ float() CheckAttack =
 	{
 		if (self.th_melee)
 		{
-			self.th_melee();
+			self.attack_state = AS_MELEE;
 			return TRUE;
 		}
 	}
@@ -511,7 +511,7 @@ float() CheckAttack =
 
 	if (random() < chance)
 	{
-		self.th_missile();
+		self.attack_state = AS_MISSILE;
 		ai_attack_finished (2*random());
 		return TRUE;
 	}
@@ -532,14 +532,21 @@ void() HuntTarget =
 	self.goalentity = self.enemy;
 	self.ideal_yaw = enemy_yaw();
 	self.think = self.th_run;
-	self.nextthink = time + 0.1;
-	ai_attack_finished (1);	// wait a while before first attack
+	self.nextthink = time + 0.05;
+	
+	// wait a while before first attack
+	if (skill == 3)
+	{	// nightmare: react faster to waking up
+		if (self.classname == "monster_tarbaby" || self.classname == "monster_grunt")
+			ai_attack_finished(0.3);
+		else
+			ai_attack_finished(0.7);
+	}
+	else ai_attack_finished (1);
 }
 
 void() SightSound =
 {
-	local float	rsnd;
-	
 	if (self.classname == "monster_ogre" )	
 		sound (self, CHAN_VOICE, "ogre/ogwake.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_knight" || self.classname == "monster_axegrunt")
@@ -558,10 +565,9 @@ void() SightSound =
 		sound (self, CHAN_VOICE, "hknight/sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_tarbaby")
 		sound (self, CHAN_VOICE, "blob/sight1.wav", 1, ATTN_NORM);
-	else if (self.classname == "monster_d1boss")
-		sound (self, CHAN_VOICE, "d1boss/aggro.wav", 1, ATTN_NONE);
 	else if (self.classname == "monster_enforcer")
 	{
+		local float	rsnd;
 		rsnd = random();
 		if (rsnd < 0.25)
 			sound (self, CHAN_VOICE, "enforcer/sight1.wav", 1, ATTN_NORM);
@@ -576,40 +582,13 @@ void() SightSound =
 		sound (self, CHAN_VOICE, "soldier/sight1.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_shalrath")
 		sound (self, CHAN_VOICE, "shalrath/sight.wav", 1, ATTN_NORM);
-	else if (self.classname == "monster_brute") {
-		if (random() < 0.5) {
-			sound (self, CHAN_VOICE, "brute/sight1.wav", 1, ATTN_NORM);
-		} else {
-			sound (self, CHAN_VOICE, "brute/sight2.wav", 1, ATTN_NORM);
-		}
-	}
-	/*else if (self.classname == "monster_cguard")
-	{
-		rsnd = random();
-		if (rsnd < 0.25)
-			sound (self, CHAN_VOICE, "cguard/sight1.wav", 1, ATTN_NORM);
-		else if (rsnd < 0.5)
-			sound (self, CHAN_VOICE, "cguard/sight2.wav", 1, ATTN_NORM);
-		else if (rsnd < 0.75)
-			sound (self, CHAN_VOICE, "cguard/sight3.wav", 1, ATTN_NORM);
-		else
-			sound (self, CHAN_VOICE, "cguard/sight4.wav", 1, ATTN_NORM);
-	}*/
-	else if (self.classname == "monster_excavator")
-	{
-		rsnd = random();
-		if (rsnd < 0.5)
-			sound (self, CHAN_VOICE, "exca/ex_alert1.wav", 1, ATTN_NORM);
-		else if (rsnd > 0.5)
-			sound (self, CHAN_VOICE, "exca/ex_alert2.wav", 1, ATTN_NORM);
-	}
 }
 
 void() FoundTarget =
 {
-	while(!enemy_alive())
+	while(!alive(self.enemy))
 	{
-		if (self.oldenemy)
+		if (self.oldenemy && alive(self.oldenemy))
 		{
 			self.enemy = self.oldenemy;
 			self.oldenemy = world;
@@ -622,6 +601,8 @@ void() FoundTarget =
 		}
 	}
 	
+	monster_alt_use(TRUE, FALSE, FALSE, FALSE);	// fire wake target if applicable
+
 	if (self.enemy.classname == "player")
 	{	// let other monsters see this monster for a while
 		sight_entity = self;
@@ -724,14 +705,12 @@ float() FindTarget =
 	// - bumping into a dog
 	if (has_invis(client))
 	{
-		if (self.classname == "monster_dog" && client.classname == "player")
+		if (!(r == RANGE_MELEE && self.classname == "monster_dog" && client.classname == "player"))
 		{
-			if (r != RANGE_MELEE)
+			if (client.show_hostile < time)
 				return FALSE;
-		} 
-		else if (client.show_hostile < time)
-		{
-			return FALSE;
+			if (r == RANGE_FAR)
+				return FALSE;
 		}
 	}
 
@@ -840,7 +819,7 @@ void() path_corner_touch =
 	other.ideal_yaw = vectoyaw(other.goalentity.origin - other.origin);
 }
 
-/*QUAKED path_corner (0.5 0.3 0) (-8 -8 -8) (8 8 8)
+/*QUAKED path_corner (0.5 0.3 0) (-8 -8 -8) (8 8 8) - - - - BEZIER
 Waypoint for platforms and monsters. Will stop here for good if no path_corner is targeted by this entity.
 Monsters who wait here will turn to face 'angle'.
 
@@ -850,15 +829,30 @@ Keys:
 "wait" The number of seconds to spend standing here
 "angle" direction to face while standing here
 "speed" tell a visiting func_train to change its speed. If a path_corner's speed is -1, the func_train's move when LEAVING that corner will be to snap instantly to the next corner.
+
+Spawnflags:
+BEZIER	Act as a bilinear control point between the previous and next pathcorner in the chain (train only, no monster patrols)
+	"count"	override number of steps of interpolation along the curve the train will make
 */
 /*FGD
-@PointClass base(Appearflags, Targetname, Target, Angle) size(16 16 16) color(128 80 0) = 
+@PointClass base(Appearflags, Targetname, Angle) size(16 16 16) color(128 80 0) = 
 	path_corner : 
 "Waypoint for platforms and monsters. Will stop here for good if no path_corner is targeted by this entity.
-Monsters who wait here will turn to face 'angle'."
+Monsters who wait here will turn to face 'angle'.
+Checking the Bezier spawnflag will make this pathcorner act as a bilinear control point - meaning curved motion - between the previous and next pathcorner in the chain (train only, no monster patrols). 'count' will change the number of steps of interpolation along the curve the train will make."
 [
+	spawnflags(Flags) = [
+		16 : "Bezier point" : 0
+	]
+	target(target_destination) : "Target: next path_corner to move to" 
+	target2(target_destination) : "Target 2: trains will activate all matching on arrival" 
+	target3(target_destination) : "Target 3: trains will activate all matching on arrival" 
+	target4(target_destination) : "Target 4: trains will activate all matching on arrival" 
+	killtarget(target_destination) : "Killtarget: trains will remove all matching on arrival"
+	delay(string) : "Delay before activating targets" : "0"
 	wait(string) : "Wait time (seconds)" : "0"
 	speed(string) : "A visiting func_train to change its speed to this. If 'speed' is -1, the func_train's move when LEAVING that corner will be to snap instantly to the next corner." : "0"
+	count(integer) : "override steps of interpolation along this bezier curve segment"
 ]
 */
 void() path_corner =
@@ -980,20 +974,10 @@ float() ai_check_liquid =
 	if (self.customflags & CFL_LIQUID_IMMUNE)
 		return TRUE;
 		
-	if (self.type == "zombie")
-	{
-		// zombies immune to slime (or else they just keep falling and getting up)
-		if (wt == CONTENT_LAVA)	// but always gib if touching lava
-			T_Damage(self, world, world, self.health + 10);
-	}
-	else
-	{
-		if (wt == CONTENT_LAVA)
-			T_Damage(self, world, world, wl * 10);
-		if (wt == CONTENT_SLIME && self.classname != "monster_wizard")
-			// scrags will happily fly down into slime, and they do spit green shit anyway
-			T_Damage(self, world, world, wl * 5);
-	}
+	if (wt == CONTENT_LAVA)
+		T_Damage(self, world, world, wl * 10, DMGTYPE_LAVA);
+	else if (wt == CONTENT_SLIME)
+		T_Damage(self, world, world, wl * 5, DMGTYPE_SLIME);
 	
 	return self.health > 0;
 }
@@ -1075,17 +1059,55 @@ float() ai_fishmovecheck =
 	return TRUE;
 }
 
+// feel around head and toes for blocking geo or monsters, and fudge our height value
+// to try to float over or under it
+float() ai_floatmove_vertical_nav =
+{
+	if (!(self.flags & FL_FLY))
+		return FALSE;
+
+	float bl_high, bl_low;
+	vector dir, org;
+	
+	dir_z = self.enemy.origin_z + self.height - self.origin_z;
+	if (fabs(dir_z) > self.size_z) return FALSE;	// we're still approaching vertically
+	
+	makevectors('0 1 0' * self.ideal_yaw);
+	dir = v_forward * 80;
+	
+	org = self.origin + '0 0 1' * self.mins_z;
+	traceline(org, org + dir, FALSE, self);
+	if (trace_ent == self.enemy) return FALSE;
+	if (trace_fraction < 1.0) bl_low = TRUE;
+	
+	org = self.origin + '0 0 1' * self.maxs_z;
+	traceline(org, org + dir, FALSE, self);
+	if (trace_ent == self.enemy) return FALSE;
+	if (trace_fraction < 1.0) bl_high = TRUE;
+	
+	if (bl_low == bl_high) // either free to move, or totally blocked
+		return FALSE;
+
+	if (bl_low)
+		self.height += 16;
+	else if (bl_high)
+		self.height -= 16;
+	
+	return TRUE;
+}
+
+
 void(float dist) ai_floatmove_finish =
 {
-	vector move;
-	float interv, spd, frac, z_dif;
+	vector move, dst;
+	float interv, delta, amt;
 	
 	if (self.flags & (FL_FLY|FL_SWIM) == 0)
 		return;
 		
 	self.movetype = MOVETYPE_FLY;
 	move = self.origin - self.oldorigin;
-	
+
 	// fish have short bounding boxes, which in quake physics land means they can noclip through ceilings
 	if (pointcontents(self.origin) == CONTENT_SOLID)
 	{
@@ -1108,26 +1130,50 @@ void(float dist) ai_floatmove_finish =
 	// fudge the z velocity manually
 	if (self.goalentity.classname == "path_corner")
 	{
-		if (fabs(self.goalentity.origin_z - self.origin_z) > 16)
+		dst = self.goalentity.origin - self.origin;
+		if (fabs(dst_z) > 16)
 		{
-			spd = vlen(move);
-			frac = spd / vlen(self.goalentity.origin - self.origin);
-			move_z = frac * (self.goalentity.origin_z - self.origin_z);
+			delta = vlen(move);
+			amt = delta / vlen(dst);
+			move_z = amt * (dst_z);
 		}
 	}
-	// only hover above target if there's a clear sight, so it can follow them
-	// through lower passageways, like doors for example
-	// also ignores if target is another flymonster, or else they'd both rise to infinity
-	else if (self.height && visible(self.goalentity) && !(self.goalentity.flags & FL_FLY))
+	// flymove navigates to self.enemy by default, not goalentity :/
+	else if (self.goalentity == self.enemy)
 	{
-		z_dif = self.goalentity.origin_z + self.height - self.origin_z;
+		// feel around for blocking geo we can go over or under
+		if (!ai_floatmove_vertical_nav())
+		{
+			// gradually shift back to baseline in the hopes that we've cleared the obstacle
+			if (self.height > self.jump_flag)
+				self.height -= min(4, self.height - self.jump_flag);
+			else
+				self.height += min(4, self.jump_flag - self.height);
+		}			
+		
+		// flymove velocity isn't clipped against surfaces, causing scrags to 
+		// 'stick' to floors and ceilings when we give them z velocity, so we 
+		// let SV_movestep()'s z-adjust do the work whenever possible.
+		// SV_movestep aims to match z between z+30 to z+40 of self.enemy, so
+		// only check for when we'd be fighting that behavior.
+		// TODO: better to use a fake goalentity so the height nav always works?
 
-		if (fabs(z_dif) > 16)
-			move_z = 8 * sign(z_dif);
-		else
-			move_z = 0;
+		float engine_rise_to = self.enemy.origin_z + 30;
+		float engine_sink_to = self.enemy.origin_z + 40;
+		float desired_h = self.enemy.origin_z + self.height;
+		
+		if (self.height < 40 && self.origin_z < engine_sink_to && self.origin_z > desired_h)
+		{
+			// force descent
+			move_z = max(-8, desired_h - self.oldorigin_z);
+		}
+		else if (self.height > 30 && self.origin_z > engine_rise_to && self.origin_z < desired_h)
+		{
+			// force rise
+			move_z = min(8, desired_h - self.oldorigin_z);
+		}
 	}
-
+	
 	// FL_SWIM just invalidates any movement out of water, so simulate velocity 
 	// being clipped off at the surface instead
 	// TODO: support water volumes that end in other directions than up
@@ -1139,6 +1185,7 @@ void(float dist) ai_floatmove_finish =
 	setorigin(self, self.oldorigin);
 	self.velocity = move / interv;
 }
+
 
 /*
 =============
@@ -1313,7 +1360,7 @@ void() ai_melee =
 	else
 		ldmg = 3 + random() * 2; //(random() + random() + random()) * 3;
 		
-	T_DamageMelee (self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 }
 
 
@@ -1334,7 +1381,7 @@ void() ai_melee_side =
 	if (!CanDamage (self.enemy, self.origin))
 		return;
 	ldmg = (random() + random() + random()) * 3;
-	T_DamageMelee (self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 }
 
 //============================================================================
@@ -1483,6 +1530,13 @@ void() ai_run_missile =
 		self.th_missile ();
 		self.attack_state = AS_STRAIGHT;
 	}
+	else
+	{
+		// *CheckAttack usually sets attack_finished, but FacingIdeal() can still cause 
+		// the attack to fail, usually when a monster is bumping around on a pillar or
+		// a high ledge and facing unpredictable directions, so we just reset it here
+		self.attack_finished = 0;
+	}
 }
 
 
@@ -1516,18 +1570,6 @@ void(float dist) ai_run_slide =
 	walkmoveplus (self.ideal_yaw - ofs, dist);
 }
 
-/*
-=============
-ai_run_straight
-
-Turn and follow straight
-=============
-*/
-void() ai_run_straight =
-{
-	self.ideal_yaw = enemy_yaw();
-	ChangeYaw ();
-}
 
 /*
 =============
@@ -1556,13 +1598,13 @@ void(float dist) ai_run =
 	}
 	
 	// see if the enemy is dead
-	if (!enemy_alive())
+	if (!alive(self.enemy))
 	{
 		e = self.enemy;
 		self.enemy = world;
 		self.frags = 0;
 
-		if (self.oldenemy.health > 0)
+		if (alive(self.oldenemy))
 		{
 			self.enemy = self.oldenemy;			
 			HuntTarget();
@@ -1601,22 +1643,22 @@ void(float dist) ai_run =
 	
 	if (enemy_vis && !(self.enemy.customflags & (CFL_PLUNGE|CFL_LIMBO)))
 	{
-		if (enemy_range == RANGE_MELEE)
-			self.attack_finished = 0;
-	
 		if (self.th_checkattack())
 		{
 			if (self.attack_state == AS_MISSILE)
-				ai_run_missile ();	
+			{
+				ai_run_missile ();
+			}
 			else if (self.attack_state == AS_MELEE)
+			{
+				self.attack_finished = 0;
 				ai_run_melee ();
+			}
 			else if (self.attack_state == AS_SLIDING)
+			{
 				ai_run_slide (dist);
+			}
 			return;
-		}
-		else if(self.classname == "monster_kamikaze")
-		{
-			ai_run_straight();
 		}
 	}
 	
@@ -1625,7 +1667,7 @@ void(float dist) ai_run =
 		ai_run_slide (dist);
 		return;
 	}
-	
+		
 	// head straight in
 	movetogoalplus(dist);	// wraps movetogoal()
 }

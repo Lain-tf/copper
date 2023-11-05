@@ -199,7 +199,7 @@ void() brute_punch =
 	}
 	
 	ldmg = 60;
-	T_DamageMelee(self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
 	SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);

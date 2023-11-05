@@ -29,10 +29,10 @@ void() ExitIntermission =
 		return;
 	}
 	
-	if (!intermission_running) return;
+	if (!intermission) return;
 	
 	intermission_exittime = time + 1;
-	intermission_running = intermission_running + 1;
+	intermission = intermission + 1;
 	
 	// custom tracks for intermission and episode end (vf)
 	intertrack = 3; 
@@ -53,7 +53,7 @@ void() ExitIntermission =
 	}
 
 	// end of episode drivel
-	if (intermission_running == 2)
+	if (intermission == 2)
 	{
 		if(selected_exit)
 		{
@@ -121,7 +121,7 @@ void() ExitIntermission =
 		GotoNextMap();
 	}
 	
-	if (intermission_running == 3)
+	if (intermission == 3)
 	{
 		if (!cvar("registered"))
 		{	// shareware episode has been completed, go to sell screen
@@ -138,12 +138,12 @@ void() ExitIntermission =
 		GotoNextMap();
 	}
 	
-	if (intermission_running == 4)
+	if (intermission == 4)
 	{
 		GotoNextMap();
 	}
 		
-	if (intermission_running >= 5)
+	if (intermission >= 5)
 	{
 		GotoNextMap();
 		return;
@@ -396,7 +396,7 @@ void() execute_changelevel =
 		intertrack = 4;
 	}
 		
-	intermission_running = 1;
+	intermission = 1;
 	
 // enforce a wait time before allowing changelevel
 	if (deathmatch)

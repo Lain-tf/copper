@@ -97,7 +97,7 @@ void() Cheat_Genocide =
 			if (t.think == mon_spawner_tryspawn || t.modelindex == 0 || t.classname == string_null )
 				remove(t);
 			else
-				T_Damage(t, self, self, t.health);		// waurgh
+				T_Damage(t, self, self, t.health, DMGTYPE_SCRIPT);		// waurgh
 		}
 		t = nextent(t);
 	}
@@ -304,27 +304,15 @@ void() ImpulseCommands =
 	case 11:
 		ServerflagsCommand();
 		break;
-	/*
-	Impulses from 20 to 50 are reserved for individual weapon selection, for now (vf)
-	*/	
-/*
-	// ai_nav
-	case 80:
-		nav_toggleEditor();
+
+	//Impulses from 20 to 50 are reserved for individual weapon selection, for now (vf)
+	case 15:
+		W_SelectBestWeapon();
 		break;
-	case 81:
-		nav_nodeSizeUp();
+
+	case 40:
+		dev_impulse_list();
 		break;
-	case 82:
-		nav_nodeSizeDown();
-		break;
-	case 83:
-		nav_createNode();
-		break;
-	case 84:
-		nav_deleteNode();
-		break;
-	*/
 	case 64:
 		dev_i_cant_see();
 		break;

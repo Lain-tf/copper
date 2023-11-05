@@ -89,6 +89,9 @@ void() W_FireAxe =
 	makevectors (self.v_angle);
 		
 		source = self.origin + self.view_ofs;//'0 0 16';
+
+		if (trace_ent == self)
+		return;	// some notrace shit happened
 	
 		if (self.berserk_finished > time)		
 			traceline2(source, source + v_forward * (96), self, 0);
@@ -110,9 +113,9 @@ void() W_FireAxe =
 			SpawnBlood (org, '0 0 0', 20);
 			
 			if (self.berserk_finished > time)
-				T_Damage (trace_ent, self, self, 264);			
+				T_Damage (trace_ent, self, self, 264, DMGTYPE_MELEE);			
 			else			
-				T_Damage (trace_ent, self, self, 24);
+				T_Damage (trace_ent, self, self, 24, DMGTYPE_MELEE);
 			
 			if (trace_ent.flags & FL_MONSTER)
 			{
@@ -362,3 +365,4 @@ void() W_FireFlail =
 			gunshot(org);
 		}
 }
+

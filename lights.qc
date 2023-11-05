@@ -164,8 +164,29 @@ void() light_use =
 	}
 }
 
-void(entity b, string l) bmodel_lightstyle =
+void(entity b, float opacity) bmodel_lightstyle =
 {
+	float a = zeroconvertdefault(b.alpha, 1);
+	float f;
+
+	// 'alpha' could be set by mapper or target_fade, 0 is invisible
+	//		1 blocks all light, 0 admits all
+	// 'opacity' is like positional alpha: is the bmodel visible or hidden? how far open is the door? etc
+	//		1 blocks all light, 0 admits all
+	
+	// stash for future changes in alpha
+	if (opacity == 0) b.alpha2 = -1;
+	else b.alpha2 = opacity;
+	
+	if (b.customflags & CFL_INVLIGHT)
+		opacity = 1 - opacity;
+	
+	// 0 for either will override the other and admit light, so we multiply
+	// finally, invert so 0 (brightest) becomes a high value
+	f = 1 - opacity * a;
+
+	string l = light_str(f);
+
 	if (b.style)
 		lightstyle(b.style, l);
 	if (b.switchshadstyle)
@@ -174,8 +195,8 @@ void(entity b, string l) bmodel_lightstyle =
 
 string(float f) light_str =
 {
-	// you know what's cool?  arrays.
 	float bright = floor(f * 12 + 0.5);
+	
 	if (bright <= 0 ) return "a";
 	if (bright >= 12) return "m";
 
@@ -219,7 +240,7 @@ void() light_message =
 		else if (self.style > 11)
 			lightstyle(self.style, self.message);
 		else
-			dprint5("WARNING: light at ", vtos(self.origin), " with message ", self.message, " but no style # set\n");
+			dprint5("\bwarning:\b light at ", vtos(self.origin), " with message ", self.message, " but no style # set\n");
 	}
 }
 
@@ -294,7 +315,7 @@ void() light =
 {
 	light_message();
 	
-	if (self.targetname == string_null)
+	if (self.targetname == string_null && !self.impulse)
 	{	// inert light
 		remove(self);
 		return;
@@ -930,7 +951,7 @@ Setting style to -1 will override lightstyle 0, which is all static lights in th
 "delay" pause between trigger and activation
 */
 /*FGD
-@PointClass base(Appearflags, Targetname, Target) color(128 210 128) = target_lightstyle : 
+@PointClass base(Appearflags, Targetname) color(128 210 128) = target_lightstyle : 
 "Target : Lightstyle
 Changes a global lightstyle when triggered."
 [
@@ -938,6 +959,10 @@ Changes a global lightstyle when triggered."
 	style(integer) : "Lightstyle to change (0-63)" : 0
 	count(integer) : "Limit uses" : 0
 	delay(string) : "Delay before activation" : "0"
+	target(target_destination) : "Target: acts on all with matching targetname" 
+	target2(target_destination) : "Target 2: acts on all with matching targetname" 
+	target3(target_destination) : "Target 3: acts on all with matching targetname" 
+	target4(target_destination) : "Target 4: acts on all with matching targetname" 
 ]
 */
 void() target_lightstyle =

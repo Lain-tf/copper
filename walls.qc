@@ -37,7 +37,7 @@ void() bmodel_appear =
 	// NOT ANY OTHER ORDERS
 	// ***
 	
-	bmodel_lightstyle(self,"a");
+	bmodel_lightstyle(self, 1);
 	self.state = STATE_BOTTOM;
 	//force_retouch = 2;
 }
@@ -129,7 +129,7 @@ void() bmodel_vanish_do =
 {
 	self.state = STATE_TOP;
 	self.modelindex = 0;
-	bmodel_lightstyle(self,"m");
+	bmodel_lightstyle(self, 0);
 }
 
 // ==========================================
@@ -184,6 +184,23 @@ void() func_wall_flip =
 	self.frame = 1 - self.frame;
 }
 
+void() wall_touch =
+{
+	if (other.classname != "player") return;
+	if (time < self.attack_finished) return;
+
+	if (self.message != string_null)
+	{
+		centerprintlocal(other, self.message);
+		if (self.noise2 != string_null)
+			sound (other, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+		else
+			sound (other, CHAN_VOICE, "misc/talk.wav", 1, ATTN_NORM);
+	}
+	self.attack_finished = time + 2;
+}
+
+
 /*FGD
 @baseclass base(Appearflags, Targetname, Func) = Wall [
 	spawnflags(flags) = [
@@ -192,6 +209,8 @@ void() func_wall_flip =
 		4 : "Start Invisible" : 0
 	]
 	noise(string) : "Sound to play when triggered"
+	noise2(string) : "Sound to accompany touch message"
+	message(string) : "Message when touched"
 	wait(string) : "Flip back after this long" : "0"
 	alpha(string) : "Opacity (GLQuake+ only) (-1 = 0)" : "1"
 ]
@@ -227,9 +246,16 @@ void() func_wall =
 	if (self.noise2) precache_sound_safe(self.noise2);
 	precache_model_safe(self.model);
 	
-	self.angles = self.mangle;
+	if (self.mangle)
+		self.angles = self.mangle;
 	self.use = func_wall_use;
 	//self.angles = '0 0 0';
+
+	if (self.style < 0)
+	{
+		self.style *= -1;
+		self.customflags |= CFL_INVLIGHT;
+	}	
 
 	self.movetype = MOVETYPE_PUSH;	// so it doesn't get pushed by anything
 	if (self.spawnflags & SPAWN_WALL_NONSOLID)
@@ -238,6 +264,7 @@ void() func_wall =
 		self.solid = SOLID_BSP;
 
 	setmodel (self, self.model);
+	if (!self.touch) self.touch = wall_touch;
 	
 	if (self.spawnflags & SPAWN_WALL_STARTINVIS)
 	{
@@ -246,7 +273,7 @@ void() func_wall =
 	}
 	else
 	{
-		bmodel_lightstyle(self,"a");
+		bmodel_lightstyle(self, 1);
 		self.state = STATE_BOTTOM;
 	}
 }
@@ -323,7 +350,7 @@ void() func_illusionary =
 void() gate_use =
 {
 	activator = self;
-	SUB_UseTargets();
+	SUB_UseTargetsSilent();
 }
 
 /*QUAKED func_episodegate (0 .5 .8) ? E1 E2 E3 E4 REVERSE NEED_ALL
@@ -369,12 +396,12 @@ void() func_episodegate =
 	if (inhibit)
 	{
 		dprint3("inhibiting episodegate ", ftos(runes), "\n");
-		bmodel_lightstyle(self,"m");
+		bmodel_lightstyle(self,0);
 //		remove(self);
 		return;			// can still enter episode
 	}
 	
-	bmodel_lightstyle(self,"a");
+	bmodel_lightstyle(self,1);
 	self.style = 0;
 	self.switchshadstyle = 0;
 	self.spawnflags = 0;
@@ -400,10 +427,10 @@ void() func_bossgate =
 	if (!SUB_ShouldSpawn()) return;
 	if ( (serverflags & SVFL_ALLEPISODES) == SVFL_ALLEPISODES)
 	{
-		bmodel_lightstyle(self,"m");
+		bmodel_lightstyle(self,0);
 		return;		// all episodes completed
 	}
-	bmodel_lightstyle(self,"a");
+	bmodel_lightstyle(self,1);
 	self.style = 0;
 	self.switchshadstyle = 0;
 	self.spawnflags = 0;

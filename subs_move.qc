@@ -72,7 +72,7 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 {
 	vector	vdestdelta;
 	float	len, traveltime;
-	float	localtime = getLocalTime();
+	float	chron = localtime(self);
 
 	if (!tspeed)
 		objerror( "No speed is defined!" );
@@ -84,7 +84,7 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 	if (tdest == self.origin)
 	{
 		self.velocity = '0 0 0';
-		self.nextthink = localtime + 0.1;
+		self.nextthink = localtime(self) + 0.1;
 		return;
 	}
 		
@@ -100,12 +100,12 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 	if (traveltime < 0.1)
 	{
 		self.velocity = '0 0 0';
-		self.nextthink = localtime + 0.1;
+		self.nextthink = localtime(self) + 0.1;
 		return;
 	}
 	
 // set nextthink to trigger a think when dest is reached
-	self.nextthink = localtime + traveltime;
+	self.nextthink = localtime(self) + traveltime;
 
 // scale the destdelta vector by the time spent traveling to get velocity
 	self.velocity = vdestdelta * (1/traveltime);	// qcc won't take vec/float
@@ -125,6 +125,64 @@ void(entity ent, vector tdest, float tspeed, void() func) SUB_CalcMoveEnt =
 	SUB_CalcMove (tdest, tspeed, func);
 	self = stemp;
 }
+
+
+// ================================================================
+
+/*
+CURVACEOUS MOVE
+
+pathcorners can have a curve spawnflag that marks them as bezier control points
+bezier path corners affect the curve but will never be visited
+	this means they don't affect speed, don't fire targets, etc
+*/
+
+void() SUB_CalcMoveCurveSeg =
+{
+	float chron = localtime(self);
+	// self.cnt is number of steps we've passed through
+	// (when self.cnt == nodeCtrl.count we should be at nodeEnd)
+	if (self.cnt == self.count)
+	{
+		self.pos2 = VEC_ORIGIN;
+		SUB_CalcMoveDone();
+		return;
+	}
+	self.cnt += 1;
+	
+	float t = self.cnt / self.count;
+	vector destdelta = bez(self.pos1, self.pos2, self.finaldest, t) - self.origin;
+	
+	float wishspeed = lerp(self.speed, self.speed2, t);
+	float traveltime = vlen(destdelta) / wishspeed;
+	if (traveltime < 0.05)
+	{
+		self.velocity = VEC_ORIGIN;
+		self.nextthink = chron + 0.05;
+		self.think = SUB_CalcMoveDone;
+		return;
+	}	
+	self.velocity = destdelta * (1/traveltime);
+	self.think = SUB_CalcMoveCurveSeg;
+	self.nextthink = chron + traveltime;
+}
+
+// init curved motion
+void(vector end, vector ctrl, float segs, float speedStart, float speedEnd, void() fnDone) SUB_CalcMoveCurve =
+{
+	// self.oldenemy is current pathcorner already
+	self.pos1 = self.origin;
+	self.pos2 = ctrl;
+	self.finaldest = end;
+	self.speed = speedStart;
+	self.speed2 = speedEnd;
+	self.cnt = 0;
+	self.count = segs;
+	self.think1 = fnDone;
+	
+	SUB_CalcMoveCurveSeg();
+}
+
 
 
 // ================================================================

@@ -123,7 +123,7 @@ void() shub_set_viewpoints =
 	local entity	pos, pl;
 
 	intermission_exittime = time + A_SHITLOAD;	// no exit yet
-	intermission_running = 1;
+	intermission = 1;
 
 	// find the intermission spot
 	pos = find (world, classname, "info_intermission");
@@ -173,8 +173,9 @@ void() shub_finale_2 =
 	local vector	o;
 
 	// start a teleport splash inside shub
+	makevectors(self.angles);
 
-	o = self.enemy.origin - '0 100 0';
+	o = self.origin + 100 * v_forward;
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_TELEPORT);
 	WriteCoord (MSG_BROADCAST, o_x);
@@ -197,11 +198,11 @@ void() shub_finale_3 =
 void() shub_finale_4 =
 {
 	vector	org;
-	entity	n;
+	entity	n;//, cl;
 	float	x, y, z;
 	float	r;
 
-	sound (n, CHAN_VOICE, "boss2/pop2.wav", 1, ATTN_NONE);
+	sound (self, CHAN_VOICE, "boss2/pop2.wav", 1, ATTN_NONE);
 
 	// throw tons of meat chunks	
 	org = self.origin;
@@ -218,11 +219,11 @@ void() shub_finale_4 =
 
 				r = random();
 				if (r < 0.3)				
-					ThrowGib ("progs/gib1.mdl", -300);
+					ThrowGib ("progs/gib1.mdl", -150 - random() * 180);
 				else if (r < 0.6)
-					ThrowGib ("progs/gib2.mdl", -300);
+					ThrowGib ("progs/gib2.mdl", -150 - random() * 180);
 				else
-					ThrowGib ("progs/gib3.mdl", -300);
+					ThrowGib ("progs/gib3.mdl", -150 - random() * 180);
 			}
 		}
 	}
@@ -239,27 +240,68 @@ void() shub_finale_4 =
 		// do this if we triggered shub to death
 		if (self.health >= 0)
 			shub_set_viewpoints();
+		
+		// there's code here to clone all coop players for the tableau, but .colormap
+		// hasn't worked on non-clients in any GL port of quake and four identical
+		// rangers in yellow just look stupid instead
+		
+		makevectors(self.angles);
+		/*
+		cl = nextent(world);
+		x = 0;
+		while (cl.classname == "player")
+		{*/
+			// put a player model down
+			n = spawn();
+			setmodel (n, "progs/player.mdl");
+			n.angles = self.angles;
+			/*
+			if (coop)
+			{
+				n.colormap = cl.colormap;
+				// line up coop players for the team portrait
+				if (x == 0)
+				{
+					setorigin (n, self.origin + v_forward * 128 + v_right * -16);
+					n.angles_y += 8;
+				}
+				else if (x == 1)
+				{
+					setorigin (n, self.origin + v_forward * 112 + v_right * 16);
+					n.angles_y -= 4;
+				}
+				else if (x == 2)
+				{
+					setorigin (n, self.origin + v_forward * 88 + v_right * -40);
+					n.angles_y += 16;
+				}
+				else if (x == 3)
+				{
+					setorigin (n, self.origin + v_forward * 80 + v_right * 40);
+					n.angles_y -= 12;
+				}
+			}
+			else
+			{*/
+				setorigin (n, self.origin + v_forward * 128);	
+			//}
 			
-		// put a player model down
-		n = spawn();
-		setmodel (n, "progs/player.mdl");
-		//org = self.origin;
-		org = (org + self.buddy.origin) * 0.5;
-		org_z = self.origin_z;
-		setorigin (n, org);
-		if (skill > 2)	// axe on nightmare because you are very badass
-		{
-			n.angles = '0 235 0';
-			n.frame = 17 + ceil(random() * 10);
-		}
-		else
-		{
-			n.angles = '0 295 0';
-			n.frame = 12 + ceil(random() * 2);
-		}
-		n.think = shub_dudecycle;
-		n.nextthink = time + 0.1;
-
+			if (skill > 2)	// axe on nightmare because you are very badass
+			{
+				n.angles_y -= 35;
+				n.frame = 17 + floor(random() * 9.9);
+			}
+			else
+			{
+				n.angles_y += 25;
+				n.frame = 12 + floor(random() * 2.9);
+			}
+			n.think = shub_dudecycle;
+			n.nextthink = time + 0.1;
+			//cl = nextent(cl);
+			//x++;
+		//}
+		
 		// kill everything else
 		shub_gibnearby();
 		Cheat_Genocide();
@@ -267,12 +309,12 @@ void() shub_finale_4 =
 		// allow the player to click back to a reset start map
 		nextmap = self.map;
 		intermission_exittime = time + 3;
-		intermission_running = 2;
+		intermission = 2;
 		serverflags = 0;	// clear all the runes and stuff
 		
 		// start the end text
 		WriteByte (MSG_ALL, SVC_FINALE);
-		WriteString (MSG_ALL, self.message);
+		WriteString (MSG_ALL, self.noise4);
 
 	// switch cd track
 		WriteByte (MSG_ALL, SVC_CDTRACK);
@@ -303,7 +345,7 @@ void() shub_gibnearby =
 	{
 		if (head.flags & FL_MONSTER)
 		{
-			T_Damage(head, self, self, head.health + 100);
+			monster_kill(head);
 		}
 		head = head.chain;
 	}
@@ -363,6 +405,8 @@ death will trigger the finale cutscene, unless NO_EXIT is checked, in which case
 
 Keyvalues:
 "strength" number of hits to take before exploding, defaults to 3
+"map" level to exit to, defaults to the start map
+"message" intermission text to show
 */
 /*FGD
 @PointClass base(Appearflags, Target, Targetname, Angle) color(220 0 0) size(-128 -128 -24, 128 128 256) model({ "path": ":progs/oldone.mdl" }) = monster_oldone : 
@@ -377,6 +421,8 @@ death will trigger the finale cutscene, unless 'Don't end level' is checked, in 
 		1 : "Don't end level" : 0
 	]
 	strength(integer) : "Health, in hits" : 3
+	map(string) : "Map to exit to" : "start"
+	message(string) : "Intermission text" : "congratulations and well done etc..."
 ]
 */
 void() monster_oldone =
@@ -418,8 +464,13 @@ void() monster_oldone =
 	self.th_die = shub_die;
 	self.use = shub_use;
 	
-	if (self.message == string_null)
-		self.message = "Congratulations, and well done! You have\nbeaten the hideous Shub-Niggurath and\nher hundreds of ugly changelings and\nmonsters. You have proven that your\nskill and your cunning are greater than\nall the powers of Quake. You are the\nmaster now.\n\nId Software is currently out of the\noffice, but if you leave a message,\nthey will be happy to salute you in\na couple of months.";
+	if (self.message != string_null)
+	{
+		self.noise4 = self.message;
+		self.message = string_null;
+	}
+	else
+		self.noise4 = "Congratulations, and well done! You have\nbeaten the hideous Shub-Niggurath and\nher hundreds of ugly changelings and\nmonsters. You have proven that your\nskill and your cunning are greater than\nall the powers of Quake. You are the\nmaster now.\n\nId Software is currently out of the\noffice, but if you leave a message,\nthey will be happy to salute you in\na couple of months.";
 	
 	total_monsters = total_monsters + 1;
 }

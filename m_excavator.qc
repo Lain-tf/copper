@@ -111,8 +111,8 @@ void() excavator_kamikaze_touch =
 	}
 
 	T_RadiusDamage(self, self, 60, world);
-	Killed(self,self.enemy, self.enemy);
-	BecomeExplosion ();
+	T_Damage(self, self.enemy, self.enemy, 100, DMGTYPE_MELEE);
+	BecomeExplosion();
 	
 };
 

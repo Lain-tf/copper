@@ -87,6 +87,9 @@ void(float shotcount, vector dir, vector spread, float damage) FireBulletsEx =
 		{
 			traceline2(src, src + direction*2048, ig, 0);
 			
+			if (trace_ent == self)
+				return;	// some notrace shit happened
+		
 			// if we've already pelted a monster enough to kill it, let additional bullets add 
 			// up for possible gibs (ala quake), but trace them again through the target for 
 			// better crowd control feels (ala doom).

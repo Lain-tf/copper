@@ -146,7 +146,7 @@ void() D1BossMissileHome =
 		return;
 	}
 	
-	if ( !enemy_alive() )
+	if (!alive(self.enemy))
 	{
 		remove(self);
 		return;
@@ -163,7 +163,7 @@ void() D1BossMissileHome =
 	if ( dot > 0 )
 		rate *= max(1, 1.3 * (1 - dot));
 	
-	self.velocity = D1BOSS_BALL_VEL * ShalTurnToward( self.enemy, rate * 0.7 ); // 0.7
+	self.velocity = D1BOSS_BALL_VEL * ShalTurnToward( self.enemy.origin, rate * 0.7 ); // 0.7
 	self.think = D1BossMissileHome;
 	self.oldvelocity = self.velocity;
 };

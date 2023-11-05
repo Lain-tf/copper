@@ -98,7 +98,7 @@ void() ShamSmash =
 		return;
 		
 	ldmg = (random() + random() + random()) * 40;
-	T_DamageMelee (self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
 	SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);
@@ -109,14 +109,14 @@ void() sham_smash1     =[      $smash1,       sham_smash2    ] {
 	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
 	ai_charge(2);
 }
-void() sham_smash2     =[      $smash2,       sham_smash3    ] {ai_charge(6);}
-void() sham_smash3     =[      $smash3,       sham_smash4    ] {ai_charge(6);}
-void() sham_smash4     =[      $smash4,       sham_smash5    ] {ai_charge(5);}
-void() sham_smash5     =[      $smash5,       sham_smash6    ] {ai_charge(4);}
-void() sham_smash6     =[      $smash6,       sham_smash7    ] {ai_charge(1);}
-void() sham_smash7     =[      $smash7,       sham_smash8    ] {ai_charge(0);}
-void() sham_smash8     =[      $smash8,       sham_smash9    ] {ai_charge(0);}
-void() sham_smash9     =[      $smash9,       sham_smash10   ] {ai_charge(0);}
+void() sham_smash2     =[      $smash2,       sham_smash3    ] {nmfast(); ai_charge(6);}
+void() sham_smash3     =[      $smash3,       sham_smash4    ] {nmfast(); ai_charge(6);}
+void() sham_smash4     =[      $smash4,       sham_smash5    ] {nmfast(); ai_charge(5);}
+void() sham_smash5     =[      $smash5,       sham_smash6    ] {nmfast(); ai_charge(4);}
+void() sham_smash6     =[      $smash6,       sham_smash7    ] {nmfast(); ai_charge(1);}
+void() sham_smash7     =[      $smash7,       sham_smash8    ] {nmfast(); ai_charge(0);}
+void() sham_smash8     =[      $smash8,       sham_smash9    ] {nmfast(); ai_charge(0);}
+void() sham_smash9     =[      $smash9,       sham_smash10   ] {nmfast(); ai_charge(0);}
 void() sham_smash10    =[      $smash10,      sham_smash11   ] {ShamSmash();}
 void() sham_smash11    =[      $smash11,      sham_smash12   ] {ai_charge(5);}
 void() sham_smash12    =[      $smash12,      sham_run1	   ] {ai_charge(4);}
@@ -133,7 +133,7 @@ void(float side) ShamClaw =
 		return;
 		
 	ldmg = (random() + random() + random()) * 20;
-	T_DamageMelee (self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
 	if (side)
@@ -147,11 +147,11 @@ void() sham_swingl1	=[      $swingl1,      sham_swingl2   ] {
 	sound (self, CHAN_VOICE, "shambler/melee2.wav", 1, ATTN_NORM);
 	ai_charge(5);
 }
-void() sham_swingl2 =[      $swingl2,      sham_swingl3   ] {ai_charge(3);}
-void() sham_swingl3 =[      $swingl3,      sham_swingl4   ] {ai_charge(7);}
-void() sham_swingl4 =[      $swingl4,      sham_swingl5   ] {ai_charge(3);}
-void() sham_swingl5 =[      $swingl5,      sham_swingl6   ] {ai_charge(7);}
-void() sham_swingl6 =[      $swingl6,      sham_swingl7   ] {ai_charge(9);}
+void() sham_swingl2 =[      $swingl2,      sham_swingl3   ] {nmfast(); ai_charge(3);}
+void() sham_swingl3 =[      $swingl3,      sham_swingl4   ] {nmfast(); ai_charge(7);}
+void() sham_swingl4 =[      $swingl4,      sham_swingl5   ] {nmfast(); ai_charge(3);}
+void() sham_swingl5 =[      $swingl5,      sham_swingl6   ] {nmfast(); ai_charge(7);}
+void() sham_swingl6 =[      $swingl6,      sham_swingl7   ] {nmfast(); ai_charge(9);}
 void() sham_swingl7 =[      $swingl7,      sham_swingl8   ] {ai_charge(5); ShamClaw(250);}
 void() sham_swingl8 =[      $swingl8,      sham_swingl9   ] {ai_charge(4);}
 void() sham_swingl9 =[      $swingl9,      sham_run1  ] {
@@ -166,11 +166,11 @@ void() sham_swingr1	=[      $swingr1,      sham_swingr2   ] {
 	sound (self, CHAN_VOICE, "shambler/melee1.wav", 1, ATTN_NORM);
 	ai_charge(1);
 }
-void() sham_swingr2	=[      $swingr2,      sham_swingr3   ] {ai_charge(8);}
-void() sham_swingr3 =[      $swingr3,      sham_swingr4   ] {ai_charge(14);}
-void() sham_swingr4 =[      $swingr4,      sham_swingr5   ] {ai_charge(7);}
-void() sham_swingr5 =[      $swingr5,      sham_swingr6   ] {ai_charge(3);}
-void() sham_swingr6 =[      $swingr6,      sham_swingr7   ] {ai_charge(6);}
+void() sham_swingr2	=[      $swingr2,      sham_swingr3   ] {nmfast(); ai_charge(8);}
+void() sham_swingr3 =[      $swingr3,      sham_swingr4   ] {nmfast(); ai_charge(14);}
+void() sham_swingr4 =[      $swingr4,      sham_swingr5   ] {nmfast(); ai_charge(7);}
+void() sham_swingr5 =[      $swingr5,      sham_swingr6   ] {nmfast(); ai_charge(3);}
+void() sham_swingr6 =[      $swingr6,      sham_swingr7   ] {nmfast(); ai_charge(6);}
 void() sham_swingr7 =[      $swingr7,      sham_swingr8   ] {ai_charge(6); ShamClaw(-250);}
 void() sham_swingr8 =[      $swingr8,      sham_swingr9   ] {ai_charge(3);}
 void() sham_swingr9 =[      $swingr9,      sham_run1  ] {
@@ -195,7 +195,7 @@ void() sham_melee =
 	// gradually building chance that the shambler will lightning instead of 
 	// continuing to melee, so that attempting a shambler dance is an
 	// increasingly dangerous gamble and not a solidly predictable exploit
-	if (chance < floor(self.cnt) / 6.66)	// step up by 15% every other melee
+	if (chance < floor(self.lip) / 6.66)	// step up by 15% every other melee
 	{
 		sham_magic1();
 		return;
@@ -219,7 +219,7 @@ void() sham_melee =
 		else
 			sham_swingl1 ();
 	}
-	self.cnt += 0.5;
+	self.lip += 0.5;
 }
 
 
@@ -235,7 +235,7 @@ void() CastLightning =
 	makevectors(self.angles);
 	
 	// shamblers look weird when their lightning jumps around seeking the player
-	if (has_invis(self.enemy))
+	if (has_invis(self.enemy) && (time > self.dmgtime + 1))
 	{
 		dir = v_forward;
 	}
@@ -260,18 +260,9 @@ void() CastLightning =
 	ApplyMultiDamage();
 }
 
-void() sham_magic1     =[      $magic1,       sham_magic2    ] {ai_face();
-	sound (self, CHAN_WEAPON, "shambler/sattck1.wav", 1, ATTN_NORM);
-	self.cnt = 0;
-	ai_attack_finished (2 + 2*random());
-}
-void() sham_magic2     =[      $magic2,       sham_magic3    ] {ai_face();}
-void() sham_magic3     =[      $magic3,       sham_magic4    ] {ai_face();
-	self.nextthink = self.nextthink + 0.2;
+void() sham_spawn_effect =
+{
 	entity o;
-
-	self.effects = self.effects | EF_MUZZLEFLASH;
-	ai_face();
 	self.buddy = spawn();
 	o = self.buddy;
 	setmodel (o, "progs/s_light.mdl");
@@ -279,6 +270,29 @@ void() sham_magic3     =[      $magic3,       sham_magic4    ] {ai_face();
 	o.angles = self.angles;
 	o.nextthink = time + 0.7;
 	o.think = SUB_Remove;
+	
+}
+
+void() sham_magic1     =[      $magic1,       sham_magic2    ] {ai_face();
+	sound (self, CHAN_WEAPON, "shambler/sattck1.wav", 1, ATTN_NORM);
+	self.lip = 0;
+}
+void() sham_magic2     =[      $magic2,       sham_magic3    ] {ai_face();}
+void() sham_magic2nm     =[      $magic2,       sham_magic3    ]
+{
+	if (range(self.enemy) == RANGE_MELEE)
+	{
+		sham_melee();
+		return;
+	}
+	sound (self, CHAN_WEAPON, "shambler/sattck1.wav", 1, ATTN_NORM);
+	ai_face();
+}
+void() sham_magic3     =[      $magic3,       sham_magic4    ] {ai_face();
+	self.nextthink = self.nextthink + 0.2;
+	self.effects = self.effects | EF_MUZZLEFLASH;
+	ai_face();
+	sham_spawn_effect();
 }
 void() sham_magic4     =[      $magic4,       sham_magic5    ]
 {
@@ -297,13 +311,17 @@ void() sham_magic6     =[      $magic6,       sham_magic9    ]
 	CastLightning();
 }
 void() sham_magic9     =[      $magic9,       sham_magic10   ]{ CastLightning();}
-void() sham_magic10    =[      $magic10,      sham_magic11n   ]{ CastLightning();}
+void() sham_magic10    =[      $magic10,      sham_magic11n   ]{ CastLightning();
+	if (vlen(self.origin - enemy_vispos()) < SHAM_LIGHTNING_RANGE)
+		ai_check_refire(sham_magic2nm);
+	ai_attack_finished (1 + 2*random());
+}
 void() sham_magic11n    =[      $magic11,      sham_magic12   ] {}
 void() sham_magic12    =[      $magic12,      sham_run1	   ] {}
 
-// nightmare no longer needs special cases like this to force the game to seem harder,
-// but we save this function with the name preserved because it's been used in past
-// maps as a secret hack way to fire nightmare-only triggers
+// shambler refire replaces 4-tick nightmare lightning, but we save this function 
+// with the name preserved because it's been used in past maps as a secret hack way 
+// to fire nightmare-only triggers
 void() sham_magic11    =[      $magic11,      sham_magic12   ]{ if (skill >= 3) CastLightning(); }
 
 
@@ -440,6 +458,8 @@ void() monster_shambler_spawn =
 
 	if (self.deathtype == string_null)
 		self.deathtype = "was smashed by a Shambler";
+
+	nmspeed(0.08);
 
 	walkmonster_start();	
 }

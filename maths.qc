@@ -41,7 +41,7 @@ vector(float num) SinCos =
 	
 	angle = '0 1 0' * num;
 	makevectors(angle);
-	result = Vector(v_forward_y, v_forward_x, v_forward_x / v_forward_y);	// technically SinCosTan
+	result = Vector(v_forward_y, v_forward_x, 0);
 	
 	v_forward = vf;
 	v_up = vu;
@@ -68,6 +68,7 @@ float(float num) tan =
 {
 	vector temp;
 	temp = SinCos(num);
+	if (temp_y == 0) return A_SHITLOAD;	// to infinity and beyond
 	return temp_x / temp_y;
 }
  
@@ -181,6 +182,24 @@ vector(vector a, vector b, float mix) lerpVectorCosine =
 	return (b * cmx + a * ( 1 - cmx ) );
 }
 
+// bez is short for Bilinear EnterpolationZ
+vector(vector start, vector ctrl, vector end, float t) bez =
+{
+	vector b1 = t * ctrl + (1-t) * start;
+	vector b2 = t * end + (1-t) * ctrl;
+	return t * b2 + (1-t) * b1;
+}
+
+// quick bezier length approximation (2/3 chord len + 1/3 perimeter)
+float(vector start, vector ctrl, vector end) bez_lenApprox =
+{
+	float chord, peri;
+	
+	chord = vlen(start - end);
+	peri = vlen(start - ctrl) + vlen(ctrl - end) + chord;
+	
+	return 2 * chord / 3 + peri / 3;
+}
 
 // rotates B around A
 vector(vector b, vector a, float r) rotateVectorAround =
@@ -211,6 +230,11 @@ vector(vector v) vabs =
 vector(vector a, vector b) vec_scale =
 {
 	return Vector(a_x * b_x, a_y * b_y, a_z * b_z);
+}
+
+float(vector ang) is_angular =
+{
+	return (fabs(ang_x) > 1 || fabs(ang_y) > 1 || fabs(ang_z) > 1);
 }
 
 float(float a, float b) min = { if (a <= b) return a; return b; }

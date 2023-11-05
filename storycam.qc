@@ -85,7 +85,7 @@ void(entity who) StashClientInfoes
 
 	who.fog_color2 = who.fog_color;
 	who.fog_density2 = who.fog_density;
-	who.skyfog_density2 = who.skyfog_density;
+	who.fog_sky2 = who.fog_sky;
 	
 	//HideCrosshair();
 	ClearItemEffects(who);
@@ -121,8 +121,8 @@ void(entity who) RestoreClientInfoes
 	//RestoreCrosshair();
 	stuffcmd(who,"-strafe\n");
 	RestoreItemEffects(who);
-	fog_set(who, who.fog_density2, who.fog_color2);
-	skyfog_set(who, who.skyfog_density2);
+	fog_set(who, who.fog_density2, who.fog_color2, who.fog_sky2);
+	//TODO: figure out wtf is going on with this command lol
 	who.nextthink = time;
 	who.think = player_stand1;
 }
@@ -351,7 +351,7 @@ void() StoryCameraUse =
 {
 	local float p;
 		
-	if (intermission_running) return;
+	if (intermission) return;
 	if (!(self.spawnflags & 1)) return;	// can only trigger first camera
 	
 	local entity who;

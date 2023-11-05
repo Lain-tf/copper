@@ -46,7 +46,7 @@ void() trigger_relay_use =
 	if (self.noise != string_null)
 	{
 		if (self.delay > 0)
-			sound_delayed(self, self.noise, 1, ATTN_NORM, self.delay);
+			sound_delayed(self, CHAN_VOICE, self.noise, 1, ATTN_NORM, self.delay);
 		else
 			sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	}	
@@ -96,9 +96,9 @@ void() trigger_relay =
 	if (self.targetname == string_null)
 	{
 		// IW fix - no longer objerror, which is a game-ender in old engines
-		dprint3("WARNING: trigger_relay at ", vtos(self.origin), "not targeted by anything");
-		remove(self);
-		return;
+		dprint3("\bwarning:\b  trigger_relay at ", vtos(self.origin), "not targeted by anything\n");
+		//remove(self);
+		//return;
 	}
 		
 	self.use = trigger_relay_use;
@@ -213,7 +213,7 @@ If 'Inverse' spawnflag is set, will decrement when triggered instead of incremen
 void() target_state =
 {
 	if (!SUB_ShouldSpawn()) return;
-	if (self.targetname == string_null)
+	if (self.targetname == string_null && !self.impulse)
 		objerror("target_state not targeted by anything");
 	if (self.spawnflags & 1 && self.include == string_null)
 		objerror("target_state relay has no include");
@@ -226,78 +226,92 @@ void() target_state =
 
 //=============================================================================
 
-void(string tname) target_lock_do =
+const float SPAWN_LOCK_START = 1;
+const float SPAWN_LOCK_LOCK_ONLY = 2;
+const float SPAWN_LOCK_UNLOCK_ONLY = 4;
+const float SPAWN_LOCK_NOTOGGLE = 6;
+
+// state 1 = targets are currently locked
+// state 0 = targets are currently unlocked
+
+void(string tname, float locking) target_lock_do =
 {
 	if (tname == string_null) return;
 
-	local entity t, c;
+	entity t, oself;
 	t = world;
 	
 	do	{
 		t = find (t, targetname, tname);
 		if (!t) break;
 		
-		// outer loop finds doors targeted directly
-		if (t.classname == "func_door")
+		if (t.lock)
 		{
-			if (self.state) door_unlock(t);
-			else door_lock(t);
-			// inner loop checks for doors that are linked by touch and not targetname
-			c = t.enemy;
-			do {
-				if (c.targetname != t.targetname)	// outer loop will find this one
-					if (self.state) door_unlock(t);
-					else door_lock(t);
-				c = c.enemy;
-			} while (c != t);
+			oself = self;
+			self = t;
+			self.lock(!locking);
+			self = oself;
 		}
-		else if (t.classname == "func_plat")
+		else
 		{
-			if (self.state) plat_unlock(t);
-			else plat_lock(t);
-		}
-		else if (t.classname == "func_button")
-		{
-			if (self.state) button_unlock(t);
-			else button_lock(t);
-		}
-		// dumb way to make coop starts visible/invisible to the cyclical spawnpoint search 
-		// code without making that code overly complex
-		else if (t.classname == "info_player_coop")
-		{
-			t.classname = "info_player_coop_notyet";
-		}
-		else if (t.classname == "info_player_coop_notyet")
-		{
-			t.classname = "info_player_coop";
-		}
-		else //if (t.classname == "trigger_relay" || t.classname == "func_button")
-		{
-			if (self.state)
-			{
-				t.customflags = not(t.customflags, CFL_LOCKED);
-				dprint4(t.classname, " with targetname ", t.targetname, " is unlocked\n");
-			}
-			else
-			{
+			if (locking)
 				t.customflags |= CFL_LOCKED;
-				dprint4(t.classname, " with targetname ", t.targetname, " is locked\n");
-			}
+			else
+				t.customflags = not(t.customflags, CFL_LOCKED);
 		}
+		
+		if (locking)
+			dprint4(t.classname, " with targetname ", t.targetname, " is locked\n");
+		else
+			dprint4(t.classname, " with targetname ", t.targetname, " is unlocked\n");
 	} while ( t );
+}
+
+void() lock_targets =
+{
+	target_lock_do(self.target,  TRUE);
+	target_lock_do(self.target2, TRUE);
+	target_lock_do(self.target3, TRUE);
+	target_lock_do(self.target4, TRUE);
+	self.state = TRUE;
+}
+void() unlock_targets =
+{
+	target_lock_do(self.target,  FALSE);
+	target_lock_do(self.target2, FALSE);
+	target_lock_do(self.target3, FALSE);
+	target_lock_do(self.target4, FALSE);
+	self.state = FALSE;
 }
 
 void() target_lock_use =
 {
-	//bprint("in target lock use\n");
-	target_lock_do(self.target);
-	target_lock_do(self.target2);
-	target_lock_do(self.target3);
-	target_lock_do(self.target4);
+	float locking, undoing;
+	if (self.wait || self.rand)
+	{
+		undoing = TRUE;
+		self.nextthink = time + self.wait + random() * self.rand;
+	}
 	
-	if (self.spawnflags & 4) self.state = 1;
-	else if (self.spawnflags & 2) self.state = 0;
-	else self.state = 1 - self.state;
+	if (!(self.spawnflags & SPAWN_LOCK_NOTOGGLE))
+	{
+		self.state = !self.state;
+		locking = self.state;
+	}
+	else if (self.spawnflags & SPAWN_LOCK_LOCK_ONLY)
+		locking = TRUE;
+	else
+		locking = FALSE;
+	
+	
+	if (locking)
+	{
+		lock_targets();
+		if (undoing) self.think = unlock_targets;
+		return;
+	}
+	unlock_targets();
+	if (undoing) self.think = lock_targets;
 }
 
 /*QUAKED target_lock (0 .5 .8) (-8 -8 -8) (8 8 8) START_LOCKED LOCK_ONLY UNLOCK_ONLY
@@ -308,38 +322,45 @@ Locks and unlocks targeted entities independent of their toggle/start_open/etc s
   - Locked path_corners are not considered valid patrol/train destinations
   - Locked trigger volumes (once/multi/teleport/secret/changelevel/push/monsterjump) will not activate when touched or triggered
 
+If 'wait' or 'rand' are set, will automatically undo itself after 'wait' seconds plus up to 'rand' additional seconds.
+
 Spawnflags:
 "start_locked"	Targeted entities start out locked. 
 "lock_only"		Will only lock its targets rather than toggling
 "unlock_only"	Will only unlock its targets rather than toggling
 */
 /*FGD
-@Pointclass base(Target, Targetname, Appearflags) color(192 64 0) size(16 16 16) = target_lock : 
+@Pointclass base(Targetname, Appearflags) color(192 64 0) size(16 16 16) = target_lock : 
 "Locks and unlocks targeted entities independent of their toggle/start_open/etc states.  Works on various entities:
   - A locked func_door won't respond to touches or triggers. Use this for doors behind temporary bars.
   - A locked func_plat behaves as an unreleased LOW_TRIGGER plat
   - A locked trigger_relay will not fire or evaluate at all
   - Locked path_corners are not considered valid patrol/train destinations
-  - Locked trigger volumes (once/multi/teleport/secret/changelevel/push/monsterjump) will not activate when touched or triggered"
+  - Locked trigger volumes (once/multi/teleport/secret/changelevel/push/monsterjump) will not activate when touched or triggered
+If 'wait' is set, will automatically undo itself after 'wait' seconds."
 [
 	spawnflags(flags) = [
 		1: "Targeted entities start locked" : 0
 		2: "Lock only" : 0
 		4: "Unlock only" : 0
 	]
+	target(target_destination) : "Target: acts on all with matching targetname" 
+	target2(target_destination) : "Target 2: acts on all with matching targetname" 
+	target3(target_destination) : "Target 3: acts on all with matching targetname" 
+	target4(target_destination) : "Target 4: acts on all with matching targetname" 
+	wait(string) : "Wait before undoing" : 0
+	rand(string) : "Additional random wait" : 0
 ]
 */
 void() target_lock =
 {
 	if (!SUB_ShouldSpawn()) return;
 	self.use = target_lock_use;
-	if (self.spawnflags & 4) self.state = 1;
-	else self.state = 0;
+	self.state = 0;
 	
-	if (self.spawnflags & 1)
+	if (self.spawnflags & SPAWN_LOCK_START)
 	{
-		self.state = 0;
-		self.think = target_lock_use;
+		self.think = lock_targets;
 		self.nextthink = time + 0.25;
 	}
 }
@@ -527,9 +548,10 @@ void() trigger_timer =
 	self.think = timer_think;
 	self.use = timer_use;
 
-	if (self.spawnflags & 1)
+	if (self.spawnflags & 1)	// start on
 	{
 		self.nextthink = time + self.wait;
+		self.owner = nextent(world);	// use first player as activator since we're never triggered by an activator
 	}
 	
 	if (!self.count)

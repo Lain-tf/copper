@@ -23,7 +23,7 @@ void(vector org, float rad) T_GibDownedZombies =
 			rad - vlen(head.origin - org) > 0.5 * head.health	// close enough to hurt
 			)
 		{
-			T_Damage (head, self, self, head.health + 10);
+			T_Damage (head, self, self.trueowner, head.health + 10);
 		}
 		head = head.chain;
 	}
@@ -47,15 +47,11 @@ void() T_MissileExplode =
 	
 	if (other.health)
 	{
-		if (other.classname == "monster_shambler")
-			damg = damg * 0.5;
-		if (other.type == "zombie")
-			damg = max(damg, other.health + 25);	// so ogre rockets kill zombies despite being too weak
-		T_Damage (other, self, self.trueowner, damg );
+		T_Damage (other, self, self.trueowner, damg, DMGTYPE_EXPLOSION | DMGTYPE_ZKILL );	// so ogre rockets kill zombies despite being too weak
 	}
 
 	// don't do radius damage to other, because all damage will be done in the impact
-	T_RadiusDamage (self, self.trueowner, self.dmg + 20, other);
+	T_RadiusDamage (self, self.trueowner, self.dmg + 20, other, DMGTYPE_EXPLOSION);
 }
 
 void() T_MissileTouch =
@@ -118,7 +114,7 @@ GERNADES
 
 void() GrenadeExplode =
 {
-	T_RadiusDamage (self, self.trueowner, 120, world);
+	T_RadiusDamage (self, self.trueowner, 120, world, DMGTYPE_EXPLOSION);
 	//T_GibDownedZombies (self, 120);
 	
 	BecomeExplosion ();

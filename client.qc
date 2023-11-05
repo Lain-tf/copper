@@ -60,7 +60,9 @@ void() SetChangeParms =
 	// cap super health
 	self.health = min(self.health, self.max_health);		
 	// bump the player up if he's below 50 <- pretty much the only 'autobalance' in quake
-	if (skill < 3)	// nightmare players now get no help
+	if (skill == 3)	// nightmare players get just enough not to crater
+		self.health = max(self.health, 10);
+	else
 		self.health = max(self.health, 50);
 	
 	parm1 = self.items;
@@ -82,12 +84,8 @@ void() SetChangeParms =
 
 void() SetNewParms =
 {
-	if (skill == 3)
-		parm2 = 50;
-	else
-		parm2 = 100;
-
 	parm1 = IT_SHOTGUN | IT_AXE;
+	parm2 = 100;
 	parm4 = 25;
 	parm8 = IT_SHOTGUN;
 	parm3 = 0;
@@ -103,12 +101,8 @@ void() SetNewParms =
 // shells and nails are kept over on respawn
 void() SetCoopParms =
 {
-	if (skill == 3)
-		parm2 = 50;
-	else
-		parm2 = 100;
-
 	parm1 = self.items & IT_WEAPONS;
+	parm2 = 100;
 	parm4 = max(25,self.ammo_shells);
 	if (parm1 & IT_SUPER_SHOTGUN)
 		parm8 = IT_SUPER_SHOTGUN;
@@ -229,10 +223,8 @@ float() TransferKeys =
 	float silver, gold, give;
 	entity recipient;	
 	
-	if (self.items & IT_KEY1)
-		silver = self.worldtype & 15;
-	if (self.items & IT_KEY2)
-		gold = (self.worldtype & 240) / 16;
+	silver = key_count_silver(self);
+	gold = key_count_gold(self);
 	
 	// no keys
 	if (!silver && !gold)
@@ -244,48 +236,76 @@ float() TransferKeys =
 	{
 		if (silver > 0)
 		{
-			give = 15 - (recipient.worldtype & 15);
+			give = 16 - key_count_silver(recipient);
 			give = min(give, silver);
 			if (give)
 			{
-				recipient.worldtype += give;
-				recipient.items |= IT_KEY1;
+				if (recipient.items & IT_KEY1)
+				{
+					recipient.worldtype += give;
+				}
+				else
+				{
+					recipient.items |= IT_KEY1;
+					recipient.worldtype += give - 1;
+				}
+			
+				silver -= give;
+				key_take_silvers(self, give);
+				
 				sprint(recipient, "You got ");
 				if (give > 1)
 				{
 					sprint(recipient, ftos(give));
-					sprint(recipient, " Silver Keys from ");
+					key_sprint_name(recipient, FALSE);
+					sprint(recipient, "s");
 				}
 				else
-					sprint(recipient, "the Silver Key from ");
+				{
+					sprint(recipient, "the");
+					key_sprint_name(recipient, FALSE);
+				}
+				sprint(recipient, " from ");
 				sprint(recipient, self.netname);
 				sprint(recipient, "\n");
-				silver -= give;
-				self.worldtype -= give;
 				stuffcmd(recipient, "bf\n");
 				sound (recipient, CHAN_ITEM, key_sound(), 1, ATTN_NORM);
 			}
 		}
 		if (gold > 0)
 		{
-			give = 15 - (recipient.worldtype & 240)/16;
+			give = 16 - key_count_gold(recipient);
 			give = min(give, gold);
 			if (give)
 			{
-				recipient.worldtype += give * 16;
-				recipient.items |= IT_KEY2;
+				if (recipient.items & IT_KEY2)
+				{
+					recipient.worldtype += give * 16;
+				}
+				else
+				{
+					recipient.items |= IT_KEY2;
+					recipient.worldtype += (give - 1) * 16;
+				}
+			
+				silver -= give;
+				key_take_golds(self, give);
+				
 				sprint(recipient, "You got ");
 				if (give > 1)
 				{
 					sprint(recipient, ftos(give));
-					sprint(recipient, " Gold Keys from ");
+					key_sprint_name(recipient, TRUE);
+					sprint(recipient, "s");
 				}
 				else
-					sprint(recipient, "the Gold Key from ");
+				{
+					sprint(recipient, "the");
+					key_sprint_name(recipient, TRUE);
+				}
+				sprint(recipient, " from ");
 				sprint(recipient, self.netname);
 				sprint(recipient, "\n");
-				gold -= give;
-				self.worldtype -= 16 * give;
 				stuffcmd(recipient, "bf\n");
 				sound (recipient, CHAN_ITEM, key_sound(), 1, ATTN_NORM);
 			}
@@ -318,7 +338,7 @@ void() set_respawn_delay =
 {
 	self.lifetime_finished = time + 1;
 	
-	if (coop != 1 || gameover) return;
+	if (coop != 1 || gameover || mapname == "start") return;
 	
 	if (clientsAlive)
 	{
@@ -376,7 +396,7 @@ void() respawn =
 	}
 	if (coop)
 	{
-		if (coop == 1)
+		if (coop == 1 && mapname != "start")
 		{
 			// no restarting if someone else has already exited
 			if (gameover)
@@ -524,13 +544,28 @@ entity() SelectSpawnPoint =
 	// testinfo_player_start is only found in regioned levels
 	spot = find (world, classname, "info_player_start_test");
 	if (spot)
-	{
 		return spot;
-	}
 
-	if (serverflags & (SVFL_ALLEPISODES))
-	{	// return with a rune to start
-		spot = find (world, classname, "info_player_start2");
+	if (serverflags)	// return with a rune to start
+	{
+		spot = world;
+		dprint2(ftos(serverflags), "\n");
+		while (TRUE)
+		{
+			spot = find (spot, classname, "info_player_start2");
+			if (!spot) break;
+			dprint3("   ", ftos(spot.svflags), "\n");
+			
+			// all
+			if (spot.style == 1 && ((spot.svflags & serverflags) == spot.svflags))
+				break;
+			// none
+			else if (spot.style == 2 && ((spot.svflags & serverflags) == 0))
+				break;
+			// any
+			else if (spot.style == 0 && ((spot.svflags & serverflags) != 0))
+				break;
+		}
 		if (spot)
 			return spot;
 	}
@@ -557,11 +592,7 @@ void() PutClientInServer =
 	spot = SelectSpawnPoint();
 	self.classname = "player";
 	
-	// new for nightmare: reduced max health instead of the manky attack time scale
-	if (skill == 3)
-		self.max_health = 50;
-	else
-		self.max_health = 100;
+	self.max_health = 100;
 	self.health = self.max_health;
 	
 	self.takedamage = DAMAGE_AIM;
@@ -592,6 +623,9 @@ void() PutClientInServer =
 		SetChangeParms();
 	}
 	W_ResetWeaponState();
+	
+	// put global key type in the high bits so the CSQC hud gets to see it :/
+	self.worldtype = (self.worldtype & 255) + world.worldtype * 256;
 
 	// we respawned with keys not taken away, make sure .items reflects this
 	if (self.worldtype & 15) self.items |= IT_KEY1;
@@ -618,17 +652,16 @@ void() PutClientInServer =
 	self.attack_finished = time + 0.1;	// don't shoot on the first frame if we clicked to spawn
 	
 	// yet another thing that doesn't work on the first frame
-	if (spot.fog_density)
-		fog_save(self,spot.fog_density,spot.fog_color);
-	else if (world.fog_density)
-		fog_save(self,world.fog_density,world.fog_color);
-
-	if (spot.skyfog_density){
-		skyfog_save(self, zeroconvert(spot.skyfog_density));
+	if (spot.fog_density || spot.fog_color || spot.fog_sky)
+	{
+		fog_save(self, spot.fog_density, spot.fog_color, spot.fog_sky);
 	}
-	else if (world.skyfog_density){
-		skyfog_save(self, zeroconvert(world.skyfog_density));
+	else if (world.fog_density || world.fog_color || world.fog_sky)
+	{
+		fog_save(self, world.fog_density, world.fog_color, world.fog_sky);
 	}
+	if (!self.fog_sky)
+		self.fog_sky = cvar("r_skyfog");
 	cleanUpClientShit = 2;
 
 // oh, this is a hack!
@@ -807,10 +840,7 @@ void() PlayerHealthTick =
 		{
 			// recover damage taken from drowning
 			//T_Heal(self, self.dmg, 0);
-			if (skill > 2)
-				self.health = min(hmax, self.health + ceil(self.dmg/4));
-			else
-				self.health = min(hmax, self.health + ceil(self.dmg/2));
+			self.health = min(hmax, self.health + ceil(self.dmg/2));
 			self.dmg = max(0, self.dmg - 1);
 			self.healthtime = time + 0.5;
 		}	
@@ -857,7 +887,7 @@ void() IntermissionThink =
 		self.impulse = 0;
 	}
 	
-	if (!intermission_running) return;
+	if (!intermission) return;
 	
 	// auto-cycle intermission camera after six seconds
 	else if (time > self.lifetime_finished)
@@ -1156,12 +1186,7 @@ void() WaterMove =
 		{	// drown!
 			if (self.pain_finished < time)
 			{
-				self.deathtype = "drowning";
-				if (skill > 2)
-					T_Damage (self, world, world, ceil(max(self.dmg, 1)/2));
-				else
-					T_Damage (self, world, world, max(self.dmg, 1));
-				self.deathtype = string_null;
+				T_Damage (self, world, world, max(self.dmg, 1), DMGTYPE_DROWNING | DMGTYPE_NOARMOR);
 				self.pain_finished = time + 1;
 				
 				if (!has_invuln(self))	// don't advance the drowning timer with pent, or we
@@ -1192,11 +1217,9 @@ void() WaterMove =
 
 			if (self.waterlevel)
 			{
-				self.deathtype = "lava";
 				// biosuit protects from lava if it's 16u deep or less
 				if (!(has_biosuit(self) && pointcontents(self.origin - '0 0 7') != CONTENT_LAVA))
-					T_Damage (self, world, world, 10 * self.waterlevel);
-				self.deathtype = string_null;
+					T_Damage (self, world, world, 10 * self.waterlevel, DMGTYPE_LAVA);
 			}
 		}
 	}
@@ -1205,9 +1228,7 @@ void() WaterMove =
 		if (self.dmgtime < time && self.radsuit_finished < time)
 		{
 			self.dmgtime = time + 1;
-			self.deathtype = "slime";
-			T_Damage (self, world, world, 4 * self.waterlevel);
-			self.deathtype = string_null;
+			T_Damage (self, world, world, 4 * self.waterlevel, DMGTYPE_SLIME);
 		}
 	}
 	
@@ -1583,10 +1604,8 @@ void() PlayerPreThink =
 		}
 		self.changevcshift = 1; // be sure to restore powerup tint on save/load (vf)
 	}
-	
-	DrawSpeed();
 
-	if (intermission_running || self.deadflag == DEAD_SPECTATING )
+	if (intermission || self.deadflag == DEAD_SPECTATING )
 	{
 		IntermissionThink ();	// otherwise a button could be missed between
 		return;					// the think tics
@@ -1671,7 +1690,7 @@ Called every frame after physics are run
 */
 void() PlayerPostThink =
 {
-	if (storytime_running || intermission_running ) return;
+	if (storytime_running || intermission ) return;
 	
 	if (self.view_ofs == '0 0 0')
 		return;		// intermission or finale
@@ -1733,9 +1752,7 @@ void() PlayerPostThink =
 	{
 		if (self.jump_flag < -650 && !(self.customflags & CFL_PLUNGE) && !self.waterlevel)
 		{
-			self.deathtype = "falling";
-			T_Damage (self, world, world, 5); 
-			self.deathtype = string_null;
+			T_Damage (self, world, world, 5, DMGTYPE_FALLING); 
 			sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 		}
 		else if (self.waterlevel < WL_EYES)
@@ -1790,7 +1807,7 @@ void() ClientKill =
 {
 	// don't kill the player through a special mechanism or too much stuff gets skipped
 	self.invincible_finished = 0;
-	T_Damage(self,self,self,ArmorSave(self, A_SHITLOAD) + self.health);
+	T_Damage(self,self,self,self.health, DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
 	
 	/*
 	bprint (self.netname);
@@ -1820,7 +1837,7 @@ void() ClientConnect =
 //	clientsAlive += 1;	// happens on putclientinserver
 	
 // a client connecting during an intermission can cause problems
-	if (intermission_running)
+	if (intermission)
 		ExitIntermission ();
 }
 
@@ -1871,7 +1888,7 @@ ClientObituary
 called when a player dies
 ============
 */
-void() ClientObituary =
+void(float dmgtype) ClientObituary =
 {
 	local	float rnum;
 	local	string deathstring, deathstring2;
@@ -1879,7 +1896,7 @@ void() ClientObituary =
 	
 	entity attacker = self.enemy;
 
-	if (coop == 1)
+	if (coop == 1 && mapname != "start")
 	{
 		// centerprint before bprint if you want players to see both
 		entity e;
@@ -1896,8 +1913,6 @@ void() ClientObituary =
 			}
 			e = nextent(e);
 		}
-		/*
-		*/
 	}
 	
 	if (attacker.deathtype != string_null && attacker.classname != "player" )
@@ -1963,6 +1978,12 @@ void() ClientObituary =
 				else
 					bprint (" is no rocket surgeon\n");
 			}
+			else if (self.dmg_inflictor.deathtype != string_null)
+			{
+				bprint(" ");
+				bprint(self.dmg_inflictor.deathtype);
+				bprint("\n");
+			}				
 			else
 				bprint (" becomes bored with life\n");
 			return;
@@ -2072,7 +2093,7 @@ void() ClientObituary =
 			bprint (" blew up\n");
 			return;
 		}
-		if (attacker.solid == SOLID_BSP && attacker != world)
+		if (attacker.solid == SOLID_BSP && attacker != world || (dmgtype & DMGTYPE_CRUSH) )
 		{	
 			bprint (" was squished\n");
 			return;
@@ -2094,7 +2115,7 @@ void() ClientObituary =
 		}
 
 		// liquid deaths
-		if (self.deathtype == "drowning")
+		if (dmgtype & DMGTYPE_DROWNING)
 		{
 			if (random() < 0.5)
 				bprint (" sleeps with the fishes\n");
@@ -2102,7 +2123,7 @@ void() ClientObituary =
 				bprint (" sucks it down\n");
 			return;
 		}
-		else if (self.deathtype == "slime")
+		else if (dmgtype & DMGTYPE_SLIME)
 		{
 			if (random() < 0.5)
 				bprint (" gulped a load of slime\n");
@@ -2110,7 +2131,7 @@ void() ClientObituary =
 				bprint (" can't exist on slime alone\n");
 			return;
 		}
-		else if (self.deathtype == "lava")
+		else if (dmgtype & DMGTYPE_LAVA)
 		{
 			if (self.waterlevel < WL_EYES)
 			{
@@ -2123,11 +2144,9 @@ void() ClientObituary =
 				bprint (" visits the Volcano God\n");
 			return;
 		}
-
 		// fell to their death?
-		if (self.deathtype == "falling")
+		else if (dmgtype & DMGTYPE_FALLING)
 		{
-			self.deathtype = string_null;
 			if (random() < 0.5)
 				bprint (" cratered\n");
 			else
@@ -2162,7 +2181,7 @@ The normal starting point for a level. Only one is allowed. Will fire its target
 "fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
 */
 /*FGD
-@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
+@PointClass base(PlayerClass) = info_player_start : "Player 1 start. Fires targets when a player spawns here." []
 */
 void() info_player_start =
 {
@@ -2176,14 +2195,51 @@ Only used on start map for the return point from an episode. Will fire its targe
 
 "angle" viewing angle when spawning
 "fog_color"/"fog_density"/"fog_sky" set the fog when spawning at this spot (fog_sky 0 = no change, -1 = clear to 0)
+"svflags" set the bits for a specific set of runes/serverflags you want to test
+"style" how to interpret svflags:
+	0: player will spawn here if they have any of the runes in svflags
+	1: player will only spawn here if they have all of them
+	2: player will NOT spawn here if they have any of them
 */
 /*FGD
-@PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
+@PointClass base(PlayerClass) = info_player_start2 : "Player episode return point. Fires targets when a player spawns here." [
+	svflags(Flags) =
+	[
+		1		: "Episode 1" : 0
+		2		: "Episode 2" : 0
+		4		: "Episode 3" : 0
+		8		: "Episode 4" : 0
+		16		: "Bit 5" :  0
+		32		: "Bit 6" :  0
+		64		: "Bit 7" :  0
+		128		: "Bit 8" :  0
+		256		: "Bit 9" :  0
+		512		: "Bit 10" : 0
+		1024	: "Bit 11" : 0
+		2048	: "Bit 12" : 0
+		4096	: "Bit 13" : 0
+		8192	: "Bit 14" : 0
+		16384	: "Bit 15" : 0
+		32768	: "Bit 16" : 0
+		65536	: "Bit 17" : 0
+		131072	: "Bit 18" : 0
+		262144	: "Bit 19" : 0
+		524288	: "Bit 20" : 0
+		1048576	: "Bit 21" : 0
+	]
+	style(Choices) : "Requirement" : 0 =
+	[
+		0 : "Have Any"
+		1 : "Must Have All"
+		2 : "Must Not Have Any"
+	]
+]
 */
 void() info_player_start2 =
 {
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);	// for telefrag testing
 	self.mangle = self.angles;
+	fog_fixKeys();
 }
 
 
@@ -2222,6 +2278,17 @@ potential spawning position for deathmatch games
 */
 void() info_player_deathmatch =
 {
+	fog_fixKeys();
+}
+
+// dumb way to make coop starts visible/invisible to the cyclical spawnpoint search 
+// code without making that code overly complex
+void(float unlock) coop_lock =
+{
+	if (unlock)
+		self.classname = "info_player_coop";
+	else
+		self.classname = "info_player_coop_notyet";
 }
 
 void() coop_enable =
@@ -2253,5 +2320,7 @@ void() info_player_coop =
 		self.classname = "info_player_coop_notyet";
 		self.use = coop_enable;
 	}
+	self.lock = coop_lock;
+	fog_fixKeys();
 	setsize(self,VEC_HULL_MIN,VEC_HULL_MAX);	// for telefrag testing
 }

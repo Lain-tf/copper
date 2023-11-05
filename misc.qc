@@ -162,12 +162,6 @@ void() misc_model =
 { 
 	if (!SUB_ShouldSpawn()) return;
 	
-	if (self.targetname == string_null && !self.pos1)
-	{
-		func_static_point(); 
-		return;
-	}
-	
 	precache_model_safe(self.model);
 	
 	if (self.mangle != '0 0 0')
@@ -188,6 +182,13 @@ void() misc_model =
 	
 	self.solid = SOLID_NOT;
 	self.movetype = MOVETYPE_NONE;
+	
+	if (self.targetname == string_null && !self.impulse && !self.pos1)
+	{
+		makestatic(self); 
+		return;
+	}
+	
 	if (!self.speed)
 		self.speed = 0.1;
 		
@@ -424,7 +425,7 @@ Keyvalues:
   "max_health" if auto, never set count to heal *target* above this much
 */
 /*FGD
-@Pointclass base(Target, Targetname, Appearflags) color(192 64 0) size(32 32 32) = target_heal : "Target : Heal.
+@Pointclass base(Targetname, Appearflags) color(192 64 0) size(32 32 32) = target_heal : "Target : Heal.
 Heals activator for 'healamount' when triggered. Use for healing pools, first aid dispensers, etc.
 If it has any targets, it heals them instead, even doors and buttons. This will not reset 'dead' doors or buttons with a wait of -1.
 
@@ -436,6 +437,10 @@ If 'trigger first' and 'auto set count' are set, will choose 'count' based on ho
 		4 : "First trigger activates" : 0
 		8 : "Auto-set 'count' on trigger-first" : 0
 	]
+	target(target_destination) : "Target: acts on all with matching targetname" 
+	target2(target_destination) : "Target 2: acts on all with matching targetname" 
+	target3(target_destination) : "Target 3: acts on all with matching targetname" 
+	target4(target_destination) : "Target 4: acts on all with matching targetname" 
 	healamount(integer) : "Healing per use" : 5
 	count(integer) : "Lifetime healing limit" : -1
 	strength(string) : "Scale auto-limit (-4 to scale by number of clients)" : "1"
@@ -465,10 +470,89 @@ void() target_heal =
 
 //============================================================================
 
+void(entity t) target_kill_remove =
+{
+	if ((self.spawnflags & 1) == 0)
+	{
+		RemoveTarget(t);
+		return;
+	}
+
+	// 'murder' spawnflag: actually kill monsters instead of removing them
+	if ((t.flags & FL_MONSTER) && (t.deadflag == DEAD_NO))
+	{
+		T_Damage(t, activator, self, t.health + 20, DMGTYPE_SCRIPT);
+	}
+	else if (t.customflags & CFL_SPAWNER)
+	{
+		while (t.count > 0)
+		{
+			killed_monsters = killed_monsters + 1;
+			WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
+			t.count -= 1;
+		}
+		remove(t);
+	}
+	else
+		RemoveTarget(t);
+}
+
+void() target_kill_rando =
+{
+	SUB_CountTargets();
+	self.cnt += self.frags;
+	
+	if (!self.cnt) return;
+
+	float randy;
+	entity t;
+
+	randy = ceil( random() * self.cnt );
+
+	t = world;
+	if (self.target != string_null) while ( randy > 0 )
+	{
+		t = find (t, targetname, self.target);
+		if (!t) break;
+		randy = randy - 1;
+	}
+	if (!t && self.target2 != string_null) while ( randy > 0 )
+	{
+		t = find (t, targetname, self.target2);
+		if (!t) break;
+		randy = randy - 1;
+	}
+	if (!t && self.target3 != string_null) while ( randy > 0 )
+	{
+		t = find (t, targetname, self.target3);
+		if (!t) break;
+		randy = randy - 1;
+	}
+	if (!t && self.target4 != string_null) while ( randy > 0 )
+	{
+		t = find (t, targetname, self.target4);
+		if (!t) break;
+		randy = randy - 1;
+	}
+	if (!t && self.killtarget != string_null) while ( randy > 0 )
+	{
+		t = find (t, targetname, self.killtarget);
+		if (!t) break;
+		randy = randy - 1;
+	}
+	
+	target_kill_remove(t);
+}
 
 void() target_kill_go =
 {
 	local entity t;
+
+	if (self.spawnflags & 2)
+	{
+		target_kill_rando();
+		return;
+	}
 
 	// kill targets
 	if (self.target != string_null) {
@@ -476,7 +560,7 @@ void() target_kill_go =
 		do	{
 			t = find(t, targetname, self.target);
 			if (!t) break;
-			RemoveTarget (t);
+			target_kill_remove (t);
 		} while ( 1 );
 	}
 	if (self.target2 != string_null) {
@@ -484,7 +568,7 @@ void() target_kill_go =
 		do	{
 			t = find(t, targetname, self.target2);
 			if (!t) break;
-			RemoveTarget (t);
+			target_kill_remove (t);
 		} while ( 1 );
 	}
 	if (self.target3 != string_null) {
@@ -492,7 +576,7 @@ void() target_kill_go =
 		do	{
 			t = find(t, targetname, self.target3);
 			if (!t) break;
-			RemoveTarget (t);
+			target_kill_remove (t);
 		} while ( 1 );
 	}
 	if (self.target4 != string_null) {
@@ -500,11 +584,17 @@ void() target_kill_go =
 		do	{
 			t = find(t, targetname, self.target4);
 			if (!t) break;
-			RemoveTarget (t);
+			target_kill_remove (t);
 		} while ( 1 );
 	}
-
-	SUB_KillTargets(self.killtarget);
+	if (self.killtarget != string_null) {
+		t = world;
+		do	{
+			t = find(t, targetname, self.killtarget);
+			if (!t) break;
+			target_kill_remove (t);
+		} while ( 1 );
+	}
 }
 
 void() target_kill_use =
@@ -520,12 +610,28 @@ void() target_kill_use =
 	killer.nextthink = time + self.delay;
 }
 
-/*QUAKED target_kill (0.75 0.5 0) (-8 -8 -8) (8 8 8)
+/*QUAKED target_kill (0.75 0.5 0) (-8 -8 -8) (8 8 8) MURDER RANDOM
 Kills ALL of its targets (1-4) as well as killtargets when triggered. for targets you really don't like.
+
+"delay" wait before killing
+
+MURDER	monsters are damaged to death, and spawners will credit unspawned kills
+RANDOM	randomly kill only one target out of all of them
 */
 /*FGD
-@Pointclass base(Target, Targetname, Appearflags) color(192 64 0) size(16 16 16) = target_kill : 
-"Removes all targets when triggered. for targets you really don't like." []
+@Pointclass base(Targetname, Appearflags) color(192 64 0) size(16 16 16) = target_kill : 
+"Removes all targets when triggered. for targets you really don't like." [
+	spawnflags(flags) =	[
+		1 : "Murder monsters instead of removing" : 0
+		2 : "Remove one target at random" : 0
+	]	
+	target(target_destination) : "Target: removes all with matching targetname" 
+	target2(target_destination) : "Target 2: removes all with matching targetname" 
+	target3(target_destination) : "Target 3: removes all with matching targetname" 
+	target4(target_destination) : "Target 4: removes all with matching targetname" 
+	killtarget(target_destination) : "Killtarget: removes all with matching targetname" 
+	delay(string) : "Delay before removing" : "0"
+]
 */
 void() target_kill =
 {
@@ -636,7 +742,7 @@ void() lavaball_touch =
 	if (other.takedamage)
 	{
 		sound (self, CHAN_WEAPON, "zombie/z_hit.wav", 1, ATTN_IDLE);
-		T_Damage (other, self, self, self.dmg);
+		T_Damage (other, self, self, self.dmg, DMGTYPE_LAVA);
 	}
 	remove(self);
 }

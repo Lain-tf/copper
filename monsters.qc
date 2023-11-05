@@ -9,7 +9,7 @@ All things spawning and initializing
 */
 
 /*FGD
-@baseclass base(Angle, Appearflags, Target, Targetname, Deathtype) color(220 0 0) = Monster 
+@baseclass base(Angle, Appearflags, Target, Targetname, Deathtype, AltTarget) color(220 0 0) = Monster 
 [
 	spawnflags(Flags) = 
 	[
@@ -98,7 +98,7 @@ void() monster_spawnsetup_go =
 
 	if (self.targetname == string_null)
 	{
-		dprint5("WARNING: removed triggered-spawn ", self.classname,
+		dprint5("\bwarning:\b removed triggered-spawn ", self.classname,
 			" with no targetname at ", vtos(self.origin), "\n");
 		remove(self);
 		return;
@@ -108,7 +108,7 @@ void() monster_spawnsetup_go =
 	{
 		if (!SUB_VerifyTriggerable())
 		{
-			dprint4("WARNING: triggered-spawn ", self.classname,
+			dprint4("\bwarning:\b triggered-spawn ", self.classname,
 				" with unmatched targetname '", self.targetname);
 			dprint3("' at ", vtos(self.origin), "\n");
 			//remove(self);
@@ -176,7 +176,7 @@ void(float num) addmonster =
 
 float(entity me) monster_check_enemy_activator =
 {
-	if ((activator.flags & (FL_CLIENT|FL_MONSTER)) && activator.health <= 0)
+	if ((activator.flags & (FL_CLIENT|FL_MONSTER)) && !alive(activator))
 		return FALSE;
 	return TRUE;
 }
@@ -185,7 +185,7 @@ float(entity me) monster_check_enemy_inheritance =
 {
 	if (!(activator.flags & FL_MONSTER))
 		return FALSE;
-	if (!(activator.enemy.health > 0 || activator.oldenemy.health > 0))
+	if (!alive(activator.enemy) && !alive(activator.oldenemy))
 		return FALSE;
 	if (!(activator.enemy.classname == "player" || activator.oldenemy.classname == "player"))
 		return FALSE;
@@ -316,7 +316,7 @@ entity( void() spawnthink ) mon_spawner_use =
 
 void(entity m) monster_kill =
 {
-	T_Damage(m, self, self, m.health + 1000);
+	T_Damage(m, self, self, m.health + 100, DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
 }
 
 /*
@@ -356,6 +356,104 @@ void() monster_use =
 	if (storytime_running) ai_freeze_monster(self);
 }
 
+/*
+================
+monster_alt_use
+
+alternate monster target firing pattern, gathered together for efficiency
+
+target: on waking up
+target2: when first hurt by anything
+target3: when first brought under half health
+target4: on death (message and killtarget go off here too)	
+
+first three are single-use only. monsters can be awoken more than once (infighting), hurt more 
+than once (obv), & cross under half health more than once (if healed), and we don't want to 
+require a count-1 relay on every trigger just to guard against the unpredictable.
+
+target (wakeup) is not guaranteed: monsters can be killed slowly by traps and never wake up,
+	and arbitrarily firing it later (like on death) just to cover it doesn't make much sense
+target2 (first hurt), target3 (half health), and target4 (death) are guaranteed: if a monster
+	is one-shot by a quad rocket, they'll fire in that order and none will be skipped. 
+if a sleeping monster is one-shot by a quad rocket from the player, all four will fire because
+	it would have woken the monster up anyway.
+================
+*/
+float(float wake, float hurt, float bloody, float dead) monster_alt_use =
+{
+	if (!(self.spawnflags & SPAWN_ALT_TARG))
+		return FALSE;
+
+	// make a player activator even if the monster is infighting
+	if (self.enemy.classname != "player")
+	{
+		if (self.oldenemy.classname == "player")
+			activator = self.oldenemy;
+		else
+			activator = get_closest_client();
+	}
+	else activator = self.enemy;
+
+	
+	if (self.delay)
+	{
+		entity t;
+		// create a temp object to fire at a later time
+		t = spawn();
+		t.classname = "DelayedUse";
+		t.nextthink = time + self.delay;
+		t.think = SUB_UseTargetsGo;
+		t.enemy = activator;
+		
+		if (wake)
+		{
+			t.target = self.target;
+			self.target = string_null;
+		}
+		if (hurt)
+		{
+			t.target2 = self.target2;
+			self.target2 = string_null;
+		}
+		if (bloody)
+		{
+			t.target3 = self.target3;
+			self.target3 = string_null;
+		}		
+		if (dead)
+		{
+			t.message = self.message;
+			t.target4 = self.target4;
+			t.killtarget = self.killtarget;
+		}		
+	}
+	else
+	{
+		if (wake)
+		{
+			SUB_UseTargetsByField(target);
+			self.target = string_null;
+		}
+		if (hurt)
+		{
+			SUB_UseTargetsByField(target2);
+			self.target2 = string_null;
+		}
+		if (bloody)
+		{
+			SUB_UseTargetsByField(target3);
+			self.target3 = string_null;
+		}
+		
+		if (dead)
+		{
+			SUB_PrintMessage();
+			SUB_UseTargetsByField(target4);
+			SUB_KillTargets(self.killtarget);
+		}
+	}
+	return TRUE;
+}
 
 /*
 ================
@@ -367,15 +465,12 @@ enemy as activator.
 */
 void() monster_death_use =
 {
-	// fall to ground
-	if (self.flags & FL_FLY)
-		self.flags = self.flags - FL_FLY;
-	if (self.flags & FL_SWIM)
-		self.flags = self.flags - FL_SWIM;
-
 	if (!self.target && !self.target2 && !self.target3 && !self.target4 && !self.killtarget)
 		return;
-
+	
+	if (monster_alt_use((self.enemy.flags & FL_CLIENT), TRUE, TRUE, TRUE))
+		return;
+		
 	// make a player activator even if the monster was killed while infighting
 	if (self.enemy.classname != "player")
 	{
@@ -453,7 +548,13 @@ void() monster_start_go =
 	self.ideal_yaw = self.angles * '0 1 0';
 	self.use = monster_use;
 	self.flags = self.flags | FL_MONSTER;
-	
+	// default speedup rate for monsters with fast nightmare frames
+	if (!self.walkframe)
+	{
+		if (skill == 3) self.walkframe = 0.075;
+		else self.walkframe = 0.1;
+	}
+
 	// check if the mapper placed them touching a killer liquid and grant them immunity to it
 	vector wtt;
 	wtt = WaterTest();

@@ -232,12 +232,19 @@ void(entity traveler, entity dst, float tfog, float nofwd) teleport =
 	
 	if (dst.classname == "misc_teleporttrain")
 	{
-		if (dst.think1 == fly_idle)
+		// monsters get pooped out of a teleport train facing their enemy
+		if ((traveler.flags & FL_MONSTER) && traveler.enemy)
+		{
+			vdir = vectoangles(traveler.enemy.origin - dst.origin);
+		}
+		// if the teleball isn't moving, emerge facing the direction you traveled to help orientation
+		else if (dst.buddy && dst.buddy.velocity == VEC_ORIGIN)
 		{
 			vdir = vectoangles(dst.origin - traveler.origin);
 			nofwd = TRUE;
 		}
-		else
+		// if the teleball is moving, face the direction the teleball is moving
+		else 
 		{
 			vdir = vectoangles(dst.velocity);
 		}
@@ -288,12 +295,17 @@ void(entity traveler, entity dst, float tfog, float nofwd) teleport =
 		fog_setFromEnt(traveler, dst);
 		traveler.fixangle = 1;		// turn this way immediately
 		makevectors (vdir);
-		t = self;
-		self = dst;
-		activator = traveler;
-		SUB_UseTargets();
-		self = t;
-		
+		if (dst.classname == "info_teleport_destination" ||
+			dst.classname == "info_teleport_target" ||
+			dst.classname == "misc_teleporttrain" ||
+			dst.classname == "info_notnull")
+		{
+			t = self;
+			self = dst;
+			activator = traveler;
+			SUB_UseTargets();
+			self = t;
+		}
 		if (nofwd)
 		{
 			traveler.velocity = VEC_ORIGIN;
@@ -389,7 +401,7 @@ void() tdeath_touch =
 			self.classname = "teledeath2";
 		if (self.owner.classname != "player")
 		{	// other monsters explode themselves
-			T_Damage (self.owner, self, self, 50000);
+			T_Damage (self.owner, self, self, 50000, DMGTYPE_TELEFRAG);
 			return;
 		}
 	}
@@ -402,7 +414,7 @@ void() tdeath_touch =
 		ChangeYaw ();
 	}
 	else if (other.health)
-		T_Damage (other, self, self, 50000);
+		T_Damage (other, self, self, 50000, DMGTYPE_TELEFRAG);
 }
 
 entity(vector org, entity death_owner) spawn_tdeath =
@@ -539,10 +551,12 @@ void() teleport_touch =
 		return;
 	}
 
-	//t = find (world, targetname, self.target);
-	t = teleport_getdestination();
+	t = findunlockedtarget(self, world);//find (world, targetname, self.target);
 	if (!t)
+	{
 		objerror ("teleporter couldn't find target");
+		return;
+	}
 
 	playercount_convert(count);
 	if (!self.count) 
@@ -785,7 +799,7 @@ void() info_teleport_target =
 {
 	if (!SUB_ShouldSpawn()) return;
 	
-	if (self.targetname == string_null)
+	if (self.targetname == string_null && !self.impulse)
 		objerror ("no targetname");
 		
 	if ((self.spawnflags & 8) && 
@@ -852,7 +866,7 @@ void() trigger_teleport_setup =
 	spawnflags(Flags) =
 	[
 		1 : "Player only" : 0
-		2 : "Push forward" : 0
+		2 : "Silent" : 0
 		8 : "Not triggerable (ignore targetname)" : 0
 		16 : "No teleflash" : 0
 		32 : "Monsters only" : 0

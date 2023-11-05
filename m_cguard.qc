@@ -96,7 +96,7 @@ void(float overHead) cguard_Melee =
 	angleDifference = angledif(self.ideal_yaw, self.angles_y);
 	if (angleDifference < 80) // no damage from ass
 	{
-		T_DamageMelee (self.enemy, self, ldmg);
+		T_Damage (self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 	}
 };
 

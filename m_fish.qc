@@ -64,8 +64,10 @@ void() f_walk16 =[	$swim16, f_walk17 ] {ai_walk(8);}
 void() f_walk17 =[	$swim17, f_walk18 ] {ai_walk(7);}
 void() f_walk18 =[	$swim18, f_walk1 ] {ai_walk(6);}
 
-void() f_run1 =[	$swim1, f_run2 ] {ai_run(12);
-	if (random() < 0.1)
+void() f_run1 =[	$swim1, f_run2 ] {nmfast(); ai_run(12);
+	float r = 0.33;
+	if (skill == 3) r = 0.2;	// lots of fast fish on nightmare makes a racket
+	if (random() < r)
 		sound (self, CHAN_VOICE, "fish/idle.wav", 1, ATTN_NORM);
 	fish_check_attack();	// calling this after ai_run is such a hack
 							// but i don't want to load down calls to visible()
@@ -73,20 +75,20 @@ void() f_run1 =[	$swim1, f_run2 ] {ai_run(12);
 							// technically visible even though their eyes are
 							// above water
 }
-void() f_run2 =[	$swim3, f_run3 ] {ai_run(14); fish_check_attack();}
-void() f_run3 =[	$swim5, f_run4 ] {ai_run(16); fish_check_attack();}
-void() f_run4 =[	$swim7, f_run5 ] {ai_run(14); fish_check_attack();}
-void() f_run5 =[	$swim9, f_run6 ] {ai_run(12); fish_check_attack();}
-void() f_run6 =[	$swim11, f_run7 ] {ai_run(14); fish_check_attack();}
-void() f_run7 =[	$swim13, f_run8 ] {ai_run(16); fish_check_attack();}
-void() f_run8 =[	$swim15, f_run9 ] {ai_run(14); fish_check_attack();}
-void() f_run9 =[	$swim17, f_run1 ] {ai_run(12); fish_check_attack();}
+void() f_run2 =[	$swim3, f_run3 ] {nmfast(); ai_run(14); fish_check_attack();}
+void() f_run3 =[	$swim5, f_run4 ] {nmfast(); ai_run(16); fish_check_attack();}
+void() f_run4 =[	$swim7, f_run5 ] {nmfast(); ai_run(14); fish_check_attack();}
+void() f_run5 =[	$swim9, f_run6 ] {nmfast(); ai_run(12); fish_check_attack();}
+void() f_run6 =[	$swim11, f_run7 ] {nmfast(); ai_run(14); fish_check_attack();}
+void() f_run7 =[	$swim13, f_run8 ] {nmfast(); ai_run(16); fish_check_attack();}
+void() f_run8 =[	$swim15, f_run9 ] {nmfast(); ai_run(14); fish_check_attack();}
+void() f_run9 =[	$swim17, f_run1 ] {nmfast(); ai_run(12); fish_check_attack();}
 
 void() fish_melee =
 {
 	float ldmg;
 
-	if (!self.enemy || !enemy_alive())
+	if (!self.enemy || !alive(self.enemy))
 		return;		// removed before stroke
 	
 	if (vlen(self.enemy.origin - self.origin) > 60)
@@ -98,11 +100,26 @@ void() fish_melee =
 		
 	sound (self, CHAN_VOICE, "fish/bite.wav", 1, ATTN_NORM);
 	ldmg = 6 + random() * 6;
-	T_DamageMelee (self.enemy, self, ldmg);
+	T_Damage (self.enemy, self, self, ldmg, DMGTYPE_MELEE);
+	
+	// rob the player of air
+	//if (skill == 3 && !has_biosuit(self.enemy))
+	//	self.enemy.air_finished = min(self.enemy.air_finished, time);
 }
 
-/*
-void() fish_checkdash =
+
+float() fish_checkdash =
+{
+	if (skill != 3)
+		return FALSE;
+	if (enemy_range != RANGE_NEAR || !infront(self.enemy))
+		return FALSE;
+	if (random() < 0.3)
+		return FALSE;
+	return TRUE;
+}
+
+void() fish_checkcontinuedash =
 {
 	if (vlen(self.origin - self.enemy.origin) < 60)
 	{
@@ -123,11 +140,7 @@ void() f_dash =
 {
 	ai_face();
 	ai_face();
-	if (!infront(self.enemy))
-	{
-		f_run1();
-		return;
-	}
+
 	self.velocity = normalize(enemy_vispos() - self.origin) * 300;
 	self.oldvelocity = self.velocity;
 	f_dash1();
@@ -138,13 +151,13 @@ void() f_dash1 =[	$swim1, f_dash2 ] {
 	if (random() < 0.1)
 		sound (self, CHAN_VOICE, "fish/idle.wav", 1, ATTN_NORM);
 }
-void() f_dash2 =[	$swim3, f_dash3 ] {fish_checkdash();}
-void() f_dash3 =[	$swim6, f_dash4 ] {fish_checkdash();}
-void() f_dash4 =[	$swim10, f_dash5 ] {fish_checkdash();}
-void() f_dash5 =[	$swim12, f_dash6 ] {fish_checkdash();}
-void() f_dash6 =[	$swim14, f_dash7 ] {fish_checkdash();}
-void() f_dash7 =[	$swim16, f_dash1 ] {fish_checkdash();}
-*/
+void() f_dash2 =[	$swim3, f_dash3 ] {fish_checkcontinuedash();}
+void() f_dash3 =[	$swim6, f_dash4 ] {fish_checkcontinuedash();}
+void() f_dash4 =[	$swim10, f_dash5 ] {fish_checkcontinuedash();}
+void() f_dash5 =[	$swim12, f_dash6 ] {fish_checkcontinuedash();}
+void() f_dash6 =[	$swim14, f_dash7 ] {fish_checkcontinuedash();}
+void() f_dash7 =[	$swim16, f_dash1 ] {fish_checkcontinuedash();}
+
 void() f_attack =
 {
 	float r;
@@ -157,24 +170,24 @@ void() f_attack =
 		f_attack13();
 }
 
-void() f_attack1 = [ $attack1, f_attack2 ] {ai_charge(10);}
-void() f_attack2 = [ $attack2, f_attack3 ] {ai_charge(10);}
-void() f_attack3 = [ $attack3, f_attack4 ] {fish_melee();}
-void() f_attack4 = [ $attack4, f_attack5 ] {ai_charge(10);}
-void() f_attack5 = [ $attack5, f_attack6 ] {ai_charge(10);}
-void() f_attack6 = [ $attack6, f_attack7 ] {ai_charge(10);}
-void() f_attack7 = [ $attack7, f_attack8 ] {ai_charge(10);}
-void() f_attack8 = [ $attack8, f_attack9 ] {ai_charge(10);}
-void() f_attack9 = [ $attack9, f_attack10] {fish_melee();}
-void() f_attack10 =[ $attack10, f_attack11] {ai_charge(10);}
-void() f_attack11 =[ $attack11, f_attack12] {ai_charge(10);}
-void() f_attack12 =[ $attack12, f_attack13] {ai_charge(10);}
-void() f_attack13 =[ $attack13, f_attack14] {ai_charge(10);}
-void() f_attack14 =[ $attack14, f_attack15] {ai_charge(10);}
-void() f_attack15 =[ $attack15, f_attack16] {fish_melee();}
-void() f_attack16 =[ $attack16, f_attack17] {ai_charge(10);}
-void() f_attack17 =[ $attack17, f_attack18] {ai_charge(10);}
-void() f_attack18 =[ $attack18, f_attack1 ] {ai_charge(10);}
+void() f_attack1 = [ $attack1, f_attack2 ]  {nmfast(); ai_charge(10);}
+void() f_attack2 = [ $attack2, f_attack3 ]  {nmfast(); ai_charge(10);}
+void() f_attack3 = [ $attack3, f_attack4 ]  {nmfast(); fish_melee();}
+void() f_attack4 = [ $attack4, f_attack5 ]  {nmfast(); ai_charge(10);}
+void() f_attack5 = [ $attack5, f_attack6 ]  {nmfast(); ai_charge(10);}
+void() f_attack6 = [ $attack6, f_attack7 ]  {nmfast(); ai_charge(10);}
+void() f_attack7 = [ $attack7, f_attack8 ]  {nmfast(); ai_charge(10);}
+void() f_attack8 = [ $attack8, f_attack9 ]  {nmfast(); ai_charge(10);}
+void() f_attack9 = [ $attack9, f_attack10]  {nmfast(); fish_melee();}
+void() f_attack10 =[ $attack10, f_attack11] {nmfast(); ai_charge(10);}
+void() f_attack11 =[ $attack11, f_attack12] {nmfast(); ai_charge(10);}
+void() f_attack12 =[ $attack12, f_attack13] {nmfast(); ai_charge(10);}
+void() f_attack13 =[ $attack13, f_attack14] {nmfast(); ai_charge(10);}
+void() f_attack14 =[ $attack14, f_attack15] {nmfast(); ai_charge(10);}
+void() f_attack15 =[ $attack15, f_attack16] {nmfast(); fish_melee();}
+void() f_attack16 =[ $attack16, f_attack17] {nmfast(); ai_charge(10);}
+void() f_attack17 =[ $attack17, f_attack18] {nmfast(); ai_charge(10);}
+void() f_attack18 =[ $attack18, f_attack1 ] {nmfast(); ai_charge(10);}
 
 void() f_death1 =[	$death1, f_death2 ] {}
 void() f_death2 =[	$death2, f_death3 ] {}
@@ -198,15 +211,15 @@ void() f_death19 =[	$death19, f_death20 ] {}
 void() f_death20 =[	$death20, f_death21 ] {}
 void() f_death21 =[	$death21, SUB_Null ] {PostDeathLogic();}
 
-void() f_pain1 =[	$pain1, f_pain2 ] {ai_nop();}
-void() f_pain2 =[	$pain2, f_pain3 ] {ai_pain(6);}
-void() f_pain3 =[	$pain3, f_pain4 ] {ai_pain(6);}
-void() f_pain4 =[	$pain4, f_pain5 ] {ai_pain(6);}
-void() f_pain5 =[	$pain5, f_pain6 ] {ai_pain(6);}
-void() f_pain6 =[	$pain6, f_pain7 ] {ai_pain(6);}
-void() f_pain7 =[	$pain7, f_pain8 ] {ai_pain(6);}
-void() f_pain8 =[	$pain8, f_pain9 ] {ai_pain(6);}
-void() f_pain9 =[	$pain9, f_run1 ] {ai_pain(6);}
+void() f_pain1 =[	$pain1, f_pain2 ] {nmfast(); ai_nop();}
+void() f_pain2 =[	$pain2, f_pain3 ] {nmfast(); ai_pain(6);}
+void() f_pain3 =[	$pain3, f_pain4 ] {nmfast(); ai_pain(6);}
+void() f_pain4 =[	$pain4, f_pain5 ] {nmfast(); ai_pain(6);}
+void() f_pain5 =[	$pain5, f_pain6 ] {nmfast(); ai_pain(6);}
+void() f_pain6 =[	$pain6, f_pain7 ] {nmfast(); ai_pain(6);}
+void() f_pain7 =[	$pain7, f_pain8 ] {nmfast(); ai_pain(6);}
+void() f_pain8 =[	$pain8, f_pain9 ] {nmfast(); ai_pain(6);}
+void() f_pain9 =[	$pain9, f_run1 ]  {nmfast(); ai_pain(6);}
 
 void(entity attacker, float damage)	fish_pain =
 {
@@ -265,14 +278,8 @@ void() fish_die =
 // can happen if the player is treading water with fish around his feet (thx 4LT)
 float() fish_check_attack =
 {
-	if (enemy_range > RANGE_MELEE) return FALSE;
 	if (self.enemy.customflags & (CFL_PLUNGE|CFL_LIMBO) || self.enemy.deadflag == DEAD_SPECTATING)
 		return FALSE;
-	
-	vector tgt = self.enemy.origin - self.origin;
-	tgt_z *= 0.75;	// fish can bite from above or below
-	
-	if (vlen((tgt)) > 60) return FALSE;
 	
 	if (pointcontents(self.origin) == CONTENT_EMPTY)	// airfish
 	{
@@ -283,6 +290,19 @@ float() fish_check_attack =
 		if (self.enemy.waterlevel <= WL_FEET) return FALSE;	// enemy is out of liquid
 	}
 	
+	//if (fish_checkdash())
+	//{
+	//	f_dash();
+	//	return TRUE;
+	//}
+	
+	if (enemy_range > RANGE_MELEE) return FALSE;
+	vector tgt = self.enemy.origin - self.origin;
+	tgt_z *= 0.75;	// fish can bite from above or below
+	
+	if (vlen((tgt)) > 60) return FALSE;
+	
+	// have to call melee directly because ai_run() won't catch AS_MELEE
 	self.th_melee();
 	return TRUE;
 }
@@ -311,7 +331,14 @@ void() monster_fish_spawn =
 	self.th_checkattack = fish_check_attack;
 
 	if (self.deathtype == string_null)
-		self.deathtype = "was fed to the Rotfish";
+	{
+		if (skill == 3 && random() < 0.5)
+			self.deathtype = "died from fish damage";
+		else
+			self.deathtype = "was fed to the Rotfish";
+	}
+
+	nmspeed(0.055); // look at 'em go
 
 	swimmonster_start ();
 }

@@ -167,51 +167,47 @@ local float wr;
 	return;
 }
 
-void()	fxr_stand1	=[	$hover1,		fxr_stand2	] {ai_stand();}
-void()	fxr_stand2	=[	$hover2,		fxr_stand3	] {ai_stand();}
-void()	fxr_stand3	=[	$hover3,		fxr_stand4	] {ai_stand();}
-void()	fxr_stand4	=[	$hover4,		fxr_stand5	] {ai_stand();}
-void()	fxr_stand5	=[	$hover5,		fxr_stand6	] {ai_stand();}
-void()	fxr_stand6	=[	$hover6,		fxr_stand7	] {ai_stand();}
-void()	fxr_stand7	=[	$hover7,		fxr_stand8	] {ai_stand();}
-void()	fxr_stand8	=[	$hover8,		fxr_stand1	] {ai_stand();}
+void()	fxr_stand1	=[	$stand1,		fxr_stand2	] {ai_stand();}
+void()	fxr_stand2	=[	$stand2,		fxr_stand3	] {ai_stand();}
+void()	fxr_stand3	=[	$stand3,		fxr_stand4	] {ai_stand();}
+void()	fxr_stand4	=[	$stand4,		fxr_stand5	] {ai_stand();}
+void()	fxr_stand5	=[	$stand5,		fxr_stand6	] {ai_stand();}
+void()	fxr_stand6	=[	$stand6,		fxr_stand7	] {ai_stand();}
+void()	fxr_stand7	=[	$stand7,		fxr_stand8	] {ai_stand();}
+void()	fxr_stand8	=[	$stand8,		fxr_stand1	] {ai_stand();}
 
-void()	fxr_walk1	=[	$hover1,		fxr_walk2	] {ai_walk(8);
+void()	fxr_walk1	=[	$stand1,		fxr_walk2	] {ai_walk(8);
 fxr_idlesound();}
-void()	fxr_walk2	=[	$hover2,		fxr_walk3	] {ai_walk(8);}
-void()	fxr_walk3	=[	$hover3,		fxr_walk4	] {ai_walk(8);}
-void()	fxr_walk4	=[	$hover4,		fxr_walk5	] {ai_walk(8);}
-void()	fxr_walk5	=[	$hover5,		fxr_walk6	] {ai_walk(8);}
-void()	fxr_walk6	=[	$hover6,		fxr_walk7	] {ai_walk(8);}
-void()	fxr_walk7	=[	$hover7,		fxr_walk8	] {ai_walk(8);}
-void()	fxr_walk8	=[	$hover8,		fxr_walk1	] {ai_walk(8);}
+void()	fxr_walk2	=[	$stand2,		fxr_walk3	] {ai_walk(8);}
+void()	fxr_walk3	=[	$stand3,		fxr_walk4	] {ai_walk(8);}
+void()	fxr_walk4	=[	$stand4,		fxr_walk5	] {ai_walk(8);}
+void()	fxr_walk5	=[	$stand5,		fxr_walk6	] {ai_walk(8);}
+void()	fxr_walk6	=[	$stand6,		fxr_walk7	] {ai_walk(8);}
+void()	fxr_walk7	=[	$stand7,		fxr_walk8	] {ai_walk(8);}
+void()	fxr_walk8	=[	$stand8,		fxr_walk1	] {ai_walk(8);}
 
-void()	fxr_side1	=[	$hover1,		fxr_side2	] {ai_run(16);
+void()	fxr_side1	=[	$stand1,		fxr_side2	] {ai_run(16);
 fxr_idlesound();}
-void()	fxr_side2	=[	$hover2,		fxr_side3	] {ai_run(16);}
-void()	fxr_side3	=[	$hover3,		fxr_side4	] {ai_run(16);}
-void()	fxr_side4	=[	$hover4,		fxr_side5	] {ai_run(16);}
-void()	fxr_side5	=[	$hover5,		fxr_side6	] {ai_run(16);}
-void()	fxr_side6	=[	$hover6,		fxr_side7	] {ai_run(16);}
-void()	fxr_side7	=[	$hover7,		fxr_side8	] {ai_run(16);}
-void()	fxr_side8	=[	$hover8,		fxr_side1	] {ai_run(16);}
+void()	fxr_side2	=[	$stand2,		fxr_side3	] {ai_run(16);}
+void()	fxr_side3	=[	$stand3,		fxr_side4	] {ai_run(16);}
+void()	fxr_side4	=[	$stand4,		fxr_side5	] {ai_run(16);}
+void()	fxr_side5	=[	$stand5,		fxr_side6	] {ai_run(16);}
+void()	fxr_side6	=[	$stand6,		fxr_side7	] {ai_run(16);}
+void()	fxr_side7	=[	$stand7,		fxr_side8	] {ai_run(16);}
+void()	fxr_side8	=[	$stand8,		fxr_side1	] {ai_run(16);}
 
-void()	fxr_run1	=[	$fly1,		fxr_run2	] {ai_run(32);
+void()	fxr_run1	=[	$walk1,		fxr_run2	] {ai_run(32);
 fxr_idlesound();
 }
-void()	fxr_run2	=[	$fly2,		fxr_run3	] {ai_run(32);}
-void()	fxr_run3	=[	$fly3,		fxr_run4	] {ai_run(32);}
-void()	fxr_run4	=[	$fly4,		fxr_run5	] {ai_run(32);}
-void()	fxr_run5	=[	$fly5,		fxr_run6	] {ai_run(32);}
-void()	fxr_run6	=[	$fly6,		fxr_run7	] {ai_run(32);}
-void()	fxr_run7	=[	$fly7,		fxr_run8	] {ai_run(32);}
-void()	fxr_run8	=[	$fly8,		fxr_run9	] {ai_run(32);}
-void()	fxr_run9	=[	$fly9,		fxr_run10	] {ai_run(32);}
-void()	fxr_run10	=[	$fly10,		fxr_run11	] {ai_run(32);}
-void()	fxr_run11	=[	$fly11,		fxr_run12	] {ai_run(32);}
-void()	fxr_run12	=[	$fly12,		fxr_run13	] {ai_run(32);}
-void()	fxr_run13	=[	$fly13,		fxr_run14	] {ai_run(32);}
-void()	fxr_run14	=[	$fly14,		fxr_run1	] {ai_run(32);}
+void()	fxr_run2	=[	$walk2,		fxr_run3	] {ai_run(32);}
+void()	fxr_run3	=[	$walk3,		fxr_run4	] {ai_run(32);}
+void()	fxr_run4	=[	$walk4,		fxr_run5	] {ai_run(32);}
+void()	fxr_run5	=[	$walk5,		fxr_run6	] {ai_run(32);}
+void()	fxr_run6	=[	$walk6,		fxr_run7	] {ai_run(32);}
+void()	fxr_run7	=[	$walk7,		fxr_run8	] {ai_run(32);}
+void()	fxr_run8	=[	$walk8,		fxr_run9	] {ai_run(32);}
+void()	fxr_run9	=[	$walk9,		fxr_run10	] {ai_run(32);}
+void()	fxr_run10	=[	$walk10,	fxr_run1	] {ai_run(32);}
 
 void()	fxr_fast1	=[	$spin1,		fxr_fast2	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
 void()	fxr_fast2	=[	$spin2,		fxr_fast3	] {ai_face(); fx_trail(self.origin, self.enemy.origin, 1);}
@@ -230,12 +226,12 @@ void()	fxr_fast14	=[	$mine8,		fxr_fast15	] {ai_face();}
 void()	fxr_fast15	=[	$mine9,		fxr_fast16	] {ai_face(); fxr_rail_shoot(); self.effects = EF_MUZZLEFLASH;}
 void()	fxr_fast16	=[	$mine10,		fxr_run1	] {ai_face(); ai_attack_finished(2); fixerAttackFinished();}
 
-void()	fxr_pain1	=[	$pain1,		fxr_pain2	] {ai_nop();PainFinished(0.2);}
-void()	fxr_pain2	=[	$pain2,		fxr_pain3	] {ai_nop();}
-void()	fxr_pain3	=[	$pain3,		fxr_pain4	] {ai_nop();}
-void()	fxr_pain4	=[	$pain4,		fxr_run1	] {ai_nop();}
+void()	fxr_pain1	=[	$walk1,		fxr_pain2	] {ai_nop();PainFinished(0.2);}
+void()	fxr_pain2	=[	$walk2,		fxr_pain3	] {ai_nop();}
+void()	fxr_pain3	=[	$walk3,		fxr_pain4	] {ai_nop();}
+void()	fxr_pain4	=[	$walk4,		fxr_run1	] {ai_nop();}
 
-void()	fxr_death1	=[	$death1,		fxr_death2	]
+void()	fxr_death1	=[	$stand1,		fxr_death2	]
 {
 	self.velocity_x = -100 + 300*random();
 	self.velocity_y = -100 + 300*random();
@@ -243,13 +239,13 @@ void()	fxr_death1	=[	$death1,		fxr_death2	]
 	self.flags = not(self.flags, FL_ONGROUND);
 	sound (self, CHAN_VOICE, "fixer/wdeath.wav", 1, ATTN_NORM);
 }
-void()	fxr_death2	=[	$death2,		fxr_death3	] {}
-void()	fxr_death3	=[	$death3,		fxr_death4	] {self.solid = SOLID_NOT; self.flags = not(self.flags, FL_ONGROUND);}
-void()	fxr_death4	=[	$death4,		fxr_death5	] {}
-void()	fxr_death5	=[	$death5,		fxr_death6	] {}
-void()	fxr_death6	=[	$death6,		fxr_death7	] {}
-void()	fxr_death7	=[	$death7,		fxr_death8	] {}
-void()	fxr_death8	=[	$death8,		SUB_Null	] 
+void()	fxr_death2	=[	$stand1,		fxr_death3	] {}
+void()	fxr_death3	=[	$stand1,		fxr_death4	] {self.solid = SOLID_NOT; self.flags = not(self.flags, FL_ONGROUND);}
+void()	fxr_death4	=[	$stand1,		fxr_death5	] {}
+void()	fxr_death5	=[	$stand1,		fxr_death6	] {}
+void()	fxr_death6	=[	$stand1,		fxr_death7	] {}
+void()	fxr_death7	=[	$stand1,		fxr_death8	] {}
+void()	fxr_death8	=[	$stand1,		SUB_Null	] 
 	{
 	PostDeathLogic(); 
 	sound (self, CHAN_BODY, "weapons/r_exp3.wav", 1, ATTN_NORM);
@@ -397,7 +393,7 @@ void() monster_fixer_spawn =
 	if (self.deathtype == string_null)
 		self.deathtype = "was broken by a fixer";
 
-	flymonster_start ();
+	walkmonster_start ();
 }
 
 void() monster_fixer_spawner = {mon_spawner_use(monster_fixer_spawn);}

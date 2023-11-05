@@ -23,6 +23,9 @@ it really is (often not that deep).
 ===============
 */
 
+const float CSHIFT_CUTOFF = 90;
+nosave float noTint;
+
 /*
 ============
 TintScreen
@@ -31,9 +34,17 @@ TintScreen
 void(entity who, float amt) TintScreen
 {
 //	bprint(ftos(amt)); bprint("\n");
-	stuffcmd(who, "\nv_cshift 0 0 0 ");
-	stuffcmd(who, ftos(amt));
-	stuffcmd(who, "\n");
+	if (isCSQC)
+	{
+		who.tint = amt;
+		who.tint_color = '0 0 0';
+	}
+	else
+	{
+		stuffcmd(who, "\nv_cshift 0 0 0 ");
+		stuffcmd(who, ftos(amt));
+		stuffcmd(who, "\n");
+	}
 }
 
 
@@ -51,17 +62,83 @@ void(entity who, float amt, vector color) TintScreenColor
 	color_y = ceil(color_y);
 	color_z = ceil(color_z);
 	
-	// ugh:
-	stuffcmd(who, "\nv_cshift ");
-	stuffcmd(who, ftos(color_x));
-	stuffcmd(who, " ");
-	stuffcmd(who, ftos(color_y));
-	stuffcmd(who, " ");
-	stuffcmd(who, ftos(color_z));
-	stuffcmd(who, " ");
-	stuffcmd(who, ftos(amt));
-	stuffcmd(who, "\n");
+	if (isCSQC)
+	{
+		who.tint = amt;
+		who.tint_color = color;
+	}
+	else
+	{
+		// ugh:
+		stuffcmd(who, "\nv_cshift ");
+		stuffcmd(who, ftos(color_x));
+		stuffcmd(who, " ");
+		stuffcmd(who, ftos(color_y));
+		stuffcmd(who, " ");
+		stuffcmd(who, ftos(color_z));
+		stuffcmd(who, " ");
+		stuffcmd(who, ftos(amt));
+		stuffcmd(who, "\n");
+	}
 }
+
+/*
+============
+TintScreenFog
+
+for people who turn off cshift because it ruins their stream quality, or because
+they're just super wrong
+
+and 'amt' better be 0-1, pal
+============
+*/
+void(entity who, float amt, vector color) TintScreenFog
+{
+	float s, d, dx;
+	vector c;
+	
+	// initially store player's existing fog so we know what we're blending from
+	if (!who.fog_density2)
+	{
+		if (!who.fog_density)
+		{
+			who.fog_density2 = -1;
+			who.fog_color = color;
+			who.fog_color2 = color;
+		}
+		else
+		{
+			who.fog_color2 = who.fog_color;
+			who.fog_density2 = who.fog_density;
+			who.fog_sky2 = who.fog_sky;
+		}
+	}
+	
+	// fog is 0-1
+	if (color_x > 1 || color_y > 1 || color_z > 1)
+		color /= 255;
+	
+	c = lerpVector(who.fog_color2, color, amt);
+	s = lerp(who.fog_sky2, 1, amt);
+	
+	// the fog density ramp in fitzquakes is astounding
+	// this doesn't match it, but it looks right for the usual range of fogs maps have
+	d = sqrt(sqrt(who.fog_density2));	// un-steepen the existing value so we can map it linearly
+	d = lerp(d, 1, amt);
+	d = d * d * d * d;	// the re-steepening
+	if (d > 0.5)
+	{
+		// add additional even more density, bc density 1 is only opaque at ~128u 
+		// away and we want a solid screen by the time we hit bottom
+		dx = (d-0.5) * 2;
+		d += dx*dx*20;
+	}
+	
+	noTint = 0;	// hack
+	fog_set(who, d, c, s);
+	noTint = 1;
+}
+
 
 // --------------------------------
 // void_unplunge
@@ -69,7 +146,6 @@ void(entity who, float amt, vector color) TintScreenColor
 // --------------------------------
 void(entity e) void_unplunge =
 {
-
 	e.customflags &~= CFL_PLUNGE;
 	//e.flags &~= FL_NOTARGET;
 	e.takedamage = DAMAGE_AIM;
@@ -79,7 +155,16 @@ void(entity e) void_unplunge =
 	e.model = "progs/player.mdl";
 
 	SUB_CallAsSelf(W_ResetWeaponState, e);	// restore weaponmodel
-	TintScreen(e,0);
+	if (noTint)
+	{
+		TintScreenFog(e, 0, '0.5 0.5 0.5');
+		e.fog_color2 = VEC_ORIGIN;
+		e.fog_density2 = 0;
+		e.fog_sky2 = 0;
+		noTint = 0;
+	}
+	else
+		TintScreen(e,0);
 }
 
 // --------------------------------
@@ -103,7 +188,7 @@ float(entity me, entity o) void_salvation =
 	// might get put in teleport limbo and be TAKEDAMAGE_NO until reappearing
 	if (me.dmg > 0)
 	{
-		T_Damage(o, me, me, me.dmg);
+		T_Damage(o, me, me, me.dmg, DMGTYPE_FALLING);
 		teleport(o, spot, TRUE, TRUE);	
 		sound (o, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 	}
@@ -127,7 +212,10 @@ void() void_func_touch =
 	//	other.customflags = not(other.customflags, CFL_UNDYING);
 	//	other.customflags = not(other.customflags, CFL_PLUNGE);
 		
-		TintScreenColor(other,255,self.fadecolor);
+		if (noTint)
+			TintScreenFog(other, 1, self.fadecolor);
+		else
+			TintScreenColor(other, 255, self.fadecolor);
 		other.velocity = '0 0 0';
 		other.solid = SOLID_NOT;
 		other.movetype = MOVETYPE_NONE;
@@ -142,7 +230,7 @@ void() void_func_touch =
 			// was made only as wide as the bottom
 			other.armorvalue = 0;
 			if (!void_salvation(self, other))		// maybe save him anyway?
-				T_Damage(other, self, self, 5000);	// or just blast him now and forget about it
+				T_Damage(other, self, self, 5000, DMGTYPE_FALLING);	// or just blast him now and forget about it
 			return;
 		}
 		
@@ -156,9 +244,9 @@ void() void_func_touch =
 			other.customflags |= CFL_PLUNGE;	// set this so Killed() doesn't throw gibs
 			//T_Damage(other, self, other.enemy, other.health + 10);
 			if (other.enemy.classname == "player")
-				Killed(other,other.enemy, other.enemy);
+				Killed(other,other.enemy, DMGTYPE_FALLING);
 			else if (other.oldenemy.classname == "player")
-				Killed(other,other.oldenemy, other.oldenemy);
+				Killed(other,other.oldenemy, DMGTYPE_FALLING);
 			// attacker must be the monster's enemy, so that players still count as the 
 			// killer if they boosh monsters into a pit
 			return;
@@ -192,7 +280,7 @@ void() void_fall_hitbottom =
 	}
 	
 	self.enemy.armorvalue = 0;
-	T_Damage(self.enemy, self, self, 5000);
+	T_Damage(self.enemy, self, self, 5000, DMGTYPE_FALLING);
 	
 	SUB_RemoveSoon();
 }
@@ -211,9 +299,9 @@ void() void_fallthink =
 {
 	local float plummet;
 	
-	if ( self.enemy.origin_z > self.oldorigin_z )
-	{
-		// player rose back up out of the pit, mostly convenience for noclipping around
+	if ( self.enemy.origin_z > self.oldorigin_z		// player rose back up out of the pit, mostly convenience for noclipping around
+		|| self.owner.flags & CFL_LOCKED )			// player fell into a void as it was LOCKed :(
+	{		
 		void_fall_unplunge();
 		SUB_RemoveSoon();
 		return;
@@ -245,7 +333,10 @@ void() void_fallthink =
 	plummet = 1 - plummet * plummet;	// exponential falloff seems to look more linear, since the player accelerates exponentially
 	plummet = min( ceil( plummet * 255 ), 255);
 	
-	TintScreenColor(self.enemy,plummet,self.fadecolor);
+	if (noTint)
+		TintScreenFog(self.enemy, plummet/255, self.fadecolor);
+	else
+		TintScreenColor(self.enemy, plummet, self.fadecolor);
 	
 	self.nextthink = time + 0.0333;
 }
@@ -307,7 +398,7 @@ void() void_trigger_touch =
 		e = other;
 		if (e.customflags & CFL_PLUNGE) return;	// don't touch the trigger a bunch of times on the way down
 		// we could set a refire time on the trigger but players in coop could go over the edge simultaneously
-		sound (e, CHAN_VOICE, "player/q3fall.wav", 1, ATTN_NONE);
+		sound (e, CHAN_VOICE, self.noise, 1, ATTN_NONE);
 	}
 	
 	if (time > self.attack_finished)
@@ -335,6 +426,16 @@ void() void_trigger_touch =
 	fall.lip = e.origin_z - self.height; // z at bottom
 	fall.pain_finished = time + self.wait;
 	fall.fadecolor = self.fadecolor;
+	
+	// gl_cshiftpercent isn't native to OG quake, so the cvar call fails and returns 0 
+	// in winquake/weird engines because the cvar doesn't exist, so use a cvar introduced
+	// at the same time to determine if that 0 is valid
+	noTint = (cvar("gl_cshiftpercent") < CSHIFT_CUTOFF) && cvar("gl_farclip") && !coop;
+#ifndef NO_CSQC
+	if (isCSQC)
+		noTint = FALSE;	// rely on the hud for this instead
+#endif
+	// doesn't work in coop bc the server's values will be used to determine tint/fog for clients
 }
 
 
@@ -387,6 +488,33 @@ entity(entity me) void_find_teleport =
 	return world;
 }
 
+void(float unlock) void_lock =
+{
+	// self: solid bottom surface, invisible
+	// self.buddy: nonsolid bottom cover, visible
+	// self.enemy: plunge trigger
+	
+	if (unlock)
+	{
+		self.solid = SOLID_TRIGGER;
+		self.enemy.touch = void_trigger_touch;
+		self.buddy.modelindex = self.modelindex;
+		
+		self.flags = not(self.flags, CFL_LOCKED);
+		self.enemy.flags = not(self.enemy.flags, CFL_LOCKED);
+		self.buddy.flags = not(self.buddy.flags, CFL_LOCKED);
+	}
+	else
+	{
+		self.solid = SOLID_NOT;
+		self.enemy.touch = SUB_Null;
+		self.buddy.modelindex = 0;
+		
+		self.flags |= CFL_LOCKED;
+		self.enemy.flags |= CFL_LOCKED;
+		self.buddy.flags |= CFL_LOCKED;
+	}
+}
 
 /*QUAKED func_void (.5 .2 0) ?
 for holes into which one should not fall
@@ -400,6 +528,7 @@ Keyvalues
 "height" how high above the func_void the plunge trigger should spawn. do not make this high enough that players will touch it without falling in or they'll hear random screaming noises as they walk around and that'll be strange. default 128
 "lip" distance to raise the visual model, default 32
 "fadecolor" color to fade the screen to while falling, default black
+"noise"/"noise2" override fall and splat sounds
 
 Fires all "target"s/"killtarget"s when a client touches the plunge trigger (ie the yell, not the splat).
 If the func_void's first target is an info_teleport_destination, it will hurt the player for "dmg" damage and teleport him to the destination. If "dmg" is enough to kill the player when he falls in, it continues with the fade and splat as normal.
@@ -421,16 +550,19 @@ If the func_void's first target is an info_teleport_destination, it will hurt th
 	lip(integer) : "distance to raise the visual model" : 32
 	dmg(integer) : "pain to apply before salvation teleport" : 60
 	fadecolor(string) : "color to fade the screen to while falling" : "0 0 0"
+	noise(string) : "fall sound" : "player/q3fall.wav"
+	noise2(string) : "splat sound" : "player/splat1.wav"
 ]
 */
 void() func_void =
 {
 	if (!SUB_ShouldSpawn()) return;
-	entity trig, ghost;
 	vector offset;
 	
-	precache_sound3("player/q3fall.wav");
-	precache_sound3("player/splat1.wav");
+	if (self.noise == string_null) self.noise = "player/q3fall.wav";
+	if (self.noise2 == string_null) self.noise2 = "player/splat1.wav";
+	precache_sound3(self.noise);
+	precache_sound3(self.noise2);
 	
 	// set own model to link into world, then set to null to be solid but invisible
 	self.solid = SOLID_TRIGGER;
@@ -441,13 +573,14 @@ void() func_void =
 	// recycle the same model on a nonsolid entity 32 units higher to hide detritus
 	self.lip = zeroconvertdefault(self.lip, 32);
 	offset = VEC_UP * self.lip;
-	ghost = spawn();
-	ghost.solid = SOLID_NOT;
-	ghost.movetype = MOVETYPE_NONE;
-	setorigin(ghost, offset);
-	setmodel (ghost, self.model);
-	ghost.modelindex = self.modelindex;
-	ghost.classname = "void_ghost";
+	self.buddy = spawn();
+	self.buddy.solid = SOLID_NOT;
+	self.buddy.movetype = MOVETYPE_NONE;
+	setorigin(self.buddy, offset);
+	setmodel (self.buddy, self.model);
+	self.buddy.modelindex = self.modelindex;
+	self.buddy.classname = "void_ghost";
+	self.buddy.owner = self;
 
 	self.model = string_null;
 	
@@ -460,22 +593,25 @@ void() func_void =
 	self.dmg = zeroconvertdefault(self.dmg, 60);
 	
 	// create another solid entity with the same bounds with solid_trigger as a catch on the way down
-	trig = spawn();
-	trig.movetype = MOVETYPE_NONE;
-	trig.solid = SOLID_TRIGGER;
-	trig.owner = self;
-	//trig.buddy = self.buddy;
-	trig.touch = void_trigger_touch;
-	trig.height = self.height - 32;
-	trig.wait = self.delay;	// if trigger has 'delay' field it adds a delay to its own usetargets
-	trig.deathtype = self.deathtype;
-	trig.fadecolor = self.fadecolor;
+	self.enemy = spawn();
+	self.enemy.movetype = MOVETYPE_NONE;
+	self.enemy.solid = SOLID_TRIGGER;
+	self.enemy.owner = self;
+	self.enemy.touch = void_trigger_touch;
+	self.enemy.height = self.height - 32;
+	self.enemy.wait = self.delay;	// if trigger has 'delay' field it adds a delay to its own usetargets
+	self.enemy.deathtype = self.deathtype;
+	self.enemy.fadecolor = self.fadecolor;
+	self.enemy.noise = self.noise;
+	self.enemy.noise2 = self.noise2;
 	
-	SUB_CopyTargets(trig);
-	trig.targetname = self.targetname;
+	SUB_CopyTargets(self.enemy);
+	self.enemy.targetname = self.targetname;
 
 	offset = VEC_UP * self.height;
 	
 	// fatten by 64u vertically to make it hard to fall through it at high speed without touching it
-	setsize (trig, self.mins + offset - '0 0 32', self.maxs + offset + '0 0 32');
+	setsize (self.enemy, self.mins + offset - '0 0 32', self.maxs + offset + '0 0 32');
+	
+	self.lock = void_lock;
 }

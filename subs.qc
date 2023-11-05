@@ -38,13 +38,20 @@ take an entity out of gameplay (independent of 'killing' it)
 */
 void(entity victim) RemoveTarget =
 {
-	
-	// iw -- don't change kill count when removing a dead monster
-	if (victim.flags & FL_MONSTER && victim.deadflag == DEAD_NO && !(victim.customflags & CFL_SPAWNER))
-		addmonster(-1);		// since the player won't get credit for the kill
-
+	// since the player won't get credit for the kill
+	if (victim.flags & FL_MONSTER && victim.deadflag == DEAD_NO)	// iw -- don't change kill count when removing a dead monster
+	{
+		addmonster(-1);
+	}
+	else if (victim.customflags & CFL_SPAWNER)
+	{
+		if (victim.count > 0)
+		{
+			addmonster(-1 * victim.count);
+		}
+	}
 	// clean up door triggers so they don't get lonely and crash
-	if (victim.trigger_field != world)
+	else if (victim.trigger_field != world)
 		remove(victim.trigger_field);
 
 	// silence movers
@@ -119,11 +126,26 @@ float() SUB_ShouldSpawn =
 	// check coop spawn flags, because we invented them and the exe only 
 	// checks skill/dm flags
 	if (self.spawnflags & SPAWN_COOPONLY && self.spawnflags & SPAWN_NOTCOOP)
-		objerror("cooponly and notincoop flags both set on the same entity");
-	if ( ( (self.spawnflags & SPAWN_NOTCOOP) && ( coop || (serverflags & SVFL_COOPENTSINSP) ) ) || ((self.spawnflags & SPAWN_COOPONLY) && !(coop) && !(serverflags & SVFL_COOPENTSINSP)) )
+		dprint("\bwarning:\b cooponly and notincoop flags both set on the same entity");
+	if ( ((self.spawnflags & SPAWN_NOTCOOP) && coop) || ((self.spawnflags & SPAWN_COOPONLY) && !(coop)) )
 	{
 		remove(self);
 		return FALSE;
+	}
+	
+	// support impulse triggering on anything
+	// shouldn't really be here but it has to get called on every entity anyway
+	if (self.impulse)
+	{
+		if (self.impulse >= 20 && self.impulse < 40)
+		{
+			entity t = spawn();
+			t.owner = self;
+			t.impulse = self.impulse;
+			t.classname = "tg_imp";
+			self.impulse = 0;
+		}
+		else dprint5("\bwarning:\b ", self.classname," with impulse ", ftos(self.impulse), "not in the triggerable range (20-39)\n");
 	}
 	return TRUE;
 }

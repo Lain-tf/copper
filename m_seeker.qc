@@ -11,8 +11,8 @@ otherwise by fw w/ help from snaut, khreathor and lun
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8
 $frame stand9 stand10 stand11 stand12 stand13 stand14 stand15 stand16 stand17 // 0-16
 
-$frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8
-$frame walk9 walk10 walk11 walk12 // 17-28
+$frame seek_walk1 seek_walk2 seek_walk3 seek_walk4 seek_walk5 seek_walk6 seek_walk7 seek_walk8
+$frame seek_walk9 seek_walk10 seek_walk11 seek_walk12 // 17-28
 
 $frame walkshot1 walkshot2 walkshot3 walkshot4 walkshot5 walkshot6 walkshot7 walkshot8
 $frame walkshot9 walkshot10 walkshot11 //29-40
@@ -45,31 +45,31 @@ void() seek_stand15	=[	$stand15,	seek_stand16]	{ai_stand();}
 void() seek_stand16	=[	$stand16,	seek_stand17]	{ai_stand();}
 void() seek_stand17	=[	$stand16,	seek_stand1]	{ai_stand();}
 
-void() seek_walk1	=[	$walk1,		seek_walk2 ] {ai_walk(10);}
-void() seek_walk2	=[	$walk2,		seek_walk3 ] {ai_walk(9);}
-void() seek_walk3	=[	$walk3,		seek_walk4 ] {ai_walk(9);}
-void() seek_walk4	=[	$walk4,		seek_walk5 ] {ai_walk(5);}
-void() seek_walk5	=[	$walk5,		seek_walk6 ] {ai_walk(6);}
-void() seek_walk6	=[	$walk6,		seek_walk7 ] {ai_walk(12);}
-void() seek_walk7	=[	$walk7,		seek_walk8 ] {ai_walk(8);}
-void() seek_walk8	=[	$walk8,		seek_walk9 ] {ai_walk(3);}
-void() seek_walk9	=[	$walk9,		seek_walk10] {ai_walk(13);}
-void() seek_walk10	=[	$walk10,	seek_walk11] {ai_walk(9);}
-void() seek_walk11	=[	$walk11,	seek_walk12] {ai_walk(7);}
-void() seek_walk12	=[	$walk12,	seek_walk1] {ai_walk(9);}
+void() seek_walk1	=[	$seek_walk1,		seek_walk2 ] {ai_walk(10);}
+void() seek_walk2	=[	$seek_walk2,		seek_walk3 ] {ai_walk(9);}
+void() seek_walk3	=[	$seek_walk3,		seek_walk4 ] {ai_walk(9);}
+void() seek_walk4	=[	$seek_walk4,		seek_walk5 ] {ai_walk(5);}
+void() seek_walk5	=[	$seek_walk5,		seek_walk6 ] {ai_walk(6);}
+void() seek_walk6	=[	$seek_walk6,		seek_walk7 ] {ai_walk(12);}
+void() seek_walk7	=[	$seek_walk7,		seek_walk8 ] {ai_walk(8);}
+void() seek_walk8	=[	$seek_walk8,		seek_walk9 ] {ai_walk(3);}
+void() seek_walk9	=[	$seek_walk9,		seek_walk10] {ai_walk(13);}
+void() seek_walk10	=[	$seek_walk10,	seek_walk11] {ai_walk(9);}
+void() seek_walk11	=[	$seek_walk11,	seek_walk12] {ai_walk(7);}
+void() seek_walk12	=[	$seek_walk12,	seek_walk1] {ai_walk(9);}
 
-void() seek_run1	=[	$walk1,		seek_run2 ] {ai_run(15);}
-void() seek_run2	=[	$walk2,		seek_run3 ] {ai_run(15);}
-void() seek_run3	=[	$walk3,		seek_run4 ] {ai_run(15);}
-void() seek_run4	=[	$walk4,		seek_run5 ] {ai_run(15);}
-void() seek_run5	=[	$walk5,		seek_run6 ] {ai_run(15);}
-void() seek_run6	=[	$walk6,		seek_run7 ] {ai_run(15);}
-void() seek_run7	=[	$walk7,		seek_run8 ] {ai_run(15);}
-void() seek_run8	=[	$walk8,		seek_run9 ] {ai_run(15);}
-void() seek_run9	=[	$walk9,		seek_run10] {ai_run(15);}
-void() seek_run10	=[	$walk10,	seek_run11] {ai_run(15);}
-void() seek_run11	=[	$walk11,	seek_run12] {ai_run(15);}
-void() seek_run12	=[	$walk11,	seek_run1 ] {ai_run(15);}
+void() seek_run1	=[	$seek_walk1,		seek_run2 ] {ai_run(15);}
+void() seek_run2	=[	$seek_walk2,		seek_run3 ] {ai_run(15);}
+void() seek_run3	=[	$seek_walk3,		seek_run4 ] {ai_run(15);}
+void() seek_run4	=[	$seek_walk4,		seek_run5 ] {ai_run(15);}
+void() seek_run5	=[	$seek_walk5,		seek_run6 ] {ai_run(15);}
+void() seek_run6	=[	$seek_walk6,		seek_run7 ] {ai_run(15);}
+void() seek_run7	=[	$seek_walk7,		seek_run8 ] {ai_run(15);}
+void() seek_run8	=[	$seek_walk8,		seek_run9 ] {ai_run(15);}
+void() seek_run9	=[	$seek_walk9,		seek_run10] {ai_run(15);}
+void() seek_run10	=[	$seek_walk10,	seek_run11] {ai_run(15);}
+void() seek_run11	=[	$seek_walk11,	seek_run12] {ai_run(15);}
+void() seek_run12	=[	$seek_walk11,	seek_run1 ] {ai_run(15);}
 
 //============================================================================
 
@@ -129,7 +129,7 @@ void() seek_shotup7      =[	$shotup,		seek_run1		] {ai_face(); seek_fire(FALSE);
 
 void() seeker_endfiringcheck =
 {
-	if (!enemy_alive() || self.enemy.customflags & CFL_LIMBO )
+	if ((!alive(self.enemy)) || self.enemy.customflags & CFL_LIMBO )
 		return;
 
 	if (angledif(self.ideal_yaw, self.angles_y) > 40)	// player got behind us
@@ -337,7 +337,7 @@ void() seek_punch =
 	}
 	
 	ldmg = 60;
-	T_DamageMelee(self.enemy, self, ldmg);
+	T_Damage(self.enemy, self, self, ldmg, DMGTYPE_MELEE);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
 	SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);

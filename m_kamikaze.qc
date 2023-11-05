@@ -286,7 +286,7 @@ void(float dist)kami_run =
 	}
 	else
 	{
-		Killed(self,self.enemy, self.enemy);
+		Killed(self,self.enemy, DMGTYPE_MELEE);
 	}
 };
 
