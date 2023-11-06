@@ -71,8 +71,8 @@ float (entity targ) visible =
 	spot2 = targ.origin + targ.view_ofs;
 	traceline2(spot1, spot2, self, TRACE_NOMONSTERS|TRACE_WATER);	// see through other monsters
 	
-	if (trace_inopen && trace_inwater)
-		return FALSE;			// sight line crossed contents
+	//if (trace_inopen && trace_inwater)
+	//	return FALSE;			// sight line crossed contents
 
 	if (trace_fraction == 1)
 		return TRUE;
@@ -377,8 +377,8 @@ float() CheckClearAttack =
 	spot2 = enemy_vispos() + self.enemy.view_ofs;
 	traceline2(spot1, spot2, self, TRACE_WATER);
 
-	if (trace_inopen && trace_inwater)
-		return FALSE;	// sight line crossed contents
+	//if (trace_inopen && trace_inwater)
+	//	return FALSE;	// sight line crossed contents
 
 	if (trace_ent != self.enemy)
 	{
