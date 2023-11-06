@@ -43,6 +43,17 @@ float(entity targ) range =
 	d = eyeline(targ);
 	//d_z *= 2;	// don't melee guys way above or below you
 	r = vlen(d);
+
+	// so that kamikaze will gun it towards the player even at range,
+	// instead of dawdling around like the typical Quake monster.
+	if (self.classname == "monster_kamikaze")
+	{
+		if (r < 80)
+			return RANGE_HUG;
+		else 
+			return RANGE_NEAR;
+	}
+
 	if (r < 120)
 		return RANGE_MELEE;
 	if (r < 500)
@@ -1513,6 +1524,19 @@ void() ai_run_melee =
 	}
 }
 
+/*
+=============
+ai_run_straight
+
+Turn and follow straight
+=============
+*/
+void() ai_run_straight =
+{
+	self.ideal_yaw = enemy_yaw();
+	ChangeYaw ();
+}
+
 
 /*
 =============
@@ -1660,6 +1684,8 @@ void(float dist) ai_run =
 			}
 			return;
 		}
+		else if(self.classname == "monster_kamikaze")
+			ai_run_straight();
 	}
 	
 	if (self.attack_state == AS_SLIDING)
