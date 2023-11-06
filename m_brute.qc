@@ -3,6 +3,12 @@
 
 Brute
 
+Nightmare buffs:
+- Decreased think time during firing and melee by 25%
+- Refire chance on second shot of volley
+- Increased pain cooldown (4 instead of 2)
+- More Z-awareness (~88% instead of 66%)
+
 ==============================================================================
 */
 
@@ -92,7 +98,11 @@ vector(vector dest, float speed, float spray_angle) BruteAimGrenade =
 		theta = clamp(theta, -80, 70);
 	else
 		theta = clamp(theta, -60, 60);
-	theta = (theta * 2 + 18) / 3;
+
+	if (skill == 3)
+		theta = (theta + theta + theta + 18) / 3; // nightmare: 88% z-awareness
+	else
+		theta = (theta + theta + 18) / 2;	// copper: 66% z-awareness
 
 	angs_x = -theta;	
 	makevectors(angs);
@@ -313,20 +323,20 @@ void() brute_walk5	=[	$walk5,		brute_walk6		] { ai_walk(2); }
 void() brute_walk6	=[	$walk6,		brute_walk7		] { ai_walk(2); }
 void() brute_walk7	=[	$walk7,		brute_walk8		] { ai_walk(2); }
 void() brute_walk8	=[	$walk8,		brute_walk9		] { ai_walk(4); }
-void() brute_walk9	=[	$walk9,		brute_walk10 		] { ai_walk(4); }
-void() brute_walk10	=[	$walk10,	brute_walk11		] { ai_walk(4); }
-void() brute_walk11	=[	$walk11,	brute_walk12		] { ai_walk(3); }
-void() brute_walk12	=[	$walk12,	brute_walk13		] { ai_walk(2); }
-void() brute_walk13	=[	$walk13,	brute_walk14		] { ai_walk(2); }
-void() brute_walk14	=[	$walk14,	brute_walk15		] { ai_walk(1); }
-void() brute_walk15	=[	$walk15,	brute_walk16		] { ai_walk(1); }
-void() brute_walk16	=[	$walk16,	brute_walk17		] { ai_walk(4); }
-void() brute_walk17	=[	$walk17,	brute_walk18		] { ai_walk(3); }
-void() brute_walk18	=[	$walk18,	brute_walk19		] { ai_walk(2); }
-void() brute_walk19	=[	$walk19,	brute_walk20		] { ai_walk(2); }
-void() brute_walk20	=[	$walk20,	brute_walk21		] { ai_walk(4); }
-void() brute_walk21	=[	$walk21,	brute_walk22		] { ai_walk(4); }
-void() brute_walk22	=[	$walk22,	brute_walk23		] { ai_walk(4); }
+void() brute_walk9	=[	$walk9,		brute_walk10 	] { ai_walk(4); }
+void() brute_walk10	=[	$walk10,	brute_walk11	] { ai_walk(4); }
+void() brute_walk11	=[	$walk11,	brute_walk12	] { ai_walk(3); }
+void() brute_walk12	=[	$walk12,	brute_walk13	] { ai_walk(2); }
+void() brute_walk13	=[	$walk13,	brute_walk14	] { ai_walk(2); }
+void() brute_walk14	=[	$walk14,	brute_walk15	] { ai_walk(1); }
+void() brute_walk15	=[	$walk15,	brute_walk16	] { ai_walk(1); }
+void() brute_walk16	=[	$walk16,	brute_walk17	] { ai_walk(4); }
+void() brute_walk17	=[	$walk17,	brute_walk18	] { ai_walk(3); }
+void() brute_walk18	=[	$walk18,	brute_walk19	] { ai_walk(2); }
+void() brute_walk19	=[	$walk19,	brute_walk20	] { ai_walk(2); }
+void() brute_walk20	=[	$walk20,	brute_walk21	] { ai_walk(4); }
+void() brute_walk21	=[	$walk21,	brute_walk22	] { ai_walk(4); }
+void() brute_walk22	=[	$walk22,	brute_walk23	] { ai_walk(4); }
 void() brute_walk23	=[	$walk23,	brute_walk1		] { ai_walk(4); }
 
 /* Run */
@@ -366,165 +376,185 @@ void()	brute_die12	=[	$death12,	brute_die13	] {}
 void()	brute_die13	=[	$death13,	brute_die13	] {PostDeathLogic();}
 
 /* Dieb */
-void()	brute_dieb1	=[	$deathb1,	brute_dieb2	] {self.solid = SOLID_NOT; brute_dropammo();}
-void()	brute_dieb2	=[	$deathb2,	brute_dieb3	] {}
-void()	brute_dieb3	=[	$deathb3,	brute_dieb4	] {}
-void()	brute_dieb4	=[	$deathb4,	brute_dieb5	] {}
-void()	brute_dieb5	=[	$deathb5,	brute_dieb6	] {}
-void()	brute_dieb6	=[	$deathb6,	brute_dieb7	] {}
-void()	brute_dieb7	=[	$deathb7,	brute_dieb8	] {}
-void()	brute_dieb8	=[	$deathb8,	brute_dieb9	] {}
-void()	brute_dieb9	=[	$deathb9,	brute_dieb10	] {}
+void()	brute_dieb1		=[	$deathb1,	brute_dieb2		] {self.solid = SOLID_NOT;}
+void()	brute_dieb2		=[	$deathb2,	brute_dieb3		] {}
+void()	brute_dieb3		=[	$deathb3,	brute_dieb4		] {}
+void()	brute_dieb4		=[	$deathb4,	brute_dieb5		] {}
+void()	brute_dieb5		=[	$deathb5,	brute_dieb6		] {}
+void()	brute_dieb6		=[	$deathb6,	brute_dieb7		] {}
+void()	brute_dieb7		=[	$deathb7,	brute_dieb8		] {}
+void()	brute_dieb8		=[	$deathb8,	brute_dieb9		] {}
+void()	brute_dieb9		=[	$deathb9,	brute_dieb10	] {}
 void()	brute_dieb10	=[	$deathb10,	brute_dieb11	] {}
 void()	brute_dieb11	=[	$deathb11,	brute_dieb12	] {}
 void()	brute_dieb12	=[	$deathb12,	brute_dieb13	] {}
 void()	brute_dieb13	=[	$deathb13,	brute_dieb13	] {PostDeathLogic();}
 
 /* Melee */
-void() brute_meleea1	=[	$melee_a1, brute_meleea2 	] {ai_charge(8);}
-void() brute_meleea2	=[	$melee_a2, brute_meleea3 	] {ai_charge(12);}
+void() brute_meleea1	=[	$melee_a1, brute_meleea2 	] {nmfast(); ai_charge(8);}
+void() brute_meleea2	=[	$melee_a2, brute_meleea3 	] {nmfast(); ai_charge(12);}
 void() brute_meleea3	=[	$melee_a3, brute_meleea4 	] {
+	nmfast();
 	ai_charge(4);
 	sound (self, CHAN_VOICE, "brute/meleeswing.wav", 1, ATTN_NORM);
 }
 void() brute_meleea4	=[	$melee_a4, brute_meleea5 	] {
+	nmfast();
 	ai_charge(2);
 	brute_punch();
 }
-void() brute_meleea5	=[	$melee_a5, brute_meleea6 	] {ai_charge(8);}
-void() brute_meleea6	=[	$melee_a6, brute_meleea7 	] {ai_charge(8);}
-void() brute_meleea7	=[	$melee_a7, brute_meleea8 	] {ai_charge(4);}
-void() brute_meleea8	=[	$melee_a8, brute_meleea9 	] {ai_charge(0);}
-void() brute_meleea9	=[	$melee_a9, brute_meleea10 	] {ai_charge(0);}
+void() brute_meleea5	=[	$melee_a5, brute_meleea6 	] {nmfast(); ai_charge(8);}
+void() brute_meleea6	=[	$melee_a6, brute_meleea7 	] {nmfast(); ai_charge(8);}
+void() brute_meleea7	=[	$melee_a7, brute_meleea8 	] {nmfast(); ai_charge(4);}
+void() brute_meleea8	=[	$melee_a8, brute_meleea9 	] {nmfast(); ai_charge(0);}
+void() brute_meleea9	=[	$melee_a9, brute_meleea10 	] {nmfast(); ai_charge(0);}
 void() brute_meleea10	=[	$melee_a10, brute_run1	 	] {
+	nmfast();
 	ai_charge(0);
 	ai_attack_finished(1 + 2*random());
 }
 
-void() brute_meleeb1	=[	$melee_b1, brute_meleeb2 	] {ai_charge(2);}
-void() brute_meleeb2	=[	$melee_b2, brute_meleeb3 	] {ai_charge(12);}
-void() brute_meleeb3	=[	$melee_b3, brute_meleeb4 	] {ai_charge(12);}
-void() brute_meleeb4	=[	$melee_b4, brute_meleeb5 	] {ai_charge(8);}
+void() brute_meleeb1	=[	$melee_b1, brute_meleeb2 	] {nmfast(); ai_charge(2);}
+void() brute_meleeb2	=[	$melee_b2, brute_meleeb3 	] {nmfast(); ai_charge(12);}
+void() brute_meleeb3	=[	$melee_b3, brute_meleeb4 	] {nmfast(); ai_charge(12);}
+void() brute_meleeb4	=[	$melee_b4, brute_meleeb5 	] {nmfast(); ai_charge(8);}
 void() brute_meleeb5	=[	$melee_b5, brute_meleeb6 	] {
+	nmfast();
 	ai_charge(2);
 	sound (self, CHAN_VOICE, "brute/meleeswing.wav", 1, ATTN_NORM);
 }
 void() brute_meleeb6	=[	$melee_b6, brute_meleeb7 	] {
+	nmfast();
 	ai_charge(4);
 	brute_punch();
 }
-void() brute_meleeb7	=[	$melee_b7, brute_meleeb8 	] {ai_charge(2);}
-void() brute_meleeb8	=[	$melee_b8, brute_meleeb9 	] {ai_charge(0);}
-void() brute_meleeb9	=[	$melee_b9, brute_meleeb10 	] {ai_charge(2);}
-void() brute_meleeb10	=[	$melee_b10, brute_meleeb11	] {ai_charge(2);}
-void() brute_meleeb11	=[	$melee_b11, brute_meleeb12	] {ai_charge(0);}
-void() brute_meleeb12	=[	$melee_b12, brute_meleeb13	] {ai_charge(0);}
+void() brute_meleeb7	=[	$melee_b7, brute_meleeb8 	] {nmfast(); ai_charge(2);}
+void() brute_meleeb8	=[	$melee_b8, brute_meleeb9 	] {nmfast(); ai_charge(0);}
+void() brute_meleeb9	=[	$melee_b9, brute_meleeb10 	] {nmfast(); ai_charge(2);}
+void() brute_meleeb10	=[	$melee_b10, brute_meleeb11	] {nmfast(); ai_charge(2);}
+void() brute_meleeb11	=[	$melee_b11, brute_meleeb12	] {nmfast(); ai_charge(0);}
+void() brute_meleeb12	=[	$melee_b12, brute_meleeb13	] {nmfast(); ai_charge(0);}
 void() brute_meleeb13	=[	$melee_b13, brute_run1		] {
+	nmfast();
 	ai_charge(0);
 	ai_attack_finished(1 + 2*random());
 }
 
 /* Grenades */
-void() brute_grena1	=[	$attack_a4,		brute_grena5	] {ai_face();} //fix this later lol (fw)
-void() brute_grena5	=[	$attack_a5,		brute_grena6	] {ai_face();}
-void() brute_grena6	=[	$attack_a6,		brute_grena7	] {ai_face();}
-void() brute_grena7	=[	$attack_a7,		brute_grena8	] {ai_face();}
-void() brute_grena8	=[	$attack_a8,		brute_grena9	] {ai_face();}
-void() brute_grena9	=[	$attack_a9,		brute_grena10	] {ai_face();}
-void() brute_grena10	=[	$attack_a10,		brute_grena11	] {ai_face();}
-void() brute_grena11	=[	$attack_a11,		brute_grena12	] {ai_face();}
+void() brute_grena1	=[	$attack_a4,		brute_grena5	] {nmfast(); ai_face();} //fix this later lol (fw)
+void() brute_grena5	=[	$attack_a5,		brute_grena6	] {nmfast(); ai_face();}
+void() brute_grena6	=[	$attack_a6,		brute_grena7	] {nmfast(); ai_face();}
+void() brute_grena7	=[	$attack_a7,		brute_grena8	] {nmfast(); ai_face();}
+void() brute_grena8	=[	$attack_a8,		brute_grena9	] {nmfast(); ai_face();}
+void() brute_grena9	=[	$attack_a9,		brute_grena10	] {nmfast(); ai_face();}
+void() brute_grena10	=[	$attack_a10,		brute_grena11	] {nmfast(); ai_face();}
+void() brute_grena11	=[	$attack_a11,		brute_grena12	] {nmfast(); ai_face();}
 void() brute_grena12	=[	$attack_a12,		brute_grena13	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_LEFT, FALSE);
 }
 void() brute_grena13	=[	$attack_a13,	brute_grena14	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_LEFT, TRUE);
 }
 void() brute_grena14	=[	$attack_a14,	brute_grena15	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_LEFT, TRUE);
 }
-void() brute_grena15	=[	$attack_a15,	brute_grena16	] {ai_face();}
-void() brute_grena16	=[	$attack_a16,	brute_grena17	] {ai_face();}
-void() brute_grena17	=[	$attack_a17,	brute_grena18	] {ai_face();}
-void() brute_grena18	=[	$attack_a18,	brute_grena19	] {ai_face();}
-void() brute_grena19	=[	$attack_a19,	brute_grena20	] {ai_face();}
-void() brute_grena20	=[	$attack_a20,	brute_grena21	] {ai_face();}
-void() brute_grena21	=[	$attack_a21,	brute_grena22	] {ai_face();}
-void() brute_grena22	=[	$attack_a22,	brute_grena23	] {ai_face();}
+void() brute_grena15	=[	$attack_a15,	brute_grena16	] {nmfast(); ai_face();}
+void() brute_grena16	=[	$attack_a16,	brute_grena17	] {nmfast(); ai_face();}
+void() brute_grena17	=[	$attack_a17,	brute_grena18	] {nmfast(); ai_face(); ai_check_refire(brute_grena10);}
+void() brute_grena18	=[	$attack_a18,	brute_grena19	] {nmfast(); ai_face();}
+void() brute_grena19	=[	$attack_a19,	brute_grena20	] {nmfast(); ai_face();}
+void() brute_grena20	=[	$attack_a20,	brute_grena21	] {nmfast(); ai_face();}
+void() brute_grena21	=[	$attack_a21,	brute_grena22	] {nmfast(); ai_face();}
+void() brute_grena22	=[	$attack_a22,	brute_grena23	] {nmfast(); ai_face();}
 void() brute_grena23	=[	$attack_a23,	brute_grena24	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_RIGHT, FALSE);
 }
 void() brute_grena24	=[	$attack_a24,	brute_grena25	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_RIGHT, TRUE);
 }
 void() brute_grena25	=[	$attack_a25,	brute_grena26	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_A_RIGHT, TRUE);
 }
-void() brute_grena26	=[	$attack_a26,	brute_grena27	] {ai_face();}
-void() brute_grena27	=[	$attack_a27,	brute_grena28	] {ai_face();}
-void() brute_grena28	=[	$attack_a28,	brute_grena29	] {ai_face();}
-void() brute_grena29	=[	$attack_a29,	brute_grena30	] {ai_face();}
-void() brute_grena30	=[	$attack_a30,	brute_grena31	] {ai_face();}
-void() brute_grena31	=[	$attack_a31,	brute_grena32	] {ai_face();}
+void() brute_grena26	=[	$attack_a26,	brute_grena27	] {nmfast(); ai_face();}
+void() brute_grena27	=[	$attack_a27,	brute_grena28	] {nmfast(); ai_face();}
+void() brute_grena28	=[	$attack_a28,	brute_grena29	] {nmfast(); ai_face();}
+void() brute_grena29	=[	$attack_a29,	brute_grena30	] {nmfast(); ai_face();}
+void() brute_grena30	=[	$attack_a30,	brute_grena31	] {nmfast(); ai_face();}
+void() brute_grena31	=[	$attack_a31,	brute_grena32	] {nmfast(); ai_face();}
 void() brute_grena32	=[	$attack_a32,	brute_run1		] {
+	nmfast();
 	ai_face();
 	ai_attack_finished(1 + 2*random());
 }
 
-void() brute_grenb1		=[	$attack_b5,		brute_grenb6	] {ai_face();}
-void() brute_grenb6		=[	$attack_b6,		brute_grenb7	] {ai_face();}
-void() brute_grenb7		=[	$attack_b7,		brute_grenb8	] {ai_face();}
-void() brute_grenb8		=[	$attack_b8,		brute_grenb9	] {ai_face();}
-void() brute_grenb9		=[	$attack_b9,		brute_grenb10	] {ai_face();}
-void() brute_grenb10	=[	$attack_b10,	brute_grenb11	] {ai_face();}
+void() brute_grenb1		=[	$attack_b5,		brute_grenb6	] {nmfast(); ai_face();}
+void() brute_grenb6		=[	$attack_b6,		brute_grenb7	] {nmfast(); ai_face();}
+void() brute_grenb7		=[	$attack_b7,		brute_grenb8	] {nmfast(); ai_face();}
+void() brute_grenb8		=[	$attack_b8,		brute_grenb9	] {nmfast(); ai_face();}
+void() brute_grenb9		=[	$attack_b9,		brute_grenb10	] {nmfast(); ai_face();}
+void() brute_grenb10	=[	$attack_b10,	brute_grenb11	] {nmfast(); ai_face();}
 void() brute_grenb11	=[	$attack_b11,	brute_grenb12	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, FALSE);
 }
 void() brute_grenb12	=[	$attack_b12,	brute_grenb13	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, TRUE);
 }
 void() brute_grenb13	=[	$attack_b13,	brute_grenb14	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, TRUE);
 }
-void() brute_grenb14	=[	$attack_b14,	brute_grenb15	] {ai_face();}
-void() brute_grenb15	=[	$attack_b15,	brute_grenb16	] {ai_face();}
-void() brute_grenb16	=[	$attack_b16,	brute_grenb17	] {ai_face();}
-void() brute_grenb17	=[	$attack_b17,	brute_grenb18	] {ai_face();}
-void() brute_grenb18	=[	$attack_b18,	brute_grenb19	] {ai_face();}
-void() brute_grenb19	=[	$attack_b19,	brute_grenb20	] {ai_face();}
-void() brute_grenb20	=[	$attack_b20,	brute_grenb21	] {ai_face();}
+void() brute_grenb14	=[	$attack_b14,	brute_grenb15	] {nmfast(); ai_face();}
+void() brute_grenb15	=[	$attack_b15,	brute_grenb16	] {nmfast(); ai_face();}
+void() brute_grenb16	=[	$attack_b16,	brute_grenb17	] {nmfast(); ai_face(); ai_check_refire(brute_grenb9);}
+void() brute_grenb17	=[	$attack_b17,	brute_grenb18	] {nmfast(); ai_face();}
+void() brute_grenb18	=[	$attack_b18,	brute_grenb19	] {nmfast(); ai_face();}
+void() brute_grenb19	=[	$attack_b19,	brute_grenb20	] {nmfast(); ai_face();}
+void() brute_grenb20	=[	$attack_b20,	brute_grenb21	] {nmfast(); ai_face();}
 void() brute_grenb21	=[	$attack_b21,	brute_grenb22	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, FALSE);
 }
 void() brute_grenb22	=[	$attack_b22,	brute_grenb23	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, TRUE);
 }
 void() brute_grenb23	=[	$attack_b23,	brute_grenb24	] {
+	nmfast();
 	ai_face();
 	BruteFireGrenade(BRUTE_GRENADE_SEQUENCE_B, TRUE);
 }
-void() brute_grenb24	=[	$attack_b24,	brute_grenb25	] {ai_face();}
-void() brute_grenb25	=[	$attack_b25,	brute_grenb26	] {ai_face();}
-void() brute_grenb26	=[	$attack_b26,	brute_grenb27	] {ai_face();}
-void() brute_grenb27	=[	$attack_b27,	brute_grenb28	] {ai_face();}
-void() brute_grenb28	=[	$attack_b28,	brute_grenb29	] {ai_face();}
-void() brute_grenb29	=[	$attack_b29,	brute_grenb30	] {ai_face();}
-void() brute_grenb30	=[	$attack_b30,	brute_grenb31	] {ai_face();}
-void() brute_grenb31	=[	$attack_b31,	brute_grenb32	] {ai_face();}
-void() brute_grenb32	=[	$attack_b32,	brute_grenb33	] {ai_face();}
-void() brute_grenb33	=[	$attack_b33,	brute_grenb34	] {ai_face();}
-void() brute_grenb34	=[	$attack_b34,	brute_grenb35	] {ai_face();}
+void() brute_grenb24	=[	$attack_b24,	brute_grenb25	] {nmfast(); ai_face();}
+void() brute_grenb25	=[	$attack_b25,	brute_grenb26	] {nmfast(); ai_face();}
+void() brute_grenb26	=[	$attack_b26,	brute_grenb27	] {nmfast(); ai_face();}
+void() brute_grenb27	=[	$attack_b27,	brute_grenb28	] {nmfast(); ai_face();}
+void() brute_grenb28	=[	$attack_b28,	brute_grenb29	] {nmfast(); ai_face();}
+void() brute_grenb29	=[	$attack_b29,	brute_grenb30	] {nmfast(); ai_face();}
+void() brute_grenb30	=[	$attack_b30,	brute_grenb31	] {nmfast(); ai_face();}
+void() brute_grenb31	=[	$attack_b31,	brute_grenb32	] {nmfast(); ai_face();}
+void() brute_grenb32	=[	$attack_b32,	brute_grenb33	] {nmfast(); ai_face();}
+void() brute_grenb33	=[	$attack_b33,	brute_grenb34	] {nmfast(); ai_face();}
+void() brute_grenb34	=[	$attack_b34,	brute_grenb35	] {nmfast(); ai_face();}
 void() brute_grenb35	=[	$attack_b35,	brute_run1		] {
+	nmfast();
 	ai_face();
 	ai_attack_finished(1 + 2*random());
 }
@@ -578,11 +608,11 @@ float() BruteCheckAttack =
 }
 
 void(entity attacker, float damage)	brute_pain =
-{	if (self.health <= 0) {
+{	
+	if (self.health <= 0) {
 		return;
 	}
 
-	// don't make multiple pain sounds right after each other
 	if (self.pain_finished > time) {
 		return;
 	}
@@ -590,13 +620,18 @@ void(entity attacker, float damage)	brute_pain =
 	if (random() * 700 > damage) {
 		// didn't flinch
 		return;
-	}	
-
-	if (random() < 0.5) {
-		sound(self, CHAN_VOICE, "brute/injure1.wav", 1, ATTN_NORM);
-	} else {
-		sound(self, CHAN_VOICE, "brute/injure2.wav", 1, ATTN_NORM);
 	}
+
+	if (random() < 0.5)
+		sound(self, CHAN_VOICE, "brute/injure1.wav", 1, ATTN_NORM);
+	 else
+		sound(self, CHAN_VOICE, "brute/injure2.wav", 1, ATTN_NORM);
+	
+	if (skill == 3)
+		self.pain_finished = time + 4;
+	else
+		self.pain_finished = time + 2;
+
 	brute_pain1();
 }
 
@@ -653,7 +688,7 @@ void() monster_brute_spawn =
 {
 	self.classname = "monster_brute";
 	self.type = "brute";
-	
+
 	self.solid = SOLID_SLIDEBOX;
 
 	setmodel (self, "progs/e2/mon_brute.mdl");
@@ -669,6 +704,8 @@ void() monster_brute_spawn =
 	self.th_missile = brute_gren;
 	self.th_pain = brute_pain;
 	self.th_checkattack = BruteCheckAttack;
+
+	nmspeed(0.075);
 
 	if (self.deathtype == string_null)
 		self.deathtype = "was bopped by a Brute";
