@@ -93,19 +93,20 @@ void()	kami_walk12		=[	$walk12,	kami_walk13		] {ai_walk(3);}
 void()	kami_walk13		=[	$walk13,	kami_walk1		] {ai_walk(3);}
 
 void()	kami_run1		=[	$run1,		kami_run2		] {
+	nmfast();
 	kami_run(28);
 	Kami_Forget();
 }
-void()	kami_run2		=[	$run2,		kami_run3		] {kami_run(28);}
-void()	kami_run3		=[	$run3,		kami_run4		] {kami_run(28);}
-void()	kami_run4		=[	$run4,		kami_run5		] {kami_run(28);}
-void()	kami_run5		=[	$run5,		kami_run6		] {kami_run(28);}
-void()	kami_run6		=[	$run6,		kami_run7		] {kami_run(28);}
-void()	kami_run7		=[	$run7,		kami_run8		] {kami_run(28);}
-void()	kami_run8		=[	$run8,		kami_run9		] {kami_run(28);}
-void()	kami_run9		=[	$run9,		kami_run10		] {kami_run(28);}
-void()	kami_run10		=[	$run10,		kami_run11		] {kami_run(28);}
-void()	kami_run11		=[	$run11,		kami_run1		] {kami_run(28);}
+void()	kami_run2		=[	$run2,		kami_run3		] {nmfast(); kami_run(28);}
+void()	kami_run3		=[	$run3,		kami_run4		] {nmfast(); kami_run(28);}
+void()	kami_run4		=[	$run4,		kami_run5		] {nmfast(); kami_run(28);}
+void()	kami_run5		=[	$run5,		kami_run6		] {nmfast(); kami_run(28);}
+void()	kami_run6		=[	$run6,		kami_run7		] {nmfast(); kami_run(28);}
+void()	kami_run7		=[	$run7,		kami_run8		] {nmfast(); kami_run(28);}
+void()	kami_run8		=[	$run8,		kami_run9		] {nmfast(); kami_run(28);}
+void()	kami_run9		=[	$run9,		kami_run10		] {nmfast(); kami_run(28);}
+void()	kami_run10		=[	$run10,		kami_run11		] {nmfast(); kami_run(28);}
+void()	kami_run11		=[	$run11,		kami_run1		] {nmfast(); kami_run(28);}
 
 float(entity e) kami_visible =
 {
@@ -186,7 +187,11 @@ void() kami_explode =
 	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
 	GibSpray ("progs/gib3.mdl", self.health);
 	
-	T_RadiusDamage_Custom (self, self, 190, 60, KamiBlastRadius, world);
+	if (skill != 3)
+		T_RadiusDamage_Custom (self, self, 190, 60, KamiBlastRadius, world);
+	else
+		T_RadiusDamage_Custom (self, self, 190, 100, KamiBlastRadius, world);
+
 	sound (self, CHAN_BODY, "weapons/r_exp3.wav", 1, ATTN_NORM);
 	BecomeExplosion();
 }
@@ -302,6 +307,8 @@ void() monster_kamikaze_spawn =
 
 	if (self.deathtype == string_null)
 		self.deathtype = "was detonated by a Kamikaze";
+
+	nmspeed(0.075);
 
 	walkmonster_start ();
 };
