@@ -429,16 +429,6 @@ void() StartFrame =
 			skbtn = skbtn.owner;
 		}
 		self = world;
-	}	
-	
-	if (initCleanup)
-		initCleanup -= 1;
-	else if (!gamestarted && framecount > 2)
-	{
-		if (framecount != 3)
-			initCleanup += 2;
-		//startupWaterBrushes();
-		gamestarted = TRUE;
 	}
 		
 	framecount++;

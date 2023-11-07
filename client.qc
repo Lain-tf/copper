@@ -1595,6 +1595,7 @@ void() PlayerPreThink =
 		if ( !storytime_running && !( self.customflags & (CFL_PLUNGE|CFL_LIMBO) ) )
 		{
 			//RestoreCrosshair();
+			TintScreen(self, 0);
 			stuffcmd(self,"\nv_cshift\n");
 			stuffcmd(self,"-strafe\n");
 		}
