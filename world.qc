@@ -431,12 +431,12 @@ void() StartFrame =
 		self = world;
 	}	
 	
-	if (cleanUpClientShit)
-		cleanUpClientShit -= 1;
+	if (initCleanup)
+		initCleanup -= 1;
 	else if (!gamestarted && framecount > 2)
 	{
 		if (framecount != 3)
-			cleanUpClientShit += 2;
+			initCleanup += 2;
 		//startupWaterBrushes();
 		gamestarted = TRUE;
 	}
