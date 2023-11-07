@@ -83,7 +83,7 @@ void(vector pos, float bx, float by, float bwidth, float bheight, float pixelspe
 void(vector pos) Hud_DrawLevelInfoBar =
 {
 	string s;
-	float mins, secs, w, kw, gap;
+	float w, kw, gap;
 
 	drawpic(pos, "scorebar", '320 24', '1 1 1', baralpha, 0);
 
@@ -99,10 +99,21 @@ void(vector pos) Hud_DrawLevelInfoBar =
 	w = stringwidth(s, TRUE, '8 8');
 	drawstring(pos + '312 12' - '1 0' * w, s, '8 8', '1 1 1', 1, 0);
 	gap -= w;
-
-	mins = floor(time/60);
-	secs = floor(time - mins*60);
-	s = strcat(ftos(mins), ":", FormatFloat(secs, 2, "0"));
+	
+	//if (world.model == "maps/start.bsp")
+	//{
+		if (skill == 3) s = "skill \b3\b";
+		else if (skill == 2) s = "skill 2";
+		else if (skill == 1) s = "skill 1";
+		else s = "skill 0";
+	//}
+	//else
+	//{
+	//	float mins, secs;
+	//	mins = floor(time/60);
+	//	secs = floor(time - mins*60);
+	//	s = strcat(ftos(mins), ":", FormatFloat(secs, 2, "0"));
+	//}
 	w = stringwidth(s, TRUE, '8 8');
 	drawstring(pos + '8 12' + '1 0' * kw + '0.5 0 0' * (gap - w), s, '8 8', '1 1 1', 1, 0);
 };
@@ -712,37 +723,38 @@ void() HUD_UpdateStats =
 	scr_tintcolor_z = 0 + (1-f) * scr_tintcolor_z;
 }
 
+// cover the screen with a full color quad for hud-based fades
 void(vector screensize) Hud_DrawTint =
 {
-	vector hpanel, vpanel, color;
+	if (!noTint) return;
+	
+	vector color;
 	float f;
-	// cover the screen with a full color quad for hud-based fades
 	
 	f = scr_tint / 255;
 	color = scr_tintcolor / 255;
-	if (noTint)
-	{
-		hpanel_x = screensize_x;
-		hpanel_y = screensize_y * 0.55 * f;
-		vpanel_x = screensize_x * 0.55 * f;
-		vpanel_y = screensize_y;
-		
-		drawfill('0 0', hpanel, color, 1, 0);
-		drawfill(screensize - hpanel, hpanel, color, 1, 0);
-		hpanel_x = 0;
-		drawfill(hpanel, vpanel, color, 1, 0);
-		hpanel_x = screensize_x - vpanel_x;
-		drawfill(hpanel, vpanel, color, 1, 0);
-		
-		return;
-	}
+
+	drawfill('0 0', screensize, color, f, 0);
 	
-	drawfill('0 0', screensize, scr_tintcolor / 255, scr_tint / 255, 0);
+	/*
+	vector hpanel, vpanel;
+	hpanel_x = screensize_x;
+	hpanel_y = screensize_y * 0.55 * f;
+	vpanel_x = screensize_x * 0.55 * f;
+	vpanel_y = screensize_y;
+	
+	drawfill('0 0', hpanel, color, 1, 0);
+	drawfill(screensize - hpanel, hpanel, color, 1, 0);
+	hpanel_x = 0;
+	drawfill(hpanel, vpanel, color, 1, 0);
+	hpanel_x = screensize_x - vpanel_x;
+	drawfill(hpanel, vpanel, color, 1, 0);
+	*/
 }
 
 void(vector screensize, float scoreboard) CSQC_DrawHud =
 {
-	if (intermission) return;
+	if (intermission || coopdata == -1) return;
 	float viewsize = cvar("viewsize");
 	HUD_UpdateStats();
 	Hud_DrawTint(screensize);
@@ -812,7 +824,7 @@ void(vector screensize, float scoreboard) CSQC_DrawHud =
 
 void(vector screensize, float scoreboard) CSQC_DrawScores =
 {
-	if (!intermission) return;
+	if (!intermission || coopdata == -1) return;
 	vector pos, div;
 	float value, mins, secs;
 	string s;

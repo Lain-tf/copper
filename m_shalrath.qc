@@ -209,7 +209,7 @@ void() ShalHome =
 	
 	// go faster at long distance to close the gap, so snipey vores have a better presence
 	dist = vlen(self.enemy.origin - self.origin);
-	dist = saturate( (dist-120) / 512 );
+	dist = saturate( (dist-200) / 600 );
 	
 	if (skill < 3)
 	{
@@ -268,7 +268,7 @@ void() ShalHome =
 		}
 		else // evile homing
 		{
-			self.velocity = SHAL_BALL_VEL * ShalTurnToward(self.dest, rate * 5);
+			self.velocity = SHAL_BALL_VEL * normalize(self.dest + '0 0 10' - self.origin);
 		}
 		
 		self.velocity *= 1 + dist;

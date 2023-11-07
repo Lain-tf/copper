@@ -273,6 +273,8 @@ void() worldspawn =
 #endif
 	}
 
+	cdtrack = &world.sounds;	// absolute madness. see void() target_music_use
+
 // the area based ambient sounds MUST be the first precache_sounds
 
 // player precaches	
@@ -395,6 +397,24 @@ void() StartFrame =
 {
 	teamplay = cvar("teamplay");
 	
+	if (initCleanup)
+	{
+		initCleanup -= 1;
+		
+		if (skill_str != string_null)
+		{
+			dprint("restoring skill from save\n");
+			cvar_set("skill",skill_str);
+		}
+	}
+	else if (!gamestarted && framecount > 2)
+	{
+		if (framecount != 3)
+			initCleanup += 2;
+		
+		gamestarted = TRUE;
+	}
+		
 	float sk = cvar("skill");
 	entity skbtn;
 	if (sk != skill)
@@ -404,6 +424,7 @@ void() StartFrame =
 		while (skbtn)
 		{
 			self = skbtn;
+			dprint("activating skillbutton from startframe\n");
 			skillbutton_activate();
 			skbtn = skbtn.owner;
 		}

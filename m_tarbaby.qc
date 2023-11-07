@@ -220,7 +220,7 @@ void()	tbaby_jump5		=[	$jump5,	tbaby_jump6		]
 	if (self.flags & FL_ONGROUND)
 		self.flags = self.flags - FL_ONGROUND;
 		
-	if (skill < 3 && !tar_visible(self.enemy))
+	if (!tar_visible(self.enemy))
 		self.cnt = self.cnt + 1;
 		
 	self.delay = 0;

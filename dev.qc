@@ -277,7 +277,7 @@ void() dev_i_cant_see =
 	else
 		lightstyle(0, "z");
 	icantsee = !icantsee;
-	cleanUpClientShit = 2;
+	initCleanup = 2;
 }
 
 

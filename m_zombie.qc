@@ -569,6 +569,8 @@ void() zombie_return =
 	if (pc == CONTENT_SOLID || pc == CONTENT_LAVA || pc == CONTENT_SKY)
 		return;	// in something
 	
+	self.customflags |= CFL_OMNIVISION;
+	
 	if (self.velocity != '0 0 0' || has_invis(self.enemy))
 	{
 		self.nextthink = time + 5;
@@ -597,6 +599,11 @@ void() zombie_return =
 		particle(org, '-8 -8 0', 73, 16);
 		sound (self, CHAN_BODY, "zombie/z_res.wav", 1, ATTN_IDLE);
 
+		// this stops returned nightmare zombies from gyrating on the ground when their
+		// angles are > 360 from their time as a spiraling head, which hunttarget 
+		// then turns into their initial ideal_yaw
+		self.angles_y = anglemod(self.angles_y);
+
 		monster_zombie_spawn();
 		setmodel (self, "progs/zombienm.mdl");
 		setsize (self, '-16 -16 -24', '16 16 40');
@@ -612,9 +619,9 @@ void() zombie_return =
 	self.movetype = MOVETYPE_BOUNCE;
 	setsize (self, '-16 -16 0', '16 16 56');
 	setorigin(self,self.origin - '0 0 25');
-	if (self.cnt >= 5)
+	if (self.cnt >= 10)
 		return;
-	self.nextthink = time + 5;
+	self.nextthink = time + self.cnt;
 }
 
 //============================================================================

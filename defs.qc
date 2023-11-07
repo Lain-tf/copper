@@ -231,13 +231,14 @@ float	framecount;
 float	reset_flag;
 float	startingserverflags;
 nosave float	gamestarted;
-nosave float	cleanUpClientShit;
+nosave float	initCleanup;
 nosave float	clients;
 nosave float	clientsAlive;
 nosave float	clientsAliveMask;
 nosave float	globalStatSupported;
 
 float	skill;
+string	skill_str;	// for preserving skill across death/reloads
 float	coop_time;
 entity	storyCam;
 float	storyCamTime;
@@ -274,6 +275,8 @@ nosave float	isKex;	// running the quake rerelease
 nosave float	isCSQC;	// running something with passable csqc support
 
 string	keyType;
+
+float *cdtrack;	// fteqcc supports pointers. madness. see void() worldspawn
 
 //================================================
 
@@ -642,7 +645,6 @@ void(float num, float type, string name) globalstat = #233;
 		16384 : "Alt Target Pattern" : 0
 	]
 ]
-=======
 */
 
 #pragma noref 0
