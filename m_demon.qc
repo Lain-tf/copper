@@ -68,7 +68,9 @@ void()	demon1_walk8	=[	$walk8,		demon1_walk1	] {ai_walk(10);}
 // ai_run already concluded we can't leap, but make sure we can't just run up some stairs
 float() DemonCheckCharge =
 {
-	// check for mad charge
+	// this is never called now, bc it seemed to supercede the leap on subsequent frames 
+	// too often and isn't worth sorting out the overlapping timers/states causing that
+	
 	if (!enemy_vis)
 		return FALSE;
 	if (time < self.attack_finished)
@@ -87,7 +89,11 @@ float() DemonCheckCharge =
 	return TRUE;
 }
 
-void()	demon1_run1	= [ $run1, demon1_run2 ] { nmfast(); ai_run(20); DemonCheckCharge();}
+void()	demon1_run1	= [ $run1, demon1_run2 ] { nmfast(); 
+	//if (DemonCheckCharge())
+	//	return;
+	ai_run(20);
+}
 void()	demon1_run2	= [ $run2, demon1_run3 ] { nmfast(); ai_run(15);}
 void()	demon1_run3	= [ $run3, demon1_run4 ] { nmfast(); ai_run(36);}
 void()	demon1_run4	= [ $run4, demon1_run5 ] { nmfast(); ai_run(20);}

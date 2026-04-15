@@ -46,10 +46,10 @@ void() Cheat_Items =
 	self.items = self.items | IT_LIGHTNING;
 	self.items_snack = self.items_snack | IT_QUAD_SHOTGUN;
 
-	self.weapon = IT_ROCKET_LAUNCHER;
+	W_SetCurrentAmmo();
+	W_Select(IT_ROCKET_LAUNCHER);
 
 	stuffcmd(self,"bf\n");
-	W_ResetWeaponState();
 }
 
 // --------------------------------
@@ -201,6 +201,9 @@ void() ImpulseCommands =
 		break;
 	case 15:
 		W_SelectBestWeapon();
+		break;
+	case 16:
+		W_SelectLastWeapon();
 		break;
 
 	case 40:

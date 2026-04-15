@@ -176,9 +176,9 @@ float(vector start, vector ctrl, vector end) bez_lenApprox =
 	float chord, peri;
 	
 	chord = vlen(start - end);
-	peri = vlen(start - ctrl) + vlen(ctrl - end) + chord;
+	peri = vlen(start - ctrl) + vlen(ctrl - end);
 	
-	return 2 * chord / 3 + peri / 3;
+	return (2 * chord + peri) / 3;
 }
 
 // rotates B around A
@@ -343,6 +343,15 @@ float(float num) sqrt =
 	return apr;
 }
 
+// reflect incident over normal, dampening it against the normal
+vector(vector incident, vector normal, float dampening) reflect = {
+	// project incident along normal
+	float d = incident * normal;
+	vector p = d * normal;
 
+	vector i2p = p - incident;
+	vector reflected = incident + 2 * i2p;
 
+	return reflected - d * dampening * normal;
+};
 

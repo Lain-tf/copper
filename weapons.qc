@@ -70,6 +70,257 @@ void() SuperDamageSound =
 	}
 }
 
+// ==================================================================
+
+float(float w) W_RankForWeapon =
+{
+	if (!w)
+		return 666;
+	if (w == IT_LIGHTNING)
+		return 1;
+	if (w == IT_ROCKET_LAUNCHER)
+		return 2;
+	if (w == IT_SUPER_NAILGUN)
+		return 3;
+	if (w == IT_GRENADE_LAUNCHER)
+		return 4;
+	if (w == IT_SUPER_SHOTGUN)
+		return 5;
+	if (w == IT_NAILGUN)
+		return 6;
+	return 7;
+}
+
+/*
+=============
+W_BetterWeapon
+
+Deathmatch weapon change rules for picking up a weapon
+=============
+*/
+void(entity e, float new) W_BetterWeapon =
+{
+	entity oself = self;
+	if (!deathmatch)
+	{
+		// don't switch to explosive weapons with quad
+		// 1.12: don't switch to explosives when invisible either, since you can't see the stupid viewmodel
+		if ( (has_quad(e) || has_invis(e)) &&
+			(new == IT_ROCKET_LAUNCHER || new == IT_GRENADE_LAUNCHER))
+			return;
+		// don't switch to a lightning gun when standing in water
+		if (e.waterlevel >= 2 && new == IT_LIGHTNING)
+			return;
+	}	
+	self = e;
+	if (!deathmatch || W_RankForWeapon (new) < W_RankForWeapon (self.weapon) )
+		W_Select(new);
+	self = oself;
+}
+
+float(float weap) W_HasAmmo =
+{
+	if (!weap || weap == IT_AXE) return TRUE;
+	
+	if (weap == IT_SUPER_SHOTGUN)	return (self.ammo_shells >= 2);
+	if (weap == IT_SHOTGUN)			return (self.ammo_shells >= 1);
+	if (weap == IT_NAILGUN)			return (self.ammo_nails >= 1);
+	if (weap == IT_SUPER_NAILGUN)	return (self.ammo_nails >= 2);
+	if (weap == IT_LIGHTNING)		return (self.ammo_cells >= 1);
+	if (weap == IT_GRENADE_LAUNCHER || weap == IT_ROCKET_LAUNCHER)
+		return (self.ammo_rockets >= 1);
+		
+	return FALSE;
+}
+
+float() W_BestWeapon =
+{
+	if(self.items & (IT_SUPER_NAILGUN) && W_HasAmmo(IT_SUPER_NAILGUN))
+		return IT_SUPER_NAILGUN;
+	if(self.items & (IT_SUPER_SHOTGUN) && W_HasAmmo (IT_SUPER_SHOTGUN))
+		return IT_SUPER_SHOTGUN;
+
+	if (self.items & (IT_LIGHTNING) && self.waterlevel <= 1 && W_HasAmmo(IT_LIGHTNING))
+		return IT_LIGHTNING;
+	if(self.items & (IT_NAILGUN) && W_HasAmmo(IT_NAILGUN))
+		return IT_NAILGUN;
+	if(self.items & (IT_SHOTGUN) && W_HasAmmo(IT_SHOTGUN))
+		return IT_SHOTGUN;
+	if (self.items & IT_AXE)
+		return IT_AXE;
+		
+	if(self.items & (IT_ROCKET_LAUNCHER) && W_HasAmmo(IT_ROCKET_LAUNCHER))
+		return IT_ROCKET_LAUNCHER;
+	if(self.items & (IT_GRENADE_LAUNCHER) && W_HasAmmo (IT_GRENADE_LAUNCHER))
+		return IT_GRENADE_LAUNCHER;
+		
+	return 0;
+}
+
+void() W_SelectBestWeapon =
+{
+	W_Select(W_BestWeapon());
+}
+
+void() W_SelectBestShotgun =
+{
+	if (self.items & (IT_SHOTGUN|IT_SUPER_SHOTGUN))
+	{
+		if (!W_Select(IT_SHOTGUN) && !W_Select(IT_SUPER_SHOTGUN))
+			sprint (self, "not enough ammo.\n");
+	}
+	else
+	{
+		sprint(self, "no weapon.\n");
+	}
+}
+
+void() W_SelectBestNailgun =
+{
+	if (self.items & (IT_NAILGUN|IT_SUPER_NAILGUN))
+	{
+		if (!W_Select(IT_NAILGUN) && !W_Select(IT_SUPER_NAILGUN))
+			sprint (self, "not enough ammo.\n");
+	}
+	else
+	{
+		sprint(self, "no weapon.\n");
+	}
+}
+
+
+/*
+============
+W_ChangeWeapon
+============
+*/
+void() W_ChangeWeapon =
+{
+	local	float	it, am, fl;
+	
+	if (self.customflags & CFL_PLUNGE)
+		return;
+		
+	it = self.items;
+	am = 0;
+	
+	if (self.impulse == 1)
+	{
+		fl = IT_AXE;
+	}
+	else if (self.impulse == 2)
+	{
+		fl = IT_SHOTGUN;
+		if (self.ammo_shells < 1)
+			am = 1;
+	}
+	else if (self.impulse == 3)
+	{
+		fl = IT_SUPER_SHOTGUN;
+		if (self.ammo_shells < 2)
+			am = 1;
+	}		
+	else if (self.impulse == 4)
+	{
+		fl = IT_NAILGUN;
+		if (self.ammo_nails < 1)
+			am = 1;
+	}
+	else if (self.impulse == 5)
+	{
+		fl = IT_SUPER_NAILGUN;
+		if (self.ammo_nails < 2)
+			am = 1;
+	}
+	else if (self.impulse == 6)
+	{
+		fl = IT_GRENADE_LAUNCHER;
+		if (self.ammo_rockets < 1)
+			am = 1;
+	}
+	else if (self.impulse == 7)
+	{
+		fl = IT_ROCKET_LAUNCHER;
+		if (self.ammo_rockets < 1)
+			am = 1;
+	}
+	else if (self.impulse == 8)
+	{
+		fl = IT_LIGHTNING;
+		if (self.ammo_cells < 1)
+			am = 1;
+	}
+
+	self.impulse = 0;
+	
+	if (!(self.items & fl))
+	{	// don't have the weapon or the ammo
+		sprint (self, "no weapon.\n");
+		return;
+	}
+	
+	if (am)
+	{	// don't have the ammo
+		sprint (self, "not enough ammo.\n");
+		return;
+	}
+
+	W_Select(fl);
+}
+
+/*
+============
+Weapon Cycling
+
+for players who insist on shuffling through their inventory the slow way
+============
+*/
+float W_Next(float w) =
+{
+	if (w == IT_AXE) return IT_SHOTGUN;
+	else if (w == IT_LIGHTNING) return IT_AXE;
+	else return w * 2;
+}
+
+float W_Prev(float w) =
+{
+	if (w == IT_SHOTGUN) return IT_AXE;
+	else if (w == IT_AXE) return IT_LIGHTNING;
+	else return w / 2;
+}
+
+// cycle weapon up
+void() CycleWeaponCommand =
+{
+	float weap = self.weapon;
+	self.impulse = 0;
+	if (!weap)
+		weap = W_BestWeapon();
+	else do {
+		weap = W_Next(weap);
+		if (self.items & weap && W_HasAmmo(weap))
+			break;
+	} while (weap != self.weapon);
+	W_Select (weap);
+}
+
+// cycle weapon down
+void() CycleWeaponReverseCommand =
+{
+	float weap = self.weapon;
+	self.impulse = 0;
+	if (!weap)
+		weap = W_BestWeapon();
+	else do {
+		weap = W_Prev(weap);
+		if (self.items & weap && W_HasAmmo(weap))
+			break;
+	} while (weap != self.weapon);
+	W_Select (weap);
+}
+
+// ==================================================================
+
 void() W_SetIdleWeaponFrame =
 {
 	self.weaponframe = 0;
@@ -108,7 +359,7 @@ void() W_SetCurrentAmmo =
 void() W_ResetWeaponState =
 {
 	player_run ();		// get out of any weapon firing states
-
+	self.lip = 0;	// reset nailgun barrel cycle
 	self.weaponframe = 0;
 	//self.attack_finished = 0;	// don't lose attack debounce time from last attack,
 		// if any, or picking up/switching weapons can cause double attacks
@@ -135,135 +386,35 @@ void() W_ResetWeaponState =
 	W_SetCurrentAmmo();
 }
 
-float(float w) W_RankForWeapon =
+void() W_SelectLastWeapon =
 {
-	if (!w)
-		return 666;
-	if (w == IT_LIGHTNING)
-		return 1;
-	if (w == IT_ROCKET_LAUNCHER)
-		return 2;
-	if (w == IT_SUPER_NAILGUN)
-		return 3;
-	if (w == IT_GRENADE_LAUNCHER)
-		return 4;
-	if (w == IT_SUPER_SHOTGUN)
-		return 5;
-	if (w == IT_NAILGUN)
-		return 6;
-	return 7;
+	if (self.attack_state)
+		W_Select(self.attack_state);
 }
 
 /*
-=============
-W_BetterWeapon
-
-Deathmatch weapon change rules for picking up a weapon
-=============
+============
+W_Select
+This should be the only function that changes .weapon
+============
 */
-void(float new) W_BetterWeapon =
+float(float weap) W_Select =
 {
-	if (!deathmatch)
+	if (weap)
 	{
-		// don't switch to explosive weapons with quad
-		// 1.12: don't switch to explosives when invisible either, since you can't see the stupid viewmodel
-		if ( (has_quad(self) || has_invis(self)) &&
-			(new == IT_ROCKET_LAUNCHER || new == IT_GRENADE_LAUNCHER))
-			return;
-		// don't switch to a lightning gun when standing in water
-		if (self.waterlevel >= 2 && new == IT_LIGHTNING)
-			return;
-	}	
-	if (!deathmatch || W_RankForWeapon (new) < W_RankForWeapon (self.weapon) )
-		self.weapon = new;
+		if (self.weapon == weap) return TRUE;
+		if (self.items & weap == 0) return FALSE;
+		if (!W_HasAmmo(weap)) return FALSE;
+		self.attack_state = self.weapon;
+	}
+
+	self.weapon = weap;
 	W_ResetWeaponState();
+	return TRUE;
 }
 
-float(float weap) W_HasAmmo =
-{
-	if (self.items & weap == 0) return FALSE;
-	if (weap == IT_AXE) return TRUE;
-	
-	if (weap == IT_SUPER_SHOTGUN)	return (self.ammo_shells >= 2);
-	if (weap == IT_SHOTGUN)			return (self.ammo_shells >= 1);
-	if (weap == IT_NAILGUN)			return (self.ammo_nails >= 1);
-	if (weap == IT_SUPER_NAILGUN)	return (self.ammo_nails >= 2);
-	if (weap == IT_LIGHTNING)		return (self.ammo_cells >= 1);
-	
-	if (weap == IT_GRENADE_LAUNCHER || weap == IT_ROCKET_LAUNCHER)
-		return (self.ammo_rockets >= 1);
-		
-	return FALSE;
-}
+// ==================================================================
 
-float() W_BestWeapon =
-{
-	self.lip = 0;	// reset nailgun barrel cycle
-	
-	if(W_HasAmmo(IT_SUPER_NAILGUN))
-		return IT_SUPER_NAILGUN;
-	if(W_HasAmmo (IT_SUPER_SHOTGUN))
-		return IT_SUPER_SHOTGUN;
-	if (self.waterlevel <= 1 && W_HasAmmo(IT_LIGHTNING))
-		return IT_LIGHTNING;
-	if(W_HasAmmo(IT_NAILGUN))
-		return IT_NAILGUN;
-	if(W_HasAmmo(IT_SHOTGUN))
-		return IT_SHOTGUN;
-	if (self.items & IT_AXE)
-		return IT_AXE;
-	return 0;
-}
-
-void() W_SelectBestWeapon =
-{
-	self.weapon = W_BestWeapon();
-	W_ResetWeaponState();
-}
-
-void() W_SelectBestShotgun =
-{
-	if (self.items & (IT_SHOTGUN|IT_SUPER_SHOTGUN))
-	{
-		if (W_HasAmmo(IT_SUPER_SHOTGUN))
-		{
-			self.weapon = IT_SUPER_SHOTGUN;
-			W_ResetWeaponState();
-		}
-		else if (W_HasAmmo(IT_SHOTGUN))
-		{
-			self.weapon = IT_SHOTGUN;
-			W_ResetWeaponState();
-		}
-		else sprint (self, "not enough ammo.\n");
-	}
-	else
-	{
-		sprint(self, "no weapon.\n");
-	}
-}
-
-void() W_SelectBestNailgun =
-{
-	if (self.items & (IT_NAILGUN|IT_SUPER_NAILGUN))
-	{
-		if (W_HasAmmo(IT_SUPER_NAILGUN))
-		{
-			self.weapon = IT_SUPER_NAILGUN;
-			W_ResetWeaponState();
-		}
-		else if (W_HasAmmo(IT_NAILGUN))
-		{
-			self.weapon = IT_NAILGUN;
-			W_ResetWeaponState();
-		}
-		else sprint (self, "not enough ammo.\n");
-	}
-	else
-	{
-		sprint(self, "no weapon.\n");
-	}
-}
 
 /*
 ============
@@ -330,139 +481,6 @@ void() W_Attack =
 		self.attack_finished = time + 0.1;
 		sound (self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
 	}
-}
-
-/*
-============
-W_ChangeWeapon
-============
-*/
-void() W_ChangeWeapon =
-{
-	local	float	it, am, fl;
-	
-	if (self.customflags & CFL_PLUNGE)
-		return;
-		
-	it = self.items;
-	am = 0;
-	
-	if (self.impulse == 1)
-	{
-			fl = IT_AXE;
-	}
-	else if (self.impulse == 2)
-	{
-		fl = IT_SHOTGUN;
-		if (self.ammo_shells < 1)
-			am = 1;
-	}
-	else if (self.impulse == 3)
-	{
-		fl = IT_SUPER_SHOTGUN;
-		if (self.ammo_shells < 2)
-			am = 1;
-	}		
-	else if (self.impulse == 4)
-	{
-		fl = IT_NAILGUN;
-		if (self.ammo_nails < 1)
-			am = 1;
-	}
-	else if (self.impulse == 5)
-	{
-		fl = IT_SUPER_NAILGUN;
-		if (self.ammo_nails < 2)
-			am = 1;
-	}
-	else if (self.impulse == 6)
-	{
-		fl = IT_GRENADE_LAUNCHER;
-		if (self.ammo_rockets < 1)
-			am = 1;
-	}
-	else if (self.impulse == 7)
-	{
-		fl = IT_ROCKET_LAUNCHER;
-		if (self.ammo_rockets < 1)
-			am = 1;
-	}
-	else if (self.impulse == 8)
-	{
-		fl = IT_LIGHTNING;
-		if (self.ammo_cells < 1)
-			am = 1;
-	}
-
-	self.impulse = 0;
-	
-	if (!(self.items & fl))
-	{	// don't have the weapon or the ammo
-		sprint (self, "no weapon.\n");
-		return;
-	}
-	
-	if (am)
-	{	// don't have the ammo
-		sprint (self, "not enough ammo.\n");
-		return;
-	}
-
-	self.weapon = fl;		
-	W_ResetWeaponState();
-}
-
-/*
-============
-Weapon Cycling
-
-for players who insist on shuffling through their inventory the slow way
-============
-*/
-float W_Next(float w) =
-{
-	if (w == IT_AXE) return IT_SHOTGUN;
-	else if (w == IT_LIGHTNING) return IT_AXE;
-	else return w * 2;
-}
-
-float W_Prev(float w) =
-{
-	if (w == IT_SHOTGUN) return IT_AXE;
-	else if (w == IT_AXE) return IT_LIGHTNING;
-	else return w / 2;
-}
-
-// cycle weapon up
-void() CycleWeaponCommand =
-{
-	float weap = self.weapon;
-	self.impulse = 0;
-	if (!weap)
-		weap = W_BestWeapon();
-	else do {
-		weap = W_Next(weap);
-		if (self.items & weap && W_HasAmmo(weap))
-			break;
-	} while (weap != self.weapon);
-	self.weapon = weap;
-	W_ResetWeaponState ();
-}
-
-// cycle weapon down
-void() CycleWeaponReverseCommand =
-{
-	float weap = self.weapon;
-	self.impulse = 0;
-	if (!weap)
-		weap = W_BestWeapon();
-	else do {
-		weap = W_Prev(weap);
-		if (self.items & weap && W_HasAmmo(weap))
-			break;
-	} while (weap != self.weapon);
-	self.weapon = weap;
-	W_ResetWeaponState ();
 }
 
 /*

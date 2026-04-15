@@ -228,18 +228,40 @@ void(entity attacker, float damage)	fish_pain =
 	PainFinished(1);
 }
 
-void() fish_gib =
+void() fish_throwgib =
 {
 	entity meat;
 	vector mvel;
 	
-	mvel_x = crandom() * 128;
-	mvel_y = crandom() * 128;
+	mvel_x = random() * 256 - 128;
+	mvel_y = random() * 256 - 128;
 	mvel_z = random() * 256;
 
-	meat = toss_projectile(self.origin, mvel, "gib");
-	MakeGib(meat, "progs/zom_gib.mdl");
+	meat = ThrowGib("progs/zom_gib.mdl", mvel);
 	meat.lifetime_finished = time + 1;
+}
+
+void() fish_gib =
+{
+	vector org;
+	org = self.origin - '0 0 8';
+	
+	particle(org + '-12 12 12', '-24 24 24', 73, 24);
+	particle(org + '12 12 12',  '24 24 24', 73, 24);
+	particle(org + '-12 -12 12', '-24 -24 24', 73, 24);
+	particle(org + '12 -12 12', '24 -24 24', 73, 24);
+	particle(org + '-12 12 -12', '-24 24 -24', 73, 24);
+	particle(org + '12 12 -12', '24 24 -24', 73, 24);
+	particle(org + '-12 -12 -12', '-24 -24 -24', 73, 24);
+	particle(org + '12 -12 -12', '24 -24 -24', 73, 24);
+	
+	sound (self, CHAN_VOICE, "player/tornoff2.wav", 1, ATTN_NORM);
+	
+	fish_throwgib();
+	fish_throwgib();
+	fish_throwgib();
+	
+	remove(self);
 }
 
 void() fish_die =
@@ -249,23 +271,8 @@ void() fish_die =
 	// just spray a bunch of blood and bubbles
 	if (self.health < -30)
 	{
-		vector org, bl;
-		float x,y,z;
-		org = self.origin - '0 0 8';
-		for (x=-1;x<2;x+=2) for (y=-1;y<2;y+=2) for (z=-1;z<2;z+=2)
-		{
-			bl = Vector(8 * x * random(), 8 * y * random(), 8 * z * random());
-			particle(org + bl, bl, 73, 20);
-			particle(org - bl, '0 0 1', 73, 20);
-			// removing bubbles because there's no air in fish
-			//if (random() < 0.5)
-			//	bubble_spawn(org - bl);
-			// also duh
-		}
-		sound (self, CHAN_VOICE, "player/tornoff2.wav", 1, ATTN_NORM);
-		for (x=0;x<3;x++)
-			fish_gib();
-		SUB_RemoveSoon();
+		self.think = fish_gib;
+		self.nextthink = time;
 		return;
 	}
 	

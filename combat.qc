@@ -175,6 +175,7 @@ RadiusDamage and melee attacks.
 float(entity targ, vector srcorg) CanDamage =
 {
 	vector corner;
+	float dist;
 	
 	// bmodels need special checking because their origin is 0,0,0
 	if (targ.movetype == MOVETYPE_PUSH)
@@ -190,7 +191,8 @@ float(entity targ, vector srcorg) CanDamage =
 		return FALSE;
 	}
 	
-	if (vlen(srcorg - targ.origin) > 512)
+	dist = vlen(srcorg - targ.origin);
+	if (dist > 512)
 		return FALSE;	// too far
 		
 	// center
@@ -198,7 +200,7 @@ float(entity targ, vector srcorg) CanDamage =
 	if (trace_fraction == 1)
 		return TRUE;
 	
-	if (vlen(srcorg - targ.origin) > 256)
+	if (dist > 256)
 		return FALSE;	// skip extra traces beyond sensible explosion sizes 
 
 	// lunaran: adapted from maddes fix
@@ -216,24 +218,26 @@ float(entity targ, vector srcorg) CanDamage =
 		return TRUE;
 	
 	// check proper extents of wider monsters
+	// skip the more expensive trace for these bc we don't really need to test
+	// through notrace 7 times
 	corner = targ.size * 0.5 - '1 1 0';
 	corner_z = 0;
-	traceline2(srcorg, targ.origin + corner, self, TRACE_NOMONSTERS);
+	traceline(srcorg, targ.origin + corner, TRUE, self);
 	if (trace_fraction == 1)
 		return TRUE;
 		
 	corner_x *= -1;
-	traceline2(srcorg, targ.origin + corner, self, TRACE_NOMONSTERS);
+	traceline(srcorg, targ.origin + corner, TRUE, self);
 	if (trace_fraction == 1)
 		return TRUE;
 		
 	corner_y *= -1;
-	traceline2(srcorg, targ.origin + corner, self, TRACE_NOMONSTERS);
+	traceline(srcorg, targ.origin + corner, TRUE, self);
 	if (trace_fraction == 1)
 		return TRUE;
 		
 	corner_x *= -1;
-	traceline2(srcorg, targ.origin + corner, self, TRACE_NOMONSTERS);
+	traceline(srcorg, targ.origin + corner, TRUE, self);
 	if (trace_fraction == 1)
 		return TRUE;
 
@@ -274,15 +278,14 @@ float ArmorSave(entity targ, float damage, float dmgtype = 0)
 	if (!damage) return 0;
 	if (!targ.takedamage)
 		return 0;
+	// armor doesn't protect against things like drowning or target_items health adjustments
+	if (dmgtype & DMGTYPE_NOARMOR || targ.armorvalue <= 0)
+		return 0;
 	if (targ.flags & FL_GODMODE || has_invuln(targ) )
 		return 0;
 
 	float save, savefrac;
 	
-	// armor doesn't protect against things like drowning or target_items health adjustments
-	if (dmgtype & DMGTYPE_NOARMOR || targ.armorvalue <= 0)
-		return 0;
-
 	savefrac = targ.armortype * damage;
 
 	if (targ.classname == "player")
@@ -447,7 +450,7 @@ void(entity targ, entity inflictor, entity attacker, float damage, float dmgtype
 	
 	if (attacker.classname == targ.classname)
 	{
-		if (attacker.classname != "player" && attacker.classname != "monster_grunt")
+		if (attacker.classname != "player" && attacker.classname != "monster_army")
 			damage = damage * 0.5;
 	}
 
@@ -481,19 +484,20 @@ void(entity targ, entity inflictor, entity attacker, float damage, float dmgtype
 	}
 
 	// team play damage avoidance
-	if ( (teamplay == 1) && 
-		(targ.team > 0) && 
-		(targ.team == attacker.team) && 
-		(targ != attacker) && 
-		(attacker.classname == "player") && 
-		(inflictor.classname != "door") )	// because squishing a teammate is still possible
-		return;
+	if (teamplay && attacker.classname == "player")
+	{
+		if ((targ.team > 0) && 
+			(targ.team == attacker.team) && 
+			(targ != attacker) && 
+			(inflictor.classname != "door") )	// because squishing a teammate is still possible
+			return;
 
-	// teamplay is automatically damage avoidance in coop because friends are always a team
-	if (teamplay && coop && 
-		attacker.classname == "player" && targ.classname == "player" &&
-		attacker != targ)
-		return;
+		// teamplay is automatically damage avoidance in coop because friends are always a team
+		if (coop && 
+			targ.classname == "player" &&
+			attacker != targ)
+			return;
+	}
 
 	// ready to do the damage
 	damage = max(1, floor(damage));
@@ -568,30 +572,35 @@ void(entity inflictor, entity attacker, float damage, entity ignore, float dmgty
 	float 	points, dist;
 	entity	head;
 	
-	head = findradius(inflictor.origin, damage+40);
+	head = findradius(inflictor.origin, min(512, damage + 40));
 	
 	while (head)
 	{
 		if (head != ignore && head.takedamage)
 		{
-			dist = vlen (inflictor.origin - BoundsCenter(head));
-			points = damage - (0.5 * dist);
-			if (head == attacker)
-				points *= 0.5;
-				
-			// shambler takes half damage from all explosions
-			//if (head.classname == "monster_shambler" && (dmgtype & DMGTYPE_EXPLOSION))
-			//	points *= 0.5;
-			// already halved by T_Damage
-			
 			// don't set off shootable doors/buttons with splash unless the player means it
 			if ((head.movetype == MOVETYPE_PUSH || head.th_die == multi_killed) && head.type != "explobox")
 			{
+				dist = vlen (inflictor.origin - BoundsCenter(head));
+				points = damage - (0.5 * dist);
+
 				// a grenade at rest touching shootable should intuitively trigger it
 				if ( !(inflictor.type == "grenade" && BoundsTouching(inflictor.origin, inflictor.origin, head.absmin, head.absmax, 2)) )
 					if (dist > damage / 3)
 						points = 0;
 			}
+			else
+			{
+				dist = vlen (inflictor.origin - head.origin);
+				points = damage - (0.5 * dist);
+				if (head == attacker && inflictor.type != "explobox")	// barrels never did half-self-splash in vanilla
+					points *= 0.5;
+			}
+			// shambler takes half damage from all explosions
+			//if (head.classname == "monster_shambler" && (dmgtype & DMGTYPE_EXPLOSION))
+			//	points *= 0.5;
+			// already halved by T_Damage
+			
 
 			if (points > 0 && CanDamage ( head, inflictor.origin ) )
 				T_Damage (head, inflictor, attacker, points, dmgtype);

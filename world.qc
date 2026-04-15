@@ -185,6 +185,9 @@ Keys:
 		1 : "Runemetal"
 		2 : "Base"
 	]
+	fog(string) : "Set fog via engine (D R G B)"
+	fog_density(string) : "Set fog density via mod"
+	fog_color(string) : "Set fog color via mod (R G B)"
 	sounds(integer) : "CD track to play" : 0
 	light(integer) : "Ambient light"
 	gravity(integer) : "Gravity"
@@ -213,7 +216,7 @@ void() worldspawn =
 
 	if (!self.gravity)
 	{
-		if (self.model == "maps/e1m8.bsp")
+		if (mapname == "e1m8")
 		{
 			self.gravity = 100;
 		}
@@ -224,11 +227,16 @@ void() worldspawn =
 	}
 	cvar_set("sv_gravity", ftos(self.gravity));
 	
+	// learn to map petersen i hate u
+	if (mapname == "e4m5") sandyMadeThis = TRUE;
+	
 	// make sure these are set for spawnfuncs, which happen before the first startframe()
 	teamplay = cvar("teamplay");
 	skill = cvar("skill");
 	
 	self.light_lev = 0;	// shut up FTEQCC warning
+	
+	fog_fixKeys();	// -1 -> 0 switch, if world has fog values
 	
 	keyType = "Key";	// default if there are no keys placed in the map
 

@@ -396,6 +396,7 @@ void() tdeath_touch =
 		if (self.owner.classname != "player")
 		{	// other monsters explode themselves
 			T_Damage (self.owner, self, self, 50000, DMGTYPE_TELEFRAG);
+			remove(self);	// our purpose is served
 			return;
 		}
 	}
@@ -408,9 +409,6 @@ entity(vector org, entity death_owner) spawn_tdeath =
 {
 	entity death;
 
-	// dumb hack so the world isn't flooded with a tdeath for every monster at map start
-	if (time < 2) return world;	
-	
 	death = spawn();
 	death.classname = "teledeath";
 	death.movetype = MOVETYPE_NONE;
@@ -536,7 +534,8 @@ float(entity e) teleport_target_check =
 	if (self.spawnflags & TELEPORT_MONSTER_ONLY)
 		if (!(e.flags & FL_MONSTER))
 			return FALSE;
-	if (e.movetype == MOVETYPE_NOCLIP)
+	if (e.movetype == MOVETYPE_NOCLIP && 
+		!(e.impulse == 100 || (e.impulse >= 20 && e.impulse <= 40)))	// force if using dev cheats
 		return FALSE;
 	// only teleport living creatures
 	if (e.health <= 0 || e.solid != SOLID_SLIDEBOX)
@@ -589,6 +588,9 @@ void() teleport_target_use =
 		teleport( activator, self, !(self.spawnflags & TELEPORT_NOFLASH), !(self.spawnflags & TELEPORT_PUSH) );
 		activator.jump_flag = 0;
 	}
+	
+	if (!self.count) 
+		remove(self);
 }
 
 
