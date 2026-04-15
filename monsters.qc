@@ -273,6 +273,7 @@ entity( void() spawnthink ) mon_spawner_use =
 		setsize(mon,self.mins,self.maxs);
 		mon.think = mon_spawner_tryspawn;
 		mon.think1 = spawnthink;
+		mon.spawnflags |= SPAWN_NO_TFRAG;
 	}
 	else
 	{
@@ -306,6 +307,10 @@ entity( void() spawnthink ) mon_spawner_use =
 	{
 		addmonster(1); // add them one at a time if this is an unlimited spawner
 	}
+	
+	// eliminate unnecessary frame of delay
+	if (pause == 0)
+		SUB_CallAsSelf(mon.think, mon);
 	
 	return mon;
 }
@@ -379,51 +384,56 @@ float(float wake, float hurt, float bloody, float dead) monster_alt_use =
 	if (!(self.spawnflags & SPAWN_ALT_TARG))
 		return FALSE;
 
-	// make a player activator even if the monster is infighting
-	if (self.enemy.classname != "player")
-	{
-		if (self.oldenemy.classname == "player")
-			activator = self.oldenemy;
-		else
-			activator = get_closest_client();
-	}
-	else activator = self.enemy;
+	entity t;
+	entity oact = activator;
 
+	// Monsters use themselves as activators for all events except death, which tries
+	// to find the most relevant player if they weren't killed by one. This is so
+	// monsters can activate teleport targets and not teleport the player randomly
+	// instead.
 	
 	if (self.delay)
 	{
-		entity t;
-		// create a temp object to fire at a later time
-		t = spawn();
-		t.classname = "DelayedUse";
-		t.nextthink = time + self.delay;
-		t.think = SUB_UseTargetsGo;
-		t.enemy = activator;
-		
-		if (wake)
+		if (wake||hurt||bloody)
 		{
-			t.target = self.target;
-			self.target = string_null;
+			// create a temp object to fire at a later time
+			t = spawn();
+			t.classname = "DelayedUse";
+			t.nextthink = time + self.delay;
+			t.think = SUB_UseTargetsGo;
+			t.enemy = self;
+			
+			if (wake)
+			{
+				t.target = self.target;
+				self.target = string_null;
+			}
+			if (hurt)
+			{
+				t.target2 = self.target2;
+				self.target2 = string_null;
+			}
+			if (bloody)
+			{
+				t.target3 = self.target3;
+				self.target3 = string_null;
+			}	
 		}
-		if (hurt)
-		{
-			t.target2 = self.target2;
-			self.target2 = string_null;
-		}
-		if (bloody)
-		{
-			t.target3 = self.target3;
-			self.target3 = string_null;
-		}		
 		if (dead)
 		{
+			t = spawn();
+			t.classname = "DelayedUse";
+			t.nextthink = time + self.delay;
+			t.think = SUB_UseTargetsGo;
+			t.enemy = activator;
 			t.message = self.message;
-			t.target4 = self.target4;
+			t.target = self.target4;
 			t.killtarget = self.killtarget;
 		}		
 	}
 	else
 	{
+		activator = self;
 		if (wake)
 		{
 			SUB_UseTargetsByField(target);
@@ -442,11 +452,13 @@ float(float wake, float hurt, float bloody, float dead) monster_alt_use =
 		
 		if (dead)
 		{
+			activator = oact;
 			SUB_PrintMessage();
 			SUB_UseTargetsByField(target4);
 			SUB_KillTargets(self.killtarget);
 		}
 	}
+	activator = oact;
 	return TRUE;
 }
 
@@ -464,9 +476,6 @@ void() monster_death_use =
 	if (!self.target && !self.target2 && !self.target3 && !self.target4 && !self.killtarget)
 		return;
 	
-	if (monster_alt_use((self.enemy.flags & FL_CLIENT), TRUE, TRUE, TRUE))
-		return;
-		
 	// make a player activator even if the monster was killed while infighting
 	if (self.enemy.classname != "player")
 	{
@@ -477,6 +486,9 @@ void() monster_death_use =
 	}
 	else activator = self.enemy;
 	
+	if (monster_alt_use((self.enemy.flags & FL_CLIENT), TRUE, TRUE, TRUE))
+		return;
+		
 	SUB_UseTargets ();
 }
 
@@ -500,21 +512,25 @@ void() monster_start =
 		self.movedir = v_forward * self.rmovedir_x + v_right * self.rmovedir_y + v_up * self.rmovedir_z;
 	}
 		
-	// moved from mon_spawner_use because it was too early to catch the monster's mins and maxs
-	if ((self.type != "zombie" || !(self.spawnflags & SPAWN_LYING)))	// lying zombies are nonsolid
+	// dumb hack so the world isn't flooded with a tdeath for every monster at map start
+	if (time > 2)
 	{
-		entity tdeath = spawn_tdeath(self.origin, self);
-		if (tdeath && self.spawnflags & SPAWN_NO_TFRAG)
+		// moved from mon_spawner_use because it was too early to catch the monster's mins and maxs
+		if ((self.type != "zombie" || !(self.spawnflags & SPAWN_LYING)))	// lying zombies are nonsolid
 		{
-			// we still need to spawn a tdeath so players counter-telefrag these monsters if 
-			// they're in the way
-			tdeath.nextthink = time + 0.05;
-			// we make the tdeath remove itself before the minimum time for the spawned 
-			// monster's nextthink, or else monsters can graze the telefrag trigger and 
-			// explode even if they weren't truly blocking the spawn
+			entity tdeath = spawn_tdeath(self.origin, self);
+			if (tdeath && self.spawnflags & SPAWN_NO_TFRAG)
+			{
+				// we still need to spawn a tdeath so players counter-telefrag these monsters if 
+				// they're in the way
+				tdeath.nextthink = time + 0.05;
+				// we make the tdeath remove itself before the minimum time for the spawned 
+				// monster's nextthink, or else monsters can graze the telefrag trigger and 
+				// explode even if they weren't truly blocking the spawn
+			}
 		}
 	}
-
+	
 	// wait a few frames to make sure doors have spawned before doing droptofloor
 	self.nextthink = 1.15;
 	// why 1.15 is a magic number:
@@ -629,7 +645,7 @@ void() walkmonster_start_go =
 	if (self.movedir == VEC_ORIGIN && !(self.spawnflags & SPAWN_TRIGGERED) )	// always put telespawned monsters where the mapper wants
 	{
 		self.origin_z = self.origin_z + 1;	// raise off floor a bit
-		droptofloor(0,0);
+		droptofloor();
 	}
 	
 	if (!walkmove(0,0))
@@ -656,7 +672,16 @@ void() walkmonster_start_go =
 void() walkmonster_start =
 {
 	monster_start();
-	self.think = walkmonster_start_go;
+	
+	// if we're spawning on a late frame, go immediately. the one frame pause
+	// for other entity spawning isn't necessary, and we need to exist at the same
+	// time as our tdeath so player velocity isn't zeroed by the collision before
+	// tfragging us
+	if (self.nextthink <= time)
+		walkmonster_start_go();
+	else
+		// wait so funcs we might be standing on can spawn, etc
+		self.think = walkmonster_start_go;
 }
 
 /*
@@ -684,7 +709,6 @@ void() flymonster_start_go =
 		dprint ("\n");
 	}
 
-	
 	monster_start_go();
 }
 
@@ -694,7 +718,10 @@ void() flymonster_start =
 	// iw -- move these here so fish don't fall for a frame and a half
 	self.flags = self.flags | FL_FLY;
 
-	self.think = flymonster_start_go;
+	if (self.nextthink <= time)
+		flymonster_start_go();
+	else
+		self.think = flymonster_start_go;
 }
 
 /*
@@ -726,7 +753,10 @@ void() swimmonster_start =
 	// iw -- move these here so fish don't fall for a frame and a half
 	self.flags = self.flags | FL_SWIM;
 
-	self.think = swimmonster_start_go;
+	if (self.nextthink <= time)
+		swimmonster_start_go();
+	else
+		self.think = swimmonster_start_go;
 }
 
 

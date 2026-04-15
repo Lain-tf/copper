@@ -166,6 +166,9 @@ void() light_use =
 
 void(entity b, float opacity) bmodel_lightstyle =
 {
+	if (sandyMadeThis) return;
+	if (!b.style && !b.switchshadstyle) return;
+	
 	float a = zeroconvertdefault(b.alpha, 1);
 	float f;
 
@@ -651,6 +654,49 @@ void() light_flame_small_white =
 
 // ================================================================
 
+void() light_candle_bob =
+{
+	self.dest = func_bobbing_pos(time / self.speed + self.delay);
+	self.velocity = (self.dest - self.origin) / self.length;
+	self.nextthink = time + self.length;
+}
+
+float() light_candle_check_bob =
+{
+	if (!(self.spawnflags & 4)) return FALSE;
+	
+	// random bob offset
+	self.delay = random();
+	
+	self.noise = ("misc/null.wav");
+	self.noise1 = ("misc/null.wav");
+
+	if (!self.distance)
+		self.distance = 16;
+	self.distance += 6 * crandom();
+	if (!self.speed)
+		self.speed = 1;
+	self.speed = (1 / self.speed) * (self.distance / (2 + random() + random()));
+	self.wait = self.speed;
+
+	self.movedir = '0 0 1';
+	
+	if (!self.pos1 && !self.pos2)
+	{
+		self.pos1 = self.origin + self.distance * 0.5 * self.movedir;
+		self.pos2 = self.origin - self.distance * 0.5 * self.movedir;
+	}
+	self.length = min(0.1, self.wait / 6);
+
+	self.movetype = MOVETYPE_NOCLIP;
+	self.think = light_candle_bob;
+	self.nextthink = time + 0.1;
+	
+	setorigin (self, func_bobbing_pos(time / self.speed + self.delay));
+	return TRUE;
+}
+
+
 void() light_candle_group_off =
 {
 	entity c;
@@ -685,34 +731,38 @@ void() light_candle_use =
 // without searching the whole map each time
 void() light_candle_group =
 {
-	if (self.buddy)
-		return;
-	
-	entity c, clast;
-	string oh = self.targetname;
-	clast = c = self;	
-	do {
-		c = find(c, targetname, oh);
-		if (c.classname == "light_candle")
-		{
-			clast.buddy = c;
-			c.targetname = string_null;
-			c.nextthink = 0;
-			clast = c;
-		}
-	} while (c != world);
-	
-	self.targetname = oh;
-	self.use = light_candle_use;
+	if (!self.buddy)
+	{
+		entity c, clast;
+		string oh = self.targetname;
+		clast = c = self;	
+		do {
+			c = find(c, targetname, oh);
+			if (c.classname == "light_candle")
+			{
+				clast.buddy = c;
+				c.targetname = string_null;
+				clast = c;
+			}
+		} while (c != world);
+		
+		self.targetname = oh;
+		self.use = light_candle_use;
+	}
+	light_candle_check_bob();
 }
 
-/*QUAKED light_candle (1 1 0) (-4 -4 0) (4 4 16) START_OFF
+/*QUAKED light_candle (1 1 0) (-4 -4 0) (4 4 16) START_OFF - FLOATING
 Candle. If triggered to turn on and off, all candles with a matching targetname will ignite or go out as well.
 Keys:
 "width" - choose width 1-3, default (0) is random
 "height" - choose height 1-3, default (0) is random
 "angle" - choose orientation, blank is random yaw
 See 'light' keyvalues/spawnflags for more.
+
+if FLOATING, will automatically become a gentle func_bobbing:
+"distance" - rough float distance, default 16
+"speed" - float speed modifier (<1 = slower, >1 = faster)
 */
 /*FGD
 @PointClass base(LightTriggerable) size(-4 -4 0, 4 4 16) model({ "path": ":progs/candle2.mdl" }) = 
@@ -734,6 +784,11 @@ Choose size with 'width' and 'height' (leave either at 0 for random selection)."
 		2: "Medium"
 		3: "Tall"
 	]
+	spawnflags(flags) = [
+		4: "Floating" : 0
+	]
+	distance(string) : "Float distance (rough)" : "16"
+	speed(string) : "Float speed modifier (<1 = slower, >1 = faster)" : "1.0"
 ]
 */
 void() light_candle =
@@ -768,15 +823,15 @@ void() light_candle =
 	
 	light_message();
 	
-	if (self.targetname == string_null && self.style < 32)
+	if (self.targetname != string_null || self.style >= 32)
 	{
-		makestatic(self);
+		light_oldstyle();
+		self.think = light_candle_group;
+		self.nextthink = time + 0.1;
 		return;
 	}
-	
-	light_oldstyle();
-	self.think = light_candle_group;
-	self.nextthink = time + 0.1;
+	if (!light_candle_check_bob())
+		makestatic(self);
 }
 
 // ================================================================
@@ -942,20 +997,31 @@ void() target_lightstyle_use =
 	}
 }
 
-/*QUAKED target_lightstyle (.5 .8 .5) (-8 -8 -8) (8 8 8)
+/*QUAKED target_lightstyle (.5 .8 .5) (-8 -8 -8) (8 8 8) START_ON
 This entity changes a global lightstyle when triggered. Set "style" to the lightstyle you want to override, and set "message" to the brightness pattern you want to set it to. If style is not set, and this entity targets any triggerable lights, it sets the brightness pattern of those lights when triggered instead. Note that targeting anything at a light makes it a triggerable light with its own style automatically.
 
 Setting style to -1 will override lightstyle 0, which is all static lights in the entire level.
 
+"targetname" if unspecified, will auto-fire itself once at map start
 "count" limit number of uses, 0 = infinite
 "delay" pause between trigger and activation
+"noise/noise1-4" cycle to additional brightness patterns on subsequent activations
+
+START_ON: fire itself once when the map starts regardless of targetname
 */
 /*FGD
 @PointClass base(Appearflags, Targetname) color(128 210 128) = target_lightstyle : 
 "Target : Lightstyle
-Changes a global lightstyle when triggered."
+Changes a global lightstyle when triggered. Will auto-fire at spawn if it has no targetname.
+
+Cycles through 'message' and then all the 'noise' keys if triggered repeatedly."
 [
 	message(string) : "Brightness pattern"
+	noise(string) : "Brightness pattern (2nd)"
+	noise1(string) : "Brightness pattern (3rd)"
+	noise2(string) : "Brightness pattern (4th)"
+	noise3(string) : "Brightness pattern (5th)"
+	noise4(string) : "Brightness pattern (6th)"
 	style(integer) : "Lightstyle to change (0-63)" : 0
 	count(integer) : "Limit uses" : 0
 	delay(string) : "Delay before activation" : "0"
@@ -963,6 +1029,9 @@ Changes a global lightstyle when triggered."
 	target2(target_destination) : "Target 2: acts on all with matching targetname" 
 	target3(target_destination) : "Target 3: acts on all with matching targetname" 
 	target4(target_destination) : "Target 4: acts on all with matching targetname" 
+	spawnflags(flags) = [
+		1 : "Go at map start" : 0
+	]
 ]
 */
 void() target_lightstyle =
@@ -973,4 +1042,10 @@ void() target_lightstyle =
 	if (self.message == string_null)
 		self.message = "azam";	// suitably garish accidental default
 	self.use = target_lightstyle_use;
+	
+	if (self.spawnflags & 1 || self.targetname == string_null)
+	{
+		self.think = target_lightstyle_go;
+		self.nextthink = time + 0.1;
+	}
 }

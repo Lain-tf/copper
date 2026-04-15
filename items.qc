@@ -30,12 +30,13 @@ ItemFall
 */
 void() ItemFall =
 {
-	if (!(self.spawnflags & ITEM_SUSPENDED))
-		return;
+	if (!(self.flags & FL_ITEM)) return;
+	self.flags &~= FL_ONGROUND;
 	self.solid = SOLID_TRIGGER;
 	self.movetype = MOVETYPE_TOSS;	
 	self.velocity = '0 0 1';
-	self.spawnflags = not(self.spawnflags, ITEM_SUSPENDED);
+	
+	self.spawnflags &~= ITEM_SUSPENDED;
 }
 
 /*
@@ -56,6 +57,7 @@ void() ItemUse =
 		self.think = SUB_Remove;	// if nextthink is in the future, don't respawn again
 		return;
 	}
+	
 	self.alpha = 1;
 	ItemSpawn();
 }
@@ -88,6 +90,9 @@ ItemSpawn
 */
 void() ItemSpawn =
 {
+	if (self.solid == SOLID_TRIGGER)
+		return;	// already spawned
+	
 	// optimized away .mdl, recycled .wad as only the world uses it
 	self.model = self.wad;		// restore original model
 	self.solid = SOLID_TRIGGER;	// allow it to be touched again
@@ -180,7 +185,7 @@ void() ItemTouched =
 		self.nextthink = self.attack_finished - 2.45;
 	}
 	// wait -1 == respawn every time the item is triggered
-	else if (self.wait < 0 || self.use == SUB_regen)	// maintain old respawn hacks
+	else if (self.wait < 0 || self.use == ItemSpawn || self.use == SUB_regen)	// maintain old respawn hacks
 	{
 		self.model = string_null;
 		self.solid = SOLID_NOT;
@@ -285,7 +290,7 @@ void() ItemDrop =
 	self.velocity = '0 0 0';
 	self.origin_z = self.origin_z + 6;
 	oldz = self.origin_z;
-	if (!droptofloor(0, 0))
+	if (!droptofloor())
 	{
 		dprint4(self.classname," fell out of level at ",vtos(self.origin),"\n");
 		// progression-critical items shouldn't just vanish
@@ -390,6 +395,7 @@ void(string tname) target_drop_do =
 	do	{
 		t = find (t, targetname, tname);
 		if (!t) break;
+		if (!(t.flags & FL_ITEM)) continue;
 		
 		SUB_CallAsSelf(ItemFall, t);
 	} while (t);
@@ -484,15 +490,15 @@ float SPAWN_TGTITEMS_MIN = 16;
 */
 void(entity e) target_items_setweapon =
 {
-	if (self.weapon)
-	{
-		if (self.weapon & e.items)
-			e.weapon = self.weapon;
-	}
-	if (!(e.weapon & e.items))
-		SUB_CallAsSelf(W_SelectBestWeapon, e);
+	entity tgi = self;
+	self = e;
+	if (tgi.weapon)
+		W_Select(tgi.weapon);
+
+	if (!(self.weapon & self.items))
+		W_SelectBestWeapon();
 	
-	SUB_CallAsSelf(W_ResetWeaponState, e);
+	self = tgi;
 }
 
 void(entity e) target_items_giveinv_min =
@@ -601,6 +607,13 @@ float(entity e) target_items_takeinv =
 		armor_set_type(e);
 	}
 
+	if (self.health > 0)
+	{
+		T_Damage(e, self, activator, min(e.health, self.health), DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
+		if (e.health <= 0)
+			return FALSE;
+	}
+		
 	if (self.svflags)
 	{
 		float sf = zeroconvert(self.svflags);
@@ -669,16 +682,10 @@ float(entity e) target_items_takeinv =
 		if (it & IT_KEY2)
 			key_take_gold(e);
 			
-		target_items_setweapon(e);
 	}
 	
-	SUB_CallAsSelf(W_ResetWeaponState, e);
+	target_items_setweapon(e);
 	
-	if (self.health > 0)
-	{
-		T_Damage(e, self, activator, min(e.health, self.health), DMGTYPE_SCRIPT | DMGTYPE_NOARMOR);
-	}
-		
 	return TRUE;
 }
 
@@ -789,7 +796,7 @@ void(entity e) target_items_setinv =
 
 void() target_items_use =
 {
-	entity act = activator;
+	entity act = SUB_PlayerizeActivator();
 	if (act.classname != "player") return;
 	if (act.health <= 0) return;
 	

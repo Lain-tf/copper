@@ -76,7 +76,7 @@ void() door_go_down =
 	}
 	
 	self.state = STATE_DOWN;
-	SUB_CalcMove (self.pos1, self.speed2, door_hit_bottom);
+	SUB_CalcMoveLight(self.pos2, self.pos1, self.speed2, door_hit_bottom, TRUE);
 	
 	SUB_UseTargetsAlt(target3);
 }
@@ -97,7 +97,7 @@ void() door_go_up =
 	
 	sound (self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
 	self.state = STATE_UP;
-	SUB_CalcMove (self.pos2, self.speed, door_hit_top);
+	SUB_CalcMoveLight(self.pos1, self.pos2, self.speed, door_hit_top, FALSE);
 	self.frame = !self.skin;
 
 	if (!SUB_UseTargetsAlt(target))
@@ -136,10 +136,7 @@ void() door_fire =
 		{
 			starte = self;
 			do {
-				if (self.classname == "shadowmonitor")
-					door_shadowmonitor_go();
-				else
-					door_go_down ();
+				door_go_down ();
 				self = self.enemy;
 			} while ( (self != starte) && (self != world) );
 			self = oself;
@@ -149,12 +146,10 @@ void() door_fire =
 
 	// trigger all paired doors
 	starte = self;
-	if ( !( self.spawnflags & DOOR_TOGGLE ) || ( self.spawnflags & DOOR_TOGGLE && self.state == STATE_BOTTOM) )
+	if ( !( self.spawnflags & DOOR_TOGGLE ) || 
+		( self.spawnflags & DOOR_TOGGLE && (self.state == STATE_BOTTOM || self.state == STATE_DOWN) ) )
 	do {
-		if (self.classname == "shadowmonitor")
-			door_shadowmonitor_go();
-		else
-			door_go_up ();
+		door_go_up ();
 		self = self.enemy;
 	} while ( (self != starte) && (self != world) );
 	self = oself;
@@ -383,68 +378,6 @@ float(entity d) door_getslocked =
 /*
 =============================================================================
 
-SWITCHABLE SHADOWS
-
-I do not want to screw around with SUB_CalcMove or bog doors down even further with
-thinking-while-moving, so doors with switchable shadows will spawn a little helper
-monitor to do that to keep mover code clean
-
-=============================================================================
-*/
-
-void() door_shadowmonitor_go =
-{
-	float frac;
-	entity o = self.owner;
-	if (o.state == STATE_TOP)	// at pos2 (open)
-		frac = 0;
-	else if (o.state == STATE_BOTTOM)	// at pos1 (closed)
-		frac = 1;
-	else
-		frac = vlen(o.origin - o.pos2) / vlen(o.pos2 - o.pos1);	// distance FROM pos2
-
-	// 1 blocks light, 0 admits light
-	bmodel_lightstyle(o, frac);
-	
-	// pay attention to owner state so we stop thinking when the door is done moving
-	if ((o.state == STATE_TOP) && (o.spawnflags & DOOR_TOGGLE) || o.state == STATE_BOTTOM)
-		return;
-
-	if (o.state == STATE_TOP)
-		self.nextthink = time + (o.nextthink - o.ltime);
-	else
-		self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
-		
-	self.think = door_shadowmonitor_go;
-}
-
-void(entity d) door_shadowmonitor =
-{
-	entity m = spawn();
-	m.classname = "shadowmonitor";
-	m.owner = d;
-	m.enemy = d.enemy;
-	d.enemy = m;
-
-	if (d.style < 0)
-	{
-		d.style *= -1;
-		d.customflags |= CFL_INVLIGHT;
-	}
-	if (d.spawnflags & DOOR_START_OPEN)
-	{
-		if (d.customflags & CFL_INVLIGHT)
-			d.customflags -= CFL_INVLIGHT;
-		else
-			d.customflags |= CFL_INVLIGHT;
-	}
-	
-	bmodel_lightstyle(d, 1);
-}
-
-/*
-=============================================================================
-
 SPAWNING FUNCTIONS
 
 =============================================================================
@@ -490,16 +423,20 @@ void(vector cmins, vector cmaxs) door_finalize =
 		return;
 	}
 
-	t = self;
-	do {
-		// put a light fade monitor in the enemy chain
-		if (self.style || self.switchshadstyle)
-		{
-			door_shadowmonitor(t);
-			break;
-		}
-		t = t.enemy;
-	} while (t != self);
+	if (self.style < 0)
+	{
+		self.style *= -1;
+		self.customflags |= CFL_INVLIGHT;
+	}
+	if (self.spawnflags & DOOR_START_OPEN)
+	{
+		if (self.customflags & CFL_INVLIGHT)
+			self.customflags -= CFL_INVLIGHT;
+		else
+			self.customflags |= CFL_INVLIGHT;
+	}
+	
+	bmodel_lightstyle(self, 1);
 
 	if (self.health)
 		return;
@@ -567,7 +504,12 @@ void() door_link =
 				masterdoor.targetname = self.targetname;
 				self.targetname = string_null;
 			}
-			masterdoor.items |= self.items;
+			if (self.items)	// keylocked
+			{
+				masterdoor.items |= self.items;
+				masterdoor.noise3 = self.noise3;
+				masterdoor.noise4 = self.noise4;
+			}
 			if (self.health != 0 && masterdoor.health == 0)
 				masterdoor.health = self.health;
 
@@ -635,6 +577,11 @@ void() door_key_init =
 	}
 	if (self.items)
 	{
+		if (self.owner != self)
+		{
+			self.noise3 = self.owner.noise3;
+			self.noise4 = self.owner.noise4;
+		}
 		entity t = self;
 		do {
 			t.wait = -1;
@@ -879,6 +826,12 @@ void() func_door_spawn =
 
 	// door_link can't be done until all of the doors have been spawned, so
 	// the sizes can be detected properly.
+	if (self.spawnflags & DOOR_DONT_LINK)
+	{
+		self.owner = self.enemy = self;
+		door_finalize(self.mins, self.maxs);
+		return;		// don't want to link this door
+	}
 	self.think = door_link;
 	self.nextthink = self.ltime + 0.1;
 }
@@ -1005,10 +958,10 @@ void() secret_shadowmonitor_go =
 // Make a sound, wait a little...
 void () secretdoor_move0 = 
 {
+	self.state = STATE_UP;
 	if (self.noise1 != string_null)
 		sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.nextthink = self.ltime + 0.1;
-
 	SUB_CalcMove(self.dest1, self.speed, secretdoor_move1);
 	if (self.noise2 != string_null)
 		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
@@ -1028,20 +981,13 @@ void () secretdoor_move2 =
 {
 	if (self.noise2 != string_null)
 		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
-	SUB_CalcMove(self.dest2, self.speed2, secretdoor_move3);
-	
-	if (!self.switchshadstyle && !self.style)
-		return;
-		
-	entity s = spawn();
-	s.classname = "shadowmonitor";
-	s.owner = self;
-	SUB_CallAsSelf(secret_shadowmonitor_go, s);
+	SUB_CalcMoveLight(self.dest1, self.dest2, self.speed2, secretdoor_move3, FALSE);
 }
 
 // Wait here until time to go back...
 void () secretdoor_move3 =
 {
+	self.state = STATE_TOP;
 	if (self.noise3 != string_null)
 		sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 	if (!(self.spawnflags & SECRET_OPEN_ONCE) || self.wait > 0)
@@ -1056,9 +1002,10 @@ void () secretdoor_move3 =
 // Move backward...
 void () secretdoor_move4 =
 {
+	self.state = STATE_DOWN;
 	if (self.noise2 != string_null)
 		sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
-	SUB_CalcMove(self.dest1, self.speed2, secretdoor_move5);		
+	SUB_CalcMoveLight(self.dest2, self.dest1, self.speed2, secretdoor_move5, TRUE);
 }
 
 // Wait 1 second...
@@ -1080,6 +1027,7 @@ void () secretdoor_move6 =
 
 void () secretdoor_done =
 {
+	self.state = STATE_BOTTOM;
 	self.think1 = SUB_Null;
 	if (!self.targetname || self.spawnflags & SECRET_YES_SHOOT)
 	{
