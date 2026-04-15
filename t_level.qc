@@ -180,25 +180,6 @@ void(entity who) RestoreItemEffects =
 }
 
 
-entity() LoopIntermissions =
-{
-	entity spot, first, last;
-	spot = find (world, classname, "info_intermission");
-	if (!spot) return world;
-	if (spot.enemy) return spot;
-	
-	first = spot;
-	while(spot)
-	{
-		spot.oldenemy = last;
-		last = spot;
-		spot = find (last, classname, "info_intermission");
-		last.enemy = spot;
-	}
-	last.enemy = first;
-	first.oldenemy = last;
-	return first;
-}
 
 /*
 ============
@@ -207,32 +188,29 @@ FindIntermission
 Returns an entity to view from
 ============
 */
-entity() FindIntermission =
+entity(entity start) FindIntermission =
 {
-	entity spot, spot2;
+	entity spot;
 	float cyc;
 
-	// look for info_intermission first
-	spot = LoopIntermissions();	
+// look for info_intermission first
+	spot = find (start, classname, "info_intermission");
 	if (spot)
 	{
-		spot2 = spot;
-		while (cyc < 100)
+		// pick a random one
+		cyc = random() * 16;
+		while (cyc > 1)
 		{
-			if (spot2.spawnflags & 1) return spot2;	// SPAWN_FIRST
-			cyc += 1;
-			spot2 = spot2.enemy;
-			if (spot2 == spot) break;
+			spot = find (spot, classname, "info_intermission");
+			if (!spot)
+				spot = find (spot, classname, "info_intermission");
+			cyc = cyc - 1;
 		}
-		cyc = ceil(random() * cyc);
-		spot2 = spot;
-		while (cyc)
-		{
-			spot2 = spot2.enemy;
-			cyc -= 1;
-		}
-		return spot2;
+		return spot;
 	}
+	spot = find (world, classname, "info_intermission");
+	if (spot)
+		return spot;
 
 // then look for the start position
 	spot = find (world, classname, "info_player_start");
@@ -253,15 +231,37 @@ entity(entity start) FindNextIntermission =
 	if (!start) return world;
 	if (start.classname != "info_intermission") return start;
 	
-	return start.enemy;
+	entity spot;
+	spot = find(start, classname, "info_intermission");	
+	if (!spot)
+		spot = find(world, classname, "info_intermission");
+	return spot;
 }
 
 entity(entity start) FindPreviousIntermission =
 {
 	if (!start) return world;
 	if (start.classname != "info_intermission") return start;
+	entity last, spot;
+	spot = find(world, classname, "info_intermission");
 	
-	return start.oldenemy;
+	if (spot == start)
+	{
+		// there's either only one spot or we're starting with the first one, so try to find the last one
+		while(spot)
+		{
+			last = spot;
+			spot = find(spot, classname, "info_intermission");
+		}
+		return last;
+	}
+	
+	while(spot != start)
+	{
+		last = spot;
+		spot = find(spot, classname, "info_intermission");
+	}
+	return last;
 }
 
 // ================================================================
@@ -312,8 +312,7 @@ void() move_player_to_previous_intermission =
 void() move_players_to_intermission =
 {
 	entity spot;
-	
-	spot = FindIntermission();
+	spot = FindIntermission(world);
 
 	other = find (world, classname, "player");
 
@@ -376,7 +375,7 @@ float() changelevel_check_coop =
 		return TRUE;
 	
 	activator.deadflag = DEAD_SPECTATING;	// never coming back
-	move_player_to_intermission(activator, FindIntermission());
+	move_player_to_intermission(activator,FindIntermission(world));
 	return FALSE;
 }
 
@@ -490,7 +489,7 @@ void() target_changelevel =
 }
 
 
-/*QUAKED info_intermission (.75 .25 .25) (-8 -8 -8) (8 8 8) FIRST
+/*QUAKED info_intermission (.75 .25 .25) (-8 -8 -8) (8 8 8)
 This is the camera point for the intermission. Use 'angles' instead of angle, so you can set pitch or roll as well as yaw.
 Quake does a random pick if more than one exists.
 If no info_intermission entity is set, Quake uses the player start.
@@ -505,9 +504,6 @@ Keys:
 [
 	angles(string) : "Camera angle (Pitch Yaw Roll, positive pitch down)"
 	mangle(string) : "Camera angle (Pitch Yaw Roll, positive pitch down)"
-	spawnflags(Flags) = [
-		1 : "Always First" : 0
-	]
 ]
 */
 void() info_intermission =

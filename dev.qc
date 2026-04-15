@@ -122,6 +122,8 @@ void() dev_invoke =
 			monster_kill(trace_ent);
 		else if (trace_ent.classname == "func_door")
 			door_force(trace_ent);
+		else if (trace_ent.classname == "func_door_secret")
+			secret_door_force(trace_ent);
 		else if (trace_ent.classname == "func_button")
 			button_force(trace_ent);
 		else if (trace_ent.classname == "func_plat")
@@ -175,7 +177,7 @@ void() dev_trigger =
 
 void(float i) dev_impulse =
 {
-	bprint3("dev impulse ", ftos(i), " triggering\n");
+	dprint3("dev impulse ", ftos(i), " triggering\n");
 	entity t;
 	activator = self;
 	t = world;
@@ -188,21 +190,21 @@ void(float i) dev_impulse =
 
 void() dev_impulse_list =
 {
-	bprint("dev impulses:\n");
+	dprint("dev impulses:\n");
 	entity t;
 	t = world;
 	do	{
 		t = find(t, classname, "tg_imp");
 		if (t)
 		{
-			bprint4("  ", ftos(t.impulse), ": ", t.owner.classname);
+			dprint4("  ", ftos(t.impulse), ": ", t.owner.classname);
 			if (t.owner.targetname != string_null)
-				bprint3(", tname: ", t.owner.targetname, "\n");
+				dprint3(", tname: ", t.owner.targetname, "\n");
 			else
-				bprint("\n");
+				dprint("\n");
 		}
 	} while ( t != world );
-	bprint("end of list.\n");
+	dprint("end of list.\n");
 }
 
 void() dev_enemychain =

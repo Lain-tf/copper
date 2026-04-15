@@ -94,7 +94,7 @@ float(entity targ) infront =
 	
 	// spawns gain all-around vision after they've been awakened the first time so they
 	// don't go to sleep facing a wall or corner and become inert
-	if (self.customflags & CFL_OMNIVISION)
+	if (self.classname == "monster_tarbaby" && (self.customflags & CFL_OMNIVISION))
 		return TRUE;
 	
 	makevectors (self.angles);
@@ -537,7 +537,7 @@ void() HuntTarget =
 	// wait a while before first attack
 	if (skill == 3)
 	{	// nightmare: react faster to waking up
-		if (self.classname == "monster_tarbaby" || self.classname == "monster_army")
+		if (self.classname == "monster_tarbaby" || self.classname == "monster_grunt")
 			ai_attack_finished(0.3);
 		else
 			ai_attack_finished(0.7);

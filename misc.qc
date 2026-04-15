@@ -181,10 +181,9 @@ void() misc_model =
 	setsize(self, '-16 -16 -16', '16 16 16');
 	
 	self.solid = SOLID_NOT;
-	if (self.avelocity != VEC_ORIGIN)
-		self.movetype = MOVETYPE_FLY;
+	self.movetype = MOVETYPE_NONE;
 	
-	if (self.targetname == string_null && !self.impulse && !self.pos1 && self.avelocity == VEC_ORIGIN)
+	if (self.targetname == string_null && !self.impulse && !self.pos1)
 	{
 		makestatic(self); 
 		return;
@@ -743,9 +742,8 @@ void() misc_fireball =
 			self.use = lavaball_use;
 		else						// toggle on trigger
 		{
-			self.state = (self.spawnflags & 1);
+			self.state = !(self.spawnflags & 1);
 			self.use = lavaball_toggle;
-			lavaball_toggle();
 		}
 	}
 	

@@ -218,6 +218,7 @@ SUB_UseEntTargets
 void(entity t) SUB_UseEntTargets =
 {
 	if (t == world) return;
+	activator = self;
 	entity oself = self;
 	self = t;
 	SUB_UseTargets();
@@ -297,9 +298,6 @@ void(string tname) SUB_KillTargets =
 	if (tname == string_null)
 		return;
 
-	dprint5(activator.classname," caused ",self.classname," to \bkill\b target '",tname);
-	dprint("'\n");
-	
 	entity t = world;
 	do
 	{
@@ -397,22 +395,6 @@ void() SUB_UseTargetsSilent =
 		SUB_UseTargetsGo();
 }
 
-// sniff around the activator's neighborhood for an involved player
-entity() SUB_PlayerizeActivator =
-{
-	if (activator.classname == "player")
-		return activator;
-		
-	if (activator.flags & FL_MONSTER)
-	{
-		if (activator.enemy.classname == "player")
-			return activator.enemy;
-		if (activator.oldenemy.classname == "player")
-			return activator.oldenemy;
-	}
-	
-	return world;
-}
 
 /*
 =============

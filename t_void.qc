@@ -250,7 +250,7 @@ void() void_func_touch =
 void() void_fall_hitbottom =
 {
 	self.enemy.takedamage = DAMAGE_YES;	// need this first for salvation damage check
-	if (void_salvation(self.owner, self.enemy))
+	if (void_salvation(self.owner.owner, self.enemy))
 		return;
 	
 	self.enemy.customflags = not(self.enemy.customflags, CFL_UNDYING);
@@ -265,7 +265,7 @@ void() void_fall_hitbottom =
 	}
 	
 	self.enemy.armorvalue = 0;
-	T_Damage(self.enemy, self.owner, self.owner, 5000, DMGTYPE_FALLING);
+	T_Damage(self.enemy, self, self, 5000, DMGTYPE_FALLING);
 	
 	SUB_RemoveSoon();
 }
@@ -402,7 +402,7 @@ void() void_trigger_touch =
 	fall.nextthink = time + 0.05;
 	fall.think = void_fallthink;
 	fall.enemy = e;
-	fall.owner = self.owner;
+	fall.owner = self;
 	fall.height = self.height;
 	fall.oldorigin = e.origin;	// track player's descent
 	fall.lip = e.origin_z - self.height; // z at bottom
@@ -572,12 +572,11 @@ void() func_void =
 	
 	// create another solid entity with the same bounds with solid_trigger as a catch on the way down
 	self.enemy = spawn();
-	self.enemy.classname = "void_plunge_trigger";
 	self.enemy.movetype = MOVETYPE_NONE;
 	self.enemy.solid = SOLID_TRIGGER;
 	self.enemy.owner = self;
 	self.enemy.touch = void_trigger_touch;
-	self.enemy.height = self.height + 32;
+	self.enemy.height = self.height - 32;
 	self.enemy.wait = self.delay;	// if trigger has 'delay' field it adds a delay to its own usetargets
 	self.enemy.deathtype = self.deathtype;
 	self.enemy.fadecolor = self.fadecolor;

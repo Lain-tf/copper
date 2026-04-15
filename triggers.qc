@@ -181,8 +181,6 @@ void() InitTriggerSounds =
 	
 	if (self.noise)
 		precache_sound_safe (self.noise);
-	if (self.noise2)
-		precache_sound_safe (self.noise2);
 }
 
 //=============================================================================
@@ -864,8 +862,7 @@ void() trigger_onlyregistered_touch =
 Only fires if playing the registered version, otherwise prints the message
 */
 /*FGD
-@SolidClass base(Trigger) = trigger_onlyregistered : "Trigger: Registered only
-Only fires if playing the registered version, otherwise prints 'message'." []
+@SolidClass base(Trigger) = trigger_onlyregistered : "Trigger: Registered only" []
 */
 void() trigger_onlyregistered =
 {

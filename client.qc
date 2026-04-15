@@ -118,11 +118,10 @@ void() DecodeLevelParms =
 	self.ammo_nails = parm5;
 	self.ammo_rockets = parm6;
 	self.ammo_cells = parm7;
+	self.weapon = parm8;
 	self.armortype = parm9;
 	self.items_snack = parm10;
 	
-	//self.weapon = parm8;
-	W_Select(parm8);
 	armor_set_type(self);
 }
 
@@ -277,7 +276,7 @@ float() TransferKeys =
 					recipient.worldtype += (give - 1) * 16;
 				}
 			
-				gold -= give;
+				silver -= give;
 				key_take_golds(self, give);
 				
 				sprint(recipient, "You got ");
@@ -538,11 +537,12 @@ entity() SelectSpawnPoint =
 	if (serverflags)	// return with a rune to start
 	{
 		spot = world;
-
+		dprint2(ftos(serverflags), "\n");
 		while (TRUE)
 		{
 			spot = find (spot, classname, "info_player_start2");
 			if (!spot) break;
+			dprint3("   ", ftos(spot.svflags), "\n");
 			
 			// all
 			if (spot.style == 1 && ((spot.svflags & serverflags) == spot.svflags))
@@ -632,20 +632,15 @@ void() PutClientInServer =
 	self.attack_finished = time + 0.1;	// don't shoot on the first frame if we clicked to spawn
 	
 	// yet another thing that doesn't work on the first frame
-	if (spot.fog_density != -1 || spot.fog_color || spot.fog_sky != -1)
+	if (spot.fog_density || spot.fog_color || spot.fog_sky)
 	{
 		fog_save(self, spot.fog_density, spot.fog_color, spot.fog_sky);
 	}
-	else if (world.fog_density != -1 || world.fog_color || world.fog_sky != -1)
+	else if (world.fog_density || world.fog_color || world.fog_sky)
 	{
 		fog_save(self, world.fog_density, world.fog_color, world.fog_sky);
 	}
-	else
-	{	// if there's a world fog key, save -1s so we don't stomp it
-		fog_save(self, -1, '0 0 0', -1);
-	}
-
-	if (self.fog_sky == -1)
+	if (!self.fog_sky)
 		self.fog_sky = cvar("r_skyfog");
 	initCleanup = 2;
 
@@ -663,7 +658,6 @@ void() PutClientInServer =
 	player_stand1();
 	
 	// spawns fire targets when spawned at
-	activator = self;
 	SUB_UseEntTargets(spot);
 	if (serverflags & SVFL_RESPAWNING) clear_respawning_flag();
 	
@@ -857,13 +851,13 @@ void() IntermissionThink =
 		if (self.attack_finished < time)
 		{
 			// stay on cameras twice as long if player cycles to them manually
-			if (self.impulse == 10 || self.impulse == 14)
+			if (self.impulse == 10)
 			{
 				move_player_to_next_intermission();
 				self.attack_finished = time + 0.2;
 				self.lifetime_finished = time + 12;
 			}
-			else if (self.impulse == 12 || self.impulse == 13)
+			else if (self.impulse == 12)
 			{
 				move_player_to_previous_intermission();
 				self.attack_finished = time + 0.2;
@@ -1104,8 +1098,6 @@ void() WaterMove =
 {
 	if (self.movetype == MOVETYPE_NOCLIP) {
 		self.air_finished = time + 120;
-		self.waterlevel = 0;
-		self.watertype = 0;
 		return;
 	}
 	if (self.health < 0)
@@ -1530,7 +1522,7 @@ void() PlayerPreThink =
 		self.velocity = '0 0 0';
 
 	if(time > self.attack_finished && 
-		!W_HasAmmo(self.weapon) && 
+		self.currentammo == 0 && 
 		self.weapon != IT_AXE
 		)
 	{

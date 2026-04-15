@@ -100,13 +100,6 @@ float(entity e) tar_visible =
 	return (alive(e) && visible(e) && !has_invis(e));
 }
 
-float() Tar_Max =
-{
-	if (skill == 0) return 3;
-	if (skill == 3) return 7;
-	return 5;
-}
-
 void() Tar_Forget =
 {
 	self.customflags |= CFL_OMNIVISION;	// gain 360 vision in case we fall asleep in a corner
@@ -154,7 +147,7 @@ void()	Tar_JumpTouchGround =
 	}
 
 	self.touch = SUB_Null;
-	if (self.cnt > Tar_Max() && (!tar_visible(self.enemy)))
+	if (self.cnt > 4 && (!tar_visible(self.enemy)))
 	{
 		self.think = tbaby_run1;
 		self.cnt = 0;
@@ -247,7 +240,7 @@ void(entity attacker, float damage) tbaby_pain =
 	if (has_invis(attacker) && self.pain_finished < time)
 	{
 		self.pain_finished = time + 1;
-		self.cnt = Tar_Max();
+		self.cnt = 4;
 		tbaby_jump1();
 		return;
 	}

@@ -45,42 +45,40 @@ $frame w_attack1 w_attack2 w_attack3 w_attack4 w_attack5 w_attack6 w_attack7 w_a
 $frame magicc1 magicc2 magicc3 magicc4 magicc5 magicc6 magicc7 magicc8 magicc9 magicc10 magicc11
 
 
-float() hkCheckCharge =
+void() hkCheckCharge =
 {
 	// check for mad charge
 	if (!enemy_vis)
-		return FALSE;
+		return;
 	if (time < self.attack_finished)
-		return FALSE;	
+		return;	
 	if ( fabs(self.origin_z - self.enemy.origin_z) > 32)
-		return FALSE;		// too much height change
+		return;		// too much height change
 		
 	float dist;
 	dist = vlen (self.origin - self.enemy.origin);
 	if ( dist < 80 || (dist > 320 && random() < 0.5))
-		return FALSE;		// use regular attack
+		return;		// use regular attack
 
 	// charge		
 	ai_attack_finished (2);
 	hknight_char_a1 ();
-	return TRUE;
 }
 
-float() hkCheckContinueCharge =
+void() hkCheckContinueCharge =
 {
 	if (time > self.attack_finished)
 	{
 		ai_attack_finished (3);
 		hknight_run1 ();
 		
-		return FALSE;		// done charging
+		return;		// done charging
 	}
 	
 	if (random() > 0.5)
 		sound (self, CHAN_WEAPON, "knight/sword2.wav", 1, ATTN_NORM);
 	else
 		sound (self, CHAN_WEAPON, "knight/sword1.wav", 1, ATTN_NORM);
-	return TRUE;
 }
 
 //===========================================================================
@@ -123,10 +121,8 @@ void()	hknight_walk20	=[	$walk20,	hknight_walk1	] {ai_walk(2);}
 //===========================================================================
 
 void()	hknight_run1	=[	$run1,		hknight_run2	] {
-	if (!hkCheckCharge()) return;
-	hk_idle_sound();
-	ai_run (20);
-}
+hk_idle_sound();
+ai_run (20); hkCheckCharge (); }
 void()	hknight_run2	=[	$run2,		hknight_run3	] {ai_run(25);}
 void()	hknight_run3	=[	$run3,		hknight_run4	] {ai_run(18);}
 void()	hknight_run4	=[	$run4,		hknight_run5	] {ai_run(16);}
@@ -350,11 +346,8 @@ void()	hknight_char_a16=[	$char_a16,	hknight_run1	] {nmfast();ai_rush(13);}
 
 //===========================================================================
 
-void()	hknight_char_b1	=[	$char_b1,	hknight_char_b2	] {
-	if (hkCheckContinueCharge()) return;
-	ai_rush(23);
-	ai_melee();
-}
+void()	hknight_char_b1	=[	$char_b1,	hknight_char_b2	]
+{hkCheckContinueCharge (); ai_rush(23); ai_melee();}
 void()	hknight_char_b2	=[	$char_b2,	hknight_char_b3	] {ai_rush(17); ai_melee();}
 void()	hknight_char_b3	=[	$char_b3,	hknight_char_b4	] {ai_rush(12); ai_melee();}
 void()	hknight_char_b4	=[	$char_b4,	hknight_char_b5	] {ai_rush(22); ai_melee();}
